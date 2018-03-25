@@ -139,6 +139,7 @@ Lots of detail about how they optimized an existing SVM implementation, in the e
 * [Embedded Learning Library](https://github.com/Microsoft/ELL) by Microsoft.
 Set of C++ libraries for machine learning on embedded platforms. Includes code for kNN, RandomForest etc.
 Also has some node-based dataflow system in place it seems. JavaScript and Python bindings.
+* [Embedded Classification Software Toolbox](https://github.com/ma2th/ecst)
 
 Books
 
