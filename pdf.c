@@ -7,8 +7,6 @@
 
 #include <math.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // Reference implementation
 float pdf(float x, float mean, float std) {
@@ -18,7 +16,7 @@ float pdf(float x, float mean, float std) {
     return (exp(exponent) / div);
 }
 
-// Linear 
+// Linear approximation
 float pdf_lin2_half(float x) {
    const float x0 = 0.34247959;
    const float x1 = 2.00265729;
@@ -64,10 +62,6 @@ val_t val_div(val_t a, val_t b)
     return (int32_t)(temp / b);
 }
 
-#define base VAL_FRACT_BITS
-
-// From https://gist.github.com/Madsy/1088393 has fp_exp(), but it gave errors
-
 const val_t VAL_SQRT_2PI = VAL_FROMFLOAT(sqrt(2*M_PI));
 
 typedef int32_t fixed_prob; // 0.0 - 1.0
@@ -104,7 +98,7 @@ float pdf_fast(float x, float mean, float std) {
     const float exponent = -((x - mean)*(x - mean) / (2 * std*std));
     const float div = sqrt(2*M_PI) * std;
     //printf("ref %f\n", exponent); 
-    return (exp_mul10(exponent) / div);
+    return (exp_mul8(exponent) / div);
 }
 
 
@@ -127,20 +121,26 @@ val_t exp_fpmul(val_t v) {
   x = FIXED_MUL(q, x, x);
   x = FIXED_MUL(q, x, x);
 
-  const val_t vv = (x >> q-16);
+  const val_t vv = (x >> (q-16));
   return vv;
 }
 
 val_t val_exp(val_t ex) {
-    VAL_FROMFLOAT(exp_mul10(VAL_TOFLOAT(ex)));
     return exp_fpmul(ex);
 }
 
 val_t pdf_fixed(val_t x, val_t mean, val_t std) {
     const val_t std2 = VAL_MUL(std, std);
     const val_t xm2 = VAL_MUL(x - mean, x - mean);
-    const val_t div = VAL_MUL(VAL_SQRT_2PI, std);
-    const val_t exponent = -val_div(xm2, 2*std2);    
+    val_t div = VAL_MUL(VAL_SQRT_2PI, std);
+    val_t stddiv = VAL_MUL(VAL_FROMINT(2), std2);
+    if (stddiv == 0) {
+      stddiv = 1; // avoid division-by-zero
+    }
+    if (div == 0) {
+      div = 1; // avoid division-by-zero
+    }
+    const val_t exponent = -val_div(xm2, stddiv);    
     val_t p = val_div(val_exp(exponent), div);
 
     // Check if outside valid domain, clamp to min
@@ -150,26 +150,8 @@ val_t pdf_fixed(val_t x, val_t mean, val_t std) {
     return p;
 }
 
-typedef struct _BayesSummary {
-    val_t mean;
-    val_t std;
-} BayesSummary;
-
-int main() {
-   volatile int count = 0;
-   const int n_repetitions = 1;
-   const int samples = 30;
-
-   const float mean = 0.0;
-   const float std = 1.0;
-   for (int r=0; r<n_repetitions; r++) {
-      for (int s=0; s<samples; s++) {
-         const float x = mean - (std * 6 * (s/(float)(samples-1)));
-         const float r = pdf(x, mean, std);
-         const float f = VAL_TOFLOAT(pdf_fixed(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
-         //const float f = pdf_fast(x, mean, std);
-         printf("%.2f: %.4f vs %.4f : %.4f : %.2f% \n", x, r, f, r-f, (1.0-r/f)*100);
-      }
-      count += 1;
-   }
+float pdf_floatfixed(float x, float mean, float std) {
+   return VAL_TOFLOAT(pdf_fixed(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
 }
+
+
