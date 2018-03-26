@@ -75,7 +75,7 @@ class Gaussian(object):
         cp = [ self.classifier.predict(x) for x in X ]
         pp = numpy.argmax(self.predict_log_proba(X), axis=1)
         #print('predictions', cp, '\n', pp)
-        return pp
+        return cp
 
     def score(self, X, y):
         return sum(self.predict(X) == y) / len(y)
