@@ -160,7 +160,7 @@ float pdf_floatfixed(float x, float mean, float std) {
    return VAL_TOFLOAT(pdf_fixed(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
 }
 
-float pdf_linear4fp_half(float x) {
+val_t pdf_linear4fp_half(val_t xf) {
     const float x0 = 0.36162072933139433;
     const float x1 = 1.8155589891884512;
     const float x2 = 2.6480578258766743;
@@ -170,22 +170,19 @@ float pdf_linear4fp_half(float x) {
     const float b = -0.030153892551033495;
     const float c = 0.21203273553191235;
 
+//    const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
+
+    const float x = VAL_TOFLOAT(xf);
     const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
-    return y;
+    
+    return VAL_FROMFLOAT(y);
 }
 
 val_t pdf_linear4fp(val_t x, val_t mean, val_t std) {
-   //const float xm = (x - mean) / std;
-   //const float xx = (xm > 0) ? xm : -xm;
-   printf("xx\n", x);
-
-   const val_t xm = VAL_FROMFLOAT((x - mean) / std);
+   const val_t xm = val_div((x - mean), std);
    const val_t xx = (xm > 0) ? xm : -xm;
-   const float p = pdf_linear4fp_half(VAL_TOFLOAT(xx));
-
-    // FIXME: divide by std
-//   const float p = pdf_linear4fp_half(xx) / std;
-   return VAL_FROMFLOAT(p) / VAL_TOFLOAT(std);
+   const val_t p = pdf_linear4fp_half(xx);
+   return val_div(p, std);
 }
 
 float pdf_floatfixedlinear(float x, float mean, float std) {
