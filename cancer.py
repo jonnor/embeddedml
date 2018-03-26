@@ -55,6 +55,7 @@ for idx,row in enumerate(Xtest):
    times.append(micros / 1000)
    #print(idx, prediction, reps, micros)
 
+print('Accuracy  {:.2f}%'.format(metrics.accuracy_score(Y_pred, ytest)*100))
 print('Confusion matrix')
 print(metrics.confusion_matrix(Y_pred, ytest))
 

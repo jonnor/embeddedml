@@ -32,7 +32,7 @@ embayes_predict(BayesModel *model, float values[], int32_t values_length) {
          const float v = values[value_idx];
          // XXX: seems to be sum of log(p), or product of p
          // TODO: use fixed-point
-         const float f = pdf(v, summary.mean, summary.std);
+         const float f = pdf_fast(v, summary.mean, summary.std);
          p += log(f);
          //printf("v %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
       }
