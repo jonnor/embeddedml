@@ -5,10 +5,14 @@ import numpy
 from sklearn.model_selection import train_test_split
 from sklearn import metrics, datasets
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
 rnd = 11
 digits = datasets.load_breast_cancer()
 Xtrain, Xtest, ytrain, ytest = train_test_split(digits.data, digits.target, random_state=rnd)
+scaler = StandardScaler()
+Xtrain = scaler.fit_transform(Xtrain)
+Xtest = scaler.transform(Xtest)
 
 print('Loading dataset. {} features', Xtrain.shape[1])
 
