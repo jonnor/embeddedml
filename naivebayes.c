@@ -3,9 +3,10 @@
 #include <stdlib.h>
 
 
+// TODO: use fixed-point
 typedef struct _BayesSummary {
-    val_t mean;
-    val_t std;
+    float mean;
+    float std;
 } BayesSummary;
 
 typedef struct _BayesModel {
@@ -14,10 +15,10 @@ typedef struct _BayesModel {
    BayesSummary *summaries;
 } BayesModel;
 
-
-// TODO: use fixed-point
 int32_t
 bayes_predict(BayesModel *model, float values[], int32_t values_length) {
+   printf("predict(%d), classes=%d features=%d\n",
+         values_length, model->n_classes, model->n_features);
 
    const int MAX_CLASSES = 10;
    float class_probabilities[MAX_CLASSES] = {0.0,};
@@ -29,13 +30,16 @@ bayes_predict(BayesModel *model, float values[], int32_t values_length) {
          const int32_t summary_idx = class_idx*model->n_features + value_idx;
          BayesSummary summary = model->summaries[summary_idx];
 
-         float v = values[value_idx];
+         const float v = values[value_idx];
          // XXX: seems to be sum of log(p), or product of p
-         // FIXME: use mean/std
          // TODO: use fixed-point
-         p += log(pdf(v, 0.0, 1.0));
+         const float f = pdf(v, summary.mean, summary.std);
+         p += log(f);
+         printf("v %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
       }
       class_probabilities[class_idx] = p;
+      printf("class %d : %f\n",
+         class_idx, p);
    }
 
    float highest_prob = class_probabilities[0];
