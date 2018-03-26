@@ -96,6 +96,34 @@ Naive Bayes classifier implementations
 * Multinomial, Bernoulli and Gaussian. In Python, with sklearn APIs.
 [kenzotakahashi](https://kenzotakahashi.github.io/naive-bayes-from-scratch-in-python.html)
 
+### embayes TODO
+
+0.1
+
+* Implement piecewise linear `pdf_linear4` in C, as float and fixed-point
+* Implement C output for model coefficients
+* Test running on microcontroller/Arduino
+* Change embayes_predict() to use fixed-point
+* Add basic automated tests
+* Move Python code into module
+* Move to own repository
+
+0.2
+
+* Decide how to deal with number conversions for features
+* Fix overflow/precision issues in `pdf_fixed()`
+* Test `pdf_linear4` with more datasets
+* Make estimator a wrapper around `sklearn.naivebayes.GaussianNB`
+* Make estimator work in pipeline
+* Make `pdf` approximation configurable as parameter
+* Release on PyPI
+
+1.0
+
+* Support generating inline C code, without
+* Support de/serializing coefficients at runtime
+* Support training on microcontroller
+
 ## Binarized Neural Networks
 
 Bitwise arithmetic packed into integer representations.
@@ -265,4 +293,26 @@ Or some ARM Cortex M, possibly with LORA/NBIOT. Or NRF24 ARM Cortex with integra
 * IMU
 * Piezo vibration sensor?
 * SPI ADC, [MCP3002](https://www.digikey.no/product-detail/en/microchip-technology/MCP3002T-I-SN/MCP3002T-I-SN-ND/319415)
+
+Testcases
+
+* Detect machine start/stop/running. Dishwasher, CNC. Accelerometer/microphone
+* Detect door open/close. Accelerometer/microphone
+* Detect speech present/not. Microphone
+* Detect a hand gesture. Accelerometer
+* Detect a spoken command. Microphone
+* Detect/Estimate room occupancy. Accelerometer,microphone,PIR
+
+## Using microflo
+Dataflow engine. Especially for feature retrieval and processing
+
+* Register pointertype for a vector of features. int32_t?
+* Component(s) for putting data into feature vector
+* Should complex I/O components like 9DOF IMU send a vector, then unpack as needed?
+* Example component wrapping a generated classifier
+* Component(s) for feature scaling/standardization
+* Component(s) for creating lag features
+* Component(s) for aggregating/summarizing a value, as feature
+* Component(s) for framing/windowing a (time)series of values
+
 
