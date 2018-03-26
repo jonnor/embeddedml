@@ -48,14 +48,13 @@ float pdf_linear4(float x, float mean, float std) {
 
 typedef int32_t val_t;
 // Typically Q15
-#define VAL_FRACT_BITS 16
-#define VAL_FRACT_BITS_D2 8
+#define VAL_FRACT_BITS 24
 #define VAL_ONE (1 << VAL_FRACT_BITS)
 #define VAL_FROMINT(x) ((x) << VAL_FRACT_BITS)
 #define VAL_FROMFLOAT(x) ((int)((x) * (1 << VAL_FRACT_BITS))) 
 #define VAL_TOINT(x) ((x) >> VAL_FRACT_BITS)
 #define VAL_TOFLOAT(x) (((float)(x)) / (1 << VAL_FRACT_BITS))
-#define VAL_MUL(x, y) ( ((x) >> VAL_FRACT_BITS_D2) * ((y)>> VAL_FRACT_BITS_D2) )
+#define VAL_MUL(x, y) ( ((x) >> VAL_FRACT_BITS/2) * ((y)>> VAL_FRACT_BITS/2) )
 
 val_t val_div(val_t a, val_t b)
 {
@@ -161,21 +160,23 @@ float pdf_floatfixed(float x, float mean, float std) {
 }
 
 val_t pdf_linear4fp_half(val_t xf) {
-    const float x0 = 0.36162072933139433;
-    const float x1 = 1.8155589891884512;
-    const float x2 = 2.6480578258766743;
-    const float aaa = 0.0320660290803192;
-    const float aa = 0.07303982381715937;
-    const float a = -0.08126695859921051;
-    const float b = -0.030153892551033495;
-    const float c = 0.21203273553191235;
+    const val_t x0 = VAL_FROMFLOAT(0.36162072933139433);
+    const val_t x1 = VAL_FROMFLOAT(1.8155589891884512);
+    const val_t x2 = VAL_FROMFLOAT(2.6480578258766743);
+    const val_t aaa = VAL_FROMFLOAT(0.0320660290803192);
+    const val_t aa = VAL_FROMFLOAT(0.07303982381715937);
+    const val_t a = VAL_FROMFLOAT(-0.08126695859921051);
+    const val_t b = VAL_FROMFLOAT(-0.030153892551033495);
+    const val_t c = VAL_FROMFLOAT(0.21203273553191235);
 
 //    const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
 
-    const float x = VAL_TOFLOAT(xf);
-    const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
-    
-    return VAL_FROMFLOAT(y);
+    const val_t two = VAL_MUL(aaa, abs(xf-x2));
+    const val_t one = VAL_MUL(aa, abs(xf-x1));
+    const val_t zero = VAL_MUL(a, abs(xf-x0));
+    const val_t bx = VAL_MUL(b, xf);
+    const val_t y = two + one + zero + bx + c;
+    return y;
 }
 
 val_t pdf_linear4fp(val_t x, val_t mean, val_t std) {

@@ -11,12 +11,12 @@ int main() {
    const int samples = 10;
    const float sigma = 3;
 
-   const float mean = 10.0;
-   const float std = 5.0;
+   const float mean = 0.0;
+   const float std = 10.0;
    for (int r=0; r<n_repetitions; r++) {
       for (int s=0; s<samples; s++) {
          const float x = mean + (std * sigma * (s/(float)(samples-1)));
-         const float r = pdf(x, mean, std);
+         const float r = pdf_linear4(x, mean, std);
          //const float f = pdf_floatfixed(x, mean, std);
          const float f = pdf_floatfixedlinear(x, mean, std);
          //const float f = pdf_fast(x, mean, std);
