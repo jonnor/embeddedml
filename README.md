@@ -109,10 +109,8 @@ Naive Bayes classifier implementations
 
 * Implement piecewise linear `pdf_linear4` in C, as float and fixed-point
 * Implement C output for model coefficients
-* Test running on microcontroller/Arduino
 * Change embayes_predict() to use fixed-point
 * Add basic automated tests
-* Move Python code into module
 * Move to own repository
 
 0.2

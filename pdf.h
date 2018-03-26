@@ -5,6 +5,9 @@
 // for use in Gaussian Naive Bayes classifier
 // in very constrained systems
 
+#ifndef PDF_H
+#define PDF_H
+
 #include <math.h>
 #include <stdint.h>
 
@@ -157,4 +160,36 @@ float pdf_floatfixed(float x, float mean, float std) {
    return VAL_TOFLOAT(pdf_fixed(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
 }
 
+float pdf_linear4fp_half(float x) {
+    const float x0 = 0.36162072933139433;
+    const float x1 = 1.8155589891884512;
+    const float x2 = 2.6480578258766743;
+    const float aaa = 0.0320660290803192;
+    const float aa = 0.07303982381715937;
+    const float a = -0.08126695859921051;
+    const float b = -0.030153892551033495;
+    const float c = 0.21203273553191235;
 
+    const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
+    return y;
+}
+
+val_t pdf_linear4fp(val_t x, val_t mean, val_t std) {
+   //const float xm = (x - mean) / std;
+   //const float xx = (xm > 0) ? xm : -xm;
+   printf("xx\n", x);
+
+   const val_t xm = VAL_FROMFLOAT((x - mean) / std);
+   const val_t xx = (xm > 0) ? xm : -xm;
+   const float p = pdf_linear4fp_half(VAL_TOFLOAT(xx));
+
+    // FIXME: divide by std
+//   const float p = pdf_linear4fp_half(xx) / std;
+   return VAL_FROMFLOAT(p) / VAL_TOFLOAT(std);
+}
+
+float pdf_floatfixedlinear(float x, float mean, float std) {
+   return VAL_TOFLOAT(pdf_linear4fp(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
+}
+
+#endif // PDF_H
