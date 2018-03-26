@@ -2,14 +2,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pdf.c"
 
 typedef struct _BayesSummary {
     val_t mean;
     val_t std;
 } BayesSummary;
 
+typedef struct _BayesModel {
+   int32_t n_classes;
+   int32_t n_features;
+   BayesSummary *summaries;
+} BayesModel;
 
+
+// TODO: use fixed-point
+int32_t
+bayes_predict(BayesModel *model, float values[], int32_t values_length) {
+
+   const int MAX_CLASSES = 10;
+   float class_probabilities[MAX_CLASSES] = {0.0,};
+
+   for (int class_idx = 0; class_idx<model->n_classes; class_idx++) {
+
+      float p = 0.0;
+      for (int value_idx = 0; value_idx<values_length; value_idx++) {
+         const int32_t summary_idx = class_idx*model->n_features + value_idx;
+         BayesSummary summary = model->summaries[summary_idx];
+
+         float v = values[value_idx];
+         // XXX: seems to be sum of log(p), or product of p
+         // FIXME: use mean/std
+         // TODO: use fixed-point
+         p += log(pdf(v, 0.0, 1.0));
+      }
+      class_probabilities[class_idx] = p;
+   }
+
+   float highest_prob = class_probabilities[0];
+   int32_t highest_idx = 0;
+   for (int class_idx = 1; class_idx<model->n_classes; class_idx++) {
+      const float p = class_probabilities[class_idx]; 
+      if (p > highest_prob) {
+         highest_prob = p;
+         highest_idx = class_idx;
+      }
+   }
+   return highest_idx;
+}
+
+#if 0
 int main() {
    volatile int count = 0;
    const int n_repetitions = 1;
@@ -36,3 +77,4 @@ int main() {
       count += 1;
    }
 }
+#endif
