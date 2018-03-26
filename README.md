@@ -82,8 +82,15 @@ Simple and very effective at some classification problems.
 
 Coefficients to store. For Gaussian 2xNxM: 2=mean,stddev. N classes and M 
 Prediction: multiply probabilities together.
-Probably need to do log trick to avoid underflow issues.
+Might need to do log transform to avoid underflow issues.
 Fixed point representation should have domain [0 1.0].
+
+Variations
+
+* Gaussian,Multinomial,Bernouilli
+* Adaptive Naive Bayes (ANBC)
+* Fuzzy Naive Bayes
+* Rough Gaussian Naive Bayes
 
 Naive Bayes classifier implementations
  
@@ -250,6 +257,81 @@ Kaggle competition required submissions to run in below 200ms on a Raspberry PI3
 * [Google AudioSet](https://research.google.com/audioset/). 2,084,320 human-labeled 10-second sounds, 632 audio event classes. 
 * [BirdCLEF 2016](http://www.imageclef.org/lifeclef/2016/bird). 24k audio clips of 999 birds species
 
+## Activity detection
+
+Terms used
+
+* Activity Recognition / human activity recognition (AR) 
+* Activities of Daily Living (ADL).
+* Action recognition
+* Fall detection. FD
+
+Datasets
+
+* [UniMiB SHAR](http://www.sal.disco.unimib.it/technologies/unimib-shar/)
+11,771 samples of human activities and falls. 30 subjects, aged 18 to 60 years. 
+17 fine grained classes grouped in two coarse grained classes. 9 types of activities of daily living (ADL), 8 types of falls.
+* [UCI: ADL Recognition with Wrist-worn Accelerometer](https://archive.ics.uci.edu/ml/datasets/Dataset+for+ADL+Recognition+with+Wrist-worn+Accelerometer). 16 volunteers performing 14 Activities of Daily Living
+* [UCI: Activity Recognition from Single Chest-Mounted Accelerometer](https://archive.ics.uci.edu/ml/datasets/Activity+Recognition+from+Single+Chest-Mounted+Accelerometer). 15 participantes performing 7 activities. 52Hz. 7 classes.
+* [PAMAP2 Physical Activity Monitoring Data Set](https://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring).
+100 Hz, 3 IMUs: wrist,chest,ankle. Heartrate 9Hz. 18 physical activities, performed by 9 subjects 
+* [LingAcceleration](http://www.ccs.neu.edu/home/intille/data/BaoIntilleData04.html). 20 activities, 20 subjects
+* [UCI: Smartphone-Based Recognition of Human Activities and Postural Transitions Data Set](http://archive.ics.uci.edu/ml/datasets/Smartphone-Based+Recognition+of+Human+Activities+and+Postural+Transitions). 30 volunteers age 19-48 years. Six basic activities.
+Preprocessed into 2.56 sec sliding windows with 50% overlap (128 readings/window), time+frequency based features.
+Total 561 features, 10k instances.
+* [UCI: OPPORTUNITY Activity Recognition Data Set](https://archive.ics.uci.edu/ml/datasets/OPPORTUNITY+Activity+Recognition)
+Scripted execution with 4 users, 6 runs per user.
+7 IMUs plus bunch of other sensors on body and around. 5 tracks of labels. 242 features, 2551 instances.
+* [WISDM: Activity prediction](http://www.cis.fordham.edu/wisdm/dataset.php) in lab conditions.
+Raw set 6 features, 1M instances, 6 classes.
+Preprocessed set 46 fetures, 5k instances.
+* [WISDM: Actitracer](www.cis.fordham.edu/wisdm/dataset.php#actitracker), real world data. 0.5% labeled data, rest unlabeled.
+500 users. Available both as raw motion and preprocessed. Preprocessed data has 5k labeled classes. 6 basic classes.
+
+Existing work
+
+* [Efficient Activity Recognition and Fall Detection](https://dis.ijs.si/ami-repository/datasets/14/Kozina-Efficient_Activity_Recognition_and_Fall_Detection_Using_Accelerometers.pdf)
+* [Limitations with Activity Recognition Methodology & Data Set](http://www.cis.fordham.edu/wisdm/Lockhart_Weiss_HASCA.pdf).
+Focuses on model type, how AR training and test data are partitioned, and how AR models are evaluated.
+personal, hybrid, and impersonal/universal models yield dramatically different performance.
+* [Transfer Learning for Activity Recognition: A Survey](http://eecs.wsu.edu/~cook/pubs/kais12.pdf).
+Summarizes 30+ papers using transfer learning.
+
+## Gesture recognition
+
+Datasets
+
+* [martWatch Gestures Dataset](https://tev.fbk.eu/technologies/smartwatch-gestures-dataset)
+8 users, 20 repetitions of 20 different gestures. 3-axis accelerometer
+* [Australian Sign Language signs Data Set](https://archive.ics.uci.edu/ml/datasets/Australian+Sign+Language+signs).
+95 signs were collected from five signers. Noisy. XYZ, roll, plus finger bend.
+* [A Survey of Datasets for Human Gesture Recognition](https://diuf.unifr.ch/people/lalanned/Articles/RuffieuxHCII2014.pdf)
+lists some 15 datasets, but only for image-based gesture recognition, mostly collected with Kinect.
+
+Existing work
+
+* [Xie & Pan 2014 - Accelerometer Gesture Recognition](http://cs229.stanford.edu/proj2014/Michael%20Xie,%20David%20Pan,%20Accelerometer%20Gesture%20Recognition.pdf). Dynamic-Threshold Truncation feature preprocessing increased.
+With 5 classes and only 1 training example per-class was able to reach 96% accuracy.
+Using multiple examples, both SVM and Naive Bayes performed well.
+* [uWave: Accelerometer-based Personalized Gesture Recognition and Its Applications](http://www.ruf.rice.edu/~mobile/publications/liu09percom.pdf). Using template gestures and Dynamic Time Warping
+* [](http://journals.sagepub.com/doi/full/10.5772/60077). Reviews existing methods of HMM and DTW.
+Proposes an improved a distance-based model with kNN classification with low computational overhead.
+Large margin nearest neighbour (LMNN).
+* [](http://ieeexplore.ieee.org/document/7382120/). Uses accelerometer data directly as features. Using FastDTW.
+* [Transfer Learning Decision Forests for Gesture Recognition](http://jmlr.csail.mit.edu/papers/volume15/goussies14a/goussies14a.pdf). 2014
+* [PERSONALIZING A SMARTWATCH-BASED GESTURE INTERFACE WITH TRANSFER LEARNING](http://www.eurasip.org/Proceedings/Eusipco/Eusipco2014/HTML/papers/1569922319.pdf). Haar Wavelet Transform. Supervised Local Distance Learning. 5% increase in accuracy with transfer compared to without.
+* [High Five: Improving Gesture Recognition by Embracing Uncertainty](https://arxiv.org/pdf/1710.09441.pdf).
+Builds a model of the errors of gestures, and uses it to improve HMM-based classifier.
+
+Feature processing
+
+* Vector quantization
+* Acceleration statistics
+* Motion histogram
+* Zero velocity compensation (ZVC)
+* DWT. [FastDWT](https://cs.fit.edu/~pkc/papers/tdm04.pdf), approximation of DTW in linear time and linear space.
+
+
 ## Vibration analysis
 Often used for 'machine condition' analysis, especially for rotating machines.
 
@@ -281,6 +363,20 @@ Get closer to typical Artificial Intelligence field, since now have an intellige
 
 Hybrid learning, adaptive machine learning, progressive learning, semi-supervised learning.
 Q-learning (reinforcement learning).
+
+# Research questions
+
+## PDF approximations
+How rough/fast approximation can be used for the Normal PDF in Gaussian methods?
+
+* Naive Bayes classification
+* Gaussian Mixture model (GMM)
+* Hidden Markov Model (HMM)
+* Kalman filtering
+
+Ref
+
+* [A Unifying Review of Linear Gaussian Models](https://cs.nyu.edu/~roweis/papers/NC110201.pdf)
 
 # Prototyping
 
