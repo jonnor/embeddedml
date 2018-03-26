@@ -44,7 +44,7 @@ public:
     }
 
     int32_t predict(std::vector<float> values) {
-        const int32_t p = bayes_predict(&model, &values[0], values.size());
+        const int32_t p = embayes_predict(&model, &values[0], values.size());
         return p;
     }
 };
@@ -53,10 +53,14 @@ public:
 PYBIND11_MODULE(embayesc, m) {
     m.doc() = "NaiveBayes classifiers for embedded devices";
 
+    // using floating point
     m.def("pdf", pdf);
-    m.def("pdf_floatfixed", pdf_floatfixed);
     m.def("pdf_fast", pdf_fast);
+    m.def("pdf_linear4", pdf_linear4);
+
+    // using fixed-point
     m.def("pdf_fixed", pdf_fixed);
+    m.def("pdf_floatfixed", pdf_floatfixed);
 
     py::class_<Classifier>(m, "Classifier")
         .def(py::init<std::vector<float>, int, int>())

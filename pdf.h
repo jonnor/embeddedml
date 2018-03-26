@@ -17,22 +17,25 @@ float pdf(float x, float mean, float std) {
 }
 
 // Linear approximation
-float pdf_lin2_half(float x) {
-   const float x0 = 0.34247959;
-   const float x1 = 2.00265729;
-   const float aa = 0.0951662;
-   const float a = -0.07833795;
-   const float b = -0.03716455;
-   const float c = 0.23640959;
+float pdf_linear4_half(float x) {
+    const float x0 = 0.36162072933139433;
+    const float x1 = 1.8155589891884512;
+    const float x2 = 2.6480578258766743;
+    const float aaa = 0.0320660290803192;
+    const float aa = 0.07303982381715937;
+    const float a = -0.08126695859921051;
+    const float b = -0.030153892551033495;
+    const float c = 0.21203273553191235;
 
-   const float y = aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
-   return y;
+    const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
+    return y;
 }
 
-float pdf_lin2(float x, float mean, float std) {
+float pdf_linear4(float x, float mean, float std) {
    const float xm = (x - mean) / std;
    const float xx = (xm > 0) ? xm : -xm; 
-   return pdf_lin2_half(xx);
+   const float p = pdf_linear4_half(xx) / std;
+   return p;
 }
 // NOTE: branchless trick for integers conditional sign-flip
 // https://stackoverflow.com/questions/4866187/how-to-flip-the-sign-of-an-integer-value-using-some-constant-and-operators-wit
