@@ -1,6 +1,11 @@
 
+#ifndef EMBAYES_H
+#define EMBAYES_H
+
 #include <stdint.h>
 #include <math.h>
+
+#include "pdf.h"
 
 // TODO: use fixed-point
 typedef struct _BayesSummary {
@@ -32,9 +37,15 @@ embayes_predict(BayesModel *model, float values[], int32_t values_length) {
          const float v = values[value_idx];
          // XXX: seems to be sum of log(p), or product of p
          // TODO: use fixed-point
-         const float f = pdf_linear4(v, summary.mean, summary.std);
-         p += log(f);
-         //printf("v %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
+         //const float f = pdf_floatfixedlinear(v, summary.mean, summary.std);
+         const val_t fp = pdf_linear4fp(VAL_FROMFLOAT(v), VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std));
+         //p = VAL_TOFLOAT(VAL_MUL(VAL_FROMFLOAT(p), fp));
+         const float f = VAL_TOFLOAT(fp);
+         //p += log(f);
+         //p = VAL_TOFLOAT(VAL_MUL(VAL_FROMFLOAT(p), VAL_FROMFLOAT(f)));
+         p += f;
+         //p *= f;
+         //printf("vf %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
       }
       class_probabilities[class_idx] = p;
       //printf("class %d : %f\n", class_idx, p);
@@ -52,3 +63,4 @@ embayes_predict(BayesModel *model, float values[], int32_t values_length) {
    return highest_idx;
 }
 
+#endif // EMBAYES_H

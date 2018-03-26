@@ -1,11 +1,11 @@
 
 #ifndef ARDUINO
 
-#include "pdf.h"
-#include "embayes.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "pdf.h"
+#include "embayes.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
