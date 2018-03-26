@@ -48,7 +48,7 @@ public:
 };
 
 
-PYBIND11_MODULE(naivebayes, m) {
+PYBIND11_MODULE(embayesc, m) {
     m.doc() = "NaiveBayes classifiers for embedded devices";
 
     m.def("pdf", pdf);

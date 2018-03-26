@@ -1,3 +1,5 @@
 bayes
 build/
 tmp/
+digits.h
+__pycache__/

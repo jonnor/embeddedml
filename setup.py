@@ -77,7 +77,7 @@ class BuildExt(build_ext):
 
 ext_modules = [
     Extension(
-        'naivebayes',
+        'embayesc',
         ['naivebayesmodule.cpp'],
         include_dirs=[
             # Path to pybind11 headers

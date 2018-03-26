@@ -17,8 +17,8 @@ typedef struct _BayesModel {
 
 int32_t
 bayes_predict(BayesModel *model, float values[], int32_t values_length) {
-   printf("predict(%d), classes=%d features=%d\n",
-         values_length, model->n_classes, model->n_features);
+   //printf("predict(%d), classes=%d features=%d\n",
+   //      values_length, model->n_classes, model->n_features);
 
    const int MAX_CLASSES = 10;
    float class_probabilities[MAX_CLASSES] = {0.0,};
@@ -35,11 +35,10 @@ bayes_predict(BayesModel *model, float values[], int32_t values_length) {
          // TODO: use fixed-point
          const float f = pdf(v, summary.mean, summary.std);
          p += log(f);
-         printf("v %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
+         //printf("v %d=%f s=(%f, %f) : %f\n", value_idx, v, summary.mean, summary.std, f);
       }
       class_probabilities[class_idx] = p;
-      printf("class %d : %f\n",
-         class_idx, p);
+      //printf("class %d : %f\n", class_idx, p);
    }
 
    float highest_prob = class_probabilities[0];
