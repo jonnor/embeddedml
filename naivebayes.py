@@ -10,6 +10,43 @@ def prob_ref(x, mean, std):
         exponent = -sigma_max
     return (numpy.exp(exponent) / (numpy.sqrt(2 * numpy.pi) * std))
 
+def c_struct_init(*vals):
+    s = ','.join(str(v) for v in vals)
+    return '{ ' + s + ' }'
+
+def generate_c(model, name='myclassifier'):
+    n_classes, n_features, n_attributes = model.shape
+    assert n_attributes == 2 # mean+std 
+
+    summaries_data = []
+    for class_n, class_summaries in enumerate(model):
+        for feature_n, summary in enumerate(class_summaries):
+            summaries_data.append(list(summary))
+
+    summaries_name = name + '_summaries'
+    summaries = """BayesSummary {name}[{items}] = {{
+        {summaries_init}
+    }};
+    """.format(**{
+        'name': summaries_name,
+        'items': n_classes*n_features,
+        'summaries_init': ',\n  '.join(c_struct_init(*d) for d in summaries_data)
+    })
+
+    model = """BayesModel {name} = {{
+        {classes},
+        {features},
+        {summaries},
+    }};
+    """.format(**{
+        'name': name+'_model',
+        'classes': n_classes,
+        'features': n_features,
+        'summaries': summaries_name,
+    })
+
+    return '\n\n'.join([summaries, model]) 
+
 class Gaussian(object):
     def __init__(self):
         pass
@@ -44,4 +81,4 @@ class Gaussian(object):
         return sum(self.predict(X) == y) / len(y)
 
     def output_c(self, name):
-        return 'TODO'
+        return generate_c(self.model, name)

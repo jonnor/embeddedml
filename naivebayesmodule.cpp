@@ -1,6 +1,8 @@
 
-#include "pdf.c"
-#include "naivebayes.c"
+#ifndef ARDUINO
+
+#include "pdf.h"
+#include "embayes.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,3 +63,4 @@ PYBIND11_MODULE(embayesc, m) {
         .def("predict", &Classifier::predict);
 }
 
+#endif

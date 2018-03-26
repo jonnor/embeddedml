@@ -1,8 +1,11 @@
 
-#include "naivebayes.c"
+#include <stdint.h>
 
+#include "pdf.h"
+#include "embayes.h"
+#include "cancer.h"
 
-const int32_t n_features = 64;
+const int32_t n_features = 30;
 
 const int32_t bytes_per_number = 50; // 32bit integer, plus separator. But better to have too much
 const int32_t buffer_length = n_features*bytes_per_number;
@@ -64,7 +67,7 @@ void loop() {
         int32_t prediction = -999;
         for (int32_t i=0; i<n_repetitions; i++) {
 
-          const int32_t p = embayes_predict(values, n_features);
+          const int32_t p = embayes_predict(&cancer_model, values, n_features);
 
           if (prediction != -999 && p != prediction) {
               // consistency check, should always be same

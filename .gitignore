@@ -3,3 +3,4 @@ build/
 tmp/
 digits.h
 __pycache__/
+cancer.h

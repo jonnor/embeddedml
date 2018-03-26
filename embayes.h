@@ -1,7 +1,6 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include <stdint.h>
+#include <math.h>
 
 // TODO: use fixed-point
 typedef struct _BayesSummary {
@@ -16,12 +15,12 @@ typedef struct _BayesModel {
 } BayesModel;
 
 int32_t
-bayes_predict(BayesModel *model, float values[], int32_t values_length) {
+embayes_predict(BayesModel *model, float values[], int32_t values_length) {
    //printf("predict(%d), classes=%d features=%d\n",
    //      values_length, model->n_classes, model->n_features);
 
    const int MAX_CLASSES = 10;
-   float class_probabilities[MAX_CLASSES] = {0.0,};
+   float class_probabilities[10] = {0.0,};
 
    for (int class_idx = 0; class_idx<model->n_classes; class_idx++) {
 
@@ -54,6 +53,9 @@ bayes_predict(BayesModel *model, float values[], int32_t values_length) {
 }
 
 #if 0
+#include <stdio.h>
+#include <stdlib.h>
+
 int main() {
    volatile int count = 0;
    const int n_repetitions = 1;
