@@ -109,6 +109,8 @@ float pdf_fast(float x, float mean, float std) {
 
 // TODO: make work with 10 multiplications, in floatingpoint has error < 10% until 5 sigma
 #define FIXED_MUL(fracs, x, y) ( ((x) >> (fracs/2)) * ((y)>> (fracs/2)) )
+#define FIXED_TOFLOAT(fracs, x) (((float)(x)) / ((int64_t)1 << fracs))
+
 val_t exp_fpmul(val_t v) {
   // implicit division by 256 = 2**8
   const int q = 16+8;
@@ -183,7 +185,12 @@ val_t pdf_linear4fp(val_t x, val_t mean, val_t std) {
    const val_t xm = val_div((x - mean), std);
    const val_t xx = (xm > 0) ? xm : -xm;
    const val_t p = pdf_linear4fp_half(xx);
-   return val_div(p, std);
+
+   val_t pp = val_div(p, std);
+   if (pp < 1) {
+       pp = 1;
+   }
+   return pp; 
 }
 
 float pdf_floatfixedlinear(float x, float mean, float std) {
