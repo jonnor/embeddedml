@@ -59,8 +59,7 @@ PYBIND11_MODULE(embayesc, m) {
     m.def("pdf_linear4", pdf_linear4);
 
     // using fixed-point
-    m.def("pdf_fixed", pdf_fixed);
-    m.def("pdf_floatfixed", pdf_floatfixed);
+    m.def("pdf_loglin4", pdf_loglin4_float);
 
     py::class_<Classifier>(m, "Classifier")
         .def(py::init<std::vector<float>, int, int>())

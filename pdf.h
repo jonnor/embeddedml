@@ -107,59 +107,6 @@ float pdf_fast(float x, float mean, float std) {
 }
 
 
-// TODO: make work with 10 multiplications, in floatingpoint has error < 10% until 5 sigma
-#define FIXED_MUL(fracs, x, y) ( ((x) >> (fracs/2)) * ((y)>> (fracs/2)) )
-#define FIXED_TOFLOAT(fracs, x) (((float)(x)) / ((int64_t)1 << fracs))
-
-val_t exp_fpmul(val_t v) {
-  // implicit division by 256 = 2**8
-  const int q = 16+8;
-  int32_t x = v;
-  x += 1<<q;
-
-  //printf("FXP: %f %f %d\n", VAL_TOFLOAT(v), VAL_TOFLOAT(x >> 8), x>>8);
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-  x = FIXED_MUL(q, x, x);
-
-  const val_t vv = (x >> (q-16));
-  return vv;
-}
-
-val_t val_exp(val_t ex) {
-    return exp_fpmul(ex);
-}
-
-val_t pdf_fixed(val_t x, val_t mean, val_t std) {
-    const val_t std2 = VAL_MUL(std, std);
-    const val_t xm2 = VAL_MUL(x - mean, x - mean);
-    val_t div = VAL_MUL(VAL_SQRT_2PI, std);
-    val_t stddiv = VAL_MUL(VAL_FROMINT(2), std2);
-    if (stddiv == 0) {
-      stddiv = 1; // avoid division-by-zero
-    }
-    if (div == 0) {
-      div = 1; // avoid division-by-zero
-    }
-    const val_t exponent = -val_div(xm2, stddiv);    
-    val_t p = val_div(val_exp(exponent), div);
-
-    // Check if outside valid domain, clamp to min
-    if (exponent < VAL_FROMFLOAT(-9.0)) {
-        p = VAL_FROMFLOAT(0.0001);
-    }
-    return p;
-}
-
-float pdf_floatfixed(float x, float mean, float std) {
-   return VAL_TOFLOAT(pdf_fixed(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
-}
 
 val_t pdf_linear4fp_half(val_t xf) {
     const val_t x0 = VAL_FROMFLOAT(0.36162072933139433);
@@ -195,6 +142,37 @@ val_t pdf_linear4fp(val_t x, val_t mean, val_t std) {
 
 float pdf_floatfixedlinear(float x, float mean, float std) {
    return VAL_TOFLOAT(pdf_linear4fp(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std)));
+}
+
+val_t pdf_loglin4_stdhalf(val_t xf) {
+
+    const val_t x0 = VAL_FROMFLOAT(0.8333333885368039);
+    const val_t x1 = VAL_FROMFLOAT(2.0114942763546977);
+    const val_t x2 = VAL_FROMFLOAT(3.4195402297818958);
+    const val_t aaa = VAL_FROMFLOAT(-1.1193323517431);
+    const val_t aa = VAL_FROMFLOAT(-0.9327769306872999);
+    const val_t a = VAL_FROMFLOAT(-0.746221586714255);
+    const val_t b = VAL_FROMFLOAT(-3.295811966758346);
+    const val_t c = VAL_FROMFLOAT(5.042867068181607);
+
+    // const float y = aaa*fabs(x-x2) + aa*fabs(x-x1) + a*fabs(x-x0) + b*x + c;
+    const val_t two = VAL_MUL(aaa, abs(xf-x2));
+    const val_t one = VAL_MUL(aa, abs(xf-x1));
+    const val_t zero = VAL_MUL(a, abs(xf-x0));
+    const val_t bx = VAL_MUL(b, xf);
+    const val_t y = two + one + zero + bx + c;
+    return y;
+}
+
+val_t pdf_loglin4(val_t x, val_t mean, val_t std, val_t stdlog2) {
+   const val_t xm = val_div((x - mean), std);
+   const val_t xx = (xm > 0) ? xm : -xm;
+   const val_t p = pdf_loglin4_stdhalf(xx) - stdlog2;
+   return p; 
+}
+
+float pdf_loglin4_float(float x, float mean, float std, float stdlog2) {
+   return VAL_TOFLOAT(pdf_loglin4(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std), VAL_FROMFLOAT(stdlog2)));
 }
 
 #endif // PDF_H

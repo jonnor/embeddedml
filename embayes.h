@@ -76,11 +76,8 @@ embayes_predict(BayesModel *model, float values[], int32_t values_length) {
          BayesSummary summary = model->summaries[summary_idx];
          const float v = values[value_idx];
 
-         const val_t pv = pdf_linear4fp(VAL_FROMFLOAT(v), VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std));
-
-         // TODO: use a faster log2 approximation
-         // TODO: try doing log only for every N steps, where N=4-8 ?
-         const val_t plog = log2fix(pv, VAL_FRACT_BITS);
+         const val_t stdlog2 = VAL_ONE; // FIXME: get from model parameters
+         const val_t plog = pdf_loglin4(VAL_FROMFLOAT(v), VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std), stdlog2);
 
          if ((class_p + plog) > 0) {
             // FIXME: underflows for more than -126
