@@ -108,7 +108,7 @@ Naive Bayes classifier implementations
 0.1
 
 * Also store log2(std) as model parameter
-* Test quadratic lognorm function
+* Make interface be fixed-point
 * Add basic automated tests
 * Move to own repository
 

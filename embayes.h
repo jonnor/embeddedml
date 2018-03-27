@@ -3,8 +3,33 @@
 #define EMBAYES_H
 
 #include <stdint.h>
-#include <math.h>
 
+
+// Fixed-point helpers
+typedef int32_t val_t;
+#define VAL_FRACT_BITS 24
+#define VAL_ONE (1 << VAL_FRACT_BITS)
+#define VAL_FROMINT(x) ((x) << VAL_FRACT_BITS)
+#define VAL_FROMFLOAT(x) ((int)((x) * (1 << VAL_FRACT_BITS))) 
+#define VAL_TOINT(x) ((x) >> VAL_FRACT_BITS)
+#define VAL_TOFLOAT(x) (((float)(x)) / (1 << VAL_FRACT_BITS))
+
+// TODO: namespace properly
+
+// Fixed-point math
+#define val_mul(x, y) ( ((x) >> VAL_FRACT_BITS/2) * ((y)>> VAL_FRACT_BITS/2) )
+
+static val_t
+val_div(val_t a, val_t b)
+{
+    int64_t temp = (int64_t)a << VAL_FRACT_BITS;
+    if((temp >= 0 && b >= 0) || (temp < 0 && b < 0)) {   
+        temp += b / 2;
+    } else {
+        temp -= b / 2;
+    }
+    return (int32_t)(temp / b);
+}
 
 // TODO: use fixed-point
 typedef struct _BayesSummary {
@@ -68,8 +93,8 @@ embayes_logpdf_std(val_t x)
     const val_t b = VAL_FROMFLOAT(-1.0005845727355313e-15);
     const val_t c = VAL_FROMFLOAT(-1.3257480647361592);
 
-    const val_t axx = VAL_MUL(a, VAL_MUL(x, x));
-    const val_t bx = VAL_MUL(b, x);
+    const val_t axx = val_mul(a, val_mul(x, x));
+    const val_t bx = val_mul(b, x);
     const val_t y = axx + bx + c;
     return y;
 }

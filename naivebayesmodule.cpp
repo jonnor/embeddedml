@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pdf.h"
 #include "embayes.h"
 
 #include <pybind11/pybind11.h>
@@ -56,13 +55,7 @@ float logpdf_float(float x, float mean, float std, float stdlog2) {
 PYBIND11_MODULE(embayesc, m) {
     m.doc() = "NaiveBayes classifiers for embedded devices";
 
-    // using floating point
-    m.def("pdf", pdf);
-    m.def("pdf_fast", pdf_fast);
-    m.def("pdf_linear4", pdf_linear4);
-
-    // using fixed-point
-    m.def("pdf_loglin4", pdf_loglin4_float);
+    // Probability function
     m.def("logpdf", logpdf_float);
 
     py::class_<Classifier>(m, "Classifier")
