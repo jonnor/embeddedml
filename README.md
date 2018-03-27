@@ -4,7 +4,10 @@ Focused primarily on running inference/prediction/feed-forward part on a microco
 Training phase can run on a standard computer/server, using existing tools as much as possible.
 
 # Status
-Implementing decision trees ensembles in [emtrees](https://github.com/jonnor/emtrees).
+**Research in progress**
+
+* Decision trees ensembles implemented in [emtrees](https://github.com/jonnor/emtrees)
+* Naive Bayes implemented in [embayes](https://github.com/jonnor/embayes)
 
 # Background
 
@@ -64,6 +67,7 @@ Machine learning tasks
 * Outlier/novelty/anomaly detection
 
 ## Tree-based methods
+Implemented in [emtrees](https://github.com/jonnor/emtrees)
 
 Random Forests, Extra trees.
 
@@ -77,13 +81,11 @@ Uses dynamic allocation and floats.
 Possibly a testcase.
 
 ## Naive Bayes
+Implemented in [embayes](https://github.com/jonnor/embayes)
 
-Simple and very effective at some classification problems.
-
-Coefficients to store. For Gaussian 2xNxM: 2=mean,stddev. N classes and M 
-Prediction: multiply probabilities together.
-Might need to do log transform to avoid underflow issues.
-Fixed point representation should have domain [0 1.0].
+Simple generative model. Very effective at some classification problems.
+Quick and easy to train, just basic descriptive statistics.
+Making predictions also quick, amounts to calculating probabilities for each class.
 
 Variations
 
@@ -103,27 +105,6 @@ Naive Bayes classifier implementations
 * Multinomial, Bernoulli and Gaussian. In Python, with sklearn APIs.
 [kenzotakahashi](https://kenzotakahashi.github.io/naive-bayes-from-scratch-in-python.html)
 
-### embayes TODO
-
-0.1
-
-* Add basic automated tests
-* Move to own repository
-
-0.2
-
-* Decide how to deal with number conversions for features
-* Test with more datasets
-* Make estimator a wrapper around `sklearn.naivebayes.GaussianNB`
-* Make estimator work in pipeline
-* Make `pdf` approximation configurable as parameter
-* Release on PyPI
-
-1.0
-
-* Support generating inline C code, without
-* Support de/serializing coefficients at runtime
-* Support training on microcontroller
 
 ## Binarized Neural Networks
 
