@@ -107,16 +107,12 @@ Naive Bayes classifier implementations
 
 0.1
 
-* Implement piecewise linear `pdf_linear4` in C, as float and fixed-point
-* Implement C output for model coefficients
-* Change embayes_predict() to use fixed-point
 * Add basic automated tests
 * Move to own repository
 
 0.2
 
 * Decide how to deal with number conversions for features
-* Fix overflow/precision issues in `pdf_fixed()`
 * Test `pdf_linear4` with more datasets
 * Make estimator a wrapper around `sklearn.naivebayes.GaussianNB`
 * Make estimator work in pipeline
@@ -371,6 +367,13 @@ How rough/fast approximation can be used for the Normal PDF in Gaussian methods?
 * Gaussian Mixture model (GMM)
 * Hidden Markov Model (HMM)
 * Kalman filtering
+
+It looks like the *logarithm of normpdf* can be easily approximated.
+The function is smooth, symmetrical and convex with only one turning point.
+For Naive Bayes there is no requirement that the function is differentiable.
+A 4-segment piecewise linear function fits quite well.
+It looks to be a perfect fit for a quadratic function.
+
 
 Ref
 
