@@ -11,7 +11,7 @@ int main() {
    const int samples = 10;
    const float sigma = 3;
 
-   val_t values[samples] = {0};
+   val_t values[samples];
 
    const float mean = 0.0;
    const float std = 10.0;

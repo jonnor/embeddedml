@@ -20,7 +20,8 @@ public:
     Classifier(std::vector<float> data, int n_classes, int n_features)
         : summaries(nullptr)
     {
-        // FIXME: check data is n_classes*n_features*2
+        const int n_attributes = 3;
+        // FIXME: check data is n_classes*n_features*n_attributes
         const int n_items = n_classes*n_features;
         summaries = (BayesSummary *)malloc(sizeof(BayesSummary)*n_items);
 
@@ -32,8 +33,9 @@ public:
             for (int feature_idx = 0; feature_idx<n_features; feature_idx++) {
                 const int32_t summary_idx = class_idx*n_features + feature_idx;
                 BayesSummary summary;
-                summary.mean = VAL_FROMFLOAT(data[2*summary_idx + 0]);
-                summary.std = VAL_FROMFLOAT(data[2*summary_idx + 1]);
+                summary.mean = VAL_FROMFLOAT(data[n_attributes*summary_idx + 0]);
+                summary.std = VAL_FROMFLOAT(data[n_attributes*summary_idx + 1]);
+                summary.stdlog2 = VAL_FROMFLOAT(data[n_attributes*summary_idx + 2]);
                 model.summaries[summary_idx] = summary;
             }
         }

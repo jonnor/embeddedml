@@ -21,7 +21,7 @@ def c_tofixed(v):
 
 def generate_c(model, name='myclassifier'):
     n_classes, n_features, n_attributes = model.shape
-    assert n_attributes == 2 # mean+std 
+    assert n_attributes == 3 # mean+std+stdlog2 
 
     summaries_data = []
     for class_n, class_summaries in enumerate(model):
@@ -58,10 +58,10 @@ class Gaussian(object):
 
     def fit(self, X, y):
         separated = [[x for x, t in zip(X, y) if t == c] for c in numpy.unique(y)]
-        self.model = numpy.array([numpy.c_[numpy.mean(i, axis=0), numpy.std(i, axis=0)] for i in separated])
+        self.model = numpy.array([numpy.c_[numpy.mean(i, axis=0), numpy.std(i, axis=0), numpy.log2(numpy.std(i, axis=0))] for i in separated])
         return self
 
-    def _prob(self, x, mean, std):
+    def _prob(self, x, mean, std, stdlog2):
         return numpy.log(prob_ref(x, mean, std))
 
     def predict_log_proba(self, X):            

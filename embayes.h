@@ -7,7 +7,7 @@
 
 // Fixed-point helpers
 typedef int32_t val_t;
-#define VAL_FRACT_BITS 24
+#define VAL_FRACT_BITS 16
 #define VAL_ONE (1 << VAL_FRACT_BITS)
 #define VAL_FROMINT(x) ((x) << VAL_FRACT_BITS)
 #define VAL_FROMFLOAT(x) ((int)((x) * (1 << VAL_FRACT_BITS))) 
@@ -31,10 +31,11 @@ val_div(val_t a, val_t b)
     return (int32_t)(temp / b);
 }
 
-// TODO: use fixed-point
+
 typedef struct _BayesSummary {
     val_t mean;
     val_t std;
+    val_t stdlog2;
 } BayesSummary;
 
 typedef struct _BayesModel {
@@ -117,7 +118,7 @@ embayes_predict(BayesModel *model, val_t values[], int32_t values_length) {
    //      values_length, model->n_classes, model->n_features);
 
    const int MAX_CLASSES = 10;
-   val_t class_probabilities[MAX_CLASSES] = {0,};
+   val_t class_probabilities[MAX_CLASSES];
 
    for (int class_idx = 0; class_idx<model->n_classes; class_idx++) {
 
@@ -126,18 +127,9 @@ embayes_predict(BayesModel *model, val_t values[], int32_t values_length) {
          const int32_t summary_idx = class_idx*model->n_features + value_idx;
          BayesSummary summary = model->summaries[summary_idx];
          const val_t val = values[value_idx];
+         const val_t plog = embayes_logpdf(val, summary.mean, summary.std, summary.stdlog2);
 
-         const val_t stdlog2 = VAL_ONE; // FIXME: get from model parameters
-         const val_t plog = embayes_logpdf(val, summary.mean, summary.std, stdlog2);
-
-         if ((class_p + plog) > 0) {
-            // FIXME: underflows for more than -126
-            // const float flog = log(VAL_TOFLOAT(pv));
-            //printf("ERR %d=%f s=(%f, %f) : %f == %f | %f\n",
-            //   value_idx, v, summary.mean, summary.std, flog, VAL_TOFLOAT(plog), VAL_TOFLOAT(class_p));
-         } else {
-            class_p += plog;
-         }
+         class_p += plog;
 
       }
       class_probabilities[class_idx] = class_p;
