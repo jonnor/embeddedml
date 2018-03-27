@@ -42,7 +42,12 @@ public:
         free(summaries);
     }
 
-    int32_t predict(std::vector<float> values) {
+    int32_t predict(std::vector<float> floats) {
+        std::vector<val_t> values(floats.size());
+        for (int i=0; i<(int)floats.size(); i++) {
+            values[i] = VAL_FROMFLOAT(floats[i]);
+        }
+
         const int32_t p = embayes_predict(&model, &values[0], values.size());
         return p;
     }

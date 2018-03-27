@@ -1,7 +1,6 @@
 
 #include <stdint.h>
 
-#include "pdf.h"
 #include "embayes.h"
 #include "cancer.h"
 
@@ -17,7 +16,7 @@ void setup() {
 }
 
 void loop() {
-  float values[n_features];
+  val_t values[n_features];
 
   while (Serial.available() > 0) {
 
@@ -48,7 +47,7 @@ void loop() {
             } else if (field_no == 1) {
               n_repetitions = value;
             } else {
-              values[field_no-non_value_fields] = value; 
+              values[field_no-non_value_fields] = VAL_FROMFLOAT(value); 
             }
             field_no++;
             token = strtok(NULL, seps);
@@ -91,7 +90,7 @@ void loop() {
         Serial.print(n_repetitions);
         for (int i=0; i<n_features; i++) {
           Serial.print(";");
-          Serial.print(values[i]);
+          Serial.print(VAL_TOFLOAT(values[i]));
         }
         Serial.print("\n");
     }

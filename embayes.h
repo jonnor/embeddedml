@@ -112,7 +112,7 @@ embayes_logpdf(val_t x, val_t mean, val_t std, val_t stdlog2)
 
 
 int32_t
-embayes_predict(BayesModel *model, float values[], int32_t values_length) {
+embayes_predict(BayesModel *model, val_t values[], int32_t values_length) {
    //printf("predict(%d), classes=%d features=%d\n",
    //      values_length, model->n_classes, model->n_features);
 
@@ -125,10 +125,10 @@ embayes_predict(BayesModel *model, float values[], int32_t values_length) {
       for (int value_idx = 0; value_idx<values_length; value_idx++) {
          const int32_t summary_idx = class_idx*model->n_features + value_idx;
          BayesSummary summary = model->summaries[summary_idx];
-         const float v = values[value_idx];
+         const val_t val = values[value_idx];
 
          const val_t stdlog2 = VAL_ONE; // FIXME: get from model parameters
-         const val_t plog = embayes_logpdf(VAL_FROMFLOAT(v), VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std), stdlog2);
+         const val_t plog = embayes_logpdf(val, VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std), stdlog2);
 
          if ((class_p + plog) > 0) {
             // FIXME: underflows for more than -126
