@@ -49,6 +49,9 @@ public:
     }
 };
 
+float logpdf_float(float x, float mean, float std, float stdlog2) {
+   return VAL_TOFLOAT(embayes_logpdf(VAL_FROMFLOAT(x), VAL_FROMFLOAT(mean), VAL_FROMFLOAT(std), VAL_FROMFLOAT(stdlog2)));
+}
 
 PYBIND11_MODULE(embayesc, m) {
     m.doc() = "NaiveBayes classifiers for embedded devices";
@@ -60,6 +63,7 @@ PYBIND11_MODULE(embayesc, m) {
 
     // using fixed-point
     m.def("pdf_loglin4", pdf_loglin4_float);
+    m.def("logpdf", logpdf_float);
 
     py::class_<Classifier>(m, "Classifier")
         .def(py::init<std::vector<float>, int, int>())

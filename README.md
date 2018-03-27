@@ -107,13 +107,15 @@ Naive Bayes classifier implementations
 
 0.1
 
+* Also store log2(std) as model parameter
+* Test quadratic lognorm function
 * Add basic automated tests
 * Move to own repository
 
 0.2
 
 * Decide how to deal with number conversions for features
-* Test `pdf_linear4` with more datasets
+* Test with more datasets
 * Make estimator a wrapper around `sklearn.naivebayes.GaussianNB`
 * Make estimator work in pipeline
 * Make `pdf` approximation configurable as parameter
