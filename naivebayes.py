@@ -10,9 +10,14 @@ def prob_ref(x, mean, std):
         exponent = -sigma_max
     return (numpy.exp(exponent) / (numpy.sqrt(2 * numpy.pi) * std))
 
-def c_struct_init(*vals):
-    s = ','.join(str(v) for v in vals)
+def c_struct_init(vals, convert):
+    if convert is None:
+      convert = str
+    s = ','.join(convert(v) for v in vals)
     return '{ ' + s + ' }'
+
+def c_tofixed(v):
+    return "VAL_FROMFLOAT({})".format(v)
 
 def generate_c(model, name='myclassifier'):
     n_classes, n_features, n_attributes = model.shape
@@ -30,7 +35,7 @@ def generate_c(model, name='myclassifier'):
     """.format(**{
         'name': summaries_name,
         'items': n_classes*n_features,
-        'summaries_init': ',\n  '.join(c_struct_init(*d) for d in summaries_data)
+        'summaries_init': ',\n  '.join(c_struct_init(d, c_tofixed) for d in summaries_data)
     })
 
     model = """BayesModel {name} = {{

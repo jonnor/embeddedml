@@ -32,8 +32,8 @@ public:
             for (int feature_idx = 0; feature_idx<n_features; feature_idx++) {
                 const int32_t summary_idx = class_idx*n_features + feature_idx;
                 BayesSummary summary;
-                summary.mean = data[2*summary_idx + 0];
-                summary.std = data[2*summary_idx + 1];
+                summary.mean = VAL_FROMFLOAT(data[2*summary_idx + 0]);
+                summary.std = VAL_FROMFLOAT(data[2*summary_idx + 1]);
                 model.summaries[summary_idx] = summary;
             }
         }

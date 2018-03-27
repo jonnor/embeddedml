@@ -33,8 +33,8 @@ val_div(val_t a, val_t b)
 
 // TODO: use fixed-point
 typedef struct _BayesSummary {
-    float mean;
-    float std;
+    val_t mean;
+    val_t std;
 } BayesSummary;
 
 typedef struct _BayesModel {
@@ -128,7 +128,7 @@ embayes_predict(BayesModel *model, val_t values[], int32_t values_length) {
          const val_t val = values[value_idx];
 
          const val_t stdlog2 = VAL_ONE; // FIXME: get from model parameters
-         const val_t plog = embayes_logpdf(val, VAL_FROMFLOAT(summary.mean), VAL_FROMFLOAT(summary.std), stdlog2);
+         const val_t plog = embayes_logpdf(val, summary.mean, summary.std, stdlog2);
 
          if ((class_p + plog) > 0) {
             // FIXME: underflows for more than -126
