@@ -54,8 +54,8 @@ Roughly ordered by relevance. Should both be useful for typical tasks and effici
 * Decision trees, random forests
 * Naive Bayes
 * Binary Neural networks
-* SVM. Linear/kernel
-* kNN. Challenge: Storage/memory usage.
+* Support Vector Machines. SVM.
+* Nearest Neighbours. kNN.
 * k-means clustering.
 * PCA
 
@@ -80,6 +80,12 @@ Uses dynamic allocation and floats.
 * [Current peak based device classification in NILM on a low-cost embedded platform using extra-trees](http://ieeexplore.ieee.org/document/8284200/). Published November 2017. Ran on a Rasperry PI 3, classification of an event was done in 400ms. Events were detected based on a current draw profile of 1 second / 60 current peaks. No details on the code used, probably a standard toolset like Python/sklearn.
 Possibly a testcase.
 
+Performance
+
+* MNIST. [Kaggle](https://www.kaggle.com/c/digit-recognizer).
+Random Forest with original features seems to peaks out at just under 3% error rate, for 200-1000 trees.
+Should be below 5% for 100 trees. Training time should be under 10 minutes.
+
 ## Naive Bayes
 Implemented in [embayes](https://github.com/jonnor/embayes)
 
@@ -93,6 +99,7 @@ Variations
 * Adaptive Naive Bayes (ANBC)
 * Fuzzy Naive Bayes
 * Rough Gaussian Naive Bayes
+* Non-naive Bayes. Actually takes covariance into account
 
 Naive Bayes classifier implementations
  
@@ -105,6 +112,9 @@ Naive Bayes classifier implementations
 * Multinomial, Bernoulli and Gaussian. In Python, with sklearn APIs.
 [kenzotakahashi](https://kenzotakahashi.github.io/naive-bayes-from-scratch-in-python.html)
 
+Techniques for improvement
+
+* Compensate for naiviety, covariance. Bagging, one-against-many
 
 ## Binarized Neural Networks
 
@@ -133,8 +143,27 @@ Strong linear classifier/regressor, also strong non-linear method when using a k
 * [Effects of Reduced Precision on Floating-Point SVM Classification Accuracy](https://ac.els-cdn.com/S1877050911001116/1-s2.0-S1877050911001116-main.pdf?_tid=247ac167-834b-4e66-b538-b47bf7bec302&acdnat=1521981076_c65b50281adc8adfd4be4d1d782dd5cc). No dataset required a precision higher than 15 bit.
 * [A Hardware-friendly Support Vector Machine for Embedded Automotive Applications](https://www.researchgate.net/publication/224292644_A_Hardware-friendly_Support_Vector_Machine_for_Embedded_Automotive_Applications). Used down to 12 bit without significant reduction in performance.
 
+### Nearest Neighbours
+
+Canonical example is kNN.
+However conventional kNN requires all training points to be stored, which is typically way too much for a microcontroller.
+
+Variants
+
+* Condensed kNN. Data reduction technique.
+Selects prototypes for each class and eliminates points that are not needed.
+[sklearn](http://contrib.scikit-learn.org/imbalanced-learn/stable/auto_examples/under-sampling/plot_condensed_nearest_neighbour.html?highlight=condensed)
+* Fast condensed nearest neighbor rule. 2005. [Paper](https://dl.acm.org/citation.cfm?id=1102355)
+* Approximate nearest neighbours.
+
+References
+
+* [Survey of Nearest Neighbor Condensing Techniques](https://www.thesai.org/Downloads/Volume2No11/Paper%2010-%20Survey%20of%20Nearest%20Neighbor%20Condensing%20Techniques.pdf)
+* [Fast Classification with Binary Prototypes](http://users.ices.utexas.edu/~zhongkai/bnc.pdf)
 
 ## Existing work
+
+Software libraries
 
 * [Resource-efficient Machine Learning in 2 KB RAM for the Internet of Things](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/06/kumar17.pdf). Describes Bonsai, a part of Microsoft Research Indias open-source [EdgeML](https://github.com/Microsoft/EdgeML).
 Bonsay is tree-based algorithm. Relatively powerful nodes to enable short trees (reduce RAM usage).
@@ -142,14 +171,18 @@ Uses sparse trees, and the final prediction is a sum of all the nodes (path-base
 Optimization: `tanh(x) ≈ x if x < 1 and signum(x) otherwise`. Can run on Atmel AVR8
 * [ProtoNN: Compressed and Accurate kNN for Resource-scarce Devices](http://manikvarma.org/pubs/gupta17.pdf).
 k-Nearest Neighbor implementation. Can run on Atmel AVR8
-* [Machine Learning for Embedded Systems: A Case Study](http://www.cs.cmu.edu/~khaigh/papers/2015-HaighTechReport-Embedded.pdf)
-Support Vector Machines. Target system used for auto-tunic a mobile ad-hoc network (MANET) by
-earns the relationships among configuration parameters. Running on ARMv7 and PPC, 128MB+ RAM.
-Lots of detail about how they optimized an existing SVM implementation, in the end running 20x faster.
 * [Embedded Learning Library](https://github.com/Microsoft/ELL) by Microsoft.
 Set of C++ libraries for machine learning on embedded platforms. Includes code for kNN, RandomForest etc.
 Also has some node-based dataflow system in place it seems. JavaScript and Python bindings.
 * [Embedded Classification Software Toolbox](https://github.com/ma2th/ecst)
+* [uTensor](https://github.com/uTensor/uTensor). Export Tensorflow model to mbed/ARM microcontrollers.
+
+Papers
+
+* [Machine Learning for Embedded Systems: A Case Study](http://www.cs.cmu.edu/~khaigh/papers/2015-HaighTechReport-Embedded.pdf)
+Support Vector Machines. Target system used for auto-tunic a mobile ad-hoc network (MANET) by
+earns the relationships among configuration parameters. Running on ARMv7 and PPC, 128MB+ RAM.
+Lots of detail about how they optimized an existing SVM implementation, in the end running 20x faster.
 
 Books
 
@@ -162,7 +195,12 @@ Research groups
 * Simula [Relient Networks and Applications](https://www.simula.no/research/projects/center-resilient-networks-and-applications)
 * [SINTEF Digital](https://www.sintef.no/digital/om-sintef-ikt/#Vreavdelinger)
 
+Companies
 
+* [SensiML](https://sensiml.com).
+ISV providing the SensiML Analytics Toolkit, on-microcontroller ML algorithms and supporting tools.
+* ST devices. At WDC2018 announced STM32CubeMX.A SDK for neural networks on STM32 micros, and intent to develop NN coprocessor.
+* Nordic Semiconductors. Leader in Bluetooth low-energy. Nothing around machine learning? 
 
 # Applications
 
