@@ -367,6 +367,45 @@ Change point detection (mostly in time series).
 * [Two approaches for novelty detection using random forest](https://www.sciencedirect.com/science/article/pii/S0957417414008070)
 
 
+# Application ideas
+
+## Anomaly detection in 3d-printing
+
+Consumer grade machines should just work, be safe in operation and guide user to do the right thing.
+Also very price sensitive and mostly sold as a standalone appliance, makes microcontrollers attractive.
+
+Sensors:
+
+* Accelerometer on toolhead.
+* High-speed current sensing of motors.
+* Microphone
+* Should one have tachometer on fan(s), so one can eliminate them more easily?
+
+### Function
+
+that can be implemented with sensors and machine learning
+
+Detect malfuctions
+
+* Print loose from bed, printing into thin air
+* Warping, print lifts up on one side and starts pushing more on part
+* Bottom layer too close to bed, usually leaves.
+* Oozing or other source has left blob in model.
+* Other unexpected obstruction of the toolhead, like a human hand
+* Skipped steps
+
+Detect wear/maintenance need
+
+* Insufficient lubrication of linear bearings
+* Timing belt slop/backlash. Might need to know the gcode/pathplanning
+* Fan bearings worn out. Usually vibrates more and makes noise
+
+Cost saving
+
+* Sensors can maybe replace need for physical endstops for XY
+* Sensors can maybe be used for probing Z level/bed
+
+
 # Online learning
 
 It is also desirable to learn on-the-fly.
