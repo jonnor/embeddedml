@@ -58,6 +58,8 @@ Roughly ordered by relevance. Should both be useful for typical tasks and effici
 * Nearest Neighbours. kNN.
 * k-means clustering.
 * PCA
+* Independent Component Analysis (IDA). 
+Unsupervised, data-driven technique for blind source separation.
 
 Machine learning tasks
 
@@ -115,6 +117,42 @@ Naive Bayes classifier implementations
 Techniques for improvement
 
 * Compensate for naiviety, covariance. Bagging, one-against-many
+
+References
+
+* [Binary LNS-based Naive Bayes Hardware Classifier for Spam Control](https://pdfs.semanticscholar.org/61eb/34423db29a7f634bcf4742049ef22084336e.pdf). Naive Bayes on FGPA. Not using a gaussian.
+
+Gaussian Naive Bayes
+
+* [Naive Bayes Models for Probability Estimation](https://icml.cc/Conferences/2005/proceedings/papers/067_NaiveBayes_LowdDomingos.pdf)
+Proposes naive Bayes models as an alternative to Bayesian networks for general probability estimation tasks.
+Compared on 50 UCI repo datasets.
+The two take similar time to learn and are similarly accurate,
+but naive Bayes inference is orders of magnitude faster.
+[Code](http://aiweb.cs.washington.edu/ai/nbe/)
+* [Comparing fuzzy naive bayes and gaussian naive bayes for decision making in robocup 3d](https://www.researchgate.net/publication/220887471_Comparing_Fuzzy_Naive_Bayes_and_Gaussian_Naive_Bayes_for_Decision_Making_in_RoboCup_3D)
+Fuzzy Naive Bayes classiﬁer just a little better than the Gaussian Naive Bayes. Beat Decision Trees.
+
+Prior art for embayes optimization
+
+* [Fast Gaussian Naïve Bayes for searchlight classification analysis](https://www.sciencedirect.com/science/article/pii/S1053811917307371)
+Called M-GNB / Massive-GNB. Equation (2) has the simplfied quadratic equation also found in embayes.
+Also uses a sparse computation. Was 34 times faster than libSVM.
+[Code](https://github.com/mlsttin/massive_gaussian_naive_bayes) in MATLAB/C++.
+* [Learning with Mixtures of Trees](http://jmlr.csail.mit.edu/papers/volume1/meila00a/meila00a.pdf).
+* [The Likelihood, the prior and Bayes Theorem](https://www.image.ucar.edu/pub/TOY07.4/nychka2a.pdf).
+Derives equation close to embayes via minus log likelyhood of Gaussian distribution.
+* [GENERATIVE AND DISCRIMINATIVE CLASSIFIERS: NAIVE BAYES AND LOGISTIC REGRESSION](https://www.cc.gatech.edu/~lsong/teaching/CSE6740/NBayesLogReg.pdf), chapter 2.4, 3.1.
+maximum likelihood estimator (MLE) and minimum variance unbiased estimator (MVUE) which is very similar.
+Explains relationship between Gaussian Naive Bayes and Logistic Regression.
+"if the GNB assumptions hold, then asymptotically (with training examples)
+the GNB and Logistic Regression converge toward identical classifiers"
+
+Baysian Networks
+
+* [Learning of Bayesian Network Classifiers Under Computational Constraints](https://pdfs.semanticscholar.org/97cb/096d0998b9eebded56154f2cdca551a8b965.pdf).
+Online learning of Bayesian network classifiers (BNCs).
+Using low bit-width fixed-point numbers.
 
 ## Binarized Neural Networks
 
@@ -519,4 +557,49 @@ Dataflow engine. Especially for feature retrieval and processing
 * Component(s) for aggregating/summarizing a value, as feature
 * Component(s) for framing/windowing a (time)series of values
 
+
+## TODO
+
+April/May 2018
+
+* Get supervisor contract signed
+* Decide formulation for rough research topic.
+"Machine learning on constrained Embedded Systems" or "Machine learning on microcontrollers"
+
+June 2018
+
+* Assemble 1-2 nodes with a general sensor package 
+* Write firmware for collecting data
+* Setup data persistence
+* Deploy and start collecting some data
+
+August 2018
+
+* Start work on DAT390 term paper
+* Create demo of an application of ML on microcontroller
+
+December 2018
+
+* Deliver DAT390 term paper
+* Decide research goal for thesis
+* Industry partner is in place (if any)
+
+May 2019
+
+* Deliver master thesis
+
+# Dissemination
+
+## Paper publishing
+
+* TODO: Build list of relevant journals, submission process/terms
+
+## Blogposts
+
+Topics
+
+* Demo/announce of embayes
+* Demo/announce of emtrees
+* Supervised machine learning on microcontroller: Data collection and labeling (ex using ESP8266)
+* Feature engineering/processing with MicroFlo
 
