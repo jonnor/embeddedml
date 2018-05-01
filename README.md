@@ -280,7 +280,8 @@ Companies
 * [SensiML](https://sensiml.com).
 ISV providing the SensiML Analytics Toolkit, on-microcontroller ML algorithms and supporting tools.
 * ST devices. At WDC2018 announced STM32CubeMX.A SDK for neural networks on STM32 micros, and intent to develop NN coprocessor.
-* Nordic Semiconductors. Leader in Bluetooth low-energy. Nothing around machine learning? 
+
+
 
 # Applications
 
@@ -557,8 +558,44 @@ Dataflow engine. Especially for feature retrieval and processing
 * Component(s) for aggregating/summarizing a value, as feature
 * Component(s) for framing/windowing a (time)series of values
 
+# Funding
 
-## TODO
+
+## Industry partners
+
+Key technologies
+
+* Microcontroller
+* Embedded Systems
+* Sensors
+* Machine learning
+
+Potential companies
+
+Microcontrollers
+
+* Nordic Semiconductors. Leader in Bluetooth low-energy chips. Nothing around machine learning?
+* Microchip (prev Atmel). [.](https://www.finn.no/job/fulltime/ad.html?finnkode=117675050)
+* Silicon Labs (prev. Energy Micron)
+
+Embedded Systems
+
+* Data Respons.
+* Cisco (prev Tandberg). Lysaker.
+
+Sensors
+
+* Tunable. Gas sensors startup. Oslo. [.](https://www.finn.no/job/fulltime/ad.html?finnkode=119094407)
+* Sensonor. Experienced MEMS sensors company. Horten.
+
+## Grants
+
+* [IEEE Computational Intelligence Society Graduate Student Research Grants](https://cis.ieee.org/graduate-student-research-grants.html).
+1-4k USD. Housing costs, travel costs for visiting external institution.
+Deadline: April-March?. Need to be student member of IEEE CIS 
+
+
+# TODO
 
 April/May 2018
 
