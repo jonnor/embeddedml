@@ -600,14 +600,10 @@ Deadline: April-March?. Need to be student member of IEEE CIS
 
 # TODO
 
-April/May 2018
-
-* Get supervisor contract signed
-* Decide formulation for rough research topic.
-"Machine learning on constrained Embedded Systems" or "Machine learning on microcontrollers"
 
 June 2018
 
+* Contact potential companies for partnerships
 * Assemble 1-2 nodes with a general sensor package 
 * Write firmware for collecting data
 * Setup data persistence
@@ -632,7 +628,27 @@ May 2019
 
 ## Paper publishing
 
-* TODO: Build list of relevant journals, submission process/terms
+* WikiCFP
+[embedded system](http://www.wikicfp.com/cfp/servlet/tool.search?q=embedded+system&year=f)
+[machine learning](http://www.wikicfp.com/cfp/servlet/tool.search?q=machine+learning&year=f)
+[sensor](http://www.wikicfp.com/cfp/servlet/tool.search?q=sensor&year=f)
+
+CFPs
+
+* SENSORS Special Issue: Algorithm and Distributed Computing for the Internet of Things. Nov 30.
+[CFP](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=74395&copyownerid=54155)
+"original, unpublished high-quality articles, not currently under review by another conference or journal, clearly focused on theoretical and implementation solutions for IoT, including intelligent approaches"
+
+Journals
+
+* IJASUC: International Journal of Ad hoc, Sensor & Ubiquitous Computing. Open-access, bi-monthly.
+[CFP example](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=66923&copyownerid=33993)
+* SDAP: Smart Devices, Applications, and Protocols for the IoT. (bi)Yearly.
+
+Conferences
+
+* iWOAR 2018. International Workshop on Sensor-based Activity Recognition and Interaction. Berlin, September.
+[CFP 2018](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=73357&copyownerid=76599). June 15. 
 
 ## Blogposts
 
@@ -642,4 +658,9 @@ Topics
 * Demo/announce of emtrees
 * Supervised machine learning on microcontroller: Data collection and labeling (ex using ESP8266)
 * Feature engineering/processing with MicroFlo
+
+Ideas
+
+* Machine learning for microcontroller/DSP engineers.
+Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate results 
 
