@@ -61,6 +61,12 @@ Roughly ordered by relevance. Should both be useful for typical tasks and effici
 * Independent Component Analysis (IDA). 
 Unsupervised, data-driven technique for blind source separation.
 
+Ideas
+
+* Metric learning. Specially HDML / Hamming Distance Metric Learning (Norouzi 2012),
+since Hamming distance is very compact, and neighbours can be found fast.
+
+
 Machine learning tasks
 
 * Classification
@@ -539,6 +545,15 @@ STM32F030. [devkit](https://www.banggood.com/5Pcs-STM32F030F4P6-Small-Systems-De
 * IMU
 * Piezo vibration sensor? Might be better to use high-frequency accelerometer
 * SPI ADC, [MCP3002](https://www.digikey.no/product-detail/en/microchip-technology/MCP3002T-I-SN/MCP3002T-I-SN-ND/319415)
+* Camera. OV7670 (VGA-QCIF).
+[Making work with STM32](http://embeddedprogrammer.blogspot.no/2012/07/hacking-ov7670-camera-module-sccb-cheat.html)
+QCIF 176x144 is approx 40kB color, 20kB grayscale.
+Version with AL422 FIFO is maybe a bit easier to interface. 8bit parallel readout.
+[ex](https://www.aliexpress.com/item/J34-Free-Shipping-AL422-640x480-CMOS-With-3M-Bits-OV7670-FIFO-Camera-STM32-Chip-Driver-Module/32579976662.html).
+OV7725. Older chip, rare now. [Object tracking with STM32](http://blog.tkjelectronics.dk/2014/01/color-object-tracking-with-stm32-ov7725/)
+OV5647 RPi camera module.. 5MPi. MIPI CSI-2, too fast for microcontroller. Need FPGA or dedicated pheripheral? Overkill 
+[ArduCAM](https://github.com/ArduCAM/Arduino) support 10+ camera modules incl OV7670. ESP8266 also supported.
+[OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
 
 Testcases
 
