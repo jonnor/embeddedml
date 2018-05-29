@@ -40,7 +40,7 @@ Example usecases
 * Appliance disaggregation, using aggregated power consumption data. "Non-Intrusive Load Monitoring" (NILM)
 * Anomaly/change detection for predictive maintenance, using audio/vibration data, or electrical data
 * Gesture recognition as human input device, using accelerometer/gyro data.
-* Speech/command recognition as human input device, using microphone. Keyword detection
+* Speech/command recognition as human input device, using microphone. Keyword/Wake-word detection
 * Battery saving in wireless sensors. Normally sending day/week aggregates, on event detection send data immediately
 * Health status of animals via activity detected using accelerometer
 * Monitoring eating activity using accelerometer [1](https://www.sciencedirect.com/science/article/pii/S0010482515000086)
@@ -321,6 +321,19 @@ Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic
 [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
 found that CMSIS FFT with Q31 had slightly less error than with F32.
 
+Goertzel filter
+
+* [embedded.com The Goertzel Algorithm](https://www.embedded.com/design/configurable-systems/4024443/The-Goertzel-Algorithm),
+example code in C++.
+* [embedded.com Single tone detection with Goertzel](https://www.embedded.com/design/real-world-applications/4401754/Single-tone-detection-with-the-Goertzel-algorithm). Example code in C++
+* [Efficiently detecting a frequency using a Goertzel filter](https://netwerkt.wordpress.com/2011/08/25/goertzel-filter/),
+several implementation variants in C.
+* Matched Filter Design
+The Goertzel algorithm is advantageous compared to the FFT when
+`M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
+N=1024, M=8
+
+
 General
 
 * [Audio classification overview](http://www.nyu.edu/classes/bello/ACA_files/8-classification.pdf)
@@ -336,10 +349,82 @@ Using 5 simple features.
 * [Notes on Music Information Retrieval](https://musicinformationretrieval.com/index.html), series of Jupyter notebooks.
 Lots of goodies, from feature extraction to high-level algorithms.
 
+Acoustic event detection (AED)
+
+* Competitions: CLEAR "Classification of Events, Activities and Relation-
+ships". DCASE Detection and Classification of Acoustic Scenes and Events (2016,2013)
+* [Acoustic Event Detection Using Machine Learning: Identifying Train Events](http://cs229.stanford.edu/proj2012/McKennaMcLaren-AcousticEventDetectionUsingMachineLearningIdentifyingTrainEvents.pdf). Shannon Mckenna,David Mclare.
+Using RMS over 0.125 seconds and 1/3 octave frequency bands. Classify individual time instances as train-event,
+then require a cluster of 3 train events successive. 
+"Performance of our classifier was significantly increased when we normalized the noise levels by
+subtracting out the mean noise level of each 1/3 octave band and dividing by the standard deviation"
+Used Logistic Regression and SVM. From 0.6 to 0.9 true positive rate (depending on site), with `<0.05` false positive rate.
+Tested across 10 sites.
+* [ACOUSTIC EVENT DETECTION IN REAL LIFE RECORDINGS](http://www.cs.tut.fi/~mesaros/pubs/acoustic_event_detection_1406.pdf) Mesaros et al, 2010.
+Network of (fully connected) Hidden Markov Models, on MFCC and optimal path search using Viterbi algorithm.
+Three-state left-to-right HMM with 4 to 16 mixture densities.
+"reliable detection and categorization of audio events from everyday audio is not mature enough for practical applications,
+such as automatic indexing of video sound tracks". Using 61 classes of events. Data from Stockmusic online sample database.
+1359 samples from 9 different context/site types.
+"To simulate a natural polyphonic environment, we studied the effect of different signal-
+to-noise ratios, the signal being the event to be recognized and ”noise” being selected from a database of ambient noises"
+on isolated audio events, obtaining a maximum performance of 54%.
+on the real-life recordings, obtaining a recognition performance of 24%.
+[website](http://www.cs.tut.fi/~heittolt/research-sound-event-detection) shown progress on same dataset up to modern methods with f1-score=69.3%
+using Convolutional Recurrent Neural Networks. Dataset TUT-SED2009 TUT-CASA2009
+* [https://ieeexplore.ieee.org/document/7933055/](Bag-of-Features Methods for Acoustic Event Detection and Classification). Grzeszick, 2014/2017.
+Features are calculated for all frames in a given time window. Then, applying the bag-of-features concept, these features are quantized with respect to a learned codebook and a histogram representation is computed. Bag-of-features approaches are particularly interesting for online processing as they have a low computational cost. Using GCFF Gammatone frequency cepstral coefficients, in addition to MFCC.
+Codebook quantizations used: soft quantization, supervised codebook learning, and temporal modeling.
+Using DCASE 2013 office live dataset and the ITC-IRST multichannel.
+Beamforming. "Multichannel fusion has been shown to improve the performance of speech and event recognition". ref
+online classification and detection of acoustic events are typically applied over
+short time windows and combined with a sliding window.
+Basic method is to use MFCC features and a GMM to model each acoustic event class,
+similar to the approaches in speaker identification.
+The mean and variance of the feature vectors are modeled by the Gaussian mixtures.
+Typically, GMMs are trained separately for each class.
+For classification the GMMs’ estimates are summed over all frames and the class with the highest likelihood is chosen.
+Since the summation discards any temporal structure, the method is sometimes termed ‘Bag-of-Frames’.
+More sophisticated GMM methods include the use of a background model
+Besides GMMs, several approaches incorporate random forests for AED.
+DNNs and convolutional neural networks (CNNs) can also be applied to AED based on a sliding window.
+Often spectra or mel energies are used as features, allowing the network to learn the feature representation.
+
+Acoustic features are extracted for each frame in the training set.
+These features are clustered in order to build a set of representatives.
+The occurrences of these representatives within a given window are counted and a histogram is derived from the counts.
+The histogram is then used for classification.
+For the task of AED, these representatives are often referred to as an audio or acoustic word.
+As the temporal information is discarded, feature augmentation approaches have been introduced in order to incorporate coarse temporal information(16).
+BoF principle: Learn intermediate representation of features in unsupervised manner. Clustering like k-means
+Hard-quantization: All N*K feature vectors are clustered. Only cluster centroids are of interest. Assign based on minimum distance.
+Soft-quantization: GMM with expectation maximation. Codebook has mean,variance.
+Supervized-quantization. GMM per class, concatenated.
+Re-introducing temporality. Pyramid scheme, feature augumentation by adding quantizied time coordinate.
+SVM classification. Multiclass. Linear, RBF. *Histogram-intersection kernel* works well.
+Random Forests. Works well for AED.
+Frame size = 1024samples@44.1kZ=22.3 ms
+The current python implementation uses a single core on a standard desktop machine
+and requires less than 20% of the real time for computation.
+As a result of the sliding window approach, there is a processing delay of w/2 = 0.3s.
+* [Bird Audio Detection using probability sequence kernels](http://machine-listening.eecs.qmul.ac.uk/wp-content/uploads/sites/26/2017/02/badChallenge_iitMandi.pdf)
+Judges award DCASE2016 for most computationally efficient.
+MFCC features (voicebox), GMM, SVM classifier from libsvm with probability sequence kernel (PSK).
+AUC of 73% without short-term Gaussianization to adapt to dataset differences.
+* LEARNING FILTER BANKS USING DEEP LEARNING FOR ACOUSTIC SIGNALS. Shuhui Qu.
+Based on the procedure of log Mel-filter banks, we design a filter bank learning layer.
+Urbansound8K dataset, the experience guided learning leads to a 2% accuracy improvement.
+* [EFFICIENT CONVOLUTIONAL NEURAL NETWORK FOR AUDIO EVENT DETECTION](https://www.researchgate.net/publication/320098222_Efficient_Convolutional_Neural_Network_For_Audio_Event_Detection). Meyer, 2017.
+structural optimizations. reduce the memory requirement by a factor 500,
+and the computational effort by a factor of 2.1 while performing 9.2 % better.
+Final weights are 904 kB. Which fits in progmem, but not in RAM on a ARM Cortex M7.
+Needs 75% of theoritical performance wrt MACs, which is likely not relalizable.
+They suggest use of a dedicated accelerator chip.
+
 ### Tools
 
 * [librosa](https://librosa.github.io/librosa/feature.html)
-* [essentia](http://essentia.upf.edu/documentation/algorithms_overview.html)
+* [essentia](http://essentia.upf.edu/documentation/algorithms_overview.html). Tons of filters and feature extractors
 
 ### Datasets
 
@@ -356,6 +441,8 @@ Kaggle competition required submissions to run in below 200ms on a Raspberry PI3
 * [Speakers in the Wild](https://www.sri.com/work/publications/speakers-wild-sitw-speaker-recognition-database)
 * [Google AudioSet](https://research.google.com/audioset/). 2,084,320 human-labeled 10-second sounds, 632 audio event classes. 
 * [BirdCLEF 2016](http://www.imageclef.org/lifeclef/2016/bird). 24k audio clips of 999 birds species
+* DCASE 2013. Audio Event Detection. Indoor office sounds. 16 classes. Segmented. 19 minutes total.
+* DCASE 2018. Audio Event Detection, single-class: bird-present. 6 datasets of some k samples each.
 
 ## Activity detection
 
@@ -536,12 +623,19 @@ References
 Hardware platform
 
 * Microcontroller with connectivity. Ex: ESP8266/ESP32 with WiFi/BLE.
-Or some ARM Cortex M, possibly with LORA/NBIOT. Or NRF24 ARM Cortex with integrated BLE.
+Or some ARM Cortex M, possibly with LORA/NBIOT. Or NRF51/NRF52 ARM Cortex with integrated BLE.
 LoRa -> Wifi bridge. [Wemos TTGO](https://www.banggood.com/2Pcs-Wemos-TTGO-433470MHz-SX1278-ESP32-LoRa-0_96-Inch-Blue-OLED-Display-Bluetooth-WIFI-Module-p-1271663.html?rmmds=search&cur_warehouse=CN)
 LoRa module. [1](https://www.banggood.com/LoRa-SX1278-Long-Range-RF-Wireless-Power-Mental-Module-For-Arduino-p-1159089.html?rmmds=search&cur_warehouse=CN)
 STM32F030. [devkit](https://www.banggood.com/5Pcs-STM32F030F4P6-Small-Systems-Development-Board-CORTEX-M0-Core-32bit-Mini-System-p-1221406.html?rmmds=search&cur_warehouse=CN)
+[NRF52: ADC capturing at 4uA using RTC](https://github.com/NordicPlayground/nRF52-ADC-examples/tree/master/saadc_low_power)
+NRF52. Bluetooth 5.0, up to 100 meters. ADC. 15us=66kHz, good for multi-channel audio.
+NRF51. Bluetooth 4.2, 30 meters typ max. ADC. 68us=17kHz for 10bit, OK for single-channel audio.
 * Microphone. [Analog](https://www.digikey.co.uk/products/en/audio-products/microphones/158?k=microphone&k=&pkeyword=microphone&FV=ffe0009e%2Ca40062&quantity=0&ColumnSort=1000011&page=1&stock=1&nstock=1&datasheet=1&pageSize=25)
 [I2S](https://www.digikey.co.uk/products/en/audio-products/microphones/158?FV=ffe0009e%2Ca4027e&quantity=&ColumnSort=1000011&page=1&k=microphone&pageSize=25&pkeyword=microphone)
+SPV0840LR5H-B, Microphone MEMS 60 uA.
+MCP6231 20uA. 300kHz gain*bw.
+TL062. 200uA
+
 * IMU
 * Piezo vibration sensor? Might be better to use high-frequency accelerometer
 * SPI ADC, [MCP3002](https://www.digikey.no/product-detail/en/microchip-technology/MCP3002T-I-SN/MCP3002T-I-SN-ND/319415)
@@ -553,7 +647,38 @@ Version with AL422 FIFO is maybe a bit easier to interface. 8bit parallel readou
 OV7725. Older chip, rare now. [Object tracking with STM32](http://blog.tkjelectronics.dk/2014/01/color-object-tracking-with-stm32-ov7725/)
 OV5647 RPi camera module.. 5MPi. MIPI CSI-2, too fast for microcontroller. Need FPGA or dedicated pheripheral? Overkill 
 [ArduCAM](https://github.com/ArduCAM/Arduino) support 10+ camera modules incl OV7670. ESP8266 also supported.
-[OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
+
+Existing open platforms
+
+* [OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
+Not low-power, 200mA cited. 75 USD.
+* [AudioMoth](https://www.openacousticdevices.info/audiomoth).
+Field audio recording device designed for battery power.
+16 mAh with 10sec rec/10 sec sleep on 96kHz samplerate.
+3xAA batteries. Over 100 days runtime.
+Silicon Labs Cortex M4F. External 256kB SRAM.
+Records and processes up to 384kHz.
+50 USD.
+[AudioMoth: Evaluation of a smart open acoustic device for monitoring biodiversity and the environment](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12955)
+"AudioMoth can be programmed to filter relevant sounds such that only those of interest are saved,
+thus reducing post‐processing time, power usage and data storage requirements."
+"AudioMoth creates a unique opportunity for users to design specific classification algorithms for individual projects."
+uses the Goertzel filter for real‐time classification algorithms.
+This filter evaluates specific terms of a fast Fourier transform on temporarily buffered audio samples
+without the computational expense of a complete transform. Samples are split into N windows
+Precomputed filter coefficients. Hamming window, precomputed.
+from 10 to 25 mW consumption when processing samples.
+Many of the natural environments most prone to poaching have no Wi‐Fi or mobile coverage,
+ruling out the use of cloud‐based acoustic systems.
+5‐month total period of field deployment of 87 AudioMoths resulted in 129 hr of audio triggered by positive algorithm responses.
+These were identified as false positives from a number of sources, including dog whistles, leaf noise during strong winds, and bird songs.
+In comparison, recording continuously for 12 hr per day over the same period would have created 156,600 hr of audio data.
+The most energy intensive task on AudioMoth was writing data to the microSD card, which consumed 17–70 mW.
+80 μW when sleeping between sample, approx 6 years standby.
+Further developments are exploring the potential for networking AudioMoth by LoRa radio,
+to link them to a base station for real‐time signalling of acoustic events triggered by the detection algorithm.
+record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
+For example, summarise the important characteristics of sounds with measurements known as acoustic indices
 
 Testcases
 
@@ -563,6 +688,13 @@ Testcases
 * Detect a hand gesture. Accelerometer
 * Detect a spoken command. Microphone
 * Detect/Estimate room occupancy. Accelerometer,microphone,PIR
+
+
+[QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
+Always-on wake word detection at 640uWatt typical.
+nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
+
+
 
 ## Using microflo
 Dataflow engine. Especially for feature retrieval and processing
