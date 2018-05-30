@@ -420,6 +420,42 @@ and the computational effort by a factor of 2.1 while performing 9.2 % better.
 Final weights are 904 kB. Which fits in progmem, but not in RAM on a ARM Cortex M7.
 Needs 75% of theoritical performance wrt MACs, which is likely not relalizable.
 They suggest use of a dedicated accelerator chip.
+* Kaggle: The Marinexplore and Cornell University Whale Detection Challenge
+[Features & classification approaches](https://www.kaggle.com/c/whale-detection-challenge/discussion/4156).
+Many approached used with good results.
+Large range in feature sets. Mostly deep learning and tree ensembles, some SVM.
+Winner used image template on spectograms with a GradientBoostingClassifier.
+
+#### DCASE18 bird detection
+
+Goals
+
+* Online classifier running in real-time on low-power ARM Cortex M4F,
+with high enough classification rate to be useful as recording trigger
+* Submit for DCASE18 challenge. Classification, code, technical paper. 
+* Submit scientific paper for DCASE18. July 31
+
+TODO
+
+First model
+
+* Extract classic features for dataset(s). MFCC,?
+* Review literature for promising tree/forest based approaches
+* Setup basic sklearn pipeline/workflow
+* Understand how GMMs work
+* Try replicate iitMandi CASE17. GMM+SVM classifier
+
+Hardware constraints
+
+* Try to run MFCC feature calculation on M4F
+* Try to run Random Forest classifier on M4F with (precalculated) MFCC features
+* What does a GMM require?
+
+Hardware
+
+* STM32F4xx Discovery
+* NRF52 breakoutSparkFun
+* Tiva-C
 
 ### Tools
 
