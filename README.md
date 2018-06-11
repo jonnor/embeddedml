@@ -456,6 +456,18 @@ The Goertzel algorithm is advantageous compared to the FFT when
 `M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
 N=1024, M=8
 
+Feature learning
+
+* Aka feature construction
+* Supervised/unsupervised dictionary learning
+* Sparse coding. Unsupervised
+* Non-negative matrix factorization. Unsupervised
+
+Papers on audio feature learning
+* Learning Sparse Adversarial Dictionaries For Multi-Class Audio Classification. 2017.
+Uses adverserial and reconstructive learning, and can be directly used as a classifier.
+* Dictionary Learning for Bioacoustic monitoring with applications to species classification
+
 
 General
 
@@ -471,6 +483,19 @@ Using 5 simple features.
 * [Machine Learning for Audio, Image and Video Analysis](http://www.dcs.gla.ac.uk/~vincia/textbook.pdf).
 * [Notes on Music Information Retrieval](https://musicinformationretrieval.com/index.html), series of Jupyter notebooks.
 Lots of goodies, from feature extraction to high-level algorithms.
+* [Detection and Classification of Acoustic Scenes and Events](https://hal.archives-ouvertes.fr/hal-01123760/document). 2014
+Review of state of the art in machine listening.
+Problem 1: Acoustic scene classification,
+Characterize acoustic environment of an audio stream by selecting a semantic label for it.
+Single-label classification. Similar to: Music genre recognition. Speaker recognition. Also similar to other time-based classification, ie in video.
+Approach 1. Bag of frames. Long-term statistical distribution of local spectral features. Ex MFCC.
+Compare feature distributions using GMM.
+Approach 2. Intermediate representation using higher level vocabulary/dictionary of "acoustic atoms".
+Problem 2. Acoustic event detection. Label temporal regions within an audio recording; start time, end time and label for each event instance.
+Related to. Automatic music transcription. Speaker diarisation.
+Typically treated as monophonic problem, but polyphonic is desirable.
+More challening that scene classification.
+One strategy to handle polyphonic signals is to perform audio source separation, and then to analyse the resulting signals individually.
 
 Keyword spotting
 
@@ -479,8 +504,7 @@ Keyword spotting
 Considering 3 different sizes of networks, bound by NN memory limit and ops/second limits. Small= 80KB, 6M ops/inference.
 Depthwise Separable Convolutional Neural Network (DS-CNN) provides the best accuracy while requiring significantly lower memory and compute resources. 94.5% accuracy for small.
 ARM Cortex M7 (STM32F746G-DISCO). 8-bit weights and 8-bit activations, with KWS running at 10 inferences per second.
-Each inference – including memory copying, MFCC feature extraction and DNN execution – takes about 12 ms. Rest sleeping = 1.2% duty cycle.
-
+Each inference – including memory copying, MFCC feature extraction and DNN execution – takes about 12 ms. 10x inferences/second. Rest sleeping = 12% duty cycle.
 * [QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
 Always-on wake word detection at 640uWatt typical.
 nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
