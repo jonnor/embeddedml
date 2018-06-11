@@ -77,7 +77,7 @@ Machine learning tasks
 ## Tree-based methods
 Implemented in [emtrees](https://github.com/jonnor/emtrees)
 
-Random Forests, Extra trees.
+Random Forests, Extra trees, Gradient Boosted Trees
 
 Resources
 
@@ -93,6 +93,39 @@ Performance
 * MNIST. [Kaggle](https://www.kaggle.com/c/digit-recognizer).
 Random Forest with original features seems to peaks out at just under 3% error rate, for 200-1000 trees.
 Should be below 5% for 100 trees. Training time should be under 10 minutes.
+
+As execution target for other ML models
+
+* Keywords. Knowledge distillation, model distillation, model compression
+* [Distilling a Neural Network Into a Soft Decision Tree](https://www.arxiv-vanity.com/papers/1711.09784/). Hinton, November 2017.
+Main motivation is making the decisions of model more explainable.
+Could it also be used to get computationally efficient results for problems which classically-trained trees don't perform so well?
+"we use the deep neural network to train a decision tree that mimics the input-output function discovered by the neural network
+but works in a completely different way".
+It is possible to transfer the generalization abilities of the neural net to a decision tree by using a technique called distillation
+and a type of decision tree that makes soft decisions.
+Soft decision tree is a hierarchical mixture of experts. With probability across learned distributions.
+Sigmoid activation function, with heating term.
+! Unlike most decision trees, our soft decision trees use decision boundaries that are not aligned with the axes defined by the components of the input vector.
+! Trained by first picking the size of the tree and then using mini-batch gradient descent to update all of their parameters simultaneously, rather than the more standard greedy approach that decides the splits one node at a time.
+Loss function minimizes the cross entropy between each leaf, weighted by its path probability, and the target distribution.
+Using regularization.
+* https://github.com/csypeng/nnsdt, Python implementation of Hinton2017 using TensorFlow
+* https://github.com/kimhc6028/soft-decision-tree, Python implementation of Hinton2017 using Pytorch
+
+Optimization
+
+* Can we reduce number of nodes in a tree? Using pruning?
+* Can we eliminate redundant decisions across trees in the forest?
+* The tree is done as soon as a leaf is reached.
+Can we reorder the tree to make this faster for typical data?
+
+Related methods
+
+* Deep Neural Decision Forests. [Explained](https://topos-theory.github.io/deep-neural-decision-forests/)
+* Deep Forest. https://arxiv.org/abs/1702.08835
+* [Convolutional Decision Trees for Feature Learning and Segmentation](https://link.springer.com/chapter/10.1007/978-3-319-11752-2_8). Laptev, 2014.
+* Multivariate (oblique) trees. 
 
 ## Naive Bayes
 Implemented in [embayes](https://github.com/jonnor/embayes)
@@ -160,6 +193,29 @@ Baysian Networks
 Online learning of Bayesian network classifiers (BNCs).
 Using low bit-width fixed-point numbers.
 
+## Quantized Neural Networks
+
+Using integer quantization, typically down to 8-bit. Reduces size of weights, allows to use wider SIMD instructions.
+Most interesting for low, when applied to already-efficient deep learning architectures. Examples are MobileNet, SqueezeNet.
+In microcontrollers, ARM Cortex M4F and M7 can do SIMD operations with 4x 8-bit integers.
+
+Papers
+
+* [Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference](https://arxiv.org/pdf/1712.05877.pdf).
+Paper on the quantization supported in TensorFlow Lite.
+Evaluated on Accuracy versus Latency tradeoff. Tested on Qualcomm Snapdragon 835 LITTLE. Using ReLU6 non-linearity. Primarily 8-bit arithmetics, 32-bit for some parts.
+* Papers are expected from CVPR 2018 On-Device Visual Intelligence Challenge (June 2018),
+competition focused on improving accuracy/latency tradeoff.
+
+
+Blogposts
+
+* [Why are Eight Bits Enough for Deep Neural Networks?](https://petewarden.com/2015/05/23/why-are-eight-bits-enough-for-deep-neural-networks/)
+* [What I’ve learned about neural network quantization](https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/)
+* [How to Quantize Neural Networks with TensorFlow](https://petewarden.com/2016/05/03/how-to-quantize-neural-networks-with-tensorflow/)
+Allows to quantize in feedforward, but keep backprop as full precision floats.
+
+
 ## Binarized Neural Networks
 
 Bitwise arithmetic packed into integer representations.
@@ -179,7 +235,9 @@ Reorders computation compared to BNN to only need a single floating point interm
 332,164 images per second with 85% accuracy on CIFAR-10.
 * [Accelerating Binarized Neural Networks: Comparison of FPGA, CPU, GPU, and ASIC](http://jaewoong.org/pubs/fpt16-accelerating-bnn.pdf)
 
-### Support Vector Machines
+Another alternative is binary shift networks, which replaces multiplications with bitshifts.
+
+## Support Vector Machines
 
 Strong linear classifier/regressor, also strong non-linear method when using a kernel (polynomial,RBF).
 
@@ -287,6 +345,71 @@ Companies
 ISV providing the SensiML Analytics Toolkit, on-microcontroller ML algorithms and supporting tools.
 * ST devices. At WDC2018 announced STM32CubeMX.A SDK for neural networks on STM32 micros, and intent to develop NN coprocessor.
 
+Blogposts
+
+* [Why the Future of Machine Learning is Tiny (devices)](https://petewarden.com/2018/06/11/why-the-future-of-machine-learning-is-tiny)
+Tiny Computers are Already Cheap and Everywhere. Energy is the Limiting Factor.We Capture Much More Sensor Data Than We Use.
+
+Open hardware platforms
+
+* [OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
+Not low-power, 200mA cited. 75 USD.
+* [AudioMoth](https://www.openacousticdevices.info/audiomoth).
+Field audio recording device designed for battery power.
+16 mAh with 10sec rec/10 sec sleep on 96kHz samplerate.
+3xAA batteries. Over 100 days runtime.
+Silicon Labs Cortex M4F. External 256kB SRAM.
+Records and processes up to 384kHz.
+50 USD.
+[AudioMoth: Evaluation of a smart open acoustic device for monitoring biodiversity and the environment](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12955)
+"AudioMoth can be programmed to filter relevant sounds such that only those of interest are saved,
+thus reducing post‐processing time, power usage and data storage requirements."
+"AudioMoth creates a unique opportunity for users to design specific classification algorithms for individual projects."
+uses the Goertzel filter for real‐time classification algorithms.
+This filter evaluates specific terms of a fast Fourier transform on temporarily buffered audio samples
+without the computational expense of a complete transform. Samples are split into N windows
+Precomputed filter coefficients. Hamming window, precomputed.
+from 10 to 25 mW consumption when processing samples.
+Many of the natural environments most prone to poaching have no Wi‐Fi or mobile coverage,
+ruling out the use of cloud‐based acoustic systems.
+5‐month total period of field deployment of 87 AudioMoths resulted in 129 hr of audio triggered by positive algorithm responses.
+These were identified as false positives from a number of sources, including dog whistles, leaf noise during strong winds, and bird songs.
+In comparison, recording continuously for 12 hr per day over the same period would have created 156,600 hr of audio data.
+The most energy intensive task on AudioMoth was writing data to the microSD card, which consumed 17–70 mW.
+80 μW when sleeping between sample, approx 6 years standby.
+Further developments are exploring the potential for networking AudioMoth by LoRa radio,
+to link them to a base station for real‐time signalling of acoustic events triggered by the detection algorithm.
+record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
+For example, summarise the important characteristics of sounds with measurements known as acoustic indices
+
+# Related
+
+## Energy harvesting
+
+Energy harvesting rules of thumb:
+
+    Outdoor light – 10mW/cm2
+    Industrial temperature difference – 1-10 mW/cm2
+
+    Industrial vibration – 100µW/cm2
+    Human temperature difference – 25µW/cm2
+    Indoor light – 10µW/cm2
+    Human vibration – 4µW/cm2
+
+    GSM RF – 0.1µW/cm2
+    Wifi RF – 0.001µW/cm2
+
+[AI and Unreliable Electronics (*batteries not included)](https://petewarden.com/2016/12/29/ai-and-unreliable-electronics-batteries-not-included/). 
+
+## Privacy
+
+Doing more of the data processing locally, enables storing or transmitting privacy sensitive data more seldom.
+
+* [Scalable Machine Learning with Fully Anonymized Data](https://adamdrake.com/scalable-machine-learning-with-fully-anonymized-data.html)
+Using feature hashing on client/sensor-side, before sending to server that performs training.
+_hashing trick_ is an established way of processing data as part of training a machine learning model.
+The typical motivation for using the technique is a reduction in memory requirements or the ability to perform stateless feature extraction.
+While feature hashing is ideally suited to categorical features, it also empirically works well on continuous features
 
 
 # Applications
@@ -348,6 +471,19 @@ Using 5 simple features.
 * [Machine Learning for Audio, Image and Video Analysis](http://www.dcs.gla.ac.uk/~vincia/textbook.pdf).
 * [Notes on Music Information Retrieval](https://musicinformationretrieval.com/index.html), series of Jupyter notebooks.
 Lots of goodies, from feature extraction to high-level algorithms.
+
+Keyword spotting
+
+* Aka wake word detection
+* [How to Achieve High-Accuracy Keyword Spotting on Cortex-M Processors](https://community.arm.com/processors/b/blog/posts/high-accuracy-keyword-spotting-on-cortex-m-processors). Reviews many deep learning approaches. DNN, CNN, RNN, CRNN, DS-CNN.
+Considering 3 different sizes of networks, bound by NN memory limit and ops/second limits. Small= 80KB, 6M ops/inference.
+Depthwise Separable Convolutional Neural Network (DS-CNN) provides the best accuracy while requiring significantly lower memory and compute resources. 94.5% accuracy for small.
+ARM Cortex M7 (STM32F746G-DISCO). 8-bit weights and 8-bit activations, with KWS running at 10 inferences per second.
+Each inference – including memory copying, MFCC feature extraction and DNN execution – takes about 12 ms. Rest sleeping = 1.2% duty cycle.
+
+* [QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
+Always-on wake word detection at 640uWatt typical.
+nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
 
 Acoustic event detection (AED)
 
@@ -684,37 +820,6 @@ OV7725. Older chip, rare now. [Object tracking with STM32](http://blog.tkjelectr
 OV5647 RPi camera module.. 5MPi. MIPI CSI-2, too fast for microcontroller. Need FPGA or dedicated pheripheral? Overkill 
 [ArduCAM](https://github.com/ArduCAM/Arduino) support 10+ camera modules incl OV7670. ESP8266 also supported.
 
-Existing open platforms
-
-* [OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
-Not low-power, 200mA cited. 75 USD.
-* [AudioMoth](https://www.openacousticdevices.info/audiomoth).
-Field audio recording device designed for battery power.
-16 mAh with 10sec rec/10 sec sleep on 96kHz samplerate.
-3xAA batteries. Over 100 days runtime.
-Silicon Labs Cortex M4F. External 256kB SRAM.
-Records and processes up to 384kHz.
-50 USD.
-[AudioMoth: Evaluation of a smart open acoustic device for monitoring biodiversity and the environment](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12955)
-"AudioMoth can be programmed to filter relevant sounds such that only those of interest are saved,
-thus reducing post‐processing time, power usage and data storage requirements."
-"AudioMoth creates a unique opportunity for users to design specific classification algorithms for individual projects."
-uses the Goertzel filter for real‐time classification algorithms.
-This filter evaluates specific terms of a fast Fourier transform on temporarily buffered audio samples
-without the computational expense of a complete transform. Samples are split into N windows
-Precomputed filter coefficients. Hamming window, precomputed.
-from 10 to 25 mW consumption when processing samples.
-Many of the natural environments most prone to poaching have no Wi‐Fi or mobile coverage,
-ruling out the use of cloud‐based acoustic systems.
-5‐month total period of field deployment of 87 AudioMoths resulted in 129 hr of audio triggered by positive algorithm responses.
-These were identified as false positives from a number of sources, including dog whistles, leaf noise during strong winds, and bird songs.
-In comparison, recording continuously for 12 hr per day over the same period would have created 156,600 hr of audio data.
-The most energy intensive task on AudioMoth was writing data to the microSD card, which consumed 17–70 mW.
-80 μW when sleeping between sample, approx 6 years standby.
-Further developments are exploring the potential for networking AudioMoth by LoRa radio,
-to link them to a base station for real‐time signalling of acoustic events triggered by the detection algorithm.
-record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
-For example, summarise the important characteristics of sounds with measurements known as acoustic indices
 
 Testcases
 
@@ -724,11 +829,6 @@ Testcases
 * Detect a hand gesture. Accelerometer
 * Detect a spoken command. Microphone
 * Detect/Estimate room occupancy. Accelerometer,microphone,PIR
-
-
-[QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
-Always-on wake word detection at 640uWatt typical.
-nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
 
 
 
