@@ -586,36 +586,7 @@ Many approached used with good results.
 Large range in feature sets. Mostly deep learning and tree ensembles, some SVM.
 Winner used image template on spectograms with a GradientBoostingClassifier.
 
-#### DCASE18 bird detection
 
-Goals
-
-* Online classifier running in real-time on low-power ARM Cortex M4F,
-with high enough classification rate to be useful as recording trigger
-* Submit for DCASE18 challenge. Classification, code, technical paper. 
-* Submit scientific paper for DCASE18. July 31
-
-TODO
-
-First model
-
-* Extract classic features for dataset(s). MFCC,?
-* Review literature for promising tree/forest based approaches
-* Setup basic sklearn pipeline/workflow
-* Understand how GMMs work
-* Try replicate iitMandi CASE17. GMM+SVM classifier
-
-Hardware constraints
-
-* Try to run MFCC feature calculation on M4F
-* Try to run Random Forest classifier on M4F with (precalculated) MFCC features
-* What does a GMM require?
-
-Hardware
-
-* STM32F4xx Discovery
-* NRF52 breakoutSparkFun
-* Tiva-C
 
 ### Tools
 
@@ -824,8 +795,8 @@ LoRa -> Wifi bridge. [Wemos TTGO](https://www.banggood.com/2Pcs-Wemos-TTGO-43347
 LoRa module. [1](https://www.banggood.com/LoRa-SX1278-Long-Range-RF-Wireless-Power-Mental-Module-For-Arduino-p-1159089.html?rmmds=search&cur_warehouse=CN)
 STM32F030. [devkit](https://www.banggood.com/5Pcs-STM32F030F4P6-Small-Systems-Development-Board-CORTEX-M0-Core-32bit-Mini-System-p-1221406.html?rmmds=search&cur_warehouse=CN)
 [NRF52: ADC capturing at 4uA using RTC](https://github.com/NordicPlayground/nRF52-ADC-examples/tree/master/saadc_low_power)
-NRF52. Bluetooth 5.0, up to 100 meters. ADC. 15us=66kHz, good for multi-channel audio.
-NRF51. Bluetooth 4.2, 30 meters typ max. ADC. 68us=17kHz for 10bit, OK for single-channel audio.
+NRF52. Bluetooth 5.0, up to 100 meters. ADC. 15us=66kHz, good for 2-4 channel lowfi audio.
+NRF51. Bluetooth 4.2, 30 meters typ max. ADC. 68us=17kHz for 10bit, OK for 1-channel lowfi audio.
 * Microphone. [Analog](https://www.digikey.co.uk/products/en/audio-products/microphones/158?k=microphone&k=&pkeyword=microphone&FV=ffe0009e%2Ca40062&quantity=0&ColumnSort=1000011&page=1&stock=1&nstock=1&datasheet=1&pageSize=25)
 [I2S](https://www.digikey.co.uk/products/en/audio-products/microphones/158?FV=ffe0009e%2Ca4027e&quantity=&ColumnSort=1000011&page=1&k=microphone&pageSize=25&pkeyword=microphone)
 SPV0840LR5H-B, Microphone MEMS 60 uA.
