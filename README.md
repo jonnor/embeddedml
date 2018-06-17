@@ -47,6 +47,55 @@ Example usecases
 * Environmental monitoring, using microphone to detect unwanted activity like cutting down trees
 * Adaptive signalling and routing for wireless transmission in Wireless Sensor networks
 
+## Energy budgets
+
+Scenarios
+
+* Constantly on wired power
+* Periodically used on battery, else plugged in
+* Always/normally battery powered
+* Energy harvesting. Never connected to charger, should run forever
+
+### Energy harvesting
+
+Energy harvesting rules of thumb:
+
+    Outdoor light – 10mW/cm2
+    Industrial temperature difference – 1-10 mW/cm2
+
+    Industrial vibration – 100µW/cm2
+    Human temperature difference – 25µW/cm2
+    Indoor light – 10µW/cm2
+    Human vibration – 4µW/cm2
+
+    GSM RF – 0.1µW/cm2
+    Wifi RF – 0.001µW/cm2
+
+[AI and Unreliable Electronics (*batteries not included)](https://petewarden.com/2016/12/29/ai-and-unreliable-electronics-batteries-not-included/). 
+
+### Wireless transmission
+
+TODO: overview of typical energy requirements, for different wireless tech
+
+TODO: overview of data transmission capacity, for different wireless tech
+TODO: overview of sending range, for different wireless tech
+
+TODO: cost (monetary) of data transmission, for different wireless techs
+
+
+## Privacy
+
+Doing more of the data processing locally, enables storing or transmitting privacy sensitive data more seldom.
+
+Ref
+
+* [Scalable Machine Learning with Fully Anonymized Data](https://adamdrake.com/scalable-machine-learning-with-fully-anonymized-data.html)
+Using feature hashing on client/sensor-side, before sending to server that performs training.
+_hashing trick_ is an established way of processing data as part of training a machine learning model.
+The typical motivation for using the technique is a reduction in memory requirements or the ability to perform stateless feature extraction.
+While feature hashing is ideally suited to categorical features, it also empirically works well on continuous features
+
+
 # Techniques
 
 Roughly ordered by relevance. Should both be useful for typical tasks and efficiently implementable. 
@@ -58,7 +107,7 @@ Roughly ordered by relevance. Should both be useful for typical tasks and effici
 * Nearest Neighbours. kNN.
 * k-means clustering.
 * PCA
-* Independent Component Analysis (IDA). 
+* Independent Component Analysis (ICA). 
 Unsupervised, data-driven technique for blind source separation.
 
 Ideas
@@ -382,35 +431,6 @@ to link them to a base station for real‐time signalling of acoustic events tri
 record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
 For example, summarise the important characteristics of sounds with measurements known as acoustic indices
 
-# Related
-
-## Energy harvesting
-
-Energy harvesting rules of thumb:
-
-    Outdoor light – 10mW/cm2
-    Industrial temperature difference – 1-10 mW/cm2
-
-    Industrial vibration – 100µW/cm2
-    Human temperature difference – 25µW/cm2
-    Indoor light – 10µW/cm2
-    Human vibration – 4µW/cm2
-
-    GSM RF – 0.1µW/cm2
-    Wifi RF – 0.001µW/cm2
-
-[AI and Unreliable Electronics (*batteries not included)](https://petewarden.com/2016/12/29/ai-and-unreliable-electronics-batteries-not-included/). 
-
-## Privacy
-
-Doing more of the data processing locally, enables storing or transmitting privacy sensitive data more seldom.
-
-* [Scalable Machine Learning with Fully Anonymized Data](https://adamdrake.com/scalable-machine-learning-with-fully-anonymized-data.html)
-Using feature hashing on client/sensor-side, before sending to server that performs training.
-_hashing trick_ is an established way of processing data as part of training a machine learning model.
-The typical motivation for using the technique is a reduction in memory requirements or the ability to perform stateless feature extraction.
-While feature hashing is ideally suited to categorical features, it also empirically works well on continuous features
-
 
 # Applications
 
@@ -487,7 +507,8 @@ Lots of goodies, from feature extraction to high-level algorithms.
 Review of state of the art in machine listening.
 Problem 1: Acoustic scene classification,
 Characterize acoustic environment of an audio stream by selecting a semantic label for it.
-Single-label classification. Similar to: Music genre recognition. Speaker recognition. Also similar to other time-based classification, ie in video.
+Single-label classification. Similar to: Music genre recognition. Speaker recognition.
+Also similar to other time-based classification, ie in video.
 Approach 1. Bag of frames. Long-term statistical distribution of local spectral features. Ex MFCC.
 Compare feature distributions using GMM.
 Approach 2. Intermediate representation using higher level vocabulary/dictionary of "acoustic atoms".
