@@ -95,6 +95,10 @@ _hashing trick_ is an established way of processing data as part of training a m
 The typical motivation for using the technique is a reduction in memory requirements or the ability to perform stateless feature extraction.
 While feature hashing is ideally suited to categorical features, it also empirically works well on continuous features
 
+Ideas
+
+* In audio-processing, could we use a speech detection algorithm to avoid storing samples with speech in them?
+Can then store/transmit the other data in order to do quality assurance and/or further data analysis. 
 
 # Techniques
 
@@ -532,6 +536,7 @@ nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low 
 
 Acoustic event detection (AED)
 
+* Aka Automatic Environmental Sound Recognition (AESR)
 * Competitions: CLEAR "Classification of Events, Activities and Relation-
 ships". DCASE Detection and Classification of Acoustic Scenes and Events (2016,2013)
 * [Acoustic Event Detection Using Machine Learning: Identifying Train Events](http://cs229.stanford.edu/proj2012/McKennaMcLaren-AcousticEventDetectionUsingMachineLearningIdentifyingTrainEvents.pdf). Shannon Mckenna,David Mclare.
@@ -606,6 +611,10 @@ They suggest use of a dedicated accelerator chip.
 Many approached used with good results.
 Large range in feature sets. Mostly deep learning and tree ensembles, some SVM.
 Winner used image template on spectograms with a GradientBoostingClassifier.
+
+[Automatic Environmental Sound Recognition: Performance Versus Computational Cost](https://ieeexplore.ieee.org/abstract/document/7515194/)
+esults suggest that Deep Neural Networks yield the best ratio of sound classification accuracy across a range of computational costs, while Gaussian Mixture Models offer a reasonable accuracy at a consistently small cost, and Support Vector Machines stand between both in terms of compromise between accuracy and computational cost
+
 
 
 
