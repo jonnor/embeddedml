@@ -438,7 +438,15 @@ For example, summarise the important characteristics of sounds with measurements
 
 # Applications
 
-## Audio classification
+## Machine Hearing
+
+General info
+
+* Blog: http://www.machinehearing.org/
+Book: Human and Machine Hearing: Extracting Meaning from Sound
+[Paper in IEEE, 2010](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36608.pdf)
+Key ideas. Modelling human hearing. Reusing machine vision learnings by representing sound as (moving) images.
+Combined audiovisual models.
 
 Existing work on microcontrollers
 
@@ -467,6 +475,22 @@ Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic
 [OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
 [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
 found that CMSIS FFT with Q31 had slightly less error than with F32.
+
+CARFAC
+
+* aka CAR-FAC
+* Cascade of Asymmetric Resonators with Fast-Acting Compression
+* [Using a Cascade of Asymmetric Resonators with Fast-Acting Compression as a Cochlear Model for Machine-Hearing Applications](https://storage.googleapis.com/pub-tools-public-publication-data/pdf/37215.pdf). Richard F. Lyon, 2011.
+* Coclear model. PZFC. Pole-zero filter cascade.
+Non-linearity. Feedback in AGC models saturation.
+Computational load, approx that of a second-order filter per output channel.
+Typical number of channels = 7?
+* Converted to Stablilized Audatory Image (SAI). Using STFT?
+* Local multi-scale sparse features.
+Using Vector Quantization. Bag of Features representation of a file.
+High dimesionality, 100'000 dimensions.
+Fast online training using Passive Agressive classifier
+* [CARFAC reference implementation in C++](https://github.com/google/carfac)
 
 Goertzel filter
 
