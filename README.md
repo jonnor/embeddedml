@@ -447,6 +447,15 @@ Book: Human and Machine Hearing: Extracting Meaning from Sound
 [Paper in IEEE, 2010](https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36608.pdf)
 Key ideas. Modelling human hearing. Reusing machine vision learnings by representing sound as (moving) images.
 Combined audiovisual models.
+* [What’s wrong with CNNs and spectrograms for audio processing?](https://towardsdatascience.com/whats-wrong-with-spectrograms-and-cnns-for-audio-processing-311377d7ccd). Challenges:
+Sounds intermix/blend into eachother, ie are "transparent".
+Can also have complex relationships like phase cancellation.
+Directions in spectogram have different meansings. Frequency,time. Features not invariant wrt to frequency, but generally wrt time.
+Activations in the spectrogram are non-local, eg formants.
+Sound information is serial 'events', observed only in one instance of time. Not visual stationary 'objects'.
+If freezing time, cannot understand much of the information present (compared with video).
+Temporal patterns are critical.
+
 
 Existing work on microcontrollers
 
@@ -557,6 +566,7 @@ Each inference – including memory copying, MFCC feature extraction and DNN exe
 * [QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
 Always-on wake word detection at 640uWatt typical.
 nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
+* [Convolutional Recurrent Neural Networks for Small-Footprint Keyword Spotting](https://arxiv.org/abs/1703.05390). Uses Per-Channel Energy Normalization on mel spectograms. CRNN with ~230k parameters, acceptably low latency on mobile devices. Achieves 97.71% accuracy at 0.5 FA/hour for 5 dB signal-to-noise ratio. Down to 45k parameters teted.
 
 Acoustic event detection (AED)
 
