@@ -397,6 +397,7 @@ Companies
 * [SensiML](https://sensiml.com).
 ISV providing the SensiML Analytics Toolkit, on-microcontroller ML algorithms and supporting tools.
 * ST devices. At WDC2018 announced STM32CubeMX.A SDK for neural networks on STM32 micros, and intent to develop NN coprocessor.
+* [Reality AI](https://reality.ai).
 
 Blogposts
 
