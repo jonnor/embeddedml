@@ -41,11 +41,13 @@ Example usecases
 * Anomaly/change detection for predictive maintenance, using audio/vibration data, or electrical data
 * Gesture recognition as human input device, using accelerometer/gyro data.
 * Speech/command recognition as human input device, using microphone. Keyword/Wake-word detection
-* Battery saving in wireless sensors. Normally sending day/week aggregates, on event detection send data immediately
+* Battery saving in wireless sensors. Normally sending day/week aggregates, on event/anomaly detection send data immediately
 * Health status of animals via activity detected using accelerometer
 * Monitoring eating activity using accelerometer [1](https://www.sciencedirect.com/science/article/pii/S0010482515000086)
 * Environmental monitoring, using microphone to detect unwanted activity like cutting down trees
 * Adaptive signalling and routing for wireless transmission in Wireless Sensor networks
+* Electronic nose using arrays of MEMS detectors
+* Material identification using reflecive spectrometer [1](https://hackaday.io/project/143014-compact-25-spectrometer/)
 
 ## Energy budgets
 
@@ -179,6 +181,21 @@ Related methods
 * Deep Forest. https://arxiv.org/abs/1702.08835
 * [Convolutional Decision Trees for Feature Learning and Segmentation](https://link.springer.com/chapter/10.1007/978-3-319-11752-2_8). Laptev, 2014.
 * Multivariate (oblique) trees. 
+
+Unsupervised
+
+* [Fault Detection using Random Forest Similarity Distance](https://www.sciencedirect.com/science/article/pii/S2405896315017188)
+
+Kernels
+
+* Original Extremely randomized trees paper includes a kernel-based interpretation
+* Random Partition Kernels.
+[The Random Forest Kernel and creating other kernels for big data from random partitions](https://arxiv.org/abs/1402.4293). 2014. Alex Davies
+
+Metric Learning / similarity / distance learning
+
+* Similarity Forests
+* Random forest distance (RFD)
 
 ## Naive Bayes
 Implemented in [embayes](https://github.com/jonnor/embayes)
@@ -512,7 +529,12 @@ several implementation variants in C.
 * Matched Filter Design
 The Goertzel algorithm is advantageous compared to the FFT when
 `M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
-N=1024, M=8
+N=1024, M=8.
+* [Overlap Add STFT implementation of linear filters](https://www.dsprelated.com/freebooks/sasp/Overlap_Add_OLA_STFT_Processing.html)
+Faster than convolution in time domain for FIR
+ filters with n>64 taps, which can happen in audio without noticable delay 
+* https://stackoverflow.com/questions/11579367/implementation-of-goertzel-algorithm-in-c
+
 
 Feature learning
 
@@ -650,7 +672,44 @@ Winner used image template on spectograms with a GradientBoostingClassifier.
 [Automatic Environmental Sound Recognition: Performance Versus Computational Cost](https://ieeexplore.ieee.org/abstract/document/7515194/)
 esults suggest that Deep Neural Networks yield the best ratio of sound classification accuracy across a range of computational costs, while Gaussian Mixture Models offer a reasonable accuracy at a consistently small cost, and Support Vector Machines stand between both in terms of compromise between accuracy and computational cost
 
+Ambient Noise Monitoring
 
+Standards: IEC61672. Class 2, Class 1
+http://www.sea-acustica.es/fileadmin/Oporto16/28.pdf
+
+IEC Standard 61672-3 "Electroacoustics- Sound level meters Part 3: Periodic tests". 2006.
+completed the new series of three revised IEC Standards developed to assess the performance of conventional,
+integrating-averaging and integrating Sound level meters.
+
+
+References
+
+[New IEC Standards and Periodic Testing of Sound Level Meters](https://www.av-consulting.nl/artikelen/geluid/0752-type%20geluidsmeters%20iec.pdf)
+
+
+[Designing and evaluating the performance of a wireless sensor network for environmental noise monitoring applications](http://www.sea-acustica.es/fileadmin/Oporto16/28.pdf). 2016
+Describes a Raspberry PI based system built for 200 GBP. 3G USB modem.
+IEC61672 Class 1.
+Collects 200 ms long audio buffers continiously. 44.1kHz
+A-weighted. 1 broadband noise, and 26 1/3 octave band (40 Hz-12.5 kHz) measurements
+Aggregated statistics (minute,hour,day) and per-minute Lmin, Lmax, L10, L50 and L90 calculated on server.
+Microphone. Cirrus Logic WM7132PE. $1.48, 250uA
+WM5102 audio codec.
+Calibration via standard 1/4" calibration units.
+Processing each sample in `<150ms 99.5%` of time
+
+[Støy Veg WMS](https://kartkatalog.geonorge.no/metadata/statens-vegvesen/stoy-veg-wms/4bbae38e-4718-481d-9827-237cd5e115c8)
+Åpne data om støy rundt vei. Statens Veivesen.
+Strategisk støykartlegging etter forurensingsforskriften §5 og Støyvarselkart etter T-1442.
+Datasettet oppdateres ikke, men produseres på nytt hvert 5 år.
+Gjennomført med Statens vegvesens beregningsverktøy NorStøy.
+Beregningsmetode er Nord2000Road.
+
+Condfounding factors:
+
+* Wind
+* Vibrations
+* humidity, temperature
 
 
 ### Tools
@@ -777,7 +836,7 @@ Change point detection (mostly in time series).
 
 * [Change point detection in time series data with random forests](https://www.sciencedirect.com/science/article/pii/S0967066110001073)
 * [Two approaches for novelty detection using random forest](https://www.sciencedirect.com/science/article/pii/S0957417414008070)
-
+* [Introduction to Anomaly Detection: Concepts and Techniques](https://iwringer.wordpress.com/2015/11/17/anomaly-detection-concepts-and-techniques/). Very good overview, with recommendations for different cases
 
 # Application ideas
 
@@ -869,7 +928,7 @@ MCP6231 20uA. 300kHz gain*bw.
 TL062. 200uA
 
 * IMU
-* Piezo vibration sensor? Might be better to use high-frequency accelerometer
+* Piezo vibration sensor? Cheaper than high-frequency accelerometer? Useful when wanting many sensors.
 * SPI ADC, [MCP3002](https://www.digikey.no/product-detail/en/microchip-technology/MCP3002T-I-SN/MCP3002T-I-SN-ND/319415)
 * Camera. OV7670 (VGA-QCIF).
 [Making work with STM32](http://embeddedprogrammer.blogspot.no/2012/07/hacking-ov7670-camera-module-sccb-cheat.html)
@@ -890,6 +949,20 @@ Testcases
 * Detect a spoken command. Microphone
 * Detect/Estimate room occupancy. Accelerometer,microphone,PIR
 
+### Hackerspace indoor monitor
+Build and deploy in IoT hackathons
+
+Sensor node
+
+Temperature, Humidity. DHT22
+PM2.5, PM10. SDS011
+Sound level. ?
+CO2: ?
+
+Status display/sign
+
+Air mufflers: Lit if sound too high
+Dust mask: Lit if finedust too high 
 
 
 ## Using microflo
