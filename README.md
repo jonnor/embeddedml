@@ -1007,11 +1007,23 @@ Sensors
 * Tunable. Gas sensors startup. Oslo. [.](https://www.finn.no/job/fulltime/ad.html?finnkode=119094407)
 * Sensonor. Experienced MEMS sensors company. Horten.
 
+Bioacoustics
+
+* 
+
 ## Grants
 
 * [IEEE Computational Intelligence Society Graduate Student Research Grants](https://cis.ieee.org/graduate-student-research-grants.html).
 1-4k USD. Housing costs, travel costs for visiting external institution.
 Deadline: April-March?. Need to be student member of IEEE CIS 
+
+Travel support
+
+* [NUUG](https://www.nuugfoundation.no/no/reisestipend/utlysning-2018.shtml).
+1 page report, up to 10k NOK.
+* [UMB forskningsfond](https://www.nmbu.no/forskning/forskere/forskningsfinansiering/intern/node/27932).
+3 page report, up to 30k NOK.
+Challenge: most money tied to agriculture.
 
 
 # TODO
