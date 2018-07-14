@@ -46,7 +46,12 @@ float sigmoid(float x) {
 }
 */
 
-// XXX: do we need to store a type?
+enum EmLinearModelType {
+
+    EmLinearLogistic,
+    EmLinearModelTypeLength,
+}
+// XXX: should we just put intercept as weight number 0??
 struct EmLinearModel {
     size_t n_coefficients;
     float intercept;
@@ -66,9 +71,20 @@ emlinear_regress(EmLinearModel *model, float *features, size_t features_length)
     return sum;
 }
 
+
 int
 emlinear_predict(EmLinearModel *model, float *features, size_t features_length)
 {
+    const float z = emlinear_regress(model, features, features_length);
 
+    // TODO: support non-binary classification
+
+    switch (model->type) {
+    case EmLinearLogistic:
+        const float y = emlinear_sigmoid(z);
+        return (y > 0.5f) ? 1 : 0;
+    case EmLinearModelTypeLength:
+        return -1; // ERROR
+    }
 }
 

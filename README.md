@@ -132,7 +132,14 @@ Machine learning tasks
 ## Tree-based methods
 Implemented in [emtrees](https://github.com/jonnor/emtrees)
 
-Random Forests, Extra trees, Gradient Boosted Trees
+Variations
+
+* Random Forests
+* Extremely Randomized Trees. ExtraTrees
+* Gradient Boosted Trees
+* Multiple Additive Regression Trees. Lambda-MART. λ-MART. 
+* Gradient Boosted Regression Trees (GBRT)
+
 
 Resources
 
@@ -170,10 +177,28 @@ Using regularization.
 
 Optimization
 
-* Can we reduce number of nodes in a tree? Using pruning?
-* Can we eliminate redundant decisions across trees in the forest?
+* Evaluation strategies
+http://tullo.ch/articles/decision-tree-evaluation/ discusses flattening vs compiled
+https://github.com/ajtulloch/sklearn-compiledtrees implements compiled regression trees for sklearn
 * The tree is done as soon as a leaf is reached.
 Can we reorder the tree to make this faster for typical data?
+
+QuickScorer (QS). Claims 2-6x speedups over state-of-the-art.
+Evaluates the branching nodes of the trees in cache-aware feature-wise order, instead of each tree separately.
+Uses a bitvector for the comparison operations.
+[Exploiting CPU SIMD Extensions to Speed-up Document Scoring with Tree Ensembles]().
+V-QuickScorer (vQS). Extends QuickScorer to use SIMD. Claims a 3.2x speedup with AVX-2, scoring 8 documents in parallel.
+
+* Can we reduce number of nodes in a tree? Using pruning?
+* Can we eliminate redundant decisions across trees in the forest?
+* How can one make use of SIMD? Do N comparisons at a time
+Challenge: Divergent branches
+https://github.com/weliveindetail/DecisionTreeCompiler considers SIMD for 
+"SIMD-parallelization outweighs its initial overhead only for 7 or more nodes in parallel"
+* How to best make use of multithreading?
+Split by sample. Only works for batch predictions.
+Split by tree. Works also for single sample. 
+
 
 Related methods
 
@@ -1025,6 +1050,22 @@ Travel support
 3 page report, up to 30k NOK.
 Challenge: most money tied to agriculture.
 
+# Writing
+
+http://approximatelycorrect.com/2018/07/10/troubling-trends-in-machine-learning-scholarship/
+
+Avoid anthropomorphic language
+
+Ask “what worked?” and “why?”, rather than just “how well?”
+Strongest empirical papers include:
+* error analysis
+* ablation studies
+* robustness checks
+
+"Would I rely on this explanation for making predictions or for getting a system to work?"
+
+ML Paper Checklist
+https://github.com/N-McA/ml-paper-checklist/blob/master/README.md
 
 # TODO
 
