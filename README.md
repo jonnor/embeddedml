@@ -140,6 +140,10 @@ Variations
 * Multiple Additive Regression Trees. Lambda-MART. λ-MART. 
 * Gradient Boosted Regression Trees (GBRT)
 
+People who need the same
+
+* https://stats.stackexchange.com/questions/208165/generate-code-for-sklearns-gradientboostingclassifier
+* https://github.com/ajtulloch/sklearn-compiledtrees/issues/3
 
 Resources
 
@@ -911,6 +915,44 @@ Get closer to typical Artificial Intelligence field, since now have an intellige
 
 Hybrid learning, adaptive machine learning, progressive learning, semi-supervised learning.
 Q-learning (reinforcement learning).
+
+# Transfer learning
+
+Kinds of transfer learning
+
+* Inductive transfer. Few labeled target data is available. Source data is used as auxillary.
+* Transductive transfer. Lots of labeled source data. Lots of unlabeled data in target.
+* Unsupervised transfer. Both source and target data is unlabeled.
+
+Note: in transfer learning, performance on source dataset is generally ignored.
+Goal is good performance on target.
+
+How to transfer
+
+* Instance based. Reuse instances in source domains that are similar to target domain.
+Ex: Instance reweigthing, importance sampling
+* Feature based. Find an alternate feature space for learning target domain, while projecting source into this space.
+Feature subset selection, feature space transformation. 
+* Model/parameter based. Use model parameters/hyper-parameters to influence learning target.
+Parameter-space partitioning, superimposing shape constraints.
+
+Boosting based transfers
+
+* TrAdaBoost
+* TransferBoost. Based on AdaBoost
+
+References
+
+* [Boosting based transfer learning](https://www.slideshare.net/ashok124/thesis-presentation-51445891)
+* [Learn on Source, Refine on Target: A Model Transfer Learning Framework with Random Forests]().
+Shows two methods of adapting a Random Forest. Structure Expansion Reduction (SER) and Structure Transfer (STRUT).
+* [Transfer Learning Decision Forests for Gesture Recognition](). 2014.
+Mixed information gain, which is a data-based regularizer. 
+Label propagation, which infers the manifold structure of the feature space.
+* [Transferring Knowledge by Prior Feature Sampling](). 2008.
+Tested on Time series classification (TSC).
+Simple modification to the Gradient Boosting Trees learning algorithm using information about the importance of features.
+
 
 # Research questions
 
