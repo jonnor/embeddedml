@@ -449,6 +449,16 @@ Blogposts
 
 * [Why the Future of Machine Learning is Tiny (devices)](https://petewarden.com/2018/06/11/why-the-future-of-machine-learning-is-tiny)
 Tiny Computers are Already Cheap and Everywhere. Energy is the Limiting Factor.We Capture Much More Sensor Data Than We Use.
+* [embedded.com: Bringing machine learning to the edge](https://www.embedded.com/electronics-blogs/say-what-/4460873/Bringing-machine-learning-to-the-edge--A-Q-A-with-Neurala-s-Anatoli-Gorshechnikov-)
+Predictions are much lower bandwidth than the raw sensor data (e.g. video)
+It allows for local adaptation in the AI logic (L-DNN)
+It achieves lower latency between observed event and action resulting from AI logic
+"the most important question is what is the least amount accuracy and computation complexity we can do
+while still delivering the business value?"
+Top mistake: "Continuing with the top down approach ‘let’s make it perform the task first and then squeeze it on device`
+instead of switching to bottom up ‘let’s make it run on device and fulfill all hardware constraints first,
+and then tune it for the task at hand’."
+
 
 Open hardware platforms
 
