@@ -36,27 +36,100 @@ Some aspects might also be of interest when hitting performance bottlenecks in l
 
 # Contents
 
+## Goals
+
+At the end of talk
+
+* Audience understands microcontroller constraints/limitations for ML
+* Know what can currently be done with Python+emtrees
+Have a starting point for using or further developing these methods.
+
+## Scope
+
+* On microcontroller: Inference only. Training happens the standard way.
+* Offline learning. No continious learning
+* Not much about deep learning.
+* Focused on microcontrollers, but same techniques and libraries can be applied to bigger systems.
+Embedded Linux, high perf server.
+
 ## Outline
+
 
 ### Key aspects
 
 * Why ML on microcontrollers.
 Motivation, possible applications.
 * Microcontroller-specific considerations for ML.
-Memory constraints, CPU constraints.
+Memory constraints, CPU constraints, Energy constraints.
 * Covered methods.
-Desicion tree ensembles. Random Forest / extratrees.
-Naive Bayes.
+Decision tree ensembles. Random Forest / extratrees.
+? Naive Bayes.
 * How to train
 Python. sklearn APIs.
 * How to deploy
 Serialized model vs code generation.
 Supported platforms.
 * Performance
-Classification scores, runtime, memory usage
+Examples. MNIST,DCASE
+Classification scores, runtime, memory usage. Energy usage
+
+### Maybe
+
+#### ML architectures in Wireless Sensor Networks
+Image(s)
+Cloud: Sensor -> gateway -> cloud (ML)
+Edge: Sensor -> gateway (ML) -> cloud
+Micro: Sensor (ML) -> gateway -> cloud
+
+N sensors per gateway, N gateways per cloud service
+Sensor is battery/energy-harvesting.
+Gateway is per site. Embedded Linux. Normally powered.
+
+
+### Wireless transmission technologies
+Chart/table
+Bandwith,distance,energy
+LoRa,SigFox,BTLE,GSM,WiFi.
+
+### ML pipeline
+Sensor -> Feature extraction -> Aggregation -> Classification
+N samples, N per second => data rate.
+
+Ex: Acoustic Event detection
+
+Microphone | windowing | FFT | melspectrogram | max | randomforest
+  samples            frames                  features    prediction
+
+fft_hop=1024
+n_mels=64
+decision_period=10 second
+
+Visualize as chart, size=bytes per second for each step?
+
+1 [int16] @ 44100 Hz   88200 bytes per second
+513 [float32] @ 43 Hz
+64 [float32] @ 43 Hz
+64 [float32] @ 0.1 Hz    26 bytes/second
+int8 @ 0.1 Hz           0.1 bytes/second
+
+Sampling or
+
+Aggregation. Binary classification, count number of positive
+1 int8 per minute
+1 int16 per hour
+
+Sampling. If OK with less
+
+
+LoRa. 400 bytes per hour. 6 bytes per minute
+https://www.thethingsnetwork.org/docs/lorawan/limitations.html
+
+BTLE packet size. 33 bytes total, 20 bytes payload
 
 ### Optional/bonus
 
 * Tools
 Driving predictions over serialport for testing
+
+
 

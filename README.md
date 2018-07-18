@@ -1026,6 +1026,7 @@ Testcases
 * Detect a spoken command. Microphone
 * Detect/Estimate room occupancy. Accelerometer,microphone,PIR
 
+
 ### Hackerspace indoor monitor
 Build and deploy in IoT hackathons
 
@@ -1065,28 +1066,6 @@ Key technologies
 * Embedded Systems
 * Sensors
 * Machine learning
-
-Potential companies
-
-Microcontrollers
-
-* Nordic Semiconductors. Leader in Bluetooth low-energy chips. Nothing around machine learning?
-* Microchip (prev Atmel). [.](https://www.finn.no/job/fulltime/ad.html?finnkode=117675050)
-* Silicon Labs (prev. Energy Micron)
-
-Embedded Systems
-
-* Data Respons.
-* Cisco (prev Tandberg). Lysaker.
-
-Sensors
-
-* Tunable. Gas sensors startup. Oslo. [.](https://www.finn.no/job/fulltime/ad.html?finnkode=119094407)
-* Sensonor. Experienced MEMS sensors company. Horten.
-
-Bioacoustics
-
-* 
 
 ## Grants
 
