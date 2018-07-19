@@ -1026,7 +1026,6 @@ Testcases
 * Detect a spoken command. Microphone
 * Detect/Estimate room occupancy. Accelerometer,microphone,PIR
 
-
 ### Hackerspace indoor monitor
 Build and deploy in IoT hackathons
 
