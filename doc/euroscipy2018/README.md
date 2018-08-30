@@ -42,23 +42,32 @@ At the end of talk
 
 * Audience understands microcontroller constraints/limitations for ML
 * Know what can currently be done with Python+emtrees
-Have a starting point for using or further developing these methods.
+* Have a starting point for using or further developing these methods.
 
 ## Scope
 
 * On microcontroller: Inference only. Training happens the standard way.
-* Offline learning. No continious learning
-* Not much about deep learning.
+* Offline learning. No continious learning.
+* Not much about deep learning. Focus on tree-based methods
 * Focused on microcontrollers, but same techniques and libraries can be applied to bigger systems.
 Embedded Linux, high perf server.
+* ? Supervised learning primarily. Unsupervised: anomaly detect, compressive sensing.
 
-## Outline
+## Audience background
 
+Assumed
+* Machine Learning fundamentals
+Beneficial
+* Microcontrollers
 
-### Key aspects
+## Key aspects
 
 * Why ML on microcontrollers.
 Motivation, possible applications.
+Energy-constrained device
+Cost-constrained
+Wireless Sensor Network
+Rich/complex input data
 * Microcontroller-specific considerations for ML.
 Memory constraints, CPU constraints, Energy constraints.
 * Covered methods.
@@ -72,6 +81,87 @@ Supported platforms.
 * Performance
 Examples. MNIST,DCASE
 Classification scores, runtime, memory usage. Energy usage
+
+
+## Slides
+
+### About me
+
+Electronics Engineer.
+10 years experience as software developer
+around Embedded Linux, audio,image processing
+Independent consultant last 5 years
+Currently doing a Master in Data Science
+at Norwegian University of Life Sciences.
+Focusing on Machine Learning, especially researching ML on microcontrollers
+
+
+### This presentation
+
+Background.
+What is machine learning on microcontrollers and why is it interesting
+Constraints, considerations unique to microcontrollers.
+Limitations of scope
+
+Current state
+What is out there
+Existing libraries
+
+Getting practical
+Using emtrees
+
+What is it,why interesting
+
+
+Early preview of master thesis topic
+
+### Microcontroller, what does it mean
+Constrast with typical laptop,server cases
+
+Memory
+Compute
+Energy
+Costs.
+GPU. FPU. without FPU
+
+10 USD, 100 USD, 1000 USD
+microwatt, watt, 100 watt
+
+Embedded Linux. 128 - 1GB
+Mobile machine-learning. 
+
+
+Range of microcontrollers
+
+8-bit. 20 bytes RAM.
+Arduino Uno. Atmega 328. 2kB RAM, no FPU.
+
+32bit. 72Mhz
+STM32F0. ARM Cortex M0. 8kB RAM. No FPU!
+NRF52. ARM Cortex M4F. BLE 5.0
+
+ESP32. 512kB RAM. WiFi,BLE.
+ARM Cortex M7. 200MHhz+
+
+### Example usecases
+
+Fitness bracelet
+Activity detection
+Gesture recognition
+
+Wireless Sensor Network node
+Contious acoustic monitoring
+Birdsong
+Outdoor
+
+Industrial machine monitoring
+Vibration, accelerometer
+Anomaly detection
+
+New sensor technology
+Arrays, semiconductors. MEMS
+Combine/compensate in software
+
 
 ### Maybe
 
