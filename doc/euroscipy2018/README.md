@@ -40,9 +40,12 @@ Some aspects might also be of interest when hitting performance bottlenecks in l
 
 At the end of talk
 
-* Audience understands microcontroller constraints/limitations for ML
+* Audience understands microcontroller constraints for ML
+Memory/RAM. Energy usage
 * Know what can currently be done with Python+emtrees
+Tree-based classifiers.
 * Have a starting point for using or further developing these methods.
+PyPI. Github repository.
 
 ## Scope
 
@@ -72,7 +75,6 @@ Rich/complex input data
 Memory constraints, CPU constraints, Energy constraints.
 * Covered methods.
 Decision tree ensembles. Random Forest / extratrees.
-? Naive Bayes.
 * How to train
 Python. sklearn APIs.
 * How to deploy
@@ -158,12 +160,27 @@ Industrial machine monitoring
 Vibration, accelerometer
 Anomaly detection
 
+
 New sensor technology
 Arrays, semiconductors. MEMS
 Combine/compensate in software
 
 
+Commonalities:
+
+* Generic input data with high bitrate
+* Low power desired
+* Minimize power usage by minimizing time spent transmitting data
+
+
 ### Maybe
+
+#### emtrees How does it work
+Decision tree nodes
+Extracted from skicit-learn
+Two modes: 1) walking datastructure 2) generate code
+
+Python module
 
 #### ML architectures in Wireless Sensor Networks
 Image(s)
