@@ -172,6 +172,22 @@ Commonalities:
 * Low power desired
 * Minimize power usage by minimizing time spent transmitting data
 
+### Power consumption
+
+Sleep
+1.9uA
+
+Running@32MHz
+1856 uA. 1.9mA
+
+Transmitting GPRS
+450 mA
+
+Connection GPRS time
+1 second
+
+https://serverfault.com/questions/387627/why-do-mobile-networks-have-high-latencies-how-can-they-be-reduced
+
 
 ### Maybe
 
@@ -239,4 +255,62 @@ BTLE packet size. 33 bytes total, 20 bytes payload
 Driving predictions over serialport for testing
 
 
+
+# CATBoost
+https://github.com/catboost/
+
+Build and used by Yandex in many many places
+
+CatBoost builds symmetric trees. Low depth
+LightGBM on other hand builds very deep
+
+Supports categorical features
+not just one-hot-encoding
+automatically calculates statistics
+and random permutations
+greedy construction of feature combinations,
+including estimated priors
+
+Ordered boosting. Reduces bias in leaf value estimations
+
+Tasks: Classification,Regression,Ranking
+
+Decicated support for (grouped) ranking.
+Pairwise does not need absolute values.
+Can give better results, but slower
+Top-N and top-1
+
+Supports GPU based training
+Very fast for many features
+40-50 times speedup versus CPU
+GTX1080i
+
+30-60 times faster during prediction
+
+Feature interaction
+Per-object feature importance
+
+Nodes values availabe using a 'JSON model'
+https://github.com/catboost/catboost/issues/202
+
+CoreML exporter exists
+CoreML supports tree-based ensembles
+https://developer.apple.com/documentation/coreml/converting_trained_models_to_core_ml
+
+C++ evaluator for ARM architecture desired
+https://github.com/catboost/catboost/issues/408
+
+
+# JupyterHub for teaching
+Auth plugins
+Spawner plugins
+
+Launch different kernels
+When using Lab can have all the files on right hand side
+Using a script to deploy new study materials progressively
+
+# nbgrader
+Creating and Grading assignments in Jupyter notebook
+
+Automatically graded using unit-tests
 
