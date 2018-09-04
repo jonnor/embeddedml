@@ -1,4 +1,4 @@
-date,hours,activitt,subproject
+date,hours,activity,subproject
 15.04.2018,4,programming,emtrees
 16.04.2018,12,programming,emtrees
 18.04.2018,12,programming,emtrees
@@ -27,3 +27,15 @@ date,hours,activitt,subproject
 12.07.2018,12,programming,dcase2018
 13.07.2018,12,programming,dcase2018
 14.07.2018,12,programming,dcase2018
+15.07.2018,8,programming,dcase2018
+16.07.2018,2,programming,dcase2018
+17.07.2018,4,programming,dcase2018
+21.07.2018,6,programming,dcase2018
+22.07.2018,8,programming,dcase2018
+26.07.2018,6,programming,dcase2018
+31.07.2018,12,dissemination,dcase2018
+06.08.2018,4,literature,machinehearing
+07.08.2018,4,literature,machinehearing
+09.08.2018,4,electronics,
+30.08.2018,12,dissemination,euroscipy2018
+31.08.2018,6,dissemination,euroscipy2018
