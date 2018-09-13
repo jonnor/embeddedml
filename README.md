@@ -9,6 +9,27 @@ Training phase can run on a standard computer/server, using existing tools as mu
 * Decision trees ensembles implemented in [emtrees](https://github.com/jonnor/emtrees)
 * Naive Bayes implemented in [embayes](https://github.com/jonnor/embayes)
 
+# Research questions
+
+* How to take inference cost into account in model/feature evaluation/selection? (time,energy)
+Especially with computationally heavy features, that one can generate lots of. Ie dictionary of convolutional kernels.
+Perhaps set desired score as a hyperparameter, and then optimize for inference cost?
+Alternatively set a inference cost budget, and find best model that fits.
+Using standard FS wrapper methods (and uniform feature costs):
+Do SBS/SFB to obtain score/feature mapping, apply a inference cost function, chose according to budget.
+Or (with methods robust to irrelevant/redundant features), estimate feature number within budget
+Could one implement model/feature searchs that take this into account?
+Could be first feature then model. Or joint optimization?
+Does it perform better than other model/feature selection methods? Or is more practical. Ease of use.
+Non-uniform feature-calculation costs. Ie different sized convolution kernels. Convolutions in different layers.
+Classifier hyper-parameters influencing prediction time. Ie RandomForest `min_samples_split`/`min_samples_leaf`/`max_depth`.
+Need to specify a cost function. Number of features. Typical/average depth in tree based methods. Number of layers in CNN-like architecture.
+* How to optimize/adapt existing machine learning methods for use on small CPUs.
+Memory usage, CPU, prediction time.
+RandomForest on-demand memoized computation of non-trivial features?
+Approximation of RBF kernel in SVM?
+PDF simplification in Naive Bayes.
+
 # Background
 
 ## What and when to use machine learning
@@ -1099,19 +1120,15 @@ https://github.com/N-McA/ml-paper-checklist/blob/master/README.md
 
 # TODO
 
+September 2018
 
-June 2018
-
-* Contact potential companies for partnerships
-* Assemble 1-2 nodes with a general sensor package 
-* Write firmware for collecting data
-* Setup data persistence
-* Deploy and start collecting some data
-
-August 2018
-
-* Start work on DAT390 term paper
+* Work on DAT390 term paper
 * Create demo of an application of ML on microcontroller
+
+November 2018
+
+* Finish sensor node prototype
+* Setup data persistence
 
 December 2018
 
