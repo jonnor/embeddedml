@@ -123,6 +123,7 @@ Ideas
 * In audio-processing, could we use a speech detection algorithm to avoid storing samples with speech in them?
 Can then store/transmit the other data in order to do quality assurance and/or further data analysis. 
 
+
 # Techniques
 
 Roughly ordered by relevance. Should both be useful for typical tasks and efficiently implementable. 
@@ -313,6 +314,13 @@ Baysian Networks
 Online learning of Bayesian network classifiers (BNCs).
 Using low bit-width fixed-point numbers.
 
+## Neural Networks
+
+References
+
+* [Neural-Networks-on-Silicon](https://github.com/fengbintu/Neural-Networks-on-Silicon).
+Also has a large section on Model Compression papers for Neural Networks.
+
 ## Quantized Neural Networks
 
 Using integer quantization, typically down to 8-bit. Reduces size of weights, allows to use wider SIMD instructions.
@@ -354,6 +362,8 @@ Reorders computation compared to BNN to only need a single floating point interm
 * [Deep Learning Binary Neural Network on an FPG](https://web.wpi.edu/Pubs/ETD/Available/etd-042717-145953/unrestricted/sredkar.pdf).
 332,164 images per second with 85% accuracy on CIFAR-10.
 * [Accelerating Binarized Neural Networks: Comparison of FPGA, CPU, GPU, and ASIC](http://jaewoong.org/pubs/fpt16-accelerating-bnn.pdf)
+* [YodaNN: An Architecture for Ultra-Low Power Binary-Weight CNN Acceleration](https://arxiv.org/abs/1606.05487).
+61.2TOps/sec/Watt at 900uW and 1TOps/sec/watt at 1.2v. 
 
 Another alternative is binary shift networks, which replaces multiplications with bitshifts.
 
@@ -868,6 +878,11 @@ Feature processing
 * Motion histogram
 * Zero velocity compensation (ZVC)
 * DWT. [FastDWT](https://cs.fit.edu/~pkc/papers/tdm04.pdf), approximation of DTW in linear time and linear space.
+
+## New sensor types
+
+[How ML/DL is Disrupting Sensor Design](https://drive.google.com/file/d/0BzrlDxVZWSUpbkZrRnlMbmE2c2s/view).
+Compressed sensing. Random projections.
 
 ## Image analysis
 
