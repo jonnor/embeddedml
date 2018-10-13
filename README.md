@@ -1048,6 +1048,7 @@ STM32F030. [devkit](https://www.banggood.com/5Pcs-STM32F030F4P6-Small-Systems-De
 [NRF52: ADC capturing at 4uA using RTC](https://github.com/NordicPlayground/nRF52-ADC-examples/tree/master/saadc_low_power)
 NRF52. Bluetooth 5.0, up to 100 meters. ADC. 15us=66kHz, good for 2-4 channel lowfi audio.
 NRF51. Bluetooth 4.2, 30 meters typ max. ADC. 68us=17kHz for 10bit, OK for 1-channel lowfi audio.
+[100-250uA analog, 700-1000uA digital microphone consumption](https://devzone.nordicsemi.com/f/nordic-q-a/19208/nrf52-microphone-saadc-pdm-or-i2s)
 * Microphone. [Analog](https://www.digikey.co.uk/products/en/audio-products/microphones/158?k=microphone&k=&pkeyword=microphone&FV=ffe0009e%2Ca40062&quantity=0&ColumnSort=1000011&page=1&stock=1&nstock=1&datasheet=1&pageSize=25)
 [I2S](https://www.digikey.co.uk/products/en/audio-products/microphones/158?FV=ffe0009e%2Ca4027e&quantity=&ColumnSort=1000011&page=1&k=microphone&pageSize=25&pkeyword=microphone)
 SPV0840LR5H-B, Microphone MEMS 60 uA.
