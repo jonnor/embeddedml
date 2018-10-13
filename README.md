@@ -523,6 +523,20 @@ to link them to a base station for real‐time signalling of acoustic events tri
 record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
 For example, summarise the important characteristics of sounds with measurements known as acoustic indices
 
+## Sparsity
+
+[Sparsity Lesson of Fundamentals of Digital Image and Video Processing](https://www.coursera.org/lecture/digital/applications-MNbjB)
+Applications. Noise smoothing, inpainting, superresolution. Foreground/background separation. Compressive sensing.
+Images are sparse in DCT decomposition. Can throw away many of the with minimal quality loss.
+Noise is not correlated and will not compress well. This fact used in image denoising.
+Compute a sparse representation, then reconstruct. Can be done with standard basis like DCT, or a learned dictionary.
+Basis pursuit. Matching Pursuit. Orthonogonal Matching Pursuit. 
+Foreground/background separation in video. Singular Value Decomposition. 
+Can one do foreground separation of audio in a similar manner?
+
+Compressive Data Aquisition. Replace sampling at Nyquist followed by compression with.
+Sampling matrices. Suprising result: Random matrices work.
+
 
 # Applications
 
@@ -1194,4 +1208,75 @@ Ideas
 
 * Machine learning for microcontroller/DSP engineers.
 Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate results 
+
+
+# emlearn
+
+Merge emtrees,embayes,emnet,emaudio into one repository
+
+    emlearn/*.py
+    bindings/emlearn*.cpp
+    src/eml_*.h
+    tests/test_*.py
+
+General API entrypoint
+
+    # convert to
+    cmodel = emlearn.convert(model)
+
+    # switch output targets: C loadable weights, C compiled
+    # configure precision. Weights, Inputs
+    # output C code
+    # compare with Python/original model
+    
+    cmodel.predict()
+    cmodel.predict_proba()
+
+Use `eml_` as common C prefix.
+
+## Compared to sklearn-porter
+
+    Only support C language
+    Uses float instead of doubles
+    No dynamic allocations
+    Support for integer-math only
+    
+
+## Wishlist
+Demos:
+    Human activity recognition accerelometer.
+    Gesture recognition accelerometer.
+    Wakeword detection audio.
+    Voice control audio.
+    Object recognition image.
+    Anomaly detection. For/on ?
+
+Tools:
+
+    Benchmark for performance on-device (prediction time, correctness)
+    Performance models using perf constants estimated by benchmark (per device)
+    Progmem,RAM,CPU estimators for models. Allow to set budget, warn/exception if over 
+
+Models:
+
+    Trees. Boosted trees. IsolationForest
+    Networks. Convolutional 
+    Generic linear model. SVC,LogisticRegression
+    Kernel. SVM
+
+Features:
+
+    Streaming summarizers. min/max, mean/std, median
+
+Transformers:
+
+    Scalers: Standard,MinMax
+    Dimensionality: PCA,NMF
+
+Perf:
+
+    8/16bit weights. NNs
+    Integer-math only for compiled trees. 32bit/8bit
+    Support sparse models. Autoreduce during conversion?
+
 
