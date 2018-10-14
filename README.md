@@ -1265,9 +1265,13 @@ Models:
     Generic linear model. SVC,LogisticRegression
     Kernel. SVM
 
-Features:
+On-line DSP tools:
 
-    Streaming summarizers. min/max, mean/std, median
+    Streaming summarizers/estimators. min/max, mean/std, median
+    Reservoir sampling.
+    Voice Activity Detection
+    Sound level. Incl IEC A-weighting
+    FIR/IIR filters. Cascades of 2-order
 
 Transformers:
 
@@ -1280,4 +1284,7 @@ Perf:
     Integer-math only for compiled trees. 32bit/8bit
     Support sparse models. Autoreduce during conversion?
 
+Advanced stuffs
+
+    Audio beamforming.
 
