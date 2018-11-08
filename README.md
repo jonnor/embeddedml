@@ -321,6 +321,63 @@ References
 * [Neural-Networks-on-Silicon](https://github.com/fengbintu/Neural-Networks-on-Silicon).
 Also has a large section on Model Compression papers for Neural Networks.
 
+* [convolution-flavors](https://github.com/gplhegde/convolution-flavors).
+Kernel to Row an Kernel to Column tricks save memory.
+Also has Vectored Convolution, 1D Winograd Convolution are computationally faster.
+
+Convolutional Neural Networks.
+
+Much more compact models than fully connected for spatial-patterns.
+ResNet use stride instead of pooling layers to reduce size.
+
+* [Convolutional Neural Networks for Visual Recognition](http://cs231n.github.io/convolutional-networks/).
+Explains FC->CONV equivalence, Layer Sizing Patterns,
+Generally early layers have few kernels, many pixels (generic features).
+Late layers many kernels, few pixels (specific features).
+A fully connected (FC) layer can be converted to a CONV layer.
+This allows to reduce the number of passes needed over the input,
+which is more computationally effective.
+Several layers of small kernels (3x3) is more expressive than bigger kernel (7x7),
+because they can combine in non-linear ways thanks to activation functions.
+Also requires less parameters.
+
+
+Question:
+
+* Could one used a fixed set of kernels in a CNN or convolutional feature-map extractor,
+and store their index instead of individual weights?
+Kernel weights 3x3 @ 8 bit = 72 bits.
+Kernel map index: 32-256kernels: 5-8 bit.
+Approx factor 10x reduction.
+
+Could use vector quantization or clustering on the CNN weights?
+
+References
+
+* Clustering Convolutional Kernels to Compress Deep Neural Networks. Sanghyun Son. ECCV 2018.
+From a pre-trained model, extract representative 2D kernel centroids using k-means clustering.
+Each centroid replaces the corresponding kernels. Use indexed representations instead of saving whole kernels.
+Applied to ResNet-18. Outperforms its uncompressed counterpart in ILSVRC2012 with over 10x compression ratio.
+3.3 Accelerating convolution via shared kernel representations. Rewriting multiple shared convolutions to Add-then-conv.
+3.4 Transform invariant clustering. Vertical,horizontal flip, 90 degree rotation.
+Only 32 centroids required for VGG-16 to get reasonable accuracy.
+Fig. 5: The 16 most(Top)/least(Bottom) frequent centroids.
+
+Could one try well-known normalized kernels, instead of learning them?
+Ex: Sobel edge detectors, median/gaussian averaging etc
+
+* Learning Separable Fixed-Point kernels for Deep Convolutional Neural Networks. Sajid Anwar.
+Approximate the separable kernels from non-separable ones using SVD.
+Separable. For a K x K filter, the count of weights is reduced from K*K to K+K and the speedup is (K**K)/2K.
+
+* DeCAF: A deep convolutional activation feature for generic visual recognition.
+DeCAF layers taken from a general task, plus SVM/LogisticRegression training outperform existing state-of-the-art.
+* CNN features off the shelf: an astounding baseline for recognition. Pre-trained CNN plus SVM.
+"SIFT and HOG descriptors produced big performance gains a decade ago
+and now deep convolutional features are providing a similar breakthrough for recognition"
+"In any case, if you develop any new algorithm for a recognition task,
+it **must** be compared against the strong baseline of generic deep features + simple classifier"
+
 ## Quantized Neural Networks
 
 Using integer quantization, typically down to 8-bit. Reduces size of weights, allows to use wider SIMD instructions.

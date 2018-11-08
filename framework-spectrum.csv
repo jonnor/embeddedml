@@ -1,0 +1,7 @@
+Device class;Memory low (KiB);Memory typ (KiB); Memory high (KiB);
+8bit AVR/PIC/STM;0.1;100;
+Cortex M0;1;100;
+Cortex M4F;10;1000;
+ESP8266/ESP32;100;10000;
+Cortex A;10000;1000000;
+x86;100000;100000000;
