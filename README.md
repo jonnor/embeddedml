@@ -378,6 +378,43 @@ and now deep convolutional features are providing a similar breakthrough for rec
 "In any case, if you develop any new algorithm for a recognition task,
 it **must** be compared against the strong baseline of generic deep features + simple classifier"
 
+Could one learn CNN kernels using greedy selection of sets of N kernels?
+
+Layer-wise greedy learning can be done. Can be unsupervised or supervised.
+Goes back to Y Bengio, 2007. Not so popular in 2015, after ReLu etc improved.
+Can still be beneficial for datasets with small amount of labeled samples. [1](https://stats.stackexchange.com/questions/232616/is-greedy-layer-wise-training-of-deep-networks-necessary-for-successfully-traini)
+Especially unsupervised pre-training/initialization, with supervised fine-tuning using back-propagation.
+Stacked Autoencoders is one approach. [1](http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders)
+
+[A pre-training strategy for convolutional neural network applied to Chinese digital gesture recognition](https://ieeexplore.ieee.org/document/7586597). Principal Component Analysis (PCA) is employed to learn convolution kernels as the pre-training strategy. Called PCA-based Convolutional Neural Network (PCNN).
+
+Model compression
+
+* [Pruning Convolutional Neural Networks for Resource Efficient Inference](https://openreview.net/forum?id=SJGCiw5gl&noteId=SJGCiw5gl). ICLR 2017. Prunin criterion based on Taylor expansion that approximates the change in the cost function induced by pruning network parameters.
+Focus on transfer learning. Pruning large CNNs after adaptation to fine-grained classification tasks.
+Demonstrates superior performance compared to other criteria, e.g. the norm of kernel weights or feature map activation.
+* [Structural Compression of Convolutional Neural Networks Based on Greedy Filter Pruning](https://arxiv.org/abs/1705.07356).
+* "Compressing Convolutional Neural Networks in the Frequency Domain". Wenlin Chen.
+Called FreshNets. Uses HashedNets for FC parts. Evaluated at 1/16 and 1/64 compression.
+* [CNNpack: Packing Convolutional Neural Networks in the Frequency Domain](https://papers.nips.cc/paper/6390-cnnpack-packing-convolutional-neural-networks-in-the-frequency-domain.pdf). Yunhe Wang. NIPS 2016. 41 citations.
+Treat convolutional kernels as images. Decompose each kernel into common parts (ie cluster centers),
+and residual (unique to the kernel).
+A large number of **low-energy frequency coefficients** in both parts can be discarded to
+produce high compression without significantly compromising accuracy.
+Relax the computational burden of convolution operations in CNNs by linearly
+combining the convolution responses of discrete cosine transform (DCT) bases.
+Method: kernel coefficients -> DCT -> k-means clustering -> l1 shrinkage -> quantization -> Huffman -> Compressed Sparse Row.
+For similar performance, 30-40x compression on AlexNet/VGG16, 10-25x speedup. 13x compression on ResNet50. !!
+
+Architecture search
+
+* [On Random Weights and Unsupervised Feature Learning](). NIPS 2010.
+In this paper we pose the question, why do random weights sometimes do so well?
+Our answer is that certain convolutional pooling architectures can be inherently
+frequency selective and translation invariant, even with random weights.
+Demonstrate the viability of extremely fast architecture search by using random weights to evaluate candidate architectures,
+thereby sidestepping the time-consuming learning process. Process is approximately 30x faster. 
+
 ## Quantized Neural Networks
 
 Using integer quantization, typically down to 8-bit. Reduces size of weights, allows to use wider SIMD instructions.
@@ -546,6 +583,14 @@ while still delivering the business value?"
 Top mistake: "Continuing with the top down approach ‘let’s make it perform the task first and then squeeze it on device`
 instead of switching to bottom up ‘let’s make it run on device and fulfill all hardware constraints first,
 and then tune it for the task at hand’."
+* [How to run deep learning model on microcontroller with CMSIS-NN](https://www.dlology.com/blog/how-to-run-deep-learning-model-on-microcontroller-with-cmsis-nn/). Why run deep learning model on a microcontroller?
+    Sensitive data gets to the cloud, photos, and audio recordings.
+    The company who sells this may charge a service fee to use its service and even worse sell your private data.
+    It won't work without the network connection to the server.
+    Data traveling back and forth between the device and server introduces lag.
+    Require network and wireless hardware components on the circuit design which increase the cost.
+    It might waste bandwidth sending useless data.
+
 
 
 Open hardware platforms
@@ -955,7 +1000,36 @@ Feature processing
 [How ML/DL is Disrupting Sensor Design](https://drive.google.com/file/d/0BzrlDxVZWSUpbkZrRnlMbmE2c2s/view).
 Compressed sensing. Random projections.
 
-## Image analysis
+## Computer vision
+
+"Recent studies show that the latencies to upload
+a JPEG-compressed input image (i.e. 152KB) for a single inference
+of a popular CNN–“AlexNet” via stable wireless connections with
+3G (870ms), LTE (180ms) and Wi-Fi (95ms), can exceed that of DNN
+computation (6∼82ms) by a mobile or cloud-GPU."
+Moreover,the communication energy is comparable with the associated DNN computation energy.
+
+Y. Kang, J. Hauswald, C. Gao, A. Rovinski, T. Mudge, J. Mars, and L. Tang,
+“Neurosurgeon: Collaborative intelligence between the cloud and mobile edge,”
+in Proceedings of the Twenty-Second International Conference on Architectural Support
+for Programming Languages and Operating Systems. ACM, 2017, pp. 615–629.
+
+
+Question.
+* Can one do classification and object detection on compressed JPEG straight from the camera?
+Operating on the blocks with DCT coefficients.
+
+[Faster Neural Networks Straight from JPEG](https://openreview.net/forum?id=S1ry6Y1vG).
+ICL2018. Modified libjpeg to return DCT coefficients. Blocks of 8x8. On ResNet50, 1.77x faster, same accuracy.
+[On using CNN with DCT based Image Data](https://www.scss.tcd.ie/Rozenn.Dahyot/pdf/IMVIP2017_MatejUlicny.pdf). IMVIP 2017.
+
+Can it be also done in a streaming fashion?
+
+References
+
+* [JPEG DCT, Discrete Cosine Transform (JPEG Pt2)- Computerphile](https://www.youtube.com/watch?v=Q2aEzeMDHMA).
+Excellent visual walkthrough of JPEG compression and decompression. CbCrY,DCT,quantization,Huffman encoding. 
+
 
 Tools
 
