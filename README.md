@@ -24,11 +24,21 @@ Does it perform better than other model/feature selection methods? Or is more pr
 Non-uniform feature-calculation costs. Ie different sized convolution kernels. Convolutions in different layers.
 Classifier hyper-parameters influencing prediction time. Ie RandomForest `min_samples_split`/`min_samples_leaf`/`max_depth`.
 Need to specify a cost function. Number of features. Typical/average depth in tree based methods. Number of layers in CNN-like architecture.
+
 * How to optimize/adapt existing machine learning methods for use on small CPUs.
 Memory usage, CPU, prediction time.
 RandomForest on-demand memoized computation of non-trivial features?
 Approximation of RBF kernel in SVM?
 PDF simplification in Naive Bayes.
+(Recurrent) Convolutional Neural Network.
+How to compress models efficiently?
+How to conserve memory (and compute) by minimize the receptive field of the network?
+Feature selection techniques. Sparsity contraints.
+In frequency domains. In time domain.
+How to select the right resolution, to minimize compute.
+Frequency domain (filterbands).
+Time domain (window size, overlap).
+
 
 # Background
 
@@ -351,6 +361,7 @@ Kernel map index: 32-256kernels: 5-8 bit.
 Approx factor 10x reduction.
 
 Could use vector quantization or clustering on the CNN weights?
+Yes, looks practical:
 
 References
 
@@ -387,6 +398,9 @@ Especially unsupervised pre-training/initialization, with supervised fine-tuning
 Stacked Autoencoders is one approach. [1](http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders)
 
 [A pre-training strategy for convolutional neural network applied to Chinese digital gesture recognition](https://ieeexplore.ieee.org/document/7586597). Principal Component Analysis (PCA) is employed to learn convolution kernels as the pre-training strategy. Called PCA-based Convolutional Neural Network (PCNN).
+
+Q. When transfer learning on CNNs, can one transfer kernels from different models/architectures.
+SubQ. Do kernels in different CNNs tend to be similar? Cluster...
 
 Model compression
 
@@ -1343,23 +1357,6 @@ Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate resul
 
 
 # emlearn
-
-Merge emtrees,embayes,emnet,emaudio into one repository
-
-    emlearn/*.py
-    bindings/emlearn*.cpp
-    src/eml_*.h
-    tests/test_*.py
-
-General API entrypoint
-
-    # convert to
-    cmodel = emlearn.convert(model)
-
-    # switch output targets: C loadable weights, C compiled
-    # configure precision. Weights, Inputs
-    # output C code
-    # compare with Python/original model
     
     cmodel.predict()
     cmodel.predict_proba()
@@ -1370,9 +1367,9 @@ Use `eml_` as common C prefix.
 
     Only support C language
     Uses float instead of doubles
-    No dynamic allocations
     Support for integer-math only
-    
+    No dynamic allocations
+
 
 ## Wishlist
 Demos:
@@ -1383,11 +1380,37 @@ Demos:
     Object recognition image.
     Anomaly detection. For/on ?
 
-Tools:
 
-    Benchmark for performance on-device (prediction time, correctness)
-    Performance models using perf constants estimated by benchmark (per device)
-    Progmem,RAM,CPU estimators for models. Allow to set budget, warn/exception if over 
+### Capacity modelling tools
+
+Purpose: Check if a proposed model fits within contraints.
+Model storage, memory usage, inference time, CPU "utilization"
+Allow to declare budgets, function for checking if over?
+
+Device benchmark:
+
+eml_bench_device
+    multiply_adds/second,
+    convolutions_3x3/second
+    node_evaluations/second (trees)
+    ffts/second (melspec)
+
+    Average, standard deviation, 75%, 95%
+
+Ran for each supported hardware. Publish numbers
+
+Perf modelling.
+ 
+    takes perf constants from benchmark
+    + ML model 
+    => estimate model size, mem use, inference time 
+
+Model benchmark
+
+    Test the real model.
+    Verify against Perf model.
+    Do this for a set of example models, publish numbers
+
 
 Models:
 
