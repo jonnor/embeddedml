@@ -375,7 +375,7 @@ Only 32 centroids required for VGG-16 to get reasonable accuracy.
 Fig. 5: The 16 most(Top)/least(Bottom) frequent centroids.
 
 Could one try well-known normalized kernels, instead of learning them?
-Ex: Sobel edge detectors, median/gaussian averaging etc
+Ex: Sobel edge detectors, median/gaussian averaging etc.
 
 * Learning Separable Fixed-Point kernels for Deep Convolutional Neural Networks. Sajid Anwar.
 Approximate the separable kernels from non-separable ones using SVD.
@@ -388,6 +388,10 @@ DeCAF layers taken from a general task, plus SVM/LogisticRegression training out
 and now deep convolutional features are providing a similar breakthrough for recognition"
 "In any case, if you develop any new algorithm for a recognition task,
 it **must** be compared against the strong baseline of generic deep features + simple classifier"
+
+Could it give performance benefits to flatten a deep model?
+Ie use a deep model, compute typical activations for the different layers,
+mimick these flat convolutional kernels. Teacher-student type learning.
 
 Could one learn CNN kernels using greedy selection of sets of N kernels?
 
@@ -702,6 +706,7 @@ Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic
 [OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
 [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
 found that CMSIS FFT with Q31 had slightly less error than with F32.
+* [esp32-fft](https://github.com/fakufaku/esp32-fft). 1024 lenght float32 FFT in 1ms on ESP32.
 
 CARFAC
 
@@ -1437,8 +1442,38 @@ Perf:
     8/16bit weights. NNs
     Integer-math only for compiled trees. 32bit/8bit
     Support sparse models. Autoreduce during conversion?
+    Sparse dictionary representations
 
 Advanced stuffs
 
     Audio beamforming.
+
+Tzetlin machine. Adger. Binary logic.
+
+
+# Thesis
+
+What kind of machinelearning (inference) tasks can be achieved on a microcontroller?
+
+Methodology
+
+- Select one or two general purpose microcontrollers.
+Having a specific amount of storage,RAM and CPU.
+Note: most usecases require (wireless) connectivity.
+Ex: Nordic NRF52 (ARM Cortex M4+), ESP32 (Xtensa)
+- Select open datasets for tasks that could be interesting to perform on microcontroller.
+Ex audio: acoustic event detection, acoustic noise source classification, keyword spotting
+Ex IMU: human activity detection, fall detection, gesture recognition, machine anomaly dectetion
+Ex image: ?
+
+Should have a number of, ideally with open code for easily reproducability.
+- Machine learning method
+
+
+Contributions
+
+- a open source library of ML inference, designed for microcontrollers
+- a modelling framework for ML inference storage,RAM,CPU resources 
+- a feasibity evaluation of some desirable tasks for ML on microcontrollers
+ 
 
