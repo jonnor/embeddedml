@@ -330,6 +330,8 @@ References
 
 * [Neural-Networks-on-Silicon](https://github.com/fengbintu/Neural-Networks-on-Silicon).
 Also has a large section on Model Compression papers for Neural Networks.
+* [Embedded-Neural-Network](https://github.com/ZhishengWang/Embedded-Neural-Network).
+Large collection of papers for model compression, and for targeting HW acceleration. 
 
 * [convolution-flavors](https://github.com/gplhegde/convolution-flavors).
 Kernel to Row an Kernel to Column tricks save memory.
@@ -403,6 +405,26 @@ Stacked Autoencoders is one approach. [1](http://ufldl.stanford.edu/wiki/index.p
 
 [A pre-training strategy for convolutional neural network applied to Chinese digital gesture recognition](https://ieeexplore.ieee.org/document/7586597). Principal Component Analysis (PCA) is employed to learn convolution kernels as the pre-training strategy. Called PCA-based Convolutional Neural Network (PCNN).
 
+* [](https://ieeexplore.ieee.org/document/7726188). 2016. GaborCNN.
+Convolutional neural network combined with Gabor filters for strengthening the learning of texture information.
+81.53% on ImageNet.
+
+* "Informative Spectro-Temporal Bottleneck Features for Noise-Robust Speech Recognition". 2013.
+Uses Gabor filters for feature extraction. On Power-normalized spectrogram.
+Filters selected using sparse PCA. Multi-layer-perceptron used, pretrained with Restricted Boltzman Machine.
+* "Robust CNN-based Speech Recognition With Gabor Filter Kernels". 2014.
+Gabor Convolutional Neural Network (GCNN). Incorporates Gabor functions into convolutional filter kernels.
+Gabor-DNN features. 
+Power-normalized spectrum (PNS) instead of mel-spectrogram.
+Gammatone auditory filters equally spaced on the equivalent rectangular bandwidth (ERB) scale.
+Medium-duration power bias is subtracted, where the bias level calculation was based on the
+ratio of arithmetic mean and geometric mean (AM/GM ratio) of the medium duration power.
+A power nonlinearity with an exponent of 0.1 replaces the logarithm nonlinearity used for compression.
+* "".
+Gabor Convolutional Networks (GCNs).
+Convolutional Gabor orientation Filters (GoFs). Learned convolution filters modulated by Gabor filter. 
+Performs slightly better than ResNet with slightly fewers trainable parameters.
+
 Q. When transfer learning on CNNs, can one transfer kernels from different models/architectures.
 SubQ. Do kernels in different CNNs tend to be similar? Cluster...
 
@@ -432,6 +454,62 @@ Our answer is that certain convolutional pooling architectures can be inherently
 frequency selective and translation invariant, even with random weights.
 Demonstrate the viability of extremely fast architecture search by using random weights to evaluate candidate architectures,
 thereby sidestepping the time-consuming learning process. Process is approximately 30x faster. 
+
+Small Convolutional Neural Nets
+
+* [SqueezeNet: : AlexNet-level accuracy with 50x fewer parameters and <0.5MB model size](http://arxiv.org/abs/1602.07360). 2015.
+1x1 convolutions over 3x3. Percentage tunable as hyperparameters.
+Pooling very late in the layers.
+No fully-connected end, uses convolutional instead.
+5MB model performs like AlexNet on ImageNet. 650KB when compressed to 8bit at 33% sparsity. 
+* [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861). 2017.
+Extensive use of 1×1 Conv layers. 95% of it’s computation time, 75% parameters. 25% parameters in final fully-connected.
+Also depthwise-separable convolutions. Combination of a depthwise convolution and a pointwise convolution.
+Has two hyperparameters: image size and a width multiplier `alpha` (0.0-1.0).
+Figure 4 shows log linear dependence between accuracy and computation.
+0.5 MobileNet-160 has 76M mul-adds, versus SqueezeNet 1700 mult-adds, both around 60% on ImageNet.
+Smallest tested was 0.25 MobileNet-128, with 15M mult-adds and 200k parameters.
+* [ShuffleNet](https://arxiv.org/abs/1707.01083). Zhang, 2017.
+Introduces the three variants of the Shuffle unit. Group convolutions and channel shuffles.
+Group convolution applies over data from multiple groups (RGB channels). Reduces computations.
+Channel shuffle randomly mixes the output channels of the group convolution.
+* [MobileNetV2: Inverted Residuals and Linear Bottlenecks](https://arxiv.org/abs/1801.04381). 2018
+Inserting linear bottleneck layers into the convolutional blocks.
+Ratio between the size of the input bottleneck and the inner size as the expansion ratio.
+Shortcut connections between bottlenecks.
+ReLU6 as the non-linearity. Designed for with low-precision computation (8 bit fixed-point). y = min(max(x, 0), 6).
+Max activtions size 200K float16, versus 800K for MobileNetV1 and 600K for ShuffleNet.
+Smallest network at 96x96 with 12M mult-adds, 0.35 width. Performance curve very similar to ShuffleNet.
+Combined with SSDLite, gives similar object detection performance as YOLOv2 at 10% model size and 5% compute.
+200ms on Pixel1 phone using TensorFlow Lite.
+* [EffNet](https://arxiv.org/abs/1801.06434). Freeman, 2018.
+Spatial separable convolutions.
+Made of depthwise convolution with a line kernel (1x3),
+followed by a separable pooling,
+and finished by a depthwise convolution with a column kernel (3x1).
+* [FD-MobileNet: Improved MobileNet with a Fast Downsampling Strategy](https://arxiv.org/abs/1802.03750). 2018.
+[3 Small But Powerful Convolutional Networks](https://towardsdatascience.com/3-small-but-powerful-convolutional-networks-27ef86faa42d).
+Explains MobileNet, ShuffleNet, EffNet. Visualizations of most important architecture differences, and the computational complexity benefits.
+[Why MobileNet and Its Variants (e.g. ShuffleNet) Are Fast](https://medium.com/@yu4u/why-mobilenet-and-its-variants-e-g-shufflenet-are-fast-1c7048b9618d).
+Covers MobileNet, ShuffleNet, FD-MobileNet.
+Explains the convolution variants used visually. Pointwise convolution (conv1x1), grouped convolution, depthwise convolution.
+
+Open source projects
+
+* [nn_dataflow](https://github.com/stanford-mast/nn_dataflow). Energy-efficient dataflow scheduling for neural networks (NNs),
+including array mapping, loop blocking and reordering, and parallel partitioning.
+* [Sparse-Winograd-CNN](https://github.com/xingyul/Sparse-Winograd-CNN). Efficient Sparse-Winograd Convolutional Neural Networks paper. ICLR 2018.
+* [wincnn](https://github.com/andravin/wincnn). Simple python module for computing minimal Winograd convolution algorithms for use with convolutional neural networks. "Fast Algorithms for Convolutional Neural Networks" Lavin and Gray, CVPR 2016.
+* [Tencent/FeatherCNN](https://github.com/Tencent/FeatherCNN). High performance inference engine for convolutional neural networks.
+For embedded Linux and mobile, especially ARM processors.
+* [dll](https://github.com/wichtounet/dll). C++ implementation of Restricted Boltzmann Machine (RBM) and Deep Belief Network (DBN) and their convolution versions.
+* [](https://github.com/HolmesShuan/CNN-Inference-Engine-Quick-View). Overview of CCN inference engines, and performance.
+Shows MobileNetV1 at 60ms on 2-core 1.8Ghz Cortex-A72, ResNet-18 in 200ms.
+
+## Sequence modelling
+
+[Temporal Convolutional Networks](https://arxiv.org/abs/1608.08242). Using convolutions instead of Recurrent Neural Networks.
+[An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling](https://arxiv.org/abs/1803.01271).
 
 ## Quantized Neural Networks
 
@@ -1019,6 +1097,11 @@ Feature processing
 [How ML/DL is Disrupting Sensor Design](https://drive.google.com/file/d/0BzrlDxVZWSUpbkZrRnlMbmE2c2s/view).
 Compressed sensing. Random projections.
 
+[Rise of the super sensor](https://www.computerworld.com/article/3197685/internet-of-things/google-a-i-and-the-rise-of-the-super-sensor.html).
+CMU has developed a generic 'synthetic sensor', using audio/vibration etc.
+"the revolution is to install a super sensor once, then all future sensing (and the actions based on that sensing)
+is a software solution that does not involve new devices"
+
 ## Computer vision
 
 "Recent studies show that the latencies to upload
@@ -1298,27 +1381,7 @@ Strongest empirical papers include:
 ML Paper Checklist
 https://github.com/N-McA/ml-paper-checklist/blob/master/README.md
 
-# TODO
 
-September 2018
-
-* Work on DAT390 term paper
-* Create demo of an application of ML on microcontroller
-
-November 2018
-
-* Finish sensor node prototype
-* Setup data persistence
-
-December 2018
-
-* Deliver DAT390 term paper
-* Decide research goal for thesis
-* Industry partner is in place (if any)
-
-May 2019
-
-* Deliver master thesis
 
 # Dissemination
 
@@ -1363,11 +1426,6 @@ Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate resul
 
 # emlearn
     
-    cmodel.predict()
-    cmodel.predict_proba()
-
-Use `eml_` as common C prefix.
-
 ## Compared to sklearn-porter
 
     Only support C language
