@@ -9,6 +9,35 @@ Training phase can run on a standard computer/server, using existing tools as mu
 * Decision trees ensembles implemented in [emtrees](https://github.com/jonnor/emtrees)
 * Naive Bayes implemented in [embayes](https://github.com/jonnor/embayes)
 
+# State of the Art
+Of ML inference on general-purpose microcontrollers.
+
+- Deep models have efficient implementations for ARM Cortex-M. Ex: CNN and RNN in CMSIS-NN, FC in uTensor
+- Some implementations available for non-neural models that *can* be used. Ex: SVM,RF,AdaBoost in sklearn-porter
+- A few special-designed ML algorithms made. Ex: ProtoNN, Bonsai
+- Basic tools available for converting Tensorflow models
+- Keyword-spotting/wake-word on audio well established. Used in commercial products (Alexa etc)
+- Human activity detecton on accelerometers.
+- Computer vision 
+
+Limitations
+
+- Neural models lacking for non-ARM micros. ESP8266/ESP32
+- Non-neural models missing inference engines designed for microcontrollers
+- "Small DNN model" work mostly on computer vision for mobile phones (model size 1000x of uC)
+- Few/no pretrained models available. Transfer learning little explored?
+- Very little documentation of entire development process.
+From planning, data aquisition, model design
+- Best practices underdocumented (or underdeveloped?) 
+
+Ways of advancing, make contributions
+
+- Faster inference. Power saving, or bigger problems.
+- Smaller models. Cheaper MCU, or bigger problems.
+- Better accuracy on a problem. Better user experience, new usecases
+- Solve a concrete usecase. Easier to deploy similar usecases
+- Libraries or tools. Lower time to market, enable more developers
+
 # Research questions
 
 * How to take inference cost into account in model/feature evaluation/selection? (time,energy)
@@ -38,7 +67,6 @@ In frequency domains. In time domain.
 How to select the right resolution, to minimize compute.
 Frequency domain (filterbands).
 Time domain (window size, overlap).
-
 
 # Background
 
@@ -139,14 +167,11 @@ Can then store/transmit the other data in order to do quality assurance and/or f
 Roughly ordered by relevance. Should both be useful for typical tasks and efficiently implementable. 
 
 * Decision trees, random forests
-* Naive Bayes
+* Convolutional Neural networks (quantized)
 * Binary Neural networks
 * Support Vector Machines. SVM.
-* Nearest Neighbours. kNN.
-* k-means clustering.
-* PCA
-* Independent Component Analysis (ICA). 
-Unsupervised, data-driven technique for blind source separation.
+* Naive Bayes
+* Nearest Neighbours. kNN. Reduced prototypes 
 
 Ideas
 
@@ -331,16 +356,12 @@ References
 * [Neural-Networks-on-Silicon](https://github.com/fengbintu/Neural-Networks-on-Silicon).
 Also has a large section on Model Compression papers for Neural Networks.
 * [Embedded-Neural-Network](https://github.com/ZhishengWang/Embedded-Neural-Network).
-Large collection of papers for model compression, and for targeting HW acceleration. 
-
-* [convolution-flavors](https://github.com/gplhegde/convolution-flavors).
-Kernel to Row an Kernel to Column tricks save memory.
-Also has Vectored Convolution, 1D Winograd Convolution are computationally faster.
+Large collection of papers for model compression, and for targeting HW acceleration.
 
 Convolutional Neural Networks.
 
 Much more compact models than fully connected for spatial-patterns.
-ResNet use stride instead of pooling layers to reduce size.
+
 
 * [Convolutional Neural Networks for Visual Recognition](http://cs231n.github.io/convolutional-networks/).
 Explains FC->CONV equivalence, Layer Sizing Patterns,
@@ -353,17 +374,24 @@ Several layers of small kernels (3x3) is more expressive than bigger kernel (7x7
 because they can combine in non-linear ways thanks to activation functions.
 Also requires less parameters.
 
+Optimizing CNNs
 
-Question:
+* [convolution-flavors](https://github.com/gplhegde/convolution-flavors).
+Kernel to Row an Kernel to Column tricks save memory.
+Also has Vectored Convolution, 1D Winograd Convolution are computationally faster.
+* ResNet use stride instead of pooling layers to reduce size. Less computations?
 
-* Could one used a fixed set of kernels in a CNN or convolutional feature-map extractor,
-and store their index instead of individual weights?
+### Kernel dictionaries
+
+Use a fixed set of kernels in a CNN or convolutional feature-map extractor.
+Store their index instead of individual weights?
+To reduce weight storage size for big networks.
+
 Kernel weights 3x3 @ 8 bit = 72 bits.
 Kernel map index: 32-256kernels: 5-8 bit.
 Approx factor 10x reduction.
 
-Could use vector quantization or clustering on the CNN weights?
-Yes, looks practical:
+Can be done using vector quantization or clustering on the CNN weights.
 
 References
 
@@ -376,13 +404,14 @@ Applied to ResNet-18. Outperforms its uncompressed counterpart in ILSVRC2012 wit
 Only 32 centroids required for VGG-16 to get reasonable accuracy.
 Fig. 5: The 16 most(Top)/least(Bottom) frequent centroids.
 
-Could one try well-known normalized kernels, instead of learning them?
-Ex: Sobel edge detectors, median/gaussian averaging etc.
+### Stacking kernels
+
 
 * Learning Separable Fixed-Point kernels for Deep Convolutional Neural Networks. Sajid Anwar.
 Approximate the separable kernels from non-separable ones using SVD.
 Separable. For a K x K filter, the count of weights is reduced from K*K to K+K and the speedup is (K**K)/2K.
 
+### Transfer learning
 * DeCAF: A deep convolutional activation feature for generic visual recognition.
 DeCAF layers taken from a general task, plus SVM/LogisticRegression training outperform existing state-of-the-art.
 * CNN features off the shelf: an astounding baseline for recognition. Pre-trained CNN plus SVM.
@@ -391,24 +420,33 @@ and now deep convolutional features are providing a similar breakthrough for rec
 "In any case, if you develop any new algorithm for a recognition task,
 it **must** be compared against the strong baseline of generic deep features + simple classifier"
 
+Could one try well-known normalized kernels, instead of learning them?
+Ex: Sobel edge detectors, median/gaussian averaging etc.
+
+
 Could it give performance benefits to flatten a deep model?
 Ie use a deep model, compute typical activations for the different layers,
 mimick these flat convolutional kernels. Teacher-student type learning.
 
+### Other kernel learning methods
 Could one learn CNN kernels using greedy selection of sets of N kernels?
 
 Layer-wise greedy learning can be done. Can be unsupervised or supervised.
 Goes back to Y Bengio, 2007. Not so popular in 2015, after ReLu etc improved.
-Can still be beneficial for datasets with small amount of labeled samples. [1](https://stats.stackexchange.com/questions/232616/is-greedy-layer-wise-training-of-deep-networks-necessary-for-successfully-traini)
+Can still be beneficial for datasets with small amount of labeled samples.
+[1](https://stats.stackexchange.com/questions/232616/is-greedy-layer-wise-training-of-deep-networks-necessary-for-successfully-traini)
 Especially unsupervised pre-training/initialization, with supervised fine-tuning using back-propagation.
 Stacked Autoencoders is one approach. [1](http://ufldl.stanford.edu/wiki/index.php/Stacked_Autoencoders)
 
-[A pre-training strategy for convolutional neural network applied to Chinese digital gesture recognition](https://ieeexplore.ieee.org/document/7586597). Principal Component Analysis (PCA) is employed to learn convolution kernels as the pre-training strategy. Called PCA-based Convolutional Neural Network (PCNN).
+[A pre-training strategy for convolutional neural network applied to Chinese digital gesture recognition](https://ieeexplore.ieee.org/document/7586597).
+Principal Component Analysis (PCA) is employed to learn convolution kernels as the pre-training strategy.
+Called PCA-based Convolutional Neural Network (PCNN).
 
-* [](https://ieeexplore.ieee.org/document/7726188). 2016. GaborCNN.
+Gabor filters
+
+* [GaborCNN](https://ieeexplore.ieee.org/document/7726188). 2016. GaborCNN.
 Convolutional neural network combined with Gabor filters for strengthening the learning of texture information.
 81.53% on ImageNet.
-
 * "Informative Spectro-Temporal Bottleneck Features for Noise-Robust Speech Recognition". 2013.
 Uses Gabor filters for feature extraction. On Power-normalized spectrogram.
 Filters selected using sparse PCA. Multi-layer-perceptron used, pretrained with Restricted Boltzman Machine.
@@ -428,7 +466,7 @@ Performs slightly better than ResNet with slightly fewers trainable parameters.
 Q. When transfer learning on CNNs, can one transfer kernels from different models/architectures.
 SubQ. Do kernels in different CNNs tend to be similar? Cluster...
 
-Model compression
+### Model compression
 
 * [Pruning Convolutional Neural Networks for Resource Efficient Inference](https://openreview.net/forum?id=SJGCiw5gl&noteId=SJGCiw5gl). ICLR 2017. Prunin criterion based on Taylor expansion that approximates the change in the cost function induced by pruning network parameters.
 Focus on transfer learning. Pruning large CNNs after adaptation to fine-grained classification tasks.
@@ -446,7 +484,7 @@ combining the convolution responses of discrete cosine transform (DCT) bases.
 Method: kernel coefficients -> DCT -> k-means clustering -> l1 shrinkage -> quantization -> Huffman -> Compressed Sparse Row.
 For similar performance, 30-40x compression on AlexNet/VGG16, 10-25x speedup. 13x compression on ResNet50. !!
 
-Architecture search
+### Architecture search
 
 * [On Random Weights and Unsupervised Feature Learning](). NIPS 2010.
 In this paper we pose the question, why do random weights sometimes do so well?
@@ -455,9 +493,9 @@ frequency selective and translation invariant, even with random weights.
 Demonstrate the viability of extremely fast architecture search by using random weights to evaluate candidate architectures,
 thereby sidestepping the time-consuming learning process. Process is approximately 30x faster. 
 
-Small Convolutional Neural Nets
+### Small Convolutional Neural Nets
 
-* [SqueezeNet: : AlexNet-level accuracy with 50x fewer parameters and <0.5MB model size](http://arxiv.org/abs/1602.07360). 2015.
+* [SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <0.5MB model size](http://arxiv.org/abs/1602.07360). 2015.
 1x1 convolutions over 3x3. Percentage tunable as hyperparameters.
 Pooling very late in the layers.
 No fully-connected end, uses convolutional instead.
@@ -503,7 +541,8 @@ including array mapping, loop blocking and reordering, and parallel partitioning
 * [Tencent/FeatherCNN](https://github.com/Tencent/FeatherCNN). High performance inference engine for convolutional neural networks.
 For embedded Linux and mobile, especially ARM processors.
 * [dll](https://github.com/wichtounet/dll). C++ implementation of Restricted Boltzmann Machine (RBM) and Deep Belief Network (DBN) and their convolution versions.
-* [](https://github.com/HolmesShuan/CNN-Inference-Engine-Quick-View). Overview of CCN inference engines, and performance.
+* [CNN-Inference-Engine-Comparison](https://github.com/HolmesShuan/CNN-Inference-Engine-Quick-View).
+Overview of CCN inference engines, and performance.
 Shows MobileNetV1 at 60ms on 2-core 1.8Ghz Cortex-A72, ResNet-18 in 200ms.
 
 ## Sequence modelling
@@ -640,6 +679,9 @@ Set of C++ libraries for machine learning on embedded platforms. Includes code f
 Also has some node-based dataflow system in place it seems. JavaScript and Python bindings.
 * [Embedded Classification Software Toolbox](https://github.com/ma2th/ecst)
 * [uTensor](https://github.com/uTensor/uTensor). Export Tensorflow model to mbed/ARM microcontrollers.
+128+ kB RAM and 512kB+ flash recommended.
+"3-layer MLP is less than 32kB". Does not support CNNs yet. https://github.com/uTensor/uTensor/issues/99
+Not supported on ESP8266/ESP32. https://github.com/uTensor/uTensor/issues/137
 
 Papers
 
@@ -665,6 +707,10 @@ Companies
 ISV providing the SensiML Analytics Toolkit, on-microcontroller ML algorithms and supporting tools.
 * ST devices. At WDC2018 announced STM32CubeMX.A SDK for neural networks on STM32 micros, and intent to develop NN coprocessor.
 * [Reality AI](https://reality.ai).
+* Lattice Semicondutors. Announced CNN acceleration IP blocks,tools and devkits for their ICE40 FPGAs October 2018.
+[eejournal](https://www.eejournal.com/article/lattice-raises-the-bar-on-low-power-ai/).
+[Himax HM01B0 UPduino Shield](http://www.latticesemi.com/en/Products/DevelopmentBoardsAndKits/HimaxHM01B0),
+with ultra-low-power imaging module and support for 2 microphones.
 
 Blogposts
 
@@ -757,6 +803,9 @@ If freezing time, cannot understand much of the information present (compared wi
 Temporal patterns are critical.
 
 
+## Keyword spotting
+Aka "wake word detection"
+
 Existing work on microcontrollers
 
 * [ML-KWS-for-MCU](https://github.com/ARM-software/ML-KWS-for-MCU/tree/master/Deployment).
@@ -767,24 +816,23 @@ Using CMSIS NN and DSP modules.
 Implemented speech recognition using MFCC on 16-bit dsPIC with 40 MIPS and 16kB RAM.
 A Cortex-M3 at 80 MHz should have 100+MIPS.
 
-MFCC Feature extration
 
-* [KWS](https://github.com/ARM-software/ML-KWS-for-MCU/blob/8ea22926f743f53c7d17d9c73eb2f1b22257ebe2/Deployment/Source/MFCC/mfcc.cpp)
-Runs on ARM Cortex M(4F). Uses CMSIS for FFT. Clear code struture. Some things, like filterbank, can be precomputed in Python? Apache 2.0
-* [libmfcc](https://github.com/wirahayy/libmfcc/blob/master/libmfcc.c). Takes FFT spectrum as input. MIT.
-* Fixed-point is challenging. A naive approach to fixed-point FFT causes noise to go up a lot, and classification ability is drastically reduced. Optimized implementation proposed in  [Accuracy of MFCC-Based Speaker Recognition in Series 60 Device](https://link.springer.com/content/pdf/10.1155/ASP.2005.2816.pdf)
-* STM32F103 (Cortex M3 at 72MHz) can do 1024 point FFT in 3ms using CMSIS, Q15/Q31 fixed point. radix-4 FFT.
-STM32F091 (Cortex M0 at 48Mhz) takes 20 ms.
-[STM32 DSP](http://www.st.com/content/ccc/resource/technical/document/application_note/group0/c1/ee/18/7a/f9/45/45/3b/DM00273990/files/DM00273990.pdf/jcr:content/translations/en.DM00273990.pdf).
-Using software-emulated floating point for FFT on Cortex M4 is 10x slower than the FPU unit.
-M4F is 3-4 times as energy efficient as the M3 (when using floats?).
-[EMF32 DSP](https://www.silabs.com/documents/public/application-notes/AN0051.pdf).
-CMSIS FFT is about 3-4x faster than a generic KissFFT-based version.
-Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic version, using int32.2
-[OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
-[FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
-found that CMSIS FFT with Q31 had slightly less error than with F32.
-* [esp32-fft](https://github.com/fakufaku/esp32-fft). 1024 lenght float32 FFT in 1ms on ESP32.
+* [How to Achieve High-Accuracy Keyword Spotting on Cortex-M Processors](https://community.arm.com/processors/b/blog/posts/high-accuracy-keyword-spotting-on-cortex-m-processors).
+Reviews many deep learning approaches. DNN, CNN, RNN, CRNN, DS-CNN.
+Considering 3 different sizes of networks, bound by NN memory limit and ops/second limits. Small= 80KB, 6M ops/inference.
+Depthwise Separable Convolutional Neural Network (DS-CNN) provides the best accuracy while requiring significantly lower memory and compute resources.
+94.5% accuracy for small network. ARM Cortex M7 (STM32F746G-DISCO).
+8-bit weights and 8-bit activations, with KWS running at 10 inferences per second.
+Each inference – including memory copying, MFCC feature extraction and DNN execution – takes about 12 ms.
+10x inferences/second. Rest sleeping = 12% duty cycle.
+* [QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
+Always-on wake word detection at 640uWatt typical.
+nRF51822 with **external MCU**. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
+* [Convolutional Recurrent Neural Networks for Small-Footprint Keyword Spotting](https://arxiv.org/abs/1703.05390).
+Uses Per-Channel Energy Normalization on mel spectograms. CRNN with ~230k parameters, acceptably low latency on mobile devices.
+Achieves 97.71% accuracy at 0.5 FA/hour for 5 dB signal-to-noise ratio. Down to 45k parameters tested.
+
+
 
 CARFAC
 
@@ -802,21 +850,7 @@ High dimesionality, 100'000 dimensions.
 Fast online training using Passive Agressive classifier
 * [CARFAC reference implementation in C++](https://github.com/google/carfac)
 
-Goertzel filter
 
-* [embedded.com The Goertzel Algorithm](https://www.embedded.com/design/configurable-systems/4024443/The-Goertzel-Algorithm),
-example code in C++.
-* [embedded.com Single tone detection with Goertzel](https://www.embedded.com/design/real-world-applications/4401754/Single-tone-detection-with-the-Goertzel-algorithm). Example code in C++
-* [Efficiently detecting a frequency using a Goertzel filter](https://netwerkt.wordpress.com/2011/08/25/goertzel-filter/),
-several implementation variants in C.
-* Matched Filter Design
-The Goertzel algorithm is advantageous compared to the FFT when
-`M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
-N=1024, M=8.
-* [Overlap Add STFT implementation of linear filters](https://www.dsprelated.com/freebooks/sasp/Overlap_Add_OLA_STFT_Processing.html)
-Faster than convolution in time domain for FIR
- filters with n>64 taps, which can happen in audio without noticable delay 
-* https://stackoverflow.com/questions/11579367/implementation-of-goertzel-algorithm-in-c
 
 
 Feature learning
@@ -861,18 +895,7 @@ Typically treated as monophonic problem, but polyphonic is desirable.
 More challening that scene classification.
 One strategy to handle polyphonic signals is to perform audio source separation, and then to analyse the resulting signals individually.
 
-Keyword spotting
 
-* Aka wake word detection
-* [How to Achieve High-Accuracy Keyword Spotting on Cortex-M Processors](https://community.arm.com/processors/b/blog/posts/high-accuracy-keyword-spotting-on-cortex-m-processors). Reviews many deep learning approaches. DNN, CNN, RNN, CRNN, DS-CNN.
-Considering 3 different sizes of networks, bound by NN memory limit and ops/second limits. Small= 80KB, 6M ops/inference.
-Depthwise Separable Convolutional Neural Network (DS-CNN) provides the best accuracy while requiring significantly lower memory and compute resources. 94.5% accuracy for small.
-ARM Cortex M7 (STM32F746G-DISCO). 8-bit weights and 8-bit activations, with KWS running at 10 inferences per second.
-Each inference – including memory copying, MFCC feature extraction and DNN execution – takes about 12 ms. 10x inferences/second. Rest sleeping = 12% duty cycle.
-* [QuickLogic partners with Nordic Semiconductor for its Amazon Alexa-compatible wearables reference design using Voice-over-Bluetooth Low Energy](https://www.nordicsemi.com/News/News-releases/Product-Related-News/QuickLogic-partners-with-Nordic-Semiconductor-for-its-Amazon-Alexa-compatible-wearables-reference-design-using-Voice-over-Bluetooth-Low-Energy). 2017/11
-Always-on wake word detection at 640uWatt typical.
-nRF51822 with external MCU. EOS S3 SoC’s (Cortex M4F) hardware integrated Low Power Sound Detector.
-* [Convolutional Recurrent Neural Networks for Small-Footprint Keyword Spotting](https://arxiv.org/abs/1703.05390). Uses Per-Channel Energy Normalization on mel spectograms. CRNN with ~230k parameters, acceptably low latency on mobile devices. Achieves 97.71% accuracy at 0.5 FA/hour for 5 dB signal-to-noise ratio. Down to 45k parameters teted.
 
 Acoustic event detection (AED)
 
@@ -995,37 +1018,54 @@ Condfounding factors:
 * humidity, temperature
 
 
-### Tools
+## Environmental sound monitoring
+Aka
 
-* [librosa](https://librosa.github.io/librosa/feature.html)
-* [essentia](http://essentia.upf.edu/documentation/algorithms_overview.html). Tons of filters and feature extractors
+- Environmental Noise Monitoring
+- Noise source identification
 
-### Datasets
+Datasets
 
 * [Urbansound-8k](https://serv.cusp.nyu.edu/projects/urbansounddataset/urbansound8k.html).
 8k samples, 10 classes. Compiled from freesound.org data
 * [ESC-50: Dataset for Environmental Sound Classification](https://github.com/karoldvl/ESC-50).
 2k samples, 40 classes in 5 major categories. Compiled from freesound.org data
-* [NOIZEUS: A noisy speech corpus for evaluation of speech enhancement algorithms](http://ecs.utdallas.edu/loizou/speech/noizeus/)
-30 sentences corrupted by 8 real-world noises. 
+* DCASE 2013. Audio Event Detection. Indoor office sounds. 16 classes. Segmented. 19 minutes total.
+* [Google AudioSet](https://research.google.com/audioset/). 2,084,320 human-labeled 10-second sounds, 632 audio event classes. 
+
+
+## Speech commands
+
+Datasets
+
 * [Speech Commands Data Set](https://www.kaggle.com/c/tensorflow-speech-recognition-challenge/data).
 Kaggle competition required submissions to run in below 200ms on a Raspberry PI3.
+* [NOIZEUS: A noisy speech corpus for evaluation of speech enhancement algorithms](http://ecs.utdallas.edu/loizou/speech/noizeus/)
+30 sentences corrupted by 8 real-world noises. 
 * Mozilla [Common Voice](https://voice.mozilla.org), crowd sourcing. Compiled dataset [on Kaggle](https://www.kaggle.com/mozillaorg/common-voice), 
+
+
+## Speaker detection
+
 * [VoxCeleb](http://www.robots.ox.ac.uk/~vgg/data/voxceleb/), 100k utterances for 1251 celebrities.
 * [Speakers in the Wild](https://www.sri.com/work/publications/speakers-wild-sitw-speaker-recognition-database)
-* [Google AudioSet](https://research.google.com/audioset/). 2,084,320 human-labeled 10-second sounds, 632 audio event classes. 
-* [BirdCLEF 2016](http://www.imageclef.org/lifeclef/2016/bird). 24k audio clips of 999 birds species
-* DCASE 2013. Audio Event Detection. Indoor office sounds. 16 classes. Segmented. 19 minutes total.
-* DCASE 2018. Audio Event Detection, single-class: bird-present. 6 datasets of some k samples each.
 
-## Activity detection
+## Bird audio detection
+
+
+* DCASE 2018. Audio Event Detection, single-class: bird-present. 6 datasets of some k samples each.
+* [BirdCLEF 2016](http://www.imageclef.org/lifeclef/2016/bird). 24k audio clips of 999 birds species
+
+
+
+## Human Activity Recognition
 
 Terms used
 
 * Activity Recognition / human activity recognition (AR) 
 * Activities of Daily Living (ADL).
 * Action recognition
-* Fall detection. FD
+* Fall detection. (FD)
 
 Datasets
 
@@ -1060,6 +1100,8 @@ Summarizes 30+ papers using transfer learning.
 
 ## Gesture recognition
 
+Using IMUs.
+
 Datasets
 
 * [martWatch Gestures Dataset](https://tev.fbk.eu/technologies/smartwatch-gestures-dataset)
@@ -1092,15 +1134,14 @@ Feature processing
 * Zero velocity compensation (ZVC)
 * DWT. [FastDWT](https://cs.fit.edu/~pkc/papers/tdm04.pdf), approximation of DTW in linear time and linear space.
 
-## New sensor types
 
-[How ML/DL is Disrupting Sensor Design](https://drive.google.com/file/d/0BzrlDxVZWSUpbkZrRnlMbmE2c2s/view).
-Compressed sensing. Random projections.
+## Vibration analysis
+Often used for 'machine condition' analysis, especially for rotating machines.
 
-[Rise of the super sensor](https://www.computerworld.com/article/3197685/internet-of-things/google-a-i-and-the-rise-of-the-super-sensor.html).
-CMU has developed a generic 'synthetic sensor', using audio/vibration etc.
-"the revolution is to install a super sensor once, then all future sensing (and the actions based on that sensing)
-is a software solution that does not involve new devices"
+* [Fundamentals of Vibration Measurement and Analysis Explained](http://www.lifetime-reliability.com/free-articles/maintenance-management/Fundamentals_of_Vibration_Measurement_and_Analysis_Explained.pdf), explains how to capture data, process it to commonly used features etc
+* [Beginning Vibration Analysis](http://www.vibranalysis.co.za/ctc/pdf/pubTechPapers/01-Beginning%20Vibration%20Analysis.pdf),
+page 82+ shows data for some problematic cases
+
 
 ## Computer vision
 
@@ -1118,6 +1159,7 @@ for Programming Languages and Operating Systems. ACM, 2017, pp. 615–629.
 
 
 Question.
+
 * Can one do classification and object detection on compressed JPEG straight from the camera?
 Operating on the blocks with DCT coefficients.
 
@@ -1138,27 +1180,18 @@ Tools
 * [VLFeat](http://www.vlfeat.org/api/index.html).
 Portable C library with lots of feature extractors for computer vision tasks.
 
-## Vibration analysis
-Often used for 'machine condition' analysis, especially for rotating machines.
 
-* [Fundamentals of Vibration Measurement and Analysis Explained](http://www.lifetime-reliability.com/free-articles/maintenance-management/Fundamentals_of_Vibration_Measurement_and_Analysis_Explained.pdf), explains how to capture data, process it to commonly used features etc
-* [Beginning Vibration Analysis](http://www.vibranalysis.co.za/ctc/pdf/pubTechPapers/01-Beginning%20Vibration%20Analysis.pdf),
-page 82+ shows data for some problematic cases
+## New sensor types
 
-## Noise removal
+[How ML/DL is Disrupting Sensor Design](https://drive.google.com/file/d/0BzrlDxVZWSUpbkZrRnlMbmE2c2s/view).
+Compressed sensing. Random projections.
 
-* Denoising autoencoders. sDSA, stacked... [Theano tutorial](http://deeplearning.net/tutorial/SdA.html)
-* mSDA, fast denoising autoencoder. [Applied to robot arm](http://fastml.com/very-fast-denoising-autoencoder-with-a-robot-arm/)
+[Rise of the super sensor](https://www.computerworld.com/article/3197685/internet-of-things/google-a-i-and-the-rise-of-the-super-sensor.html).
+CMU has developed a generic 'synthetic sensor', using audio/vibration etc.
+"the revolution is to install a super sensor once, then all future sensing (and the actions based on that sensing)
+is a software solution that does not involve new devices"
 
-## Change detection
 
-Novelity detection.
-Anomaly detection.
-Change point detection (mostly in time series).
-
-* [Change point detection in time series data with random forests](https://www.sciencedirect.com/science/article/pii/S0967066110001073)
-* [Two approaches for novelty detection using random forest](https://www.sciencedirect.com/science/article/pii/S0957417414008070)
-* [Introduction to Anomaly Detection: Concepts and Techniques](https://iwringer.wordpress.com/2015/11/17/anomaly-detection-concepts-and-techniques/). Very good overview, with recommendations for different cases
 
 # Application ideas
 
@@ -1246,6 +1279,16 @@ Label propagation, which infers the manifold structure of the feature space.
 Tested on Time series classification (TSC).
 Simple modification to the Gradient Boosting Trees learning algorithm using information about the importance of features.
 
+# Change detection
+
+Novelity detection.
+Anomaly detection.
+Change point detection (mostly in time series).
+
+* [Change point detection in time series data with random forests](https://www.sciencedirect.com/science/article/pii/S0967066110001073)
+* [Two approaches for novelty detection using random forest](https://www.sciencedirect.com/science/article/pii/S0957417414008070)
+* [Introduction to Anomaly Detection: Concepts and Techniques](https://iwringer.wordpress.com/2015/11/17/anomaly-detection-concepts-and-techniques/). Very good overview, with recommendations for different cases
+
 
 # Research questions
 
@@ -1326,17 +1369,6 @@ Air mufflers: Lit if sound too high
 Dust mask: Lit if finedust too high 
 
 
-## Using microflo
-Dataflow engine. Especially for feature retrieval and processing
-
-* Register pointertype for a vector of features. int32_t?
-* Component(s) for putting data into feature vector
-* Should complex I/O components like 9DOF IMU send a vector, then unpack as needed?
-* Example component wrapping a generated classifier
-* Component(s) for feature scaling/standardization
-* Component(s) for creating lag features
-* Component(s) for aggregating/summarizing a value, as feature
-* Component(s) for framing/windowing a (time)series of values
 
 # Funding
 
@@ -1506,32 +1538,48 @@ Advanced stuffs
 
     Audio beamforming.
 
-Tzetlin machine. Adger. Binary logic.
+
+# Microcontroller implementation
+
+## Audio processing
+
+MFCC Feature extration
+
+* [KWS](https://github.com/ARM-software/ML-KWS-for-MCU/blob/8ea22926f743f53c7d17d9c73eb2f1b22257ebe2/Deployment/Source/MFCC/mfcc.cpp)
+Runs on ARM Cortex M(4F). Uses CMSIS for FFT. Clear code struture. Some things, like filterbank, can be precomputed in Python? Apache 2.0
+* [libmfcc](https://github.com/wirahayy/libmfcc/blob/master/libmfcc.c). Takes FFT spectrum as input. MIT.
+* Fixed-point is challenging. A naive approach to fixed-point FFT causes noise to go up a lot, and classification ability is drastically reduced.
+Optimized implementation proposed in  [Accuracy of MFCC-Based Speaker Recognition in Series 60 Device](https://link.springer.com/content/pdf/10.1155/ASP.2005.2816.pdf)
+
+FFT on microcontroller
+
+* STM32F103 (Cortex M3 at 72MHz) can do 1024 point FFT in 3ms using CMSIS, Q15/Q31 fixed point. radix-4 FFT.
+STM32F091 (Cortex M0 at 48Mhz) takes 20 ms.
+[STM32 DSP](http://www.st.com/content/ccc/resource/technical/document/application_note/group0/c1/ee/18/7a/f9/45/45/3b/DM00273990/files/DM00273990.pdf/jcr:content/translations/en.DM00273990.pdf).
+Using software-emulated floating point for FFT on Cortex M4 is 10x slower than the FPU unit.
+M4F is 3-4 times as energy efficient as the M3 (when using floats?).
+* [EMF32 DSP](https://www.silabs.com/documents/public/application-notes/AN0051.pdf).
+CMSIS FFT is about 3-4x faster than a generic KissFFT-based version.
+* Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic version, using int32.2
+[OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
+* [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
+found that CMSIS FFT with Q31 had slightly less error than with F32.
+* [esp32-fft](https://github.com/fakufaku/esp32-fft). 1024 lenght float32 FFT in 1ms on ESP32.
 
 
-# Thesis
+Goertzel filter
 
-What kind of machinelearning (inference) tasks can be achieved on a microcontroller?
-
-Methodology
-
-- Select one or two general purpose microcontrollers.
-Having a specific amount of storage,RAM and CPU.
-Note: most usecases require (wireless) connectivity.
-Ex: Nordic NRF52 (ARM Cortex M4+), ESP32 (Xtensa)
-- Select open datasets for tasks that could be interesting to perform on microcontroller.
-Ex audio: acoustic event detection, acoustic noise source classification, keyword spotting
-Ex IMU: human activity detection, fall detection, gesture recognition, machine anomaly dectetion
-Ex image: ?
-
-Should have a number of, ideally with open code for easily reproducability.
-- Machine learning method
-
-
-Contributions
-
-- a open source library of ML inference, designed for microcontrollers
-- a modelling framework for ML inference storage,RAM,CPU resources 
-- a feasibity evaluation of some desirable tasks for ML on microcontrollers
- 
+* [embedded.com The Goertzel Algorithm](https://www.embedded.com/design/configurable-systems/4024443/The-Goertzel-Algorithm),
+example code in C++.
+* [embedded.com Single tone detection with Goertzel](https://www.embedded.com/design/real-world-applications/4401754/Single-tone-detection-with-the-Goertzel-algorithm). Example code in C++
+* [Efficiently detecting a frequency using a Goertzel filter](https://netwerkt.wordpress.com/2011/08/25/goertzel-filter/),
+several implementation variants in C.
+* Matched Filter Design
+The Goertzel algorithm is advantageous compared to the FFT when
+`M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
+N=1024, M=8.
+* [Overlap Add STFT implementation of linear filters](https://www.dsprelated.com/freebooks/sasp/Overlap_Add_OLA_STFT_Processing.html)
+Faster than convolution in time domain for FIR
+ filters with n>64 taps, which can happen in audio without noticable delay 
+* https://stackoverflow.com/questions/11579367/implementation-of-goertzel-algorithm-in-c
 
