@@ -736,6 +736,9 @@ ASC. using simplified version of "Virtanen, DCASE 2016 acoustic scene classifica
 16kHz. 30 mels, 32 frames, inference every 1024ms.
 Android application allows to push labels to the device and store on SDcard. SensorTile hardware used.
 Looks like 1mA @ 1.8V average power consumption.
+STM32CubeMX AI works OK on Linux when combined with the free.
+Tested on an AI project setup from scratch, and STM32L476-Nucleo AI example.
+The `Makefile` generation did however not work out-of-the-box.
 * [Reality AI](https://reality.ai).
 * Lattice Semicondutors. Announced CNN acceleration IP blocks,tools and devkits for their ICE40 FPGAs October 2018.
 [eejournal](https://www.eejournal.com/article/lattice-raises-the-bar-on-low-power-ai/).
