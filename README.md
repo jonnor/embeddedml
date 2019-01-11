@@ -909,8 +909,6 @@ MATLAB code: https://github.com/gertdekkers/WASN_EM
 * Aka Automatic Environmental Sound Recognition (AESR)
 * Competitions: CLEAR "Classification of Events, Activities and Relation-
 ships". DCASE Detection and Classification of Acoustic Scenes and Events (2016,2013)
-
-
 [website](http://www.cs.tut.fi/~heittolt/research-sound-event-detection) shown progress on same dataset up to modern methods with f1-score=69.3%
 using Convolutional Recurrent Neural Networks. Dataset TUT-SED2009 TUT-CASA2009
 * [https://ieeexplore.ieee.org/document/7933055/](Bag-of-Features Methods for Acoustic Event Detection and Classification). Grzeszick, 2014/2017.
