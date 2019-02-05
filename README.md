@@ -550,6 +550,9 @@ For embedded Linux and mobile, especially ARM processors.
 * [CNN-Inference-Engine-Comparison](https://github.com/HolmesShuan/CNN-Inference-Engine-Quick-View).
 Overview of CCN inference engines, and performance.
 Shows MobileNetV1 at 60ms on 2-core 1.8Ghz Cortex-A72, ResNet-18 in 200ms.
+* [ESP-WHO](https://github.com/espressif/esp-who). Face recognition based on MobileNets, which custom CNN implementation?
+* [tflite micro](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/experimental/micro).
+TensorFlow Lite for microcontrollers. Since November 2018. Supports ARM Cortex M, RISC-V and Linux/MacOS host.
 
 ## Sequence modelling
 
@@ -578,6 +581,12 @@ Blogposts
 * [How to Quantize Neural Networks with TensorFlow](https://petewarden.com/2016/05/03/how-to-quantize-neural-networks-with-tensorflow/)
 Allows to quantize in feedforward, but keep backprop as full precision floats.
 
+Software
+
+* [gemmlowp](https://github.com/google/gemmlowp). Low-precision General Matrix Multiplication.
+C++ library for optimized GEMM using 8-bit integers, with 32 bit accumulator.
+Can utilize SSE4,NEON for SIMD. Seems to run on Cortex M.
+Well-documented archiecture and implementation of the quantization.
 
 ## Binarized Neural Networks
 
@@ -1121,6 +1130,11 @@ Often used for 'machine condition' analysis, especially for rotating machines.
 * [Beginning Vibration Analysis](http://www.vibranalysis.co.za/ctc/pdf/pubTechPapers/01-Beginning%20Vibration%20Analysis.pdf),
 page 82+ shows data for some problematic cases
 
+## Predictive maintenance
+
+[NASA Prognostics Data Repository](https://ti.arc.nasa.gov/tech/dash/groups/pcoe/prognostic-data-repository).
+Collection of datasets for operational and failed systems. Thermal, vibration, electronical
+
 
 ## Computer vision
 
@@ -1135,7 +1149,6 @@ Y. Kang, J. Hauswald, C. Gao, A. Rovinski, T. Mudge, J. Mars, and L. Tang,
 “Neurosurgeon: Collaborative intelligence between the cloud and mobile edge,”
 in Proceedings of the Twenty-Second International Conference on Architectural Support
 for Programming Languages and Operating Systems. ACM, 2017, pp. 615–629.
-
 
 Question.
 
@@ -1158,6 +1171,13 @@ Tools
 
 * [VLFeat](http://www.vlfeat.org/api/index.html).
 Portable C library with lots of feature extractors for computer vision tasks.
+
+### Segmentation
+
+[ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://towardsdatascience.com/enet-a-deep-neural-architecture-for-real-time-semantic-segmentation-2baa59cf97e9)
+0.7 MB weights (16 bit floats). 3.83 GFLOPS on 3x640x260 images.
+
+
 
 
 ## New sensor types
