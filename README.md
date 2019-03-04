@@ -940,6 +940,7 @@ The current python implementation uses a single core on a standard desktop machi
 Judges award DCASE2016 for most computationally efficient.
 MFCC features (voicebox), GMM, SVM classifier from libsvm with probability sequence kernel (PSK).
 AUC of 73% without short-term Gaussianization to adapt to dataset differences.
+
 * LEARNING FILTER BANKS USING DEEP LEARNING FOR ACOUSTIC SIGNALS. Shuhui Qu.
 Based on the procedure of log Mel-filter banks, we design a filter bank learning layer.
 Urbansound8K dataset, the experience guided learning leads to a 2% accuracy improvement.
@@ -1021,6 +1022,9 @@ subtracting out the mean noise level of each 1/3 octave band and dividing by the
 Used Logistic Regression and SVM. From 0.6 to 0.9 true positive rate (depending on site), with `<0.05` false positive rate.
 Tested across 10 sites.
 
+Detection of Anomalous Noise Events on Low-Capacity Acoustic Nodes
+for Dynamic Road Traffic Noise Mapping within an Hybrid WASN
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5948866/
 
 ## Speech commands
 
