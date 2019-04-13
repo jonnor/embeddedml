@@ -72,6 +72,10 @@ In frequency domains. In time domain.
 How to select the right resolution, to minimize compute.
 Frequency domain (filterbands).
 Time domain (window size, overlap).
+Network architecture search. Constrained by compute resources.
+Tool(s) for reasoning about computational efficienty of CNN. Constraint/solver based.
+Give base architecture and constraints like Nparameters,FLOPs => produce model variations that match.
+Could also just do random mutations (within ranges), check the flops/parameter count, and filter those not maching?
 
 
 # Background
@@ -386,6 +390,9 @@ Optimizing CNNs
 Kernel to Row an Kernel to Column tricks save memory.
 Also has Vectored Convolution, 1D Winograd Convolution are computationally faster.
 * ResNet use stride instead of pooling layers to reduce size. Less computations?
+* Grouped convolutions. Not convolving (output of) entire past layers, but just subsets.
+Allows to eliminate redundant computations.
+https://github.com/ShichenLiu/CondenseNet - approx twice as efficient as MobileNets
 
 ### Kernel dictionaries
 
@@ -748,6 +755,7 @@ Looks like 1mA @ 1.8V average power consumption.
 STM32CubeMX AI works OK on Linux when combined with the free.
 Tested on an AI project setup from scratch, and STM32L476-Nucleo AI example.
 The `Makefile` generation did however not work out-of-the-box.
+* [XNOR.ai](https://www.xnor.ai/). 
 * [Reality AI](https://reality.ai).
 * Lattice Semicondutors. Announced CNN acceleration IP blocks,tools and devkits for their ICE40 FPGAs October 2018.
 [eejournal](https://www.eejournal.com/article/lattice-raises-the-bar-on-low-power-ai/).
@@ -857,7 +865,18 @@ Using CMSIS NN and DSP modules.
 * [CASE2012](http://elaf1.fi.mdp.edu.ar/electronica/grupos/lac/pdf/lizondo_CASE2012.pdf).
 Implemented speech recognition using MFCC on 16-bit dsPIC with 40 MIPS and 16kB RAM.
 A Cortex-M3 at 80 MHz should have 100+MIPS.
-
+* [An Optimized Recurrent Unit for Ultra-Low-Power Keyword Spotting](https://arxiv.org/abs/1902.05026). February 2019.
+Introduces `eGRU`, claimed to be 60x faster and 10x smaller than standard GRU cell.
+Omits the `reset` gate (and assosicaed weights W_r).
+Uses `softsign` instead of sigmoid and tanh. Faster, less prone to saturation.
+Uses fixed-point integer operations only. Q15, bitshifts for divide/mul.
+3-bit exponential weight quantization. -1,-0.5,-0.25,0,0.25,0.5,1.0. Bitwise operations, no lookup table.
+Uses a quantization-aware training. Quantized in forward pass, full precision in backward (for gradient).
+Evaluated on Keyword Spotting, Cough Detection and Environmental Sound Classification.
+Sampling rate 8kHz. 128 samples STFT window, no overlap. 64 bands. No mel filtering!
+250 timesteps for Urbansound8k.
+eGRU_opt Urbansound8k scores 61.2%. 3kB model size.
+eGRU_arc Urbansound8k score of 72%. Indicates 8kHz enough!
 
 * [How to Achieve High-Accuracy Keyword Spotting on Cortex-M Processors](https://community.arm.com/processors/b/blog/posts/high-accuracy-keyword-spotting-on-cortex-m-processors).
 Reviews many deep learning approaches. DNN, CNN, RNN, CRNN, DS-CNN.
@@ -1194,7 +1213,15 @@ CMU has developed a generic 'synthetic sensor', using audio/vibration etc.
 "the revolution is to install a super sensor once, then all future sensing (and the actions based on that sensing)
 is a software solution that does not involve new devices"
 
+Soft Robotics
+[Youtube video about easy-to-construct soft gripper with integrated resistive sensors](https://www.youtube.com/watch?v=BLE5yhS3k3I).
+Could train algorithms to detect objects gripped.
 
+## Time series
+
+Deep learning for time series classification: a review. https://arxiv.org/abs/1809.04356
+Compares many different model types across 97 time-series datasets.
+Finds that CNNs and ResNet performs the best.
 
 # Application ideas
 
@@ -1286,12 +1313,78 @@ Simple modification to the Gradient Boosting Trees learning algorithm using info
 
 Novelity detection.
 Anomaly detection.
-Change point detection (mostly in time series).
+
+Change point detection.
+In Time series, at which point something changes.
+Often growth rate. Can also be amplitude.
+Changes in distribution.
+
+Breakout detection.
+In time series, when the mean shifts relatively suddenly.
+Mean divergence/shift. Or transition too/from (rampup).
+
+Usecases
+
+* Network Intrusion Detection (IDS)
+* Condition Monitoring of machines
+
+Resources
 
 * [Change point detection in time series data with random forests](https://www.sciencedirect.com/science/article/pii/S0967066110001073)
 * [Two approaches for novelty detection using random forest](https://www.sciencedirect.com/science/article/pii/S0957417414008070)
 * [Introduction to Anomaly Detection: Concepts and Techniques](https://iwringer.wordpress.com/2015/11/17/anomaly-detection-concepts-and-techniques/). Very good overview, with recommendations for different cases
+* [Awesome Time Seeries Anomaly Detection](https://github.com/rob-med/awesome-TS-anomaly-detection).
+Lists software packages and a few labling tools and benchmark datasets.
+* [Twitter: Introducing practical and robust anomaly detection in a time series](https://blog.twitter.com/engineering/en_us/a/2015/introducing-practical-and-robust-anomaly-detection-in-a-time-series.html).
+* [](https://anomaly.io/anomaly-detection-using-twitter-breakout/).
+Based on Mean Shift Clustering.
+Based on algorithm called E-Divisive.
+E-Divisive with Medians (EDM) faster version, estimates median using interval trees. 
+Mentions Moving Median as a statistic which is robust to anomalies.
+* [Anomaly detection and condition monitoring](https://towardsdatascience.com/how-to-use-machine-learning-for-anomaly-detection-and-condition-monitoring-6742f82900d7).
+PCA for dimensionalty reduction, and using Mahalanobis distance (MD) threshold for anomaly detection.
+AutoEncoder as alternative. Learned dimensionality reduction, using probability distribution of recontruction error for anomaly detect.
+Demonstrated on NASA Gear Bearing failure example.
+By Axibit AS.
+* [Anomaly detection strategies for IoT sensors](https://medium.com/analytics-vidhya/anomaly-detection-strategies-for-iot-sensors-6281e84263df)
+Point-wise anomalies: individual devices.
+Collective anomalies: multiple devices together.
+Contextual anomalies: takes into account context, such as day-of-week etc.
 
+Software
+
+* [tslearn](https://github.com/rtavenar/tslearn).
+Time-series machine learning tools. scikit-learn inspired
+* [seglearn](https://github.com/dmbee/seglearn)
+Time-series. scikit-learn inspired.
+* [banpei](https://github.com/tsurubee/banpei).
+Change-point detection using Singular Spectrum Transform (SST),
+Outlier detection using Hotelling's theory.
+
+
+Datasets
+
+* [Outlier Detection DataSets (ODDS)](http://odds.cs.stonybrook.edu/).
+Huge number of datasets.
+In multiple groups:
+Multi-dimensional point,
+time-series point (uni/multivariate),
+time-series graph data,
+adverserial/attack data,
+* Numenta Anomaly Benchmark [NAB](https://github.com/numenta/NAB).
+50+ different time-series, benchmarked on many methods.
+* [UCSD Anomaly Detection Dataset](http://svcl.ucsd.edu/projects/anomaly/dataset.htm).
+Video of pedestrian walkway. Anomalies are non-pedestrians.
+A subset has pixel-level masks. 
+
+Methods
+
+* [DeepADoTS](https://github.com/KDD-OpenSource/DeepADoTS).
+From paper "A Systematic Evaluation of Deep Anomaly Detection Methods for Time Series". 
+Implements 7 deep neural models for anomaly detection.
+* [telemanom](https://github.com/khundman/telemanom).
+STMs to detect anomalies in multivariate time series data.
+Includes anomaly dataset from NASA Mars Rover.
 
 # Research questions
 
@@ -1471,12 +1564,15 @@ Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate resul
 
 ## Wishlist
 Demos:
+    Audio Event Detection. MicroPopcorn popping detector->turn off & notify.
+    Gesture recognition capacitive sensor arrays. Sign language? Humidity sensor? Detect fluid type? Water vs saltwater vs coke vs juice?
     Human activity recognition accerelometer.
     Gesture recognition accelerometer.
-    Wakeword detection audio.
-    Voice control audio.
+    Wakeword/keyword spotting audio.
+    Voice command/control audio.
     Object recognition image.
     Anomaly detection. For/on ?
+    Gaussian Mixture Model+Hidden Markov Model. Viterbi algorithm. Especially for sequences.
 
 
 ### Capacity modelling tools
@@ -1512,8 +1608,6 @@ Model benchmark
 
 Models:
 
-    Trees. Boosted trees. IsolationForest
-    Networks. Convolutional 
     Generic linear model. SVC,LogisticRegression
     Kernel. SVM
 
@@ -1523,7 +1617,6 @@ On-line DSP tools:
     Reservoir sampling.
     Voice Activity Detection
     Sound level. Incl IEC A-weighting
-    FIR/IIR filters. Cascades of 2-order
 
 Transformers:
 
