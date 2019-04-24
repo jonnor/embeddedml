@@ -5,10 +5,11 @@ import scipy.signal
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.preprocessing import FunctionTransformer
+from sklearn.preprocessing import FunctionTransformer, StandardScaler
 from sklearn import pipeline
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
+from sklearn.cluster import KMeans
 
 mnist.temporary_dir = lambda: './data'
 
@@ -42,11 +43,50 @@ def random_convs(img, codebook, kernels, xs, ys, K):
 
     return numpy.stack(features)        
 
+def sample_patches(imgs, K=3, n_patches=10):
+    N = len(imgs) * n_patches    
+    shape = imgs[0].shape
+
+    xs = numpy.random.randint(0, shape[0]-K, N)
+    ys = numpy.random.randint(0, shape[1]-K, N)
+
+    # TODO: vectorize
+    out = []
+    for i, x, y in zip(range(len(imgs)), xs, ys):
+        xmax = x+K
+        ymax = y+K
+        patch = imgs[i, x:xmax, y:ymax]
+        out.append(patch)
+
+    return numpy.stack(out)
+
+
+def kmeans_codebook(patches, k=30):
+    shape = patches[0].shape
+
+    x = patches.reshape(-1, shape[0]*shape[1])
+    # normalize
+    x = x / ( 1e-6 + x.sum(axis=1, keepdims=True) )
+
+    est = KMeans(n_clusters=k)
+    est.fit(x)
+
+    codebook = est.cluster_centers_.reshape(-1, shape[0], shape[1])
+    return codebook
 
 def evaluate_mnist():
 
+    train_x, train_y = mnist.train_images(), mnist.train_labels()
+    test_x, test_y  = mnist.test_images(), mnist.test_labels()
+
     K=3
-    codebook = random_kernels(K=K, N=30)
+    codebook_size = 30
+    #codebook = random_kernels(K=K, N=codebook_size)
+    #print('rr code', codebook.shape)
+    pp = sample_patches(train_x, K=K)
+    codebook = kmeans_codebook(pp, k=codebook_size)
+    print('kmeans code', codebook.shape)
+
     xs, ys, ks = random_locations(28, 28, codebook, N=100)
 
     def transform(imgs):
@@ -55,9 +95,6 @@ def evaluate_mnist():
         f = numpy.array(f)
         print('f', f.shape)
         return f
-
-    train_x, train_y = mnist.train_images(), mnist.train_labels()
-    test_x, test_y  = mnist.test_images(), mnist.test_labels()
 
 
     clf = RandomForestClassifier(n_estimators=100, min_samples_leaf=1e-6)
