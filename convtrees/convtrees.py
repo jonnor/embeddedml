@@ -113,7 +113,7 @@ def evaluate_mnist():
     K=3
     codebook_size = 30
     n_locations = 30
-    n_kernels = 10
+    n_kernels = 30
     input_shape = (28, 28)
 
     #random_codebook = random_kernels(K=K, N=codebook_size)
@@ -123,7 +123,7 @@ def evaluate_mnist():
     locations = locations_random_valid(input_shape, N=n_locations, K=K)
     assert len(locations[0]) == n_locations, (len(locations[0]), n_locations)
     
-    loc_patches = sample_patches(train_x, locations, K=K)
+    loc_patches = sample_patches(train_x, locations, K=K, n_patches=1000)
     all_patches = loc_patches.reshape(-1, K, K)
 
     print('pp', loc_patches.shape, all_patches.shape)

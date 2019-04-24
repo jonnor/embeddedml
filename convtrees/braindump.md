@@ -37,8 +37,10 @@ One could try to learn shared kernels (from anywhere), as well as learn position
 CNNs follow the thesis that kernel (weights) are useful regardless of their location.
 The antithesis is that the best kernels are position-dependent.
 Might be more true on a spectrogram (along frequency axis) than in general image.
-And less true if need to be translation invariant? But maybe it should just be learned via data augmentation anyway
+And less true if need to be translation invariant? But maybe that should just be learned via data augmentation.
 But the two are not neccesarily in opposition.
+CNNs also apply the transformation globally, across the entire layer
+
 
 Could try to favor learning spatially separable kernels?
 
