@@ -21,10 +21,26 @@ What kind of performance can one achieve with
 - N random convolutional kernels of size K, at uniform grid locations
 - N random kernels from codebook of C well-known kernels
 - N kernels from learned (SKM) codebook of C kernels
+- N kernels from transfered codebook from kernels of pretrained models
 
 
 Support pre-seeding a codebook of kernels
 Allows semi-supervised extension, reusing existing codebook learning methods
+
+Maybe a combination of well-known kernels and learned-from data kernels is best?
+
+Could try to prefer existing kernels.
+Only choose a new one if better by factor X.
+
+One could try to learn shared kernels (from anywhere), as well as learn position-dependent kernels. 
+
+CNNs follow the thesis that kernel (weights) are useful regardless of their location.
+The antithesis is that the best kernels are position-dependent.
+Might be more true on a spectrogram (along frequency axis) than in general image.
+And less true if need to be translation invariant? But maybe it should just be learned via data augmentation anyway
+But the two are not neccesarily in opposition.
+
+Could try to favor learning spatially separable kernels?
 
 
 ExtraTrees, also subsamples data randomly
