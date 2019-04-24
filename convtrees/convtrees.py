@@ -48,10 +48,10 @@ def convolve(img, codebook, kernels, ls, xs, ys, K):
     
     features = numpy.zeros(shape=(len(kernels),))
 
-    # TODO: vectorize
+    # TODO: vectorize over images
     for i, (l, k, x, y) in enumerate(zip(ls, kernels, xs, ys)):
         #print('ii', i//5, k, codebook.shape)
-        kernel = codebook[k]
+        kernel = codebook[l, k]
         #kernel = numpy.zeros(shape=(K,K))
 
         xmax = min(img.shape[0],x+K)
@@ -112,8 +112,8 @@ def evaluate_mnist():
 
     K=3
     codebook_size = 30
-    n_locations = 20
-    n_kernels = 5
+    n_locations = 30
+    n_kernels = 10
     input_shape = (28, 28)
 
     #random_codebook = random_kernels(K=K, N=codebook_size)
@@ -143,7 +143,7 @@ def evaluate_mnist():
     coverage = sample_area / input_area
     print('cc', sample_area, input_area)
     # TODO: could calculate effective sampled area
-    print('Coverage: {:d}% {:d}px/{:d}px'.format(int(coverage*100), input_area, sample_area))
+    print('Coverage: {:d}% {:d}px/{:d}px'.format(int(coverage*100), sample_area, input_area))
 
     xs, ys = locations
     xs = numpy.repeat(xs, n_kernels)
@@ -161,7 +161,7 @@ def evaluate_mnist():
 
 
     def transform(imgs):
-        f = [ convolve(i, codebook, ks, ls, xs, ys, K=K) for i in imgs ]
+        f = [ convolve(i, loc_codebooks, ks, ls, xs, ys, K=K) for i in imgs ]
         f = numpy.array(f)
         return f
 
