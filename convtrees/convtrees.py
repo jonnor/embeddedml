@@ -151,7 +151,6 @@ def evaluate_mnist():
     ls = list(range(n_locations))
     ls = numpy.repeat(ls, n_kernels)
 
-    # TODO: try local codebooks
     ks = numpy.random.randint(0, codebook_size, len(xs))
 
     assert len(ks) == len(xs), (len(ks), len(xs))
