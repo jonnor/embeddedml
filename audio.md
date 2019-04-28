@@ -78,6 +78,8 @@ Same structure as Urbansoun8k dataset.
 https://github.com/fadymedhat/YorNoise
 
 ## DCASE2018 Task 2, General Purpose Audio Tagging
+http://dcase.community/challenge2018/task-general-purpose-audio-tagging
+
 Task: Acoustic event tagging.
 Based on FreeSound data.
 41 classes. Using AudioNet ontology
