@@ -497,14 +497,42 @@ combining the convolution responses of discrete cosine transform (DCT) bases.
 Method: kernel coefficients -> DCT -> k-means clustering -> l1 shrinkage -> quantization -> Huffman -> Compressed Sparse Row.
 For similar performance, 30-40x compression on AlexNet/VGG16, 10-25x speedup. 13x compression on ResNet50. !!
 
-### Architecture search
+### Neural Architecture Search
+For embedded almost always interested in performance under constraints,
+on RAM, FLASH and CPU time / energy usage.
+Of interest is to find Pareto-optimal (family of) models,
+which offers the best performance/constraint tradeoff.
 
-* [On Random Weights and Unsupervised Feature Learning](). NIPS 2010.
+Large amount of literature linked from
+https://www.automl.org/automl/literature-on-neural-architecture-search/
+
+#### On Random Weights and Unsupervised Feature Learning
+NIPS 2010.
+
 In this paper we pose the question, why do random weights sometimes do so well?
 Our answer is that certain convolutional pooling architectures can be inherently
 frequency selective and translation invariant, even with random weights.
 Demonstrate the viability of extremely fast architecture search by using random weights to evaluate candidate architectures,
 thereby sidestepping the time-consuming learning process. Process is approximately 30x faster. 
+`TODO: does this have modern citations?`
+
+#### AutoML: Methods, Systems, Challenges
+https://www.automl.org/book/
+2018
+Reviews state of the art
+
+
+#### Efficient Multi-objective Neural Architecture Search via Lamarckian Evolution
+Proposes LEMONADE
+https://arxiv.org/abs/1804.09081
+April 2018 - Feb 2019
+Bosch / Uni Freiburg
+
+Trained on CIFAR-10, evaluted on ImageNet64x64
+Accuracy versus number of parameters
+Pareto optimal over NASNet, MobileNet V1. Parity with MobileNet V2
+24-56 GPU days used
+
 
 ### Small Convolutional Neural Nets
 
