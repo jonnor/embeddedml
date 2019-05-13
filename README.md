@@ -214,6 +214,8 @@ People who need the same
 
 Resources
 
+* [Awesome decision tree papers](https://github.com/benedekrozemberczki/awesome-decision-tree-papers).
+Large curated list of papers from top conferences from last 30 years.
 * [libextratrees](https://github.com/paolo-losi/libextratrees/), C implementation of inference+training. Clean code.
 Uses dynamic allocation and floats.
 * Standalone example of Random Forest implementation in Python, with results.
@@ -789,6 +791,9 @@ The `Makefile` generation did however not work out-of-the-box.
 [eejournal](https://www.eejournal.com/article/lattice-raises-the-bar-on-low-power-ai/).
 [Himax HM01B0 UPduino Shield](http://www.latticesemi.com/en/Products/DevelopmentBoardsAndKits/HimaxHM01B0),
 with ultra-low-power imaging module and support for 2 microphones.
+* STMicrocontrollers. STM32 X-CUBE-AI.
+* [Sensory](https://www.sensory.com).
+Wakeword/keyword spotting, speech reconginition, biometric authentication.
 
 Blogposts
 
@@ -1599,9 +1604,13 @@ Demos:
     Wakeword/keyword spotting audio.
     Voice command/control audio.
     Object recognition image.
-    Anomaly detection. For/on ?
+    Anomaly detection. Isolation Forest.
     Gaussian Mixture Model+Hidden Markov Model. Viterbi algorithm. Especially for sequences.
 
+Feed-Forward Support Vector Machine Without Multipliers
+https://ieeexplore.ieee.org/abstract/document/1687940
+Fixed-point arithmetic, using only shift and add operations.
+Maintains good classification performance respect to the conventional Gaussian kernel.
 
 ### Capacity modelling tools
 
