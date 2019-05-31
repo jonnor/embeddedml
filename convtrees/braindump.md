@@ -1,4 +1,5 @@
 
+
 # Things to optimize for
 
 - Inference efficiency. Inference time VS Performance.
@@ -141,4 +142,11 @@ LVQ
 pre-determined complexity due to the fixed number of prototypes
 
 
+## Training decision trees as replacement for convolution layers
+98.41% on CIFAR10 without data augmentation.
+https://arxiv.org/abs/1905.10073
+
+Several commenters sceptical about 'too good to be true results'
+https://www.reddit.com/r/MachineLearning/comments/btg172/r_training_decision_trees_as_replacement_for/
+https://www.reddit.com/r/MachineLearning/comments/bu2ez7/r_training_decision_trees_as_replacement_for/
 

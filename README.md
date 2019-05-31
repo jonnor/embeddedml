@@ -508,6 +508,13 @@ which offers the best performance/constraint tradeoff.
 Large amount of literature linked from
 https://www.automl.org/automl/literature-on-neural-architecture-search/
 
+SpArSe: Sparse Architecture Search for CNNs on Resource-Constrained Microcontrollers
+https://arxiv.org/abs/1905.12107v1
+CNNs for 2kB RAM.
+
+EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks
+https://arxiv.org/abs/1905.11946
+
 #### On Random Weights and Unsupervised Feature Learning
 NIPS 2010.
 
