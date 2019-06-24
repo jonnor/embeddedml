@@ -3,11 +3,6 @@
 Focused primarily on running inference/prediction/feed-forward part on a microcontroller (or small embedded device).
 Training phase can run on a standard computer/server, using existing tools as much as possible.
 
-# Status
-**Research in progress**
-
-* Decision trees ensembles implemented in [emtrees](https://github.com/jonnor/emtrees)
-* Naive Bayes implemented in [embayes](https://github.com/jonnor/embayes)
 
 # State of the Art
 Of ML inference on general-purpose microcontrollers.
@@ -40,42 +35,18 @@ Ways of advancing, make contributions
 - Comparison between approaches. Microcontroller, ML model
 - Libraries or tools. Lower time to market, enable more developers
 
-# Research questions
+# Tools
 
-* How to take inference cost into account in model/feature evaluation/selection? (time,energy)
+Open-source
 
-Especially with computationally heavy features, that one can generate lots of. Ie dictionary of convolutional kernels.
-Perhaps set desired score as a hyperparameter, and then optimize for inference cost?
-Alternatively set a inference cost budget, and find best model that fits.
-Using standard FS wrapper methods (and uniform feature costs):
-Do SBS/SFB to obtain score/feature mapping, apply a inference cost function, chose according to budget.
-Or (with methods robust to irrelevant/redundant features), estimate feature number within budget
-Could one implement model/feature searchs that take this into account?
-Could be first feature then model. Or joint optimization?
-Does it perform better than other model/feature selection methods? Or is more practical. Ease of use.
-Non-uniform feature-calculation costs. Ie different sized convolution kernels. Convolutions in different layers.
-Classifier hyper-parameters influencing prediction time. Ie RandomForest `min_samples_split`/`min_samples_leaf`/`max_depth`.
-Need to specify a cost function. Number of features. Typical/average depth in tree based methods. Number of layers in CNN-like architecture.
+* [emlearn](http://github.com/emlearn/emlearn)
+* TensorFlow Lite for Microcontrollers
 
-* How to optimize/adapt existing machine learning methods for use on small CPUs.
+Proprietary
 
-Memory usage, CPU, prediction time.
-RandomForest on-demand memoized computation of non-trivial features?
-Approximation of RBF kernel in SVM?
-PDF simplification in Naive Bayes.
-(Recurrent) Convolutional Neural Network.
-How to compress models efficiently?
-How to conserve memory (and compute) by minimize the receptive field of the network?
-Feature selection techniques. Sparsity contraints.
-Can something like feature permutation be used to find/eliminate irrelevant features?
-In frequency domains. In time domain.
-How to select the right resolution, to minimize compute.
-Frequency domain (filterbands).
-Time domain (window size, overlap).
-Network architecture search. Constrained by compute resources.
-Tool(s) for reasoning about computational efficienty of CNN. Constraint/solver based.
-Give base architecture and constraints like Nparameters,FLOPs => produce model variations that match.
-Could also just do random mutations (within ranges), check the flops/parameter count, and filter those not maching?
+* X-CUBE-AI for STM32
+
+http://www.sridhargopinath.in/wp-content/uploads/2019/06/pldi19-SeeDot.pdf
 
 
 # Background
@@ -146,13 +117,12 @@ Energy harvesting rules of thumb:
 
 ### Wireless transmission
 
+```
 TODO: overview of typical energy requirements, for different wireless tech
-
 TODO: overview of data transmission capacity, for different wireless tech
 TODO: overview of sending range, for different wireless tech
-
 TODO: cost (monetary) of data transmission, for different wireless techs
-
+```
 
 ## Privacy
 
@@ -727,7 +697,9 @@ References
 
 Software libraries
 
-* [Resource-efficient Machine Learning in 2 KB RAM for the Internet of Things](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/06/kumar17.pdf). Describes Bonsai, a part of Microsoft Research Indias open-source [EdgeML](https://github.com/Microsoft/EdgeML).
+
+* [Resource-efficient Machine Learning in 2 KB RAM for the Internet of Things](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/06/kumar17.pdf).
+Describes Bonsai, a part of Microsoft Research Indias open-source [EdgeML](https://github.com/Microsoft/EdgeML).
 Bonsay is tree-based algorithm. Relatively powerful nodes to enable short trees (reduce RAM usage).
 Uses sparse trees, and the final prediction is a sum of all the nodes (path-based).
 Optimization: `tanh(x) ≈ x if x < 1 and signum(x) otherwise`. Can run on Atmel AVR8
@@ -741,6 +713,14 @@ Also has some node-based dataflow system in place it seems. JavaScript and Pytho
 128+ kB RAM and 512kB+ flash recommended.
 "3-layer MLP is less than 32kB". Does not support CNNs yet. https://github.com/uTensor/uTensor/issues/99
 Not supported on ESP8266/ESP32. https://github.com/uTensor/uTensor/issues/137
+* [SeeDot](https://www.microsoft.com/en-us/research/project/seedot-compiler-for-low-precision-machine-learning/).
+DSL and compiler for fixed-point ML inference on microcontrollers.
+[PDLI paper](http://www.sridhargopinath.in/wp-content/uploads/2019/06/pldi19-SeeDot.pdf).
+Tested on models. Bonsai, ProtoNN, and LeNet CNN.
+Hardware. Arduino Uno (AVR8) and Arduino MK1000 (Cortex-M0+), FPGA.
+Comparison with floating-point, TensorFlow Lite quantization, and MATLAB Coder/Embedded Coder/Fixed-point Designed .
+2-20x improvements in inference time.
+Also implements a fast-exponensiation trick. Schraudolph, 1999.
 
 Papers
 
@@ -824,7 +804,6 @@ and then tune it for the task at hand’."
     It might waste bandwidth sending useless data.
 
 
-
 Open hardware platforms
 
 * [OpenMV](https://openmv.io/), very nice machine vision devkit with STMF7 and MicroPython.
@@ -856,20 +835,6 @@ Further developments are exploring the potential for networking AudioMoth by LoR
 to link them to a base station for real‐time signalling of acoustic events triggered by the detection algorithm.
 record alternative types of data to memory, instead of memory inefficient uncompressed WAV files.
 For example, summarise the important characteristics of sounds with measurements known as acoustic indices
-
-## Sparsity
-
-[Sparsity Lesson of Fundamentals of Digital Image and Video Processing](https://www.coursera.org/lecture/digital/applications-MNbjB)
-Applications. Noise smoothing, inpainting, superresolution. Foreground/background separation. Compressive sensing.
-Images are sparse in DCT decomposition. Can throw away many of the with minimal quality loss.
-Noise is not correlated and will not compress well. This fact used in image denoising.
-Compute a sparse representation, then reconstruct. Can be done with standard basis like DCT, or a learned dictionary.
-Basis pursuit. Matching Pursuit. Orthonogonal Matching Pursuit. 
-Foreground/background separation in video. Singular Value Decomposition. 
-Can one do foreground separation of audio in a similar manner?
-
-Compressive Data Aquisition. Replace sampling at Nyquist followed by compression with.
-Sampling matrices. Suprising result: Random matrices work.
 
 
 # Applications
@@ -1108,7 +1073,6 @@ Kaggle competition required submissions to run in below 200ms on a Raspberry PI3
 * [BirdCLEF 2016](http://www.imageclef.org/lifeclef/2016/bird). 24k audio clips of 999 birds species
 
 
-
 ## Human Activity Recognition
 
 Terms used
@@ -1201,6 +1165,8 @@ Collection of datasets for operational and failed systems. Thermal, vibration, e
 
 ## Computer vision
 
+Motivation: 
+
 "Recent studies show that the latencies to upload
 a JPEG-compressed input image (i.e. 152KB) for a single inference
 of a popular CNN–“AlexNet” via stable wireless connections with
@@ -1213,23 +1179,6 @@ Y. Kang, J. Hauswald, C. Gao, A. Rovinski, T. Mudge, J. Mars, and L. Tang,
 in Proceedings of the Twenty-Second International Conference on Architectural Support
 for Programming Languages and Operating Systems. ACM, 2017, pp. 615–629.
 
-Question.
-
-* Can one do classification and object detection on compressed JPEG straight from the camera?
-Operating on the blocks with DCT coefficients.
-
-[Faster Neural Networks Straight from JPEG](https://openreview.net/forum?id=S1ry6Y1vG).
-ICL2018. Modified libjpeg to return DCT coefficients. Blocks of 8x8. On ResNet50, 1.77x faster, same accuracy.
-[On using CNN with DCT based Image Data](https://www.scss.tcd.ie/Rozenn.Dahyot/pdf/IMVIP2017_MatejUlicny.pdf). IMVIP 2017.
-
-Can it be also done in a streaming fashion?
-
-References
-
-* [JPEG DCT, Discrete Cosine Transform (JPEG Pt2)- Computerphile](https://www.youtube.com/watch?v=Q2aEzeMDHMA).
-Excellent visual walkthrough of JPEG compression and decompression. CbCrY,DCT,quantization,Huffman encoding. 
-
-
 Tools
 
 * [VLFeat](http://www.vlfeat.org/api/index.html).
@@ -1240,6 +1189,26 @@ Portable C library with lots of feature extractors for computer vision tasks.
 [ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation](https://towardsdatascience.com/enet-a-deep-neural-architecture-for-real-time-semantic-segmentation-2baa59cf97e9)
 0.7 MB weights (16 bit floats). 3.83 GFLOPS on 3x640x260 images.
 
+
+### Classifying JPEG-compressed data
+
+Can one do classification and object detection on compressed JPEG straight from the camera?
+Instead of computing the framebuffer from the JPEG.
+
+Can it be also done in a streaming fashion?
+
+Operating on the blocks with DCT coefficients.
+
+Prior work:
+
+- [Faster Neural Networks Straight from JPEG](https://openreview.net/forum?id=S1ry6Y1vG).
+ICL2018. Modified libjpeg to return DCT coefficients. Blocks of 8x8. On ResNet50, 1.77x faster, same accuracy.
+- [On using CNN with DCT based Image Data](https://www.scss.tcd.ie/Rozenn.Dahyot/pdf/IMVIP2017_MatejUlicny.pdf). IMVIP 2017.
+
+References
+
+* [JPEG DCT, Discrete Cosine Transform (JPEG Pt2)- Computerphile](https://www.youtube.com/watch?v=Q2aEzeMDHMA).
+Excellent visual walkthrough of JPEG compression and decompression. CbCrY,DCT,quantization,Huffman encoding. 
 
 
 
@@ -1263,93 +1232,8 @@ Deep learning for time series classification: a review. https://arxiv.org/abs/18
 Compares many different model types across 97 time-series datasets.
 Finds that CNNs and ResNet performs the best.
 
-# Application ideas
 
-## Anomaly detection in 3d-printing
-
-Consumer grade machines should just work, be safe in operation and guide user to do the right thing.
-Also very price sensitive and mostly sold as a standalone appliance, makes microcontrollers attractive.
-
-Sensors:
-
-* Accelerometer on toolhead.
-* High-speed current sensing of motors.
-* Microphone
-* Should one have tachometer on fan(s), so one can eliminate them more easily?
-
-### Function
-
-that can be implemented with sensors and machine learning
-
-Detect malfuctions
-
-* Print loose from bed, printing into thin air
-* Warping, print lifts up on one side and starts pushing more on part
-* Bottom layer too close to bed, usually leaves.
-* Oozing or other source has left blob in model.
-* Other unexpected obstruction of the toolhead, like a human hand
-* Skipped steps
-
-Detect wear/maintenance need
-
-* Insufficient lubrication of linear bearings
-* Timing belt slop/backlash. Might need to know the gcode/pathplanning
-* Fan bearings worn out. Usually vibrates more and makes noise
-
-Cost saving
-
-* Sensors can maybe replace need for physical endstops for XY
-* Sensors can maybe be used for probing Z level/bed
-
-
-# Online learning
-
-It is also desirable to learn on-the-fly.
-First level is hybrid systems where new samples is used to tune/improve a pre-trained model.
-More advanced is on-line training which can automatically detect new classes.
-Get closer to typical Artificial Intelligence field, since now have an intelligent agent able to learn on its own.
-
-Hybrid learning, adaptive machine learning, progressive learning, semi-supervised learning.
-Q-learning (reinforcement learning).
-
-# Transfer learning
-
-Kinds of transfer learning
-
-* Inductive transfer. Few labeled target data is available. Source data is used as auxillary.
-* Transductive transfer. Lots of labeled source data. Lots of unlabeled data in target.
-* Unsupervised transfer. Both source and target data is unlabeled.
-
-Note: in transfer learning, performance on source dataset is generally ignored.
-Goal is good performance on target.
-
-How to transfer
-
-* Instance based. Reuse instances in source domains that are similar to target domain.
-Ex: Instance reweigthing, importance sampling
-* Feature based. Find an alternate feature space for learning target domain, while projecting source into this space.
-Feature subset selection, feature space transformation. 
-* Model/parameter based. Use model parameters/hyper-parameters to influence learning target.
-Parameter-space partitioning, superimposing shape constraints.
-
-Boosting based transfers
-
-* TrAdaBoost
-* TransferBoost. Based on AdaBoost
-
-References
-
-* [Boosting based transfer learning](https://www.slideshare.net/ashok124/thesis-presentation-51445891)
-* [Learn on Source, Refine on Target: A Model Transfer Learning Framework with Random Forests]().
-Shows two methods of adapting a Random Forest. Structure Expansion Reduction (SER) and Structure Transfer (STRUT).
-* [Transfer Learning Decision Forests for Gesture Recognition](). 2014.
-Mixed information gain, which is a data-based regularizer. 
-Label propagation, which infers the manifold structure of the feature space.
-* [Transferring Knowledge by Prior Feature Sampling](). 2008.
-Tested on Time series classification (TSC).
-Simple modification to the Gradient Boosting Trees learning algorithm using information about the importance of features.
-
-# Change detection
+## Change detection
 
 Novelity detection.
 Anomaly detection.
@@ -1426,7 +1310,70 @@ Implements 7 deep neural models for anomaly detection.
 STMs to detect anomalies in multivariate time series data.
 Includes anomaly dataset from NASA Mars Rover.
 
-# Research questions
+
+# Online learning
+
+It is also desirable to learn on-the-fly.
+First level is hybrid systems where new samples is used to tune/improve a pre-trained model.
+More advanced is on-line training which can automatically detect new classes.
+Get closer to typical Artificial Intelligence field, since now have an intelligent agent able to learn on its own.
+
+Hybrid learning, adaptive machine learning, progressive learning, semi-supervised learning.
+Q-learning (reinforcement learning).
+
+# Transfer learning
+
+Kinds of transfer learning
+
+* Inductive transfer. Few labeled target data is available. Source data is used as auxillary.
+* Transductive transfer. Lots of labeled source data. Lots of unlabeled data in target.
+* Unsupervised transfer. Both source and target data is unlabeled.
+
+Note: in transfer learning, performance on source dataset is generally ignored.
+Goal is good performance on target.
+
+How to transfer
+
+* Instance based. Reuse instances in source domains that are similar to target domain.
+Ex: Instance reweigthing, importance sampling
+* Feature based. Find an alternate feature space for learning target domain, while projecting source into this space.
+Feature subset selection, feature space transformation. 
+* Model/parameter based. Use model parameters/hyper-parameters to influence learning target.
+Parameter-space partitioning, superimposing shape constraints.
+
+Boosting based transfers
+
+* TrAdaBoost
+* TransferBoost. Based on AdaBoost
+
+References
+
+* [Boosting based transfer learning](https://www.slideshare.net/ashok124/thesis-presentation-51445891)
+* [Learn on Source, Refine on Target: A Model Transfer Learning Framework with Random Forests]().
+Shows two methods of adapting a Random Forest. Structure Expansion Reduction (SER) and Structure Transfer (STRUT).
+* [Transfer Learning Decision Forests for Gesture Recognition](). 2014.
+Mixed information gain, which is a data-based regularizer. 
+Label propagation, which infers the manifold structure of the feature space.
+* [Transferring Knowledge by Prior Feature Sampling](). 2008.
+Tested on Time series classification (TSC).
+Simple modification to the Gradient Boosting Trees learning algorithm using information about the importance of features.
+
+## Sparsity
+
+[Sparsity Lesson of Fundamentals of Digital Image and Video Processing](https://www.coursera.org/lecture/digital/applications-MNbjB)
+Applications. Noise smoothing, inpainting, superresolution. Foreground/background separation. Compressive sensing.
+Images are sparse in DCT decomposition. Can throw away many of the with minimal quality loss.
+Noise is not correlated and will not compress well. This fact used in image denoising.
+Compute a sparse representation, then reconstruct. Can be done with standard basis like DCT, or a learned dictionary.
+Basis pursuit. Matching Pursuit. Orthonogonal Matching Pursuit. 
+Foreground/background separation in video. Singular Value Decomposition. 
+Can one do foreground separation of audio in a similar manner?
+
+Compressive Data Aquisition. Replace sampling at Nyquist followed by compression with.
+Sampling matrices. Suprising result: Random matrices work.
+
+
+# Optimizations
 
 ## PDF approximations
 How rough/fast approximation can be used for the Normal PDF in Gaussian methods?
@@ -1443,94 +1390,12 @@ see [embayes: Quadratic function in Gaussian Naive Bayes](https://github.com/jon
 Can this be applied for SVM with RBF kernel also? RBF: k(xi, xj) = exp(-y * ||xi - xj||^2)
 Does not seem like it, at least not with the kernel trick. No way to split: sum( z_i*y_i*k(x_i, x))
 
-
 References
 
 * [A Unifying Review of Linear Gaussian Models](https://cs.nyu.edu/~roweis/papers/NC110201.pdf)
 
-# Prototyping
-
-Hardware platform
-
-* Microcontroller with connectivity. Ex: ESP8266/ESP32 with WiFi/BLE.
-Or some ARM Cortex M, possibly with LORA/NBIOT. Or NRF51/NRF52 ARM Cortex with integrated BLE.
-LoRa -> Wifi bridge. [Wemos TTGO](https://www.banggood.com/2Pcs-Wemos-TTGO-433470MHz-SX1278-ESP32-LoRa-0_96-Inch-Blue-OLED-Display-Bluetooth-WIFI-Module-p-1271663.html?rmmds=search&cur_warehouse=CN)
-LoRa module. [1](https://www.banggood.com/LoRa-SX1278-Long-Range-RF-Wireless-Power-Mental-Module-For-Arduino-p-1159089.html?rmmds=search&cur_warehouse=CN)
-STM32F030. [devkit](https://www.banggood.com/5Pcs-STM32F030F4P6-Small-Systems-Development-Board-CORTEX-M0-Core-32bit-Mini-System-p-1221406.html?rmmds=search&cur_warehouse=CN)
-[NRF52: ADC capturing at 4uA using RTC](https://github.com/NordicPlayground/nRF52-ADC-examples/tree/master/saadc_low_power)
-NRF52. Bluetooth 5.0, up to 100 meters. ADC. 15us=66kHz, good for 2-4 channel lowfi audio.
-NRF51. Bluetooth 4.2, 30 meters typ max. ADC. 68us=17kHz for 10bit, OK for 1-channel lowfi audio.
-[100-250uA analog, 700-1000uA digital microphone consumption](https://devzone.nordicsemi.com/f/nordic-q-a/19208/nrf52-microphone-saadc-pdm-or-i2s)
-* Microphone. [Analog](https://www.digikey.co.uk/products/en/audio-products/microphones/158?k=microphone&k=&pkeyword=microphone&FV=ffe0009e%2Ca40062&quantity=0&ColumnSort=1000011&page=1&stock=1&nstock=1&datasheet=1&pageSize=25)
-[I2S](https://www.digikey.co.uk/products/en/audio-products/microphones/158?FV=ffe0009e%2Ca4027e&quantity=&ColumnSort=1000011&page=1&k=microphone&pageSize=25&pkeyword=microphone)
-SPV0840LR5H-B, Microphone MEMS 60 uA.
-MCP6231 20uA. 300kHz gain*bw.
-TL062. 200uA
-
-* IMU
-* Piezo vibration sensor? Cheaper than high-frequency accelerometer? Useful when wanting many sensors.
-* SPI ADC, [MCP3002](https://www.digikey.no/product-detail/en/microchip-technology/MCP3002T-I-SN/MCP3002T-I-SN-ND/319415)
-* Camera. OV7670 (VGA-QCIF).
-[Making work with STM32](http://embeddedprogrammer.blogspot.no/2012/07/hacking-ov7670-camera-module-sccb-cheat.html)
-QCIF 176x144 is approx 40kB color, 20kB grayscale.
-Version with AL422 FIFO is maybe a bit easier to interface. 8bit parallel readout.
-[ex](https://www.aliexpress.com/item/J34-Free-Shipping-AL422-640x480-CMOS-With-3M-Bits-OV7670-FIFO-Camera-STM32-Chip-Driver-Module/32579976662.html).
-OV7725. Older chip, rare now. [Object tracking with STM32](http://blog.tkjelectronics.dk/2014/01/color-object-tracking-with-stm32-ov7725/)
-OV5647 RPi camera module.. 5MPi. MIPI CSI-2, too fast for microcontroller. Need FPGA or dedicated pheripheral? Overkill 
-[ArduCAM](https://github.com/ArduCAM/Arduino) support 10+ camera modules incl OV7670. ESP8266 also supported.
 
 
-Testcases
-
-* Detect machine start/stop/running. Dishwasher, CNC. Accelerometer/microphone
-* Detect door open/close. Accelerometer/microphone
-* Detect speech present/not. Microphone
-* Detect a hand gesture. Accelerometer
-* Detect a spoken command. Microphone
-* Detect/Estimate room occupancy. Accelerometer,microphone,PIR
-
-### Hackerspace indoor monitor
-Build and deploy in IoT hackathons
-
-Sensor node
-
-Temperature, Humidity. DHT22
-PM2.5, PM10. SDS011
-Sound level. ?
-CO2: ?
-
-Status display/sign
-
-Air mufflers: Lit if sound too high
-Dust mask: Lit if finedust too high 
-
-
-
-# Funding
-
-
-## Industry partners
-
-Key technologies
-
-* Microcontroller
-* Embedded Systems
-* Sensors
-* Machine learning
-
-## Grants
-
-* [IEEE Computational Intelligence Society Graduate Student Research Grants](https://cis.ieee.org/graduate-student-research-grants.html).
-1-4k USD. Housing costs, travel costs for visiting external institution.
-Deadline: April-March?. Need to be student member of IEEE CIS 
-
-Travel support
-
-* [NUUG](https://www.nuugfoundation.no/no/reisestipend/utlysning-2018.shtml).
-1 page report, up to 10k NOK.
-* [UMB forskningsfond](https://www.nmbu.no/forskning/forskere/forskningsfinansiering/intern/node/27932).
-3 page report, up to 30k NOK.
-Challenge: most money tied to agriculture.
 
 # Writing
 
@@ -1560,166 +1425,47 @@ https://github.com/N-McA/ml-paper-checklist/blob/master/README.md
 [machine learning](http://www.wikicfp.com/cfp/servlet/tool.search?q=machine+learning&year=f)
 [sensor](http://www.wikicfp.com/cfp/servlet/tool.search?q=sensor&year=f)
 
-CFPs
-
-* SENSORS Special Issue: Algorithm and Distributed Computing for the Internet of Things. Nov 30.
-[CFP](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=74395&copyownerid=54155)
-"original, unpublished high-quality articles, not currently under review by another conference or journal, clearly focused on theoretical and implementation solutions for IoT, including intelligent approaches"
-
 Journals
 
 * IJASUC: International Journal of Ad hoc, Sensor & Ubiquitous Computing. Open-access, bi-monthly.
 [CFP example](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=66923&copyownerid=33993)
 * SDAP: Smart Devices, Applications, and Protocols for the IoT. (bi)Yearly.
 
-Conferences
-
-* iWOAR 2018. International Workshop on Sensor-based Activity Recognition and Interaction. Berlin, September.
-[CFP 2018](http://www.wikicfp.com/cfp/servlet/event.showcfp?eventid=73357&copyownerid=76599). June 15. 
-
-## Blogposts
-
-Topics
-
-* Demo/announce of embayes
-* Demo/announce of emtrees
-* Supervised machine learning on microcontroller: Data collection and labeling (ex using ESP8266)
-* Feature engineering/processing with MicroFlo
-
-Ideas
-
-* Machine learning for microcontroller/DSP engineers.
-Using ML tools/workflows to tune/tweak paramters of DSP chain and evaluate results 
 
 
-# emlearn
-    
-## Compared to sklearn-porter
+# Research questions
 
-    Only support C language
-    Uses float instead of doubles
-    Support for integer-math only
-    No dynamic allocations
+* How to take inference cost into account in model/feature evaluation/selection? (time,energy)
 
+Especially with computationally heavy features, that one can generate lots of. Ie dictionary of convolutional kernels.
+Perhaps set desired score as a hyperparameter, and then optimize for inference cost?
+Alternatively set a inference cost budget, and find best model that fits.
+Using standard FS wrapper methods (and uniform feature costs):
+Do SBS/SFB to obtain score/feature mapping, apply a inference cost function, chose according to budget.
+Or (with methods robust to irrelevant/redundant features), estimate feature number within budget
+Could one implement model/feature searchs that take this into account?
+Could be first feature then model. Or joint optimization?
+Does it perform better than other model/feature selection methods? Or is more practical. Ease of use.
+Non-uniform feature-calculation costs. Ie different sized convolution kernels. Convolutions in different layers.
+Classifier hyper-parameters influencing prediction time. Ie RandomForest `min_samples_split`/`min_samples_leaf`/`max_depth`.
+Need to specify a cost function. Number of features. Typical/average depth in tree based methods. Number of layers in CNN-like architecture.
 
-## Wishlist
-Demos:
-    Audio Event Detection. MicroPopcorn popping detector->turn off & notify.
-    Gesture recognition capacitive sensor arrays. Sign language? Humidity sensor? Detect fluid type? Water vs saltwater vs coke vs juice?
-    Human activity recognition accerelometer.
-    Gesture recognition accelerometer.
-    Wakeword/keyword spotting audio.
-    Voice command/control audio.
-    Object recognition image.
-    Anomaly detection. Isolation Forest.
-    Gaussian Mixture Model+Hidden Markov Model. Viterbi algorithm. Especially for sequences.
+* How to optimize/adapt existing machine learning methods for use on small CPUs.
 
-Feed-Forward Support Vector Machine Without Multipliers
-https://ieeexplore.ieee.org/abstract/document/1687940
-Fixed-point arithmetic, using only shift and add operations.
-Maintains good classification performance respect to the conventional Gaussian kernel.
-
-### Capacity modelling tools
-
-Purpose: Check if a proposed model fits within contraints.
-Model storage, memory usage, inference time, CPU "utilization"
-Allow to declare budgets, function for checking if over?
-
-Device benchmark:
-
-eml_bench_device
-    multiply_adds/second,
-    convolutions_3x3/second
-    node_evaluations/second (trees)
-    ffts/second (melspec)
-
-    Average, standard deviation, 75%, 95%
-
-Ran for each supported hardware. Publish numbers
-
-Perf modelling.
- 
-    takes perf constants from benchmark
-    + ML model 
-    => estimate model size, mem use, inference time 
-
-Model benchmark
-
-    Test the real model.
-    Verify against Perf model.
-    Do this for a set of example models, publish numbers
-
-
-Models:
-
-    Generic linear model. SVC,LogisticRegression
-    Kernel. SVM
-
-On-line DSP tools:
-
-    Streaming summarizers/estimators. min/max, mean/std, median
-    Reservoir sampling.
-    Voice Activity Detection
-    Sound level. Incl IEC A-weighting
-
-Transformers:
-
-    Scalers: Standard,MinMax
-    Dimensionality: PCA,NMF
-
-Perf:
-
-    8/16bit weights. NNs
-    Integer-math only for compiled trees. 32bit/8bit
-    Support sparse models. Autoreduce during conversion?
-    Sparse dictionary representations
-
-Advanced stuffs
-
-    Audio beamforming.
-
-
-# Microcontroller implementation
-
-## Audio processing
-
-MFCC Feature extration
-
-* [KWS](https://github.com/ARM-software/ML-KWS-for-MCU/blob/8ea22926f743f53c7d17d9c73eb2f1b22257ebe2/Deployment/Source/MFCC/mfcc.cpp)
-Runs on ARM Cortex M(4F). Uses CMSIS for FFT. Clear code struture. Some things, like filterbank, can be precomputed in Python? Apache 2.0
-* [libmfcc](https://github.com/wirahayy/libmfcc/blob/master/libmfcc.c). Takes FFT spectrum as input. MIT.
-* Fixed-point is challenging. A naive approach to fixed-point FFT causes noise to go up a lot, and classification ability is drastically reduced.
-Optimized implementation proposed in  [Accuracy of MFCC-Based Speaker Recognition in Series 60 Device](https://link.springer.com/content/pdf/10.1155/ASP.2005.2816.pdf)
-
-FFT on microcontroller
-
-* STM32F103 (Cortex M3 at 72MHz) can do 1024 point FFT in 3ms using CMSIS, Q15/Q31 fixed point. radix-4 FFT.
-STM32F091 (Cortex M0 at 48Mhz) takes 20 ms.
-[STM32 DSP](http://www.st.com/content/ccc/resource/technical/document/application_note/group0/c1/ee/18/7a/f9/45/45/3b/DM00273990/files/DM00273990.pdf/jcr:content/translations/en.DM00273990.pdf).
-Using software-emulated floating point for FFT on Cortex M4 is 10x slower than the FPU unit.
-M4F is 3-4 times as energy efficient as the M3 (when using floats?).
-* [EMF32 DSP](https://www.silabs.com/documents/public/application-notes/AN0051.pdf).
-CMSIS FFT is about 3-4x faster than a generic KissFFT-based version.
-* Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic version, using int32.2
-[OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
-* [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
-found that CMSIS FFT with Q31 had slightly less error than with F32.
-* [esp32-fft](https://github.com/fakufaku/esp32-fft). 1024 lenght float32 FFT in 1ms on ESP32.
-
-
-Goertzel filter
-
-* [embedded.com The Goertzel Algorithm](https://www.embedded.com/design/configurable-systems/4024443/The-Goertzel-Algorithm),
-example code in C++.
-* [embedded.com Single tone detection with Goertzel](https://www.embedded.com/design/real-world-applications/4401754/Single-tone-detection-with-the-Goertzel-algorithm). Example code in C++
-* [Efficiently detecting a frequency using a Goertzel filter](https://netwerkt.wordpress.com/2011/08/25/goertzel-filter/),
-several implementation variants in C.
-* Matched Filter Design
-The Goertzel algorithm is advantageous compared to the FFT when
-`M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
-N=1024, M=8.
-* [Overlap Add STFT implementation of linear filters](https://www.dsprelated.com/freebooks/sasp/Overlap_Add_OLA_STFT_Processing.html)
-Faster than convolution in time domain for FIR
- filters with n>64 taps, which can happen in audio without noticable delay 
-* https://stackoverflow.com/questions/11579367/implementation-of-goertzel-algorithm-in-c
-
+Memory usage, CPU, prediction time.
+RandomForest on-demand memoized computation of non-trivial features?
+Approximation of RBF kernel in SVM?
+PDF simplification in Naive Bayes.
+(Recurrent) Convolutional Neural Network.
+How to compress models efficiently?
+How to conserve memory (and compute) by minimize the receptive field of the network?
+Feature selection techniques. Sparsity contraints.
+Can something like feature permutation be used to find/eliminate irrelevant features?
+In frequency domains. In time domain.
+How to select the right resolution, to minimize compute.
+Frequency domain (filterbands).
+Time domain (window size, overlap).
+Network architecture search. Constrained by compute resources.
+Tool(s) for reasoning about computational efficienty of CNN. Constraint/solver based.
+Give base architecture and constraints like Nparameters,FLOPs => produce model variations that match.
+Could also just do random mutations (within ranges), check the flops/parameter count, and filter those not maching?

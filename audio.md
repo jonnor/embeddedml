@@ -140,3 +140,45 @@ Relevant for autonomous vehicles?
 
 
 
+# Microcontroller implementation
+
+## Audio processing
+
+MFCC Feature extration
+
+* [KWS](https://github.com/ARM-software/ML-KWS-for-MCU/blob/8ea22926f743f53c7d17d9c73eb2f1b22257ebe2/Deployment/Source/MFCC/mfcc.cpp)
+Runs on ARM Cortex M(4F). Uses CMSIS for FFT. Clear code struture. Some things, like filterbank, can be precomputed in Python? Apache 2.0
+* [libmfcc](https://github.com/wirahayy/libmfcc/blob/master/libmfcc.c). Takes FFT spectrum as input. MIT.
+* Fixed-point is challenging. A naive approach to fixed-point FFT causes noise to go up a lot, and classification ability is drastically reduced.
+Optimized implementation proposed in  [Accuracy of MFCC-Based Speaker Recognition in Series 60 Device](https://link.springer.com/content/pdf/10.1155/ASP.2005.2816.pdf)
+
+FFT on microcontroller
+
+* STM32F103 (Cortex M3 at 72MHz) can do 1024 point FFT in 3ms using CMSIS, Q15/Q31 fixed point. radix-4 FFT.
+STM32F091 (Cortex M0 at 48Mhz) takes 20 ms.
+[STM32 DSP](http://www.st.com/content/ccc/resource/technical/document/application_note/group0/c1/ee/18/7a/f9/45/45/3b/DM00273990/files/DM00273990.pdf/jcr:content/translations/en.DM00273990.pdf).
+Using software-emulated floating point for FFT on Cortex M4 is 10x slower than the FPU unit.
+M4F is 3-4 times as energy efficient as the M3 (when using floats?).
+* [EMF32 DSP](https://www.silabs.com/documents/public/application-notes/AN0051.pdf).
+CMSIS FFT is about 3-4x faster than a generic KissFFT-based version.
+* Teensy 3.2 was able to do approx 400 ops/sec (3ms) on 512 point FFT with generic version, using int32.2
+[OpenAudio Benchmarking FFT](http://openaudio.blogspot.no/2016/09/benchmarking-fft-speed.html).
+* [FFT on ARM-Based Low-Power Microcontrollers](https://pdfs.semanticscholar.org/9eca/f67d19b8df4a508ad5c3d198989b70f16aa6.pdf)
+found that CMSIS FFT with Q31 had slightly less error than with F32.
+* [esp32-fft](https://github.com/fakufaku/esp32-fft). 1024 lenght float32 FFT in 1ms on ESP32.
+
+Goertzel filter
+
+* [embedded.com The Goertzel Algorithm](https://www.embedded.com/design/configurable-systems/4024443/The-Goertzel-Algorithm),
+example code in C++.
+* [embedded.com Single tone detection with Goertzel](https://www.embedded.com/design/real-world-applications/4401754/Single-tone-detection-with-the-Goertzel-algorithm). Example code in C++
+* [Efficiently detecting a frequency using a Goertzel filter](https://netwerkt.wordpress.com/2011/08/25/goertzel-filter/),
+several implementation variants in C.
+* Matched Filter Design
+The Goertzel algorithm is advantageous compared to the FFT when
+`M < 5/6 log_2(N)`, with DFT length N and number of desired pins M.
+N=1024, M=8.
+* [Overlap Add STFT implementation of linear filters](https://www.dsprelated.com/freebooks/sasp/Overlap_Add_OLA_STFT_Processing.html)
+Faster than convolution in time domain for FIR
+ filters with n>64 taps, which can happen in audio without noticable delay 
+* https://stackoverflow.com/questions/11579367/implementation-of-goertzel-algorithm-in-c
