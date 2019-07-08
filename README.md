@@ -695,8 +695,14 @@ References
 
 ## Existing work
 
-Software libraries
+Projects
 
+* [RPS-RNN](https://github.com/PaulKlinger/rps-rnn).
+Small physical device that can play Rock, Paper, Scissors slightly better than chance.
+Custom electronics and 3d-printed casing.
+3-layer RNN running on 8-bit microcontroller, Attiny1614.
+
+Software libraries
 
 * [Resource-efficient Machine Learning in 2 KB RAM for the Internet of Things](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/06/kumar17.pdf).
 Describes Bonsai, a part of Microsoft Research Indias open-source [EdgeML](https://github.com/Microsoft/EdgeML).
