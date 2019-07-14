@@ -738,6 +738,9 @@ Lots of detail about how they optimized an existing SVM implementation, in the e
 Books
 
 * [Learning in Embedded Systems](https://mitpress.mit.edu/books/learning-embedded-systems), May 1993.
+* [TinyML: Machine Learning with TensorFlow on Arduino, and Ultra-Low Power Micro-Controllers](https://www.amazon.com/TinyML-Learning-TensorFlow-Ultra-Low-Micro-Controllers/dp/1492052043/ref=sr_1_13?keywords=machine+learning+sound&qid=1562670977&s=books&sr=1-13). Planned: January, 2020.
+
+
 
 Research groups
 
@@ -808,6 +811,8 @@ and then tune it for the task at hand’."
     Data traveling back and forth between the device and server introduces lag.
     Require network and wireless hardware components on the circuit design which increase the cost.
     It might waste bandwidth sending useless data.
+* [eetimes: AI at the Very, Very Edge](https://www.eetimes.com/document.asp?doc_id=1334918#).
+Report from first TinyML meetup in BayArea.
 
 
 Open hardware platforms
