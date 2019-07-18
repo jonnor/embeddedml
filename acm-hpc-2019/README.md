@@ -161,7 +161,7 @@ Worked at
 
 - National Semiconductor
 - Intel. 20 years.
-- Technium. System Architecture
+- Technium. Israel. System Architecture.
 
 Intel was trying to leave x86, move to RISC.
 But changing ISA does not sell.
@@ -333,7 +333,126 @@ CPI = CPI_i + overhead
 overhead = sum(rj * Pj)
 
 
-MultiAmdahl.
+## Heterogenous computing
+
+Each program is using the hardware diffently.
+System design implications.
+
+Multi-core. Immediate. Symmetric (homogenous).
+
+Special purpose hardware. 10-1000x potential.
+
+Gain Bandwidth Product
+tradeoff gain/bandwidth.
+Can use multiple amplifiers.
+
+Idea applied to compute.
+
+Performance/power vs application range.
+Combine different application specific accelerators.
+
+Asymmetrical multiprocessing.
+Ex. 1 big core for serial, N small parallel ones.
+
+Usually a performance versus efficiency tradeoff.
+
+## MultiAmdahl
+
+Different applications running serially.
+How to split the resource to optimize overall runtime.
+Resource=die area.
+Solution. Lagrange multiplier.
+
+Case study.
+Matmul. FFT-16. FFT-1024. Black-Scholer. + 10% general purpose CPU.
+As die area budget goes up, more area percentage goes to general purpose (unaccelerated, bottleneck).
+As power buget reduces, part of budget used for general purpose also goes down.
+
+## Big data characteristics
+
+Funnel. Lots of data in. Not so much data out.
+Read-once.
+Simple operation.
+
+
+What is the killer app?
+Andy Grove.
+Give me a killer apps that cannot run (satisfactory) on existing products.
+For many years there was nothing for general-purpose CPUs.
+Most applications ran just fine on CPU.
+But now we have Machine Learning.
+Lots of data in. Lots of computation. Simple outputs.
+CPUs too slow.
+
+Basic ML element. Weighted sum.
+In CNN operation is only dependend on some inputs.
+
+Energy efficiency areas in NN.
+
+- Pruning connections.
+- Quantization.
+- Compact filters.
+- Operation size.
+- Efficient computation.
+
+
+Even with specialized operations.
+Data access dominates.
+Want read-once!
+
+Dedicated architectures for DNN
+
+- Power efficiency. ops/watt
+- Area efficiency. cost
+- Memory supply. Bandwidth
+- Model size. 
+- Diversity of networks, high rate of change.
+
+Need to efficiency, while having broad enough applications.
+
+Hardware,software co-design.
+
+NN output is statistical.
+Can approximate.
+Can predict without checking whether we were right (unlike branching in deterministic CPU).
+
+TOPS/watt. Tera operations per second per watt.
+Can be translated to PicoJoule per operation.
+
+Spatial locality in input can be done in paper.
+"Spatial correclationa and prediciton in Convolutional Neural Network" U. Weisser 
+
+Try to map successful concepts from GP CPU into NN accelerators.
+
+- Prediction
+- Read-once
+- Pipeline
+
+Memory supply.
+Putting multipliers is easy. Feeding them is hard.
+
+Keep weight on die. Keep intermediate data on die.
+CNN is pipeline-able.
+Read-once or write-once strategy?
+
+Halo. NN accelerator company.
+Can use MultiAmdal approach to determine on-die memory per layer.
+
+? weight are rarely changing.
+? many inputs are easy to classify. Only need some input data, some computations
+
+Charactesticis of audio classification 
+
+Audio -> Time-frequency transformation.
+30x30 T-F inputs for convolutions.
+Few layers. 3-10.
+System limits. Processing power. Microphone power. Radio power.
+For 1mW scale.
+
+Dilated conv can work well.
+
+Special-purpose ML hardware for feasible?
+
 
 Energy efficient Neural Networks.
 
