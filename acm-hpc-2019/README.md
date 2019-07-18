@@ -454,6 +454,39 @@ Dilated conv can work well.
 Special-purpose ML hardware for feasible?
 
 
+## Practical session
+
+Lagrange multipliers
+
+### Roofline model
+
+Used by Google for TPU.
+Intel for VTune
+
+Easy to understand visual performance mode.
+Improving paralell softare and hardware
+Show hardare limitations for given software
+Show potential of optimizations
+
+CPU. Computation. GFLOPS/s
+Mem. Communicaton. GB/s
+Cache. Locality.
+
+FLOP/byte. Arithmetic Intensity
+Can be calculated or measured.
+
+Can see easily if we are bandwidth or compute bound.
+Whether to expect gains for different strategy. 
+
+
+Cache miss reasons
+
+- Compulsory. Cache was cold
+- Capacity. NOt enough space
+- Conflict. 
+
+
+
 Energy efficient Neural Networks.
 
 ## Being Human with Algoritihms
