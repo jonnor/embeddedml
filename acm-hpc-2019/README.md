@@ -489,6 +489,164 @@ Cache miss reasons
 
 Energy efficient Neural Networks.
 
+
+## Cache and Memory Compression Techniques
+July 19.
+Per Stenstrom.
+
+Studying memory systems within microprocessors since 1980s.
+Wanted to do thesis on cache coherence protocols.
+Around 20 years ago started to research compression in memory hierarcies.
+
+L1/L2/L3 cache hierarchy.
+L3 shared among multiple cores.
+Want L3 to be as big as possible.
+To avoid DRAM.
+50% of CPU transistor budget typically used for L3.
+
+Compression can improve utilization of cache and DRAM.
+
+Compression is used everywhere. In storage & communication. Media.
+Problem: Lossy, domain-specific. Requires sequential access. Relatively slow.
+Must: Be lossless. Fast and energy-efficient. Area-efficient. Random-access.
+! research topic. Compute directly on compressed data. Without decompressing.
+
+Literature.
+"A primer on Compression in the Memory Hierarchy"
+Morgan & Claypool.
+
+### Outline
+
+- Compression algorithms
+- Cache compression
+- Memory compression
+- Link (bandwidth) compression
+
+Full
+
+### Locality
+
+Key property that makes memory hierarchies
+
+Reference locality
+
+- Temporal locality. Likely to access an address again
+- Spatial locality. Likely to access nearby addresses
+
+Value locality. Less commonly applied!
+
+- Temporal. Likely to use a value multiple times
+- Sptial. Likely to access similar values
+
+### Value-aware cache
+
+Observation: Values in cache are not uniformly distributed.
+
+Theoretical idea. Cache that only stores a certain value once.
+Motivational data study. 'a case for value-aware cache'
+MKPI. Misses per 1k instructions. Want to minimize.
+
+Theoretical result: Same MKPI with 1/16x the cache size.
+In practice still at 2-3x.
+
+Challenge:
+
+- Now need many-to-one mapping between address and data.
+- Metadata storage blows up, reduces possible gain
+
+### Compression Algorithm Taxonomy
+
+- General purpose vs special purpose.
+- Temporal-value vs spatial-Value based
+- Static vs dynamic.
+If encoding changes during execution of program
+
+Ex special-purpose.
+Instruction compression, floating-point compression
+
+### Run-length encoding
+
+Typically combined with other approaches.
+For example dictionary-based.
+
+### Lempel-Zip (LZ)
+gzip
+
+Dictionary based.
+Entry for longest unique substrings encountered.
+
+Tried by IBM. MXT technology.
+
+### Huffman coding
+
+Assign shorter codes to more common symbols.
+Built using a tree.
+
+Used in "SC2 statistcal compresec caches" paper.
+
+VFT. Value Frequency Table.
+
+Only put things in hardware that happends often.
+Rare can be done in software.
+
+Compressor was OK fast.
+Lookup in table via hashing.
+Decompression was more challening.
+Eventually got 64-byte block in 10 cycles on 4Ghz,32nm.
+3-stage pipeline.
+
+L2 cache hit typical 4-5 cycles.
+L3 cache around 10 cycles.
+Decompression must in the 10 cycle ballpark.
+
+!! are compression techniques used in embedded?
+FLASH size dominates costs...
+
+
+### Base-Delta Immediate (BDI)
+
+Store deltas to one or more base values.
+Based on findings of clusters of values in caches.
+
+Using 0 as base. And the first-nonzero value as second base.
+Just compressing 0 can get 20% improvement.
+Small integers also very common.
+
+BDI in hardware very simple.
+Compress: Subtract base value.
+Decompress: Add base value.
+Can be done in parallell.
+
+### Frequent Pattern Compression (FPC)
+
+Go after common patterns.
+0 values, narrow integers.
+3-bit prefis codes.
+000-ZZZ zero run
+001-SSS
+110-RRR repeated bytes
+111-    uncompressed
+
+### C-PACK (Cache Packer)
+
+Combines pattern-based with dictionary.
+2-bit prefix codes.
+
+### Deduplication
+
+- Can be used at coarse level. Blocks, pages
+
+Easy with read-only data.
+For writes need Copy-on-Write.
+
+
+
+Reference 
+
+Afternoon. Contest.
+SPEC2017 datasets.
+64 kB cache.
+
 ## Being Human with Algoritihms
 July 20.
 Gerhard Schrimpf.
