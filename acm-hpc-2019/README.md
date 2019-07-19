@@ -640,12 +640,161 @@ Easy with read-only data.
 For writes need Copy-on-Write.
 
 
+### Floating-point compression
 
-Reference 
+Challenge: Multiple pieces `sign,exponent,mantissa`
+`FP-H`. Huffman applied to exponent and mantissa.
 
-Afternoon. Contest.
+HyComp. 
+Predicting the datatype of a block in cache. 85% or more.
+Classify word as pointer, floating-point, etc..
+Combining 4 different compression techniques.
+Pointers. BDI.
+
+### Metrics
+
+- Compresison ratio.
+- Latency of comp/decomp units.
+- Bandwidth of comp/decomp units. ! Must match memory bandwidth
+- Energy consumption
+- Chip area
+- Security
+
+### Cache compaction
+
+Once block is compressed it is not of the block size anymore.
+Variable size. Fragmentation problem.
+
+Cache compaction is task to reduce fragmentation.
+Half-block. Sub-block. Byte.
+Superblock. Common tag for 2/4 consecutive blocks.
+
+Taxonomy.
+! good thing with taxonomies. Put existing work into taxonomy. Open areas are candidates for new research.
+Flynn. MISD.
+Did not make sense for a long time?
+But might make sense now in ML. Multiple operands on single data.
+Technique: Systolic array, Systolic Execution
+
+### Adaptive cacha managemnts
+
+If `avoided_miss * miss_penalty > penalized_hits * decompression_latency`
+then compress cache blocks.
+Alamelden,Wood: Estimate `avoided_miss` using LRU stack.
+
+### Case study, SC2
+
+Semi-dynamic Huffman.
+
+1. Aquire statistics. Analyze.
+2. Perform compression
+
+Step 1. Assess potential.
+
+How often to re-fetch statistics?
+Approx every 1 second.
+Does not seem to be much benefit to do it more often.
+
+Rule of thumb.
+Double size of cache.
+miss rate go down by sqrt(2)
+
+Larger physical cache can be slower! Becaue latency for hit get higher.
+SC2 outperforms using a bigger cache.
+10% performance increase mixed loads.
+50% less energy than 4x cache size increase.
+
+
+### Memory compressions
+
+30% of server costs is memory.
+Similar for mobile phones.
+
+Swap-space compression.
+Established in most operating systems.
+Even with software compression can be worthwhile.
+But swap is not much used, so limited gain.
+
+Want to compress the entire memory.
+Should be transparent to OS. Easier adoption.
+Do it in the hardware.
+
+Pages have variable size.
+Virtual to physical address translation not enough. Need another layer.
+Got order of 100 cycles.
+
+NVM.
+Non-volatile data almost as fast as DRAM.
+Factor 10x.
+Might change how operating system are built.
+Especially paging mechanism.
+Cost of disk VS memory changed.
+
+Lempel-Ziv hard to get fast.
+
+## IBM MXT
+
+
+
+#### Microcontroller compression
+
+https://blog.segger.com/smash-an-efficient-compression-algorithm-for-microcontrollers/
+explains DEFLATE, LZMA, LZJU90, LZ4
+introduces SMASH.
+Can be used for decompression of constants and code copied to RAM during startup.
+Also in emCompress, general purpose compression for embedded.
+
+
+### Z4
+https://lz4.github.io/lz4/
+
+- Compression speed > 500 MB/s per core (>0.15 Bytes/cycle). 
+- Decoder, with speed in multiple GB/s per core (~1 Byte/cycle)
+- LZ4_HC. Trading customizable CPU time for compression ratio
+- BSD license.
+- Tons of ports to different languages. Incl x86 assembler
+
+Can it be implemented in hardware?
+
+Xilinx FPGA LZ4
+https://github.com/Xilinx/Applications/tree/master/data_compression/xil_lz4
+
+LZ4m: A Fast Compression Algorithm for In-Memory Data
+http://csl.skku.edu/papers/icce17.pdf
+Optimized for small block sizes.
+Maximal offset is 270. LZ4 is 65535. 
+
+Design of Hardware Accelerator for Lempel-Ziv 4 (LZ4) Compression
+Accelerator is verified using FPGA and fabricated using 65nm CMOS technology.
+
+- Supports up to 4Gbit/s compression
+- Compression ratio is measured up to 2.69
+- 75MHz clock
+- 392 K gate counts
+
+Data Compression Device based on Modified LZ4 Algorithm
+
+
+
+#### Afternoon contest
+
+Metric: highest average compressibility. Geometric mean
+
+Interesting
+
+! analyzing, visualizing data-patterns
+! predicting datatype / compression method
+! tradeoffs. multi-objective optimization
+
+Analyze performance of each algorithm on each dataset.
+Analyze sub-datasets using each algorithm. B length blocks? Try different block lengths.
+Where to start block might be important. Scan data. Try different starts. See difference. Store 
+
+
 SPEC2017 datasets.
 64 kB cache.
+
+
 
 ## Being Human with Algoritihms
 July 20.
