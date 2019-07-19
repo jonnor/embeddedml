@@ -732,9 +732,40 @@ Cost of disk VS memory changed.
 
 Lempel-Ziv hard to get fast.
 
-## IBM MXT
+
+### Link compression
+Between main memory and cache hierarchy.
+Systems are bandwidth constrainted.
 
 
+MemZip. HPCA 2014
+In-place compression. Avoids extra translation to find compressed blocks.
+
+CRAM: Efficient Hardware-Based Memory Compression for Bandwidth Enhancement
+https://arxiv.org/abs/1807.07685
+Average speedup 6%.
+
+### ZeroPoint
+https://wp.zptcorp.com/
+
+Misson: Embrace memory compression
+Business perspective:
+Need a product which interfaces easily with customer projects. 
+
+Ziptillion IP block.
+Sits between memory controller and processor.
+Propriatary compression algorithm.
+Software side.
+Statistical data analysis in sofware driver.
+Able to double memory capacity and bandwidth.
+
+Go to market phase.
+Ready Q4 this year.
+Ship products next year.
+12 people team.
+Grown over 4 years.
+
+A research presentation is basically marketing why your research are important.
 
 #### Microcontroller compression
 
@@ -744,6 +775,13 @@ introduces SMASH.
 Can be used for decompression of constants and code copied to RAM during startup.
 Also in emCompress, general purpose compression for embedded.
 
+#### Neural network compression
+
+How much to gain from compression (quantizied) weight?
+Zero-value compression should fit well with sparse matrices.
+
+Challenge: Need weights fast during compute.
+Good: predictable access. Can be prefetched.
 
 ### Z4
 https://lz4.github.io/lz4/
