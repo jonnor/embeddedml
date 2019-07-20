@@ -18,28 +18,9 @@ Barcelona, Spain
 
 ## [Machine Learning Accelerators from Cloud to Edge](./machine-learning-accelerators.md)
 
+## [Algorand blockchain](./algorand.md)
 
 # Upcoming
-
-### Turing Leture
-July 20.
-Silvio Micali.
-
-Blockchain.
-So far. A lot of promises.
-Blockchain trilemma. Scalability. Decentralization. Security. Not acceptable.
-Fortunately it is false?
-
-Unalterable. One-way hash. Solved.
-Chosing the next block. Consensus. Hard question.
-Propagation. Flooding algortihm. 
-
-Popular approaches
-
-- Proof of work. Bitcoin. Ethereum.
-- Delegated proof of stake.
-- Bonded proof of stake.
-
 
 
 ### EU programmes
