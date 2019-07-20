@@ -56,11 +56,22 @@ Then 1k randomly chosen gets to validate this block.
 Is the agreement partners published?
 DoS attack those.
 
-How to limit number of participants I can have?
-MiraBot.
 
 How does a node know its neighbours?
 
+How does one know the 'edge' of the network.
+That all nodes have seen a message.
+
+Many blocks proposed at the same time.
+Which one is first? Race condition?
+
+
+Avaiability.
+Discovery mechanism. Same as Bitcoin/Ethereum?
+
+Tokens are selected. Then owner of the token is asked.
+Avoid just creating more participants.
+MiraBot.
 
 
 
