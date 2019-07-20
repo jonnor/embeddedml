@@ -265,3 +265,91 @@ Quentin. XNE-accelerated microcontroller.
 Super efficient.
 50 fJ/ops possible! Possible to do 100 TOPS/watt.
 
+
+## Literature
+
+YodaNN.
+June, 2016
+https://arxiv.org/abs/1606.05487
+
+XNOR Neural Engine
+July, 2018
+https://arxiv.org/abs/1807.03010
+ResNet-34 inference in less than 2.2mJ
+
+NTX Streaming accelerators
+https://arxiv.org/abs/1812.00182
+
+Optimally Scheduling CNN Convolutions for Efficient Memory Access
+Feb, 2019
+https://arxiv.org/abs/1902.01492
+Introduce an accelerator architecture Hardware Convolution Block (HWC),
+implements the optimal schedules.
+Achieves up to 14x memory bandwidth reduction.
+
+QUENN quantization engine
+https://arxiv.org/abs/1811.05896
+LPDNN, a framework for optimized deployment of Deep Neural Networks on heterogeneous embedded devices.
+Gaussian quantizer with k-means clustering can achieve better performance than linear quantizers.
+
+Towards Energy-Efficient Convolutional Neural Network Inference
+Cavigelli, Lukas
+2019
+https://doi.org/10.3929/ethz-b-000350633
+https://www.research-collection.ethz.ch/bitstream/handle/20.500.11850/350633/1/thesis-final.pdf
+
+Architecture performance
+
+- Software-programmable platforms can achieve 10–40 GOp/s/W
+- our specialized accelerator for fixed-point CNNs achieves 630 GOp/s/W
+- Binary-weight CNNs can be implemented with up to 5.9 TOp/s/W
+- very small binarized neural networks implementable with purely combinational logic
+could be run directly on sensor with 670 TOp/s/W
+
+For video surveillance, fusing the RGB images with multispectral data.
+Allowing to reduce compute effort by 2.3x at same accuracy.
+Specialized algorithm exploiting the spatio-temporal sparsity of changing pixels
+in static camera video streams saves around 8.7x in energy/frame.
+Chapter 3 Origami: Hardware Acceleration of Convolutional Networks
+Chapter 4 Hyperdrive: A Systolically Scalable Inference Engine for Binary-Weight CNNs
+Chapter 5, Combinational Implementation of Binarized Neural Networks
+Chapter 6, Hardware-Friendly Compression of the Feature Maps
+Chapter 7, Accuracy-Compute Trade-Off by Fusing Multispectral Imaging Data
+Chapter 8, CBinfer: Exploiting Frame-to-Frame Locality for Inference on Static Camera Video Streams
+
+
+https://pulp-platform.org/
+Open hardware. RISC-V
+SolderPad license.
+
+https://osda.gitlab.io/19/rossi-slides.pdf
+RI5CY. RV32-ICMX with DSP. SIMD, HWloops
+GAPUINO Greenwaves. Nine RI5CY cores.
+
+An IoT Endpoint System-on-Chip for Secure and Energy-Efficient Near-Sensor Analytics
+https://arxiv.org/pdf/1612.05974.pdf
+
+# Practical session
+Quantitative analysis
+
+How to deal with the constraints in accelerating Neural Networks
+
+- Power/Energy
+- Inference latency/throughput
+- Memory
+- Costs
+
+What order is the ideal for doing conv layers?
+Possible to do non-sequentially.
+Different dataflow schedules
+
+Bias can be combined into Batch Normalization.
+
+How to schedule
+
+- Output-stationary schedule is most popular.
+- Kin/Kout > 64 for practically all DNNs
+- Inner is matrix-multiplication
+
+
+
