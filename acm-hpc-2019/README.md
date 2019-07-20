@@ -803,14 +803,24 @@ Optimized for small block sizes.
 Maximal offset is 270. LZ4 is 65535. 
 
 Design of Hardware Accelerator for Lempel-Ziv 4 (LZ4) Compression
+https://doi.org/10.1587/elex.14.20170399
+
 Accelerator is verified using FPGA and fabricated using 65nm CMOS technology.
 
-- Supports up to 4Gbit/s compression
-- Compression ratio is measured up to 2.69
-- 75MHz clock
+- Supports up to 4Gbit/s compression with 75MHz clock
 - 392 K gate counts
+- Compression ratio is measured up to 2.69
 
 Data Compression Device based on Modified LZ4 Algorithm
+https://doi.org/10.1109/TCE.2018.2810480
+
+nicknamed MLZ4
+
+high throughput
+of up to 1.92Gbps with a compression ratio of up to 2.05.
+On 260MHz FPGA.
+
+
 
 
 
