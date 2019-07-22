@@ -10,15 +10,28 @@ Barcelona Supercomputer Center
 Universitat Politècnica de Catalunya
 Barcelona, Spain
 
-## [Past, Present, Future of Computer Architecture](./introduction.md)
+## Lectures
 
-## [Being Human with Algoritihms](./being-human-with-algorithms.md)
+### [Past, Present, Future of Computer Architecture](./introduction.md)
 
-## [Energy Efficient Approach in ML Architectures](./energy-efficient-ml.md)
+### [Being Human with Algoritihms](./being-human-with-algorithms.md)
 
-## [Machine Learning Accelerators from Cloud to Edge](./machine-learning-accelerators.md)
+### [Energy Efficient Approach in ML Architectures](./energy-efficient-ml.md)
 
-## [Algorand blockchain](./algorand.md)
+### [Machine Learning Accelerators from Cloud to Edge](./machine-learning-accelerators.md)
+
+### [Being Human with Algorithms](./being-human-with-algorithms.md)
+
+### [Algorand blockchain](./algorand.md)
+
+### Data Analysis in HPC
+
+### [Hybrid Task based programming in HPC](./task-based-programming.md)
+
+## Challenges
+
+### [Hardware compression of memory](https://github.com/jonnor/acm2019-compress)
+
 
 # Upcoming
 
