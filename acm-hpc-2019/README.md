@@ -30,6 +30,8 @@ Barcelona, Spain
 
 ### [The convergence between supercomputing and IoT nodes](./iot-supercomputing-convergence.md)
 
+### [EU programmes](./eu-programmes.md)
+
 ## Challenges
 
 ### [Hardware compression of memory](https://github.com/jonnor/acm2019-compress)
@@ -37,11 +39,6 @@ Barcelona, Spain
 ### [Practical data analysis](https://github.com/jonnor/acm-2019-dbscan)
 
 # Upcoming
-
-
-### EU programmes
-July 23.
-Francesca Arcara.
 
 ## Inter-disiplinary Research & Diversity
 Challenges and Foundations to HPC success.
