@@ -28,10 +28,13 @@ Barcelona, Spain
 
 ### [Hybrid Task based programming in HPC](./task-based-programming.md)
 
+### [The convergence between supercomputing and IoT nodes](./iot-supercomputing-convergence.md)
+
 ## Challenges
 
 ### [Hardware compression of memory](https://github.com/jonnor/acm2019-compress)
 
+### [Practical data analysis](https://github.com/jonnor/acm-2019-dbscan)
 
 # Upcoming
 

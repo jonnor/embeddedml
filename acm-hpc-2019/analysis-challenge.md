@@ -1,10 +1,16 @@
 
-Challenges. 3.
-Tutorial 2.
-
+## Challenge 1
 Challenge 1.
 Try different epsilon / min_pts.
 How does the results change.
+
+- Inter-distance
+- Intra-distance
+- Number of clusters
+- Cluster size distribution. largest-smallest ?
+
+
+
 
 Gridsearch.
 Baysian optimization
