@@ -35,12 +35,17 @@ Ways of advancing, make contributions
 - Comparison between approaches. Microcontroller, ML model
 - Libraries or tools. Lower time to market, enable more developers
 
+
+
+
 # Tools
 
 Open-source
 
 * [emlearn](http://github.com/emlearn/emlearn)
-* TensorFlow Lite for Microcontrollers
+- [micromlgen](https://github.com/eloquentarduino/micromlgen)
+* [TensorFlow Lite for Microcontrollers](https://www.tensorflow.org/lite/microcontrollers)
+- [nn4mc_cpp](https://github.com/correlllab/nn4mc_cpp)
 
 Proprietary
 
@@ -165,6 +170,11 @@ Machine learning tasks
 * Regression
 * Prediction
 * Outlier/novelty/anomaly detection
+
+# Introduction materials
+
+- [Embedded.com: Applying machine learning in embedded systems](https://www.embedded.com/applying-machine-learning-in-embedded-systems)
+- [Embedded.com: Transfer learning for the IoT](https://www.embedded.com/transfer-learning-for-the-iot/)
 
 ## Tree-based methods
 Implemented in [emtrees](https://github.com/jonnor/emtrees)
