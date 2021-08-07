@@ -4,7 +4,10 @@ Focused primarily on running inference/prediction/feed-forward part on a microco
 Training phase can run on a standard computer/server, using existing tools as much as possible.
 
 
-# State of the Art
+
+
+
+# State of the Art in 2019
 Of ML inference on general-purpose microcontrollers.
 
 - Deep models have efficient implementations for ARM Cortex-M. Ex: CNN and RNN in CMSIS-NN, FC in uTensor
@@ -13,8 +16,8 @@ Of ML inference on general-purpose microcontrollers.
 - Basic tools available for converting Tensorflow models
 - Keyword-spotting/wake-word on audio well established. Used in commercial products (Alexa etc)
 - Human activity detecton on accelerometers.
-- Computer vision is
-- Lots of research and announcements for low-power co-processors, but little on market yet
+- Computer vision is actively
+- Lots of research and many announcements of low-power co-processors, but little on market yet
 
 Limitations
 
@@ -42,9 +45,10 @@ Ways of advancing, make contributions
 
 Open-source
 
-* [emlearn](http://github.com/emlearn/emlearn)
+* [emlearn](http://github.com/emlearn/emlearn).
 - [micromlgen](https://github.com/eloquentarduino/micromlgen)
 * [TensorFlow Lite for Microcontrollers](https://www.tensorflow.org/lite/microcontrollers)
+* [nnom](https://github.com/majianjia/nnom) - Fixed-point neural network compiler for microcontrollers.
 - [nn4mc_cpp](https://github.com/correlllab/nn4mc_cpp)
 
 Proprietary
@@ -510,6 +514,17 @@ https://www.automl.org/book/
 2018
 Reviews state of the art
 
+#### An Overview of Machine Learning within Embedded and Mobile Devices–Optimizations and Applications
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8271867/
+
+Reviews methods, tools, optimization techniques and applications for constrainted embedded and mobile devices.
+Methods include k-NN, HMM, SVM, GMM and deep neural networks.
+For each of the methods covers some optimization schemes.
+
+For SVM concludes that the Laplacian kernel is the most efficient, since it can be implemented with shifts.
+Laplacian kernel can be used in scikit-learn by precomputing the kernel.
+On a practical level the number of support vectors also impact runtime.
+In scikit-learn can use the NuSVC model to constrain the number of support vectors.
 
 #### Efficient Multi-objective Neural Architecture Search via Lamarckian Evolution
 Proposes LEMONADE

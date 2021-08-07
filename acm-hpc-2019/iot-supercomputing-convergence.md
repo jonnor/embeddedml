@@ -95,3 +95,110 @@ Old case. Ceff * V**2 * CPI
 
 Goal: find improvement/new power efficiency
 
+
+## Specialization
+
+- General purpose microprocessors.
+0.1 MOPS/mW
+- Digital Signal Processors.
+1 MOPS/mW - 10x
+- Dedicated hardware (and ultra-low-power micros).
+100 MOPS/mW. 10 pJ/op - 100x 
+
+May reach 1pJ order for low-precision neural networks.
+
+
+## Accelerator types
+
+No standard naming convention. Not so easy to classify.
+
+Broadly
+
+- Instruction mapped. Pass an (complex) instruction to accelerator. Tight coupling.
+- Memory mapped.  Loose coupling.
+
+Accelerator can be private to a core, to a thread, or shared among multiple cores.
+
+
+## European Processor Initiative Acceleration Tile
+
+European Processor Initiative.
+120 M EUR project.
+26 project partners.
+
+Targeting supercomputer.
+Also very high performance needs in automotive cars.
+
+- Multi-core machine.
+- Hetrogenous tiles. ARM Cortex, FPGA, vector extension
+- 
+
+RISC-V vector extension.
+
+- 32 vector registers
+- 64 bit element size. 2x32, 4x16, 8x8 bit
+- 8 vector lanes
+
+## Klessendra embedded processor core family
+
+Targeting Embedded applications
+Presented at Zurich 2019 RISC-V workshop
+Space and avionics.
+Sattelites. Fault tolerance.
+
+Compatible with PULPino microcontroller platform.
+RI5CY, Zero-, micro-.
+Available on Github!
+
+- Klessyndra S0. Verification only.
+- Klessyndra T02x and T03x. Multi-threaded
+- Klessyndra T13. Parametric, hardware accelerators
+
+Bare metal. Hardware thread support.
+Interleaved multithreading.
+Every-other instruction is different thread.
+Minimum and maximum of threads.
+Right now min_thread=3 (from number of pipelines stages).
+Max_threads=16
+Hart = hardware thread (RISC-V terminology)
+
+32x32-bit integer registers
+No floating point.
+
+Interrupts 16x. Compatible with Pulpino.
+Software interrupt. Sent by software threads.
+
+### S0
+2-stage pipeline.
+Single thread execution.
+
+### T0x
+Multiple program counters.
+One per active threads.
+
+
+### T13x
+
+Scratchpad memory. Parametrics, default=512 bytes.
+Like a cache, but managed by software.
+Used for acceleration units.
+Instructions for storing/loading from scratchpad.
+Instructions for vector/DSP. SIMD.
+
+
+## Accelerator example
+
+Problem: Edge detection.
+Baseline. Compiled to RISC-V integer instructions
+
+Memory mapped accelerator.
+Communication with core using shared memory.
+
+Accelerator IP.
+Using a state machine.
+
+Actions executed in same clock cycle as state check.
+Algorithmic state machine (ASM) diagram.
+
+
+
