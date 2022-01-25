@@ -1,4 +1,4 @@
-## k-nearest neighbours
+# k-nearest neighbours
 Aka kNN.
 
 Very simple but powerful non-linear classifier.
@@ -61,6 +61,13 @@ Negative values means error.
 Need to decide whether to do implement KD/ball-trees
 Is needed for full scikit-learn compatibility.
 For just inference, should be possible to pre-generate the index/trees also.
+
+## Existing implementations
+
+- Very basic example
+https://github.com/joaocarvalhoopen/KNN__K_Nearest_Neighbors_in_C_Plus_Plus/blob/master/KNN__K_Nearest_Neighbors.cpp
+- Arduino_KNN - Arduino library
+https://github.com/arduino-libraries/Arduino_KNN
 
 ## Approximate Nearest Neighbours (ANN)
 
