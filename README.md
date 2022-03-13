@@ -181,11 +181,18 @@ Machine learning tasks
 - [Embedded.com: Transfer learning for the IoT](https://www.embedded.com/transfer-learning-for-the-iot/)
 
 ## Tree-based methods
-Implemented in [emtrees](https://github.com/jonnor/emtrees)
+Implemented in [emlearn](https://github.com/emlearn/emlearn).
+
+Notes under models [tree-based](./models/tree-based.md).
+
+## Mixture models
+Implemented in [emlearn](https://github.com/emlearn/emlearn).
+
+Notes under [models/mixtures](./models/mixtures.md).
 
 
 ## Naive Bayes
-Implemented in [embayes](https://github.com/jonnor/embayes)
+Implemented in [emlearn](https://github.com/emlearn/emlearn)
 
 Simple generative model. Very effective at some classification problems.
 Quick and easy to train, just basic descriptive statistics.
