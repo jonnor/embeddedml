@@ -71,23 +71,6 @@ https://mapr.com/practical-machine-learning-new-look-anomaly-detection/
 Ted Dunning and Ellen Friedman
 
 
-# emlearn
-   
-## Comparables
-
-- sklearn-porter
-- X-CUBE-AI
-
- 
-## Compared to sklearn-porter
-
-    Only support C language
-    Uses float instead of doubles
-    Support for integer-math only
-    No dynamic allocations
-
-
-
-
-
+## A review on TinyML: State-of-the-art and prospects
+https://www.sciencedirect.com/science/article/pii/S1319157821003335
 

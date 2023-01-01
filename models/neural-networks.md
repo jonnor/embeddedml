@@ -247,3 +247,38 @@ Reorders computation compared to BNN to only need a single floating point interm
 61.2TOps/sec/Watt at 900uW and 1TOps/sec/watt at 1.2v. 
 
 Another alternative is binary shift networks, which replaces multiplications with bitshifts.
+
+
+## Neural network inference optimization
+
+* [nn_dataflow](https://github.com/stanford-mast/nn_dataflow). Energy-efficient dataflow scheduling for neural networks (NNs),
+including array mapping, loop blocking and reordering, and parallel partitioning.
+* [Sparse-Winograd-CNN](https://github.com/xingyul/Sparse-Winograd-CNN).
+Efficient Sparse-Winograd Convolutional Neural Networks paper. ICLR 2018.
+* [wincnn](https://github.com/andravin/wincnn).
+Simple python module for computing minimal Winograd convolution algorithms for use with convolutional neural networks.
+"Fast Algorithms for Convolutional Neural Networks" Lavin and Gray, CVPR 2016.
+* [Tencent/FeatherCNN](https://github.com/Tencent/FeatherCNN).
+High performance inference engine for convolutional neural networks.
+For embedded Linux and mobile, especially ARM processors.
+* [CNN-Inference-Engine-Comparison](https://github.com/HolmesShuan/CNN-Inference-Engine-Quick-View).
+Overview of CCN inference engines, and performance.
+Shows MobileNetV1 at 60ms on 2-core 1.8Ghz Cortex-A72, ResNet-18 in 200ms.
+
+
+## MicroNets
+https://arxiv.org/abs/2010.11267
+
+> The CMSIS-NN CONV 2D kernel is substantially faster when
+> the number of input and output channels are divisible by four
+
+Used differentiable NAS (DNAS) (Liu et al., 2019) to design specialized MCU models to target
+TinyMLperf tasks.
+
+Keyword spotting, Acoustic Anomaly Detection (DCASE2020 Task2)
+
+Models, but not training code, published to https://github.com/ARM-software/ML-zoo
+
+Designed for execution with TensorFlow Lite for Microcontrollers.
+
+

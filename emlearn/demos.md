@@ -1,7 +1,7 @@
 
-# Examples
+# Demos
 
-! not the same as a demo
+!!! not the same as an example
 
 Examples:
 
@@ -11,19 +11,6 @@ Examples:
 - Can use synthetic data.
 - Can use no hardware, trivial hardware setup just to demonstrate simple thing.
 
-## Anomaly Detection
-
-Anomaly Detection
-Known relationship between two variables
-Introduce an anomaly
-Change capacitor. Higher/lower value
-Degrate the capacitor. Eg using heat
-
-
-# Demos
-
-! not the same as an example
-
 Demos are:
 
 - Focused on a real-world usecase or application.
@@ -31,6 +18,12 @@ Demos are:
 - Usually done on real data.
 - Can be ran on real hardware.
 - Might need to be quite complex (depending on application)
+
+## Priority
+
+**Examples** are more important than demos.
+Can maybe have 1 or 2 demos just for marketing purposes.
+Or to use demo development as a way to ensure that the neccesary tooling is in place and ergonomical.
 
 ## Goals
 
