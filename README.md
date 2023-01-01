@@ -161,31 +161,23 @@ Proprietary
 * X-CUBE-AI for STM32
 
 
-# Machine Learning models
+# Models
 
-Roughly ordered by relevance.
-Should both be useful for typical tasks and efficiently implementable.
+A range of Machine Learning models are useful in an embedded devices setting.
+Classical methods are used when the amount of data is quite small,
+and neural networks for large datasets and complex inputs.
 
-## Tree-based methods
-Such as Random Forest, Extratrees, Decision Tree.
-Implemented in [emlearn](https://github.com/emlearn/emlearn).
-Notes under models [tree-based](./models/tree-based.md).
+Below are notes on the various models in the context of embedded Machine Learning,
+including model size and compute-time optimization.
 
-## Neural Networks
-Notes under [models/mixtures](./models/neural-networks.md).
-
-## Mixture models
-Such as Gaussian Mixture Model (GMM).
-Implemented in [emlearn](https://github.com/emlearn/emlearn).
-Notes under [models/mixtures](./models/mixtures.md).
-
-## Support Vector Machines
-
-[Notes](./models/support-vector-machine.md)
-
-## Nearest Neighbours
-
-[Notes](./models/k-nearest-neighbours.md)
+- [Tree-based methods](./models/tree-based.md).
+Random Forest, Extratrees, Decision Trees, et.c.
+- [Neural Networks](./models/neural-networks.md).
+Convolutional Neural Networks (CNN), Recurrent Neural Networks (RNN), Autoencoders
+- [Support Vector Machines](./models/support-vector-machine.md) (SVM).
+- [Mixture models](./models/mixtures.md).
+Gaussian Mixture Models (GMM).
+- [Nearest Neighbours](./models/k-nearest-neighbours.md). kNN et.c.
 
 
 # More topics
@@ -193,9 +185,7 @@ Notes under [models/mixtures](./models/mixtures.md).
 - [Privacy](./topics/privacy.md)
 - [Energy usage](./topics/energy-usage.md)
 - [Model size](./topics/model-size.md)
-- [Online learning](./topics/online-learning.md)
-
-
+- [On-device learning](./on-device-learning)
 
 
 
