@@ -19,6 +19,9 @@ https://stats.stackexchange.com/a/339095/201327
 pygmmis implements an uniform background component, in pure Python
 https://github.com/pmelchior/pygmmis
 
+Filling the gaps: Gaussian mixture models from noisy, truncated or incomplete sample
+https://arxiv.org/abs/1611.05806
+
 pomegranate has a GeneralMixtureModel,
 and supporting both Gaussian and Uniform distributions, that can be mixed.
 https://pomegranate.readthedocs.io/en/latest/GeneralMixtureModel.html

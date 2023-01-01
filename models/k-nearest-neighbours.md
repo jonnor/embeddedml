@@ -107,3 +107,21 @@ Has outlier/anomaly properties built in? Bins are empty - outlier
 
 
 
+# Nearest Neighbour models
+
+Canonical example is kNN.
+However conventional kNN requires all training points to be stored, which is typically way too much for a microcontroller.
+
+Variants
+
+* Condensed kNN. Data reduction technique.
+Selects prototypes for each class and eliminates points that are not needed.
+[imbalanced-learn](http://contrib.scikit-learn.org/imbalanced-learn/stable/auto_examples/under-sampling/plot_condensed_nearest_neighbour.html?highlight=condensed)
+* Fast condensed nearest neighbor rule. 2005. [Paper](https://dl.acm.org/citation.cfm?id=1102355)
+* Approximate nearest neighbours.
+
+References
+
+* [Survey of Nearest Neighbor Condensing Techniques](https://www.thesai.org/Downloads/Volume2No11/Paper%2010-%20Survey%20of%20Nearest%20Neighbor%20Condensing%20Techniques.pdf)
+* [Fast Classification with Binary Prototypes](http://users.ices.utexas.edu/~zhongkai/bnc.pdf)
+

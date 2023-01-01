@@ -96,6 +96,26 @@ Split by sample. Only works for batch predictions.
 Split by tree. Works also for single sample. 
 
 
+## Adaptive inference
+
+Different inputs have different difficulty to classify.
+Therefore it is possible to adjust the inference to match the samples.
+Can be done at runtime.
+
+
+- [Adaptive Random Forests for Energy-Efficient Inference on Microcontrollers](https://arxiv.org/abs/2205.13838v1).
+Daghero et al. 2022.
+Propose an early-stopping mechanism for RF,
+which terminates the inference as soon as a high-enough classification confidence is reached,
+reducing the number of weak learners executed for easy inputs.
+References other existing work on adaptice Random Forests.
+Energy reduction from 38% to more than 90% with a drop of less than 0.5% in accuracy.
+- [Quit When You Can: Efficient Evaluation of Ensembles with Ordering Optimization](https://arxiv.org/abs/1806.11202).
+S. Wang et al. 2018.
+Sorts the members of ensemble at training time to get storted paths for easy inputs.
+Only for binary classification. 
+
+
 ### Early cutoff in ensamble
 
 Sometimes decisions are easy enough that a smaller amount of trees can do it well enough.
