@@ -113,6 +113,77 @@ Minituarization. Could put on board with an small microcontroller.
 Implement a sensor protocol, like I2C or OneWire.
 Implement same protocol/format as some other common devices.
 
+## Pulse sensor / heartbeat monitor
+
+Sensor principle is measuring reflected/absorbed light
+Easy with dedicated electronics.
+https://lastminuteengineers.com/pulse-sensor-arduino-tutorial/
+
+Can it be done with simple components found in an Arduino starter kit?
+Like a LED and LDR, or two LEDs? 
+
+Someone did it with LDR. And lots of op amps. Analog comparator. No active light source.
+https://www.hackster.io/104829/detecting-heart-rate-with-a-photoresistor-680b58
+
+Someone did it with infrared 
+KY-039 / KY-03 / KY-39 IR transmissive sensor
+Arduino code and DSP explanations. Incl demo video
+https://projecthub.arduino.cc/Johan_Ha/8c660b94-ae6c-4b1b-b8c9-477facc50262
+
+
+Could use detected beat events to trigger LEDs in sync with beat 
+Demo could be exercising to increase
+Can use commercial BMP monitor on wristband/smartwatch as reference
+
+Can also hold finger to throat, and tap the pulse.
+For example on a capacitive input!!
+
+Also exists simple I2C chips that can be used to get it programatically.
+Like MAX30100
+
+BPM range. 30-200 BPM, 0.5 - 3.3 Hz
+Well under line frequency 50-60Hz.
+Should probably low-pass to reject that, somewhere between 6.25,12.5,25Hz (3-1 octave, giving 24 to 6 dB rejection)
+
+Can probably be generalized to other low-rate event detection problems
+Assuming adjustable parameters in the pipeline
+
+How to place the electronics?
+Use some plastelina etc.
+
+Make a dataset. Vary
+Heartrate
+Placement
+Finger
+Person
+Ambient light
+Ambient temperature
+Skin moisture
+Skin temperature
+
+What if one would vary the sensor construction also.
+Is it realistic to have an universal model?
+
+Note that it is normal to have some variation between beats.
+Termed. Heartrate Variability
+
+Later
+
+Potential of on-device learning / calibration.
+Potential for integration into single board with I2C/interrupt
+Running on some small microcontroller. AtTiny etc
+
+
+PlatformIO Core
+Supports many embedded devices. Including Arduino
+Can be pip installed!!
+Same tools needed for emlearn.
+Has simavr target supported
+
+Can hook in custom build steps
+https://docs.platformio.org/en/latest/scripting/custom_targets.html
+https://docs.platformio.org/en/latest/scripting/index.html
+
 
 ## Cyclic behavior
 
