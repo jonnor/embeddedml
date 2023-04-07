@@ -117,6 +117,10 @@ https://arxiv.org/abs/2010.13886
 Uses 1D CNN with separable convolutions
 On MFCCs or log mel-spectrogram.
 
+2021.
+
+When compared to a state-of-the-art VAD model, MarbleNet is able to achieve similar performance with roughly 1/10-th the parameter cost.
+
 Available as part of NeMo
 https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo/models/vad_telephony_marblenet
 https://colab.research.google.com/github/NVIDIA/NeMo/blob/r1.0.0rc1/tutorials/asr/06_Voice_Activiy_Detection.ipynb#scrollTo=HbCtcUUKA3al
@@ -262,6 +266,38 @@ Personal VAD outputs the probabilities for three classes: non-speech, target spe
 Combined with Speaker Verification System.
 No online / real-time adaptation to speakers.
 Seems to need to be pre-trained for a particular speaker.
+
+## Papers
+
+### ResectNet: An Efficient Architecture for Voice Activity Detection on Mobile Devices
+
+https://www.isca-speech.org/archive/pdfs/interspeech_2022/kopuklu22_interspeech.pdf
+2022.
+Microsoft.
+
+Achieves state-of-the-art performance with less than 12k parameters
+Operates on raw audio signals and consists of sinc convolutions, depthwise convolutions,
+grouped pointwise convolutions, frequency shift module and a gated recurrent unit.
+
+Compares with MarbleNet. Better performance with 1/10 the number of parameters.
+6.4 - 12.2 MFLOPS
+
+The audios are sampled at 16 kHz.
+We have used a 640-sample frame length (40 ms) with a 160-sample (10 ms) frame shift.
+
+Using AVA speech and HAVIC datasets.
+
+No code available.
+
+### NAS-VAD: Neural Architecture Search for Voice Activity Detection
+
+https://arxiv.org/abs/2201.09032
+
+Model and training code available at
+https://github.com/daniel03c1/NAS_VAD
+
+Used the AVA [36] and ACAM datasets [6] as test datasets.
+
 
 ## Non-open
 ### Silero VAD
