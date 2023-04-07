@@ -98,6 +98,7 @@ def main():
     annotations = load_annotations()
     print(annotations)
 
+
     downloads = make_downloads(annotations, out_dir=out_dir)
 
     stats = download_files(downloads, verbose=3, n_jobs=1)

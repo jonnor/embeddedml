@@ -47,6 +47,8 @@ def download_convert_audio(uri, path, sr=16000, ffmpeg_bin='ffmpeg', bitrate=192
         '-ab', str(bitrate),
         '-ar', str(sr),
         '-vn', # no video?
+        '-ss', '00:00:00',
+        '-t', '00:30:00',
         path,
     ]
     cmd = ' '.join(args)
@@ -79,7 +81,10 @@ def download_files(files : pandas.DataFrame,
         # TODO: move the filtering of existing files out to a pre-step
         if os.path.exists(out) and exists == 'skip':
             file_size = os.path.getsize(out)
-            download = False
+            if file_size == 0:
+                os.unlink(out)
+            else:
+                download = False
         if os.path.exists(out) and exists == 'error':
             raise ValueError(f'File "{out}" already exists')
 
@@ -93,7 +98,7 @@ def download_files(files : pandas.DataFrame,
 
             try:
                 download_convert_audio(url, out)
-            except (requests.exceptions.ConnectionError, ValueError) as e:
+            except (requests.exceptions.ConnectionError, ValueError, subprocess.CalledProcessError) as e:
                 error = e
                 if errors == 'log':
                     log.error('download-files-fetch-failed',
