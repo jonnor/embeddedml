@@ -5,6 +5,7 @@ Downloading tools for AVA Speech, a part of the AVA Spoken Activity Datasets
 Official dataset website: https://research.google.com/ava/
 
 Dataset description paper: https://arxiv.org/abs/1808.00606
+
 """
 
 import os.path
@@ -71,13 +72,18 @@ def file_download_url(filename):
     out = f'{ava_speech_file_prefix}/{filename}'
     return out
 
+def file_download_path(filename, out_dir, suffix='.ogg'):
+    base, ext = os.path.splitext(filename)
+    out = os.path.join(out_dir, f'{base}{suffix}')
+    return out
+
 def make_downloads(annotations, out_dir):
 
     filenames = annotations['file']
 
     df = pandas.DataFrame({
         'url': [ file_download_url(f) for f in filenames ],
-        'path': [ os.path.join(out_dir, f) for f in filenames ],
+        'path': [ file_download_path(f, out_dir=out_dir) for f in filenames ],
     }, index=annotations.index)
     df = df.drop_duplicates()
 
@@ -94,7 +100,7 @@ def main():
 
     downloads = make_downloads(annotations, out_dir=out_dir)
 
-    stats = download_files(downloads, verbose=3)
+    stats = download_files(downloads, verbose=3, n_jobs=1)
     print(stats)
 
 if __name__ == '__main__':

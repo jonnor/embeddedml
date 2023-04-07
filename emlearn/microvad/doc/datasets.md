@@ -9,7 +9,7 @@ Such datasets may be tailored to.
 For example the kind of background noise.
 
 There are tools made to assist such dataset creation.
-For example scaper, https://pypi.org/project/scaper/
+For example scaper, https://github.com/justinsalamon/scaper
 
 ## Complete datasets
 

@@ -10,6 +10,7 @@ import structlog
 import requests
 import pandas
 import joblib
+import subprocess
 
 log = structlog.get_logger()
 
@@ -34,6 +35,26 @@ def download_file(uri, path, headers = {}):
     with open(path, 'wb') as f:
         for chunk in r:
             f.write(chunk)
+
+def download_convert_audio(uri, path, sr=16000, ffmpeg_bin='ffmpeg', bitrate=192e3):
+
+    args = [
+        ffmpeg_bin,
+        '-y', # allow overwrite
+        '-i', uri,
+        '-f', 'ogg',
+        '-ac', '0', # mono
+        '-ab', str(bitrate),
+        '-ar', str(sr),
+        '-vn', # no video?
+        path,
+    ]
+    cmd = ' '.join(args)
+
+    log.info('download-convert-audio-start', command=repr(cmd))    
+
+    subprocess.check_output(cmd, shell=True)
+
 
 def download_files(files : pandas.DataFrame,
         n_jobs=10,
@@ -71,7 +92,7 @@ def download_files(files : pandas.DataFrame,
             start_time = time.time()
 
             try:
-                download_file(url, out)
+                download_convert_audio(url, out)
             except (requests.exceptions.ConnectionError, ValueError) as e:
                 error = e
                 if errors == 'log':
