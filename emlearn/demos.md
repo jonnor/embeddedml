@@ -152,14 +152,18 @@ How to place the electronics?
 Use some plastelina etc.
 
 Make a dataset. Vary
-Heartrate
-Placement
-Finger
-Person
-Ambient light
-Ambient temperature
-Skin moisture
-Skin temperature
+
+- Heartrate
+
+Co-variates 
+
+- Placement on finger
+- Which finger
+- Person
+- Ambient light
+- Ambient temperature
+- Skin moisture
+- Skin temperature
 
 What if one would vary the sensor construction also.
 Is it realistic to have an universal model?
@@ -173,8 +177,96 @@ Potential of on-device learning / calibration.
 Potential for integration into single board with I2C/interrupt
 Running on some small microcontroller. AtTiny etc
 
+### LED as light detector
 
-PlatformIO Core
+Principles
+
+- Measure photovoltage. High impedance.
+- Measure photodiode current
+- Measure voltage drop after applying reverse voltage 
+
+#### Robotroom: Reversed LED photodiode
+https://www.robotroom.com/ReversedLED2.html
+Schematic based on an opamp. 3x 10megaohm as feedback resistor
+LEDs are connected in reverse to input.
+Says to use ultrabright LEDs with clear lenses for highest current.
+Old LEDs tinted/diffuse lenses won’t provide enough current to work at all.
+Suggests using multiple LEDs to increase current flow.
+
+https://www.robotroom.com/ReversedLED3.html
+has results.
+Just the LED was 1.5 to 2.5 volts range with increasing amount of light
+Only shows digital output from amplifier circuit.
+
+#### EEEWeb: Using LED As A Light Sensor
+https://www.eeweb.com/using-led-as-a-light-sensor/
+
+Uses LED in forward?
+Uses JFET omamp to amplify. TL071
+
+#### Analog electronics lab: LED as light sensor - ADALM2000
+https://wiki.analog.com/university/courses/electronics/electronics-lab-led-sensor
+
+Using a LED in reverse, combined with a standard NPN transitor (2N3904).
+Seems to show voltages of 4.5V with low light, to 120 mV with full light.
+Pretty good range?
+
+
+Also suggests using a darlington pair intead.
+
+
+## Sparkfun: T³: Using LEDs as Light Sensors
+
+Uses a LED connected in reverse directly to Arduino pins.
+Measures the discharge time after applying a voltage
+If more light falls on the LED, it will discharge very quickly. In darkness, it will discharge very slowly.
+
+Notes that input LEDs need to be fairly close to the microcontroller's pins to work.
+Originally tried wiring the sense LED to a breadboard from the Arduino,
+but the inductance and capacitance from the wires and breadboard threw the readings way off.
+
+IDEA: add another input to compensate?
+A wire following the same path, but no LED.
+Sampled in the same way as LED. Use the difference as basis for the value?
+
+IDEA: use multiple LEDs to increase sensitivity?
+
+## 2003 paper on using LED capacitive discharge
+
+Paper: Very Low-Cost Sensing and Communication Using Bidirectional LEDs
+Paul Dietz, William Yerazunis, Darren Leigh
+2003.
+MITSUBISHI ELECTRIC RESEARCH LABORATORIES
+Demonstrated communication over a few centimeters range,
+with bitrate of 250 bits/second.
+https://www.merl.com/publications/docs/TR2003-35.pdf
+
+Shows voltage dropping 5 volts in 100 us when shining on with LED,
+and 1.2 volts drop with ambient room lights.
+Would require some 10-100khz sampling to do analog.
+
+### Arduino examples uinsg LED capacitive discharge
+
+https://github.com/ForrestErickson/LEDasSensor
+https://www.instructables.com/Bi-directional-LED-Sensing-Try-out/
+
+
+###
+https://www.electronicdesign.com/technologies/analog/article/21806128/matched-jfets-improve-photodiode-amplifier
+Using matched JFETs in front of opamp to boost performance.
+High end AC photodiode applications
+
+## Using capacitive touch libraries
+
+Could one use the popular Arduino libraries for capacitive touch sensing,
+to measure the LED photo-diode?
+Is conceptually the same thing
+
+https://github.com/MrYsLab/OnePinCapSense
+
+###  PlatformIO Core
+
+
 Supports many embedded devices. Including Arduino
 Can be pip installed!!
 Same tools needed for emlearn.
@@ -183,6 +275,10 @@ Has simavr target supported
 Can hook in custom build steps
 https://docs.platformio.org/en/latest/scripting/custom_targets.html
 https://docs.platformio.org/en/latest/scripting/index.html
+
+Could be natural place to integrate the emlearn Python scripts that generate C code
+
+
 
 
 ## Cyclic behavior
