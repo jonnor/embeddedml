@@ -251,7 +251,7 @@ https://github.com/ForrestErickson/LEDasSensor
 https://www.instructables.com/Bi-directional-LED-Sensing-Try-out/
 
 
-###
+### Matched JFET photodiode opamp 
 https://www.electronicdesign.com/technologies/analog/article/21806128/matched-jfets-improve-photodiode-amplifier
 Using matched JFETs in front of opamp to boost performance.
 High end AC photodiode applications
@@ -263,21 +263,6 @@ to measure the LED photo-diode?
 Is conceptually the same thing
 
 https://github.com/MrYsLab/OnePinCapSense
-
-###  PlatformIO Core
-
-
-Supports many embedded devices. Including Arduino
-Can be pip installed!!
-Same tools needed for emlearn.
-Has simavr target supported
-
-Can hook in custom build steps
-https://docs.platformio.org/en/latest/scripting/custom_targets.html
-https://docs.platformio.org/en/latest/scripting/index.html
-
-Could be natural place to integrate the emlearn Python scripts that generate C code
-
 
 
 
