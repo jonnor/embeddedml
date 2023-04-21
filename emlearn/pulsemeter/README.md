@@ -7,8 +7,6 @@ Can it be done with simple components found in an Arduino starter kit?
 Like a LED and LDR, or two LEDs? 
 
 
-
-
 ## Demo
 
 Could use detected beat events to trigger LEDs in sync with beat 
@@ -99,11 +97,34 @@ phonescreen,50
 LED direct,5
 ```
 
+## Shopping list
+
+5 mm clear LEDs, 30 deg angle
+
+https://www.digikey.no/no/products/filter/led-indikasjon-frittst%C3%A5ende-diskret/105?s=N4IgjCBcoGwJxVAYygMwIYBsDOBTANCAPZQDaIALGGABxwDsIAuoQA4AuUIAyuwE4BLAHYBzEAF9CAVikRoIFJAw4CxMuBpgK9CiEJgpMAMxGpzNp0g9%2BwsZI0UjiBWix5CJSORMAGOk5YQDi5eQVEJQgAmH0iEeUVldzUvEEjYuEiIKPTacyDLazC7QgBaSOdFfgBXVU9yM0IEJnsSs3jXFQ91cub7NtBWKDA2QchIqXsYZwEAEy4SsB8s-K49EABHdgBPLnG17dZcLnRsFHFxIA
+
+https://www.digikey.no/no/products/detail/creeled-inc/C503B-RCN-CW0Z0AA2/2341611
+https://www.digikey.no/no/products/detail/creeled-inc/C503B-GCS-CY0C0792/2341581
+https://www.digikey.no/no/products/detail/creeled-inc/C512A-WNN-CZ0B0152/2809666
+https://www.digikey.no/no/products/detail/creeled-inc/C503B-BCS-CV0Z0462/2341549
+https://www.digikey.no/no/products/detail/creeled-inc/C503B-ACS-CY0Z0252-030/2341527
+
+Senseboard, as reference
+https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-11574/5762397
+
+Tools
+https://www.digikey.no/no/products/detail/adafruit-industries-llc/4785/13617529
+https://www.digikey.no/no/products/detail/olimex-ltd/PROTO-SHIELD/3471397
+https://www.digikey.no/no/products/detail/bud-industries/BB-32650-W/10518730
+
+Color sensor. As reference
+https://www.digikey.no/no/products/detail/sparkfun-electronics/BOB-12009/5673795
+https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-12829/5673756
+
+
 # TODO
 
 - Switch to green LEDs
-- Switch to analog sensing
 - Make a holder for light+sensor
-- Get readout time down to 10ms.
 - Plot data. Verify can get 50 hz ambient. Verify can get pulse signal
 
