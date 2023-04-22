@@ -80,9 +80,26 @@ https://www.thingiverse.com/thing:5649384
 Uses a LED and a photo-diode
 Uses velcro strap around finger
 
+## Whys is green light used?
+
+### Red Light versus Green Light, The Future of Optical Sensing in Wearable Devices
+
+https://medium.com/bsxtechnologies/red-light-versus-green-light-74fdd5fe7027
+
+Green light is most common for Optical Heart Rate Monitors (OHRM).
+Uses process called photoplethysmography (PPG).
+Green light is well absorbed by body. Also by hemoglobin.
+Reduced ambient noise. 
+
+Red light PPG sensors (also called pulse oximeters) utilize light in near-infrared spectroscopy (NIRS).
+
+Claims that red light can measure more paramters, due to penetrating deeper in body.
+Markets devices that can sense different parameters, using red light.
+Such as lactate threshold and hydration/sweat. 
+
 # Worklog
 
-
+## 19.04.2023
 Arduino Playground LedSensor approach.
 Tested with `ledsensor.ino`
 
@@ -96,6 +113,38 @@ ambient,180
 phonescreen,50
 LED direct,5
 ```
+
+## 22.04.2023
+
+Tested with `lightsensorled.ino`.
+
+At 50 and 100 Hz, seeing very strong periodic patterns.
+Seem to be independent of finger being present.
+Not even able to distinguish shadows over the sensor.
+Values are quite small. Could be at the ADC noise floor? Or other noise in system?
+Maybe going down to 8 bit resolution could help?
+Maybe reading n=5 times for both ref and sample, then taking the median?
+
+At 25 Hz, able to distinguish different materials being in front of LED/sensor.
+Seemingly able to get a heartbeat like signal also?
+When doing median removal using 1 second windows, and Welch method PSD over 20 second period.
+Seeing peaks in frequency spectrum at 100/200/300 BPM,
+Should be indicative of 100 BPM signal.
+But SNR is very low, peaks just 3-5 dB over the rest of spectrum.
+
+# TODO
+
+- Switch to ultrabright green LEDs.
+Check that signal/noise ratio improves
+- Tweak holder. Make LEDs closer / point towards eachother
+- Clean up Python processing code.
+- Collect dataset with reference labels
+- Implement pre-processing in C
+
+MAYBE
+
+- Try to increase sample rate? Or maybe 25 Hz is good enough
+
 
 ## Shopping list
 
@@ -120,11 +169,4 @@ https://www.digikey.no/no/products/detail/bud-industries/BB-32650-W/10518730
 Color sensor. As reference
 https://www.digikey.no/no/products/detail/sparkfun-electronics/BOB-12009/5673795
 https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-12829/5673756
-
-
-# TODO
-
-- Switch to green LEDs
-- Make a holder for light+sensor
-- Plot data. Verify can get 50 hz ambient. Verify can get pulse signal
 
