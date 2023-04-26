@@ -6,12 +6,15 @@
 Decide reference hardware platform
 
 - Test ESP32 with MicroPython
-- Order M5StickC as HW platform
+- Order M5StickC
 - Evaluate/test M5StickC
 
 Make reference project
 
 - Decide project and scope
+- Implement device code
+- Implement training code
+- Test the models on simple dataset
 
 Make tutorial
 
@@ -19,6 +22,13 @@ Make tutorial
 - Run tutorial locally
 - Order kits for the reference hardware
 
+### MAYBE
+
+Switch from C to MicroPython
+
+- Support classifier as micropython module
+- Support preprocessing as micropython module
+- Reimplement device code in MicroPython
 
 ## Needs
 
@@ -32,7 +42,8 @@ Tested with real people.
 Do some trial runs? 2-3 times before hand
 - Hardware for running code on.
 Keep low by sharing in groups? 2-5 persons per group
-Potential income by allowing people to buy kit. Sell half of the kits, at 100% markup = pay for kits in 1 round 
+Potential income by allowing people to buy kit.
+Sell half of the kits, at 100% markup = pay for kits in 1 round.
 8 kits a 250 NOK = 2000 NOK.
 
 Wanted
@@ -46,7 +57,7 @@ Easier in terms of tooling? No need for cross-compiler / device SDK setup.
 ### Project
 
 Basic classification project? Then time-series?
-Or jump straight to time-series. Just tread non-time series as simplified case.
+Or jump straight to time-series. Just treat non-time series as simplified case.
 
 Accelerometer data is medium data-rate, easy to work with.
 Can do fun physical things with it.
