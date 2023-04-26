@@ -13,21 +13,23 @@ Machine and Deep Learning
 ## Abstract
 between 200 and 1500 characters.
 
-Being able to accurately and adequately sense physical phenomena is critical to many areas of science,
-TODO: add examples
-Over the last decades the cost and capabilities of microprocessors has improved a lot.
-This combined with low-cost wireless communication, has led to the widespread deployment of Wireless Sensor Networks.
-When combined with near-ubiquitious Internet access, this can be seen as part of the "Internet of Things".
-Now another wave of technological improvements is impacting sensor systems: Machine Learning.
+Being able to adequately sense physical phenomena is critical to many areas of science;
+from detecting particles in physics, to measuring pollution in public health, to monitoring bio-diversiry in ecology.
+Over the last decades the availability, capabilities and costs of sensor system has become much better,
+driven by improvements in microprocessors, MEMS sensor technology, and low-energy wireless communication.
+This has led to increased deployments of Wireless Sensor Networks, and "Internet of Things" (IoT) systems
+with a central "cloud" for data storage and processing.
 
-What can be achieved when on-edge Machine Learning inference and learning is performance directly on sensor nodes?
+Now another wave of technological improvements is impacting sensor systems: Machine Learning.
+This is frequently used in the cloud side of an IoT sensor system, to analyze the vast amount of collected data.
+Recently it has become more feasible to implement Machine Learning on-edge, on the sensor nodes themselves.
+Which possibilities arise when we can performing inference and learning inside the sensor nodes?
 And what are the consequences for practical science and engineering applications?
 
 In this talk we will present some of the challenges, recent progress, and development trends in using
-on-edge machine learning to improve sensor nodes and sensor networks.
-We will cover how Python is a key part of the worflow in researching, developing and deploying such improvements.
-This includes the Python library "emlearn",
-which can be used to deploy Machine Learning models to small microcontroller-based embedded devices.
+on-edge machine learning (sometimes called TinyML) to improve sensor nodes and sensor networks.
+We will describe how Python used to research, develop and deploy such improvements,
+including the the Python library "emlearn", which allows to deploy Machine Learning models to small microcontroller-based embedded devices.
 
 ## Description
 between 400 and 50000 characters.
@@ -42,7 +44,6 @@ What grew into the emlearn project was first presented at EuroScipy 2018,
 in the talk Machine Learning for microcontrollers with Python and C (Jon Nordby). 
 https://www.euroscipy.org/2018/descriptions/Machine%20Learning%20for%20microcontrollers%20with%20Python%20and%20C.html
 Since then the tool has been used in a range of projects and cited in dozens of scientific papers.
-
 
 
 ## Meta
@@ -107,6 +108,42 @@ Can do almost everything in Python. MicroPython viable for hobby devices
 - BUT. Make sure you need it.
 on-edge, low-power, low-cost, ML always more difficult than in-cloud, fixed power
 
+
+
+## Desc
+
+Sensor systems take measurements using a set of sensing elements,
+and use a combination of electro-mechanical systems, analog electronics, and digital processing
+to extract the information of interest.
+The more high-level the desired information, the more involved this processing chain needs to be.
+
+Sensor nodes are self-contained physical units
+that contain the sensig elements along with the neccesary electronics for power, signal conditioning and communication,
+along with some limited data processing capabilities.
+
+In a Wireless Sensor Network, the sensor nodes communicate wirelessly,
+and use battery or energy harvesting as a power source.
+--Not needing cables means a considerable lower installation costs,
+--and provides a large increase in the flexibility and ability to position sensors.
+However the amount of energy available is limited,
+and this puts considerable constraints of what is possible to achieve. 
+
+The majority of energy of the node is usually consumed by.
+A) sampling input data
+B) processing the input data and extracting relevant information
+C) transmitting the information over the wireless link
+
+In each of these areas there are potentials for Machine Learning to improve energy efficiency,
+and we will look at some examples of this.
+
+
+emlearn is a Python library for deploying Machine Learning models to
+the kind of microcontrollers and microprocessors found in sensor nodes.
+It enables converting models in Python with scikit-learn or Keras into computationally efficient C code for doing inference on the target device.
+It also supports doing on-device learning of simple models for
+It supports models for classification, regression and anomaly detection.
+
+The sensor nodes
 
 
 ### Outline
