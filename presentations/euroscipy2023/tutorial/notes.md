@@ -1,4 +1,37 @@
 
+
+# Outline
+
+90 minutes total. Blocks a 15 minutes.
+
+0: Introduction. 15 min
+
+- Learning goals for tutorial
+- Structure of the tutorial
+
+1: First setup, using stock model. 30 mins
+
+- Installing emlearn and other Python dependencies
+- Install device communication tools
+- Run training pipeline on existing data 
+- Upload initial firmware, already provided
+
+2: Collecting new data. 15 min
+
+- Define a few classes of behavior
+- Record data for each class
+- Check and clean the data
+
+3: Train and run custom model. 15 min
+
+- Re-run training pipeline with new data
+- Upload firmware with new model
+
+4: Own work. 30 minutes
+
+- Assist participants
+
+
 # Planning 
 
 ## TODO
