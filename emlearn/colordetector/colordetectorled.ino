@@ -56,10 +56,13 @@ LightSensorLed sensorG(A0, 2);
 LightSensorLed sensorR(A1, 3);
 LightSensorLed sensorB(A2, 4);
 
+const int buttonPin = 11;
+const int ledIndicatorPin = LED_BUILTIN;
 
 void setup()
 {
-  
+  pinMode(ledIndicatorPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP); 
   
 }
 
@@ -95,11 +98,23 @@ void loop()
   if (tick >= (lastRead + samplePeriodMs) ) {
     lastRead = tick;
 
+    // check button
+    // XXX: not ideal way to check button, is delayed by the (blocking) light measurement
+    // but it means we do not need separate rate limiting
+    const bool buttonPressed = digitalRead(buttonPin) == LOW;
+    digitalWrite(ledIndicatorPin, buttonPressed);
+
+    // log button state
+    Serial.print("button,");
+    Serial.print((long int)tick);
+    Serial.print(",");
+    Serial.println((int)buttonPressed);
+
     // sample
     int rgb[3] = {-1, -1, -1};
     measureLight(rgb, sampleTime);
 
-    // do something with data
+    // log sensor data
     Serial.print("val,");
     Serial.print((long int)tick);
     Serial.print(",");
@@ -110,6 +125,7 @@ void loop()
     Serial.println(rgb[2]);
 
 
+    // TODO: run detection model, and log output
   }
 
 }
