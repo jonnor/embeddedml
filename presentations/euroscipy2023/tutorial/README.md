@@ -53,7 +53,7 @@ It it is beneficial, but not neccesary, if you
 
 #### What to bring 
 Participants must bring their own laptop and have Python 3.8+ installed.
-If you need an adapter for USB Type-C, please bring it with you! 
+If you need an adapter for USB Type-A, please bring it with you! 
 
 The neccesary hardware kits will be provided for the tutorial.
 Participants will work in groups of 2-5 persons per kit.
