@@ -3,19 +3,22 @@
 
 First PoC
 
+- Clean up "ambient" labels
 - Train a classification model for cards
 - Deploy model to device, test it
 - Add logging of predictions
 
 Object detector demo
 
-- Print and use 3-led version
-- Get some fun colored object
-- Collect data and train model
+- Train model
 - Make a demo video
+
 
 ## Later
 
+- Switch to 3-led version
+
+### Custom PCB
 - Design a PCB and send to manufacturing
 Support both throughhole components and SMD
 5mm LEDs / SMD LEDs (1206 ?)
