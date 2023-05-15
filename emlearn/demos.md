@@ -117,6 +117,25 @@ Implement same protocol/format as some other common devices.
 
 Moved to [](./pulsemeter)
 
+## Liquid detector
+
+Existing project
+https://docs.edgeimpulse.com/experts/prototype-and-concept-projects/liquid-classification-tinyml
+Used turbidity and Total Dissolved Solids (TDS) sensors.
+Turbidity is done using LED+photodiode.
+This could be done with same tech as the LED color detector.
+TDS is usually done by measuring conductivity.
+Can be done by a fixed distance leads, and a voltage divider.
+https://www.circuitbasics.com/arduino-ohm-meter/
+Another approach would be a capacitor-discharge measurement with DC.
+Or using capacitive sensing with AC at fixed frequency.
+https://thecavepearlproject.org/2017/08/12/measuring-electrical-conductivity-with-an-arduino-part1-overview/
+has overview of expected conductivities of different liquids
+Suggests gold-plated pins or NiChrome wire as
+Note that conductivity may be temperature dependent, and should be compensated
+https://www.youtube.com/watch?v=vyQcmeR80XM
+shows simple voltage divider type
+
 ## Cyclic behavior
 
 Actuator that is driven. From state 1 to state 2, continious transition

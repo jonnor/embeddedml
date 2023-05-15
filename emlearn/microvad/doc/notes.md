@@ -207,6 +207,19 @@ Hang-over correction using first-order Markov process modeling.
 Ghosh, 2011
 Over 200 citations
 
+## Modern models
+
+End-to-end Domain-Adversarial Voice Activity Detection
+https://arxiv.org/abs/1910.10655
+2020
+
+Proposes a SincNet + LSTM based VAD.
+Claims to get better error rates than a MFCC approach. 
+
+Based on PyAnnote Audio
+
+Code available at
+https://github.com/hbredin/DomainAdversarialVoiceActivityDetection/
 
 ## Performance metrics
 

@@ -6,18 +6,21 @@ emlearn - run Machine Learning models on microcontrollers
 ## Abstract
 
 Advances in Machine Learning has made it possible to automatically extract valuable information from sensor data.
-While most associate Machine Learning with costly and compute-intensive systems,
-it is becoming feasible to deploy ML systems directly to very small embedded devices and sensors.
+While Machine Learning is often associated with costly, compute-intensive systems,
+it is becoming feasible to deploy ML systems to very small embedded devices and sensors.
 These devices typically use small, low-power, microcontrollers that cost as little as 1 USD.
 This niche is often referred to as "TinyML", and is enabling a range of new applications
 in scientific applications, industry and consumer electronics.
 
 emlearn is an open-source Python library that allows converting scikit-learn and Keras models to efficient C code.
-This makes it easy to use a Python-based workflow while deploying to any microcontroller with a C99 compiler. 
+This makes it easy to deploying to any microcontroller with a C99 compiler,
+while keeping Python-based workflow that is familiar to Machine Learning Engineers. 
 The library has been used in a wide range of applications, from detection of vechicles in acoustic sensor nodes,
 to hand gesture recognition based on sEMG data, to real-time malware detection in Android devices.
-In the poster session we will highlight some of the use-cases for emlearn,
-and the tools and features that the library provides to make development efficient and accessible.
+
+In this presentation we will give an introduction to the emlearn project.
+We will cover the models that are supported, the key features and tools that are provided,
+and demonstrate how this can be used to solve Machine Learning tasks: classification, regression and anomaly detection.
 
 ## Description
 

@@ -80,6 +80,17 @@ https://www.thingiverse.com/thing:5649384
 Uses a LED and a photo-diode
 Uses velcro strap around finger
 
+### Radar-based heartrate
+
+TinyML radar approach
+https://youtu.be/jONrpgmR4kw?t=1001
+Shows 2 BPM MAE rate even with dynamic persons and postures
+Sitting still, clenching hand to increase heartrate. Grows slowly
+
+Gesture detection. Using TCN on top of CNN.
+https://arxiv.org/abs/2006.16281
+https://tinyradar.ethz.ch/ dataset
+
 ## Whys is green light used?
 
 ### Red Light versus Green Light, The Future of Optical Sensing in Wearable Devices
