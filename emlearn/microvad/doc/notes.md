@@ -107,8 +107,53 @@ One [question](http://lists.xiph.org/pipermail/opus/2019-September/004386.html) 
 
 ### pyannote VAD
 
-On Huggingface
+Pretrained model on Huggingface
 https://huggingface.co/pyannote/voice-activity-detection
+Requires accepting user conditions and giving out usage information
+
+Tutorial for training a VAD model
+https://github.com/pyannote/pyannote-audio/blob/develop/tutorials/voice_activity_detection.ipynb
+
+Uses the AMI speech corpus
+
+### speechbrain VAD
+
+https://speechbrain.readthedocs.io/en/latest/API/speechbrain.pretrained.interfaces.html#speechbrain.pretrained.interfaces.VAD
+
+CRDNN is convolutional recurrent model with DNN backbone (and optionally projections)
+https://github.com/speechbrain/speechbrain/blob/develop/speechbrain/lobes/models/CRDNN.py
+
+pretrained model on HuggingFace, 
+https://huggingface.co/speechbrain/vad-crdnn-libriparty
+
+Training recipie
+https://github.com/speechbrain/speechbrain/tree/develop/recipes/LibriParty/VAD
+
+Trained on "LibriParty" dataset.
+https://github.com/speechbrain/speechbrain/tree/develop/recipes/LibriParty/generate_dataset
+
+Tutorial on using for Voice Activity Detection
+https://colab.research.google.com/drive/1Msk2cgSEw-jCuXHmz2_-iOrv-gJHCCxu?usp=sharing#scrollTo=S6JtQmHptzee
+Also covers post-processing tools.
+And combination with energy-based VAD, to get more fine-grained output.
+
+### JorisCos/VAD_Net
+
+VAD model trained using librimix recipe in Asteroid.
+It was trained on the enh_single task of the Libri1Mix dataset.
+https://huggingface.co/JorisCos/VAD_Net
+
+This work "VAD_Net" is a derivative of LibriSpeech ASR corpus by Vassil Panayotov, used under CC BY 4.0;
+of The DNS challenge noises, Attribution-ShareAlike 3.0 Unported.
+"VAD_Net" is licensed under Attribution-ShareAlike 3.0 Unported by Joris Cosentino
+
+
+LibriMix dataset
+https://github.com/asteroid-team/asteroid/blob/bd3caa3963cf2f8756da17801958073001aaa0f2/asteroid/data/librimix_dataset.py#L17
+
+https://github.com/asteroid-team/Libri_VAD
+https://github.com/asteroid-team/asteroid/blob/bd3caa3963cf2f8756da17801958073001aaa0f2/asteroid/data/vad_dataset.py
+
 
 ### MarbleNet
 
