@@ -181,3 +181,41 @@ Color sensor. As reference
 https://www.digikey.no/no/products/detail/sparkfun-electronics/BOB-12009/5673795
 https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-12829/5673756
 
+## Integration
+
+Goal.
+Put the Tiny in TinyML.
+Super minimal. Part count. Size. Complexity. Costs.
+Be smaller than a finger.
+
+How to show output?
+APA102 2020 LED array?
+Needs 2 pins.
+For 10 BPM resoluton with linear scale need 17 LEDs. 60mm if single row.
+Let the LEDs be separate? Since they are so "big"
+But the heartbeat-detection is maybe just as cool? Only needs 1 LED! Put that on-board, and have rest via connector
+
+Input needs 2 pins.
+
+Attiny SOT23-6. 1kB FLASH / 32 bytes RAM
+PIC SOT23-6. 900bytes FLASH / 64 bytes RAM
+
+ATtiny3216/ATtiny1616. 32 KB Flash / 2 kB RAM.
+VQFN-20. 0.4mm pitch. 3.0mm outer. Basically same size as SOT23-6 incl solderpads
+ATtiny416 pin compatible. 4kB FLASH / 256 bytes RAM.
+
+Pinouts. Use castellated holes on PCB edges.
+Make breadboard-compatible. 2.54mm pitch
+2x4 pins long approx 10 mm
+PDIP-8 is 300 mil wide, 7.32 mm. Would be funny to have it fit, like classic AtTiny85
+
+Power with a button-cell battery. LIR1025 or similar
+
+Q: can this be combined with jewellery project?
+Could be fun to make ear-lobe clip-on
+
+APA102 2020 strip
+Exists as 5 mm with 4 connectors. Several places
+Also as 3 mm somewhere?
+https://www.aliexpress.com/item/1005003487051333.html
+
