@@ -186,22 +186,21 @@ https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-12829/5673756
 Goal.
 Put the Tiny in TinyML.
 Super minimal. Part count. Size. Complexity. Costs.
-Be smaller than a finger.
+Be smaller than a finger. Ideally fits in d=16mm. But at least in d=20mm
 
 How to show output?
 APA102 2020 LED array?
-Needs 2 pins.
+Needs 2 GPIO pins. SPI is advantage, but can be bit-banged
 For 10 BPM resoluton with linear scale need 17 LEDs. 60mm if single row.
 Let the LEDs be separate? Since they are so "big"
-But the heartbeat-detection is maybe just as cool? Only needs 1 LED! Put that on-board, and have rest via connector
+But the heartbeat-detection is maybe just as cool? Only needs 1 LED!
+Put that on-board, and have rest via connector
+Can also use timing and color to indicate BPM. Number of blinks = digit value
 
 Input needs 2 pins.
 
-Attiny SOT23-6. 1kB FLASH / 32 bytes RAM
-PIC SOT23-6. 900bytes FLASH / 64 bytes RAM
-
-ATtiny3216/ATtiny1616. 32 KB Flash / 2 kB RAM.
-VQFN-20. 0.4mm pitch. 3.0mm outer. Basically same size as SOT23-6 incl solderpads
+ATtiny1616. 32 KB Flash / 2 kB RAM.
+VQFN-20. 0.4mm pitch. 3.0mm outer. Basically same size as SOT23-6 incl solderpads, but many more pins
 ATtiny416 pin compatible. 4kB FLASH / 256 bytes RAM.
 
 Pinouts. Use castellated holes on PCB edges.
@@ -209,13 +208,27 @@ Make breadboard-compatible. 2.54mm pitch
 2x4 pins long approx 10 mm
 PDIP-8 is 300 mil wide, 7.32 mm. Would be funny to have it fit, like classic AtTiny85
 
-Power with a button-cell battery. LIR1025 or similar
+Power with a button-cell battery.
+LIR1620 or similar
+
+Also include accelerometer
+And capacitive touch capability
 
 Q: can this be combined with jewellery project?
-Could be fun to make ear-lobe clip-on
+Could be fun to make ear-lobe clip-on, which reacts to heartbeat
 
 APA102 2020 strip
 Exists as 5 mm with 4 connectors. Several places
 Also as 3 mm somewhere?
 https://www.aliexpress.com/item/1005003487051333.html
+The types with cuttable connectors however seem to have low density?
+
+Stackup
+
+- LIR 1620 battery, 2mm
+- PCB. 0.8 mm?
+- Components. 2mm?
+- Optional top PCB for touch. 0.8mm
+
+Seems tricky to get battery charger also included
 

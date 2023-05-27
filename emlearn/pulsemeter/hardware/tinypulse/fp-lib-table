@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "TinyPulse")(type "KiCad")(uri "${KIPRJMOD}/TinyPulse.pretty")(options "")(descr ""))
+)
