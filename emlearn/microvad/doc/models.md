@@ -303,6 +303,56 @@ It reuses short-term FFT analysis (STFT) from ASR frontend with additional 2 KB 
 
 Nuance SREC VAD. Latency 70 ms and analyses energy envelope statistics.
 
+### Ultra low power approaches
+
+
+#### Ultra-Low-Power Voice Activity Detection System Using Level-Crossing Sampling
+https://www.mdpi.com/2079-9292/12/4/795
+2023
+
+The proposed system achieves an average of 91.02% speech hit rate and 82.64% non-speech hit rate,
+over 12 noise types at −5, 0, 5, and 10 dB signal-to-noise ratios (SNR) over the TIMIT database.
+The proposed system including LC-ADC, feature extraction, and classification circuits was designed in 0.18 µm CMOS technology.
+Post-layout simulation results show a power consumption of 394.6 nW with a silicon area of 0.044 mm2,
+
+! good review of existing work on low-power VAD for always-listening usecases
+? can this LC-ADC be implemented with ADCs found in current microcontrollers ?
+Purely in software. Would process PCM samples, and apply the sampling methodology.
+Assisted by ADC hardware. Would require multiple threshold levels. Or very fast changes to threshold levels.
+
+
+A level-crossing sampling scheme,
+samples are taken from the signal only when significant changes in the amplitude of the signal occur.
+Therefore, the samples are taken only from the active part of the signal.
+In level-crossing sampling, no anti-aliasing filter is needed because no sample-and-hold circuit
+is required in most of the LCADC structures.
+
+In every 10 ms time window (frame), the counter counts the number of LC-ADC output samples (NToken).
+Then, NToken is sent to a shift register, and the counter is reset.
+The values stored in the shift register (the count value of four successive windows) are added together,
+and the resulting value is sent to the next block as a feature.
+This process makes 40 ms moving windows with a 30 ms overlap
+Tried window durations of 20 to 60 ms, found 40 ms to be the best.
+
+Uses an adaptive thresholding process. Not a statistical model.
+Computes a running min/max, and a threshold THR derived from these.
+
+If the SNR is less than −5 dB,
+this algorithm will not perform well in distinguishing between speech and non-speech.
+
+Database signals, for instance, can have an amplitude that ranges from one-fifth of the full-scale range to a value that is close to the full-scale range. The average amplitude variation of the whole TIMIT database is actually only one-third of the full-scale range. Since the LC-ADC specifications (M and K) are assumed to be fixed and tuned for the best performance over the entire database, the low amplitude means the ADC takes fewer samples. Figure 13 illustrates an example of such a case. The figure shows that the speech part is not fully identified because of the samples’ deficiency due to a low-amplitude signal. Better results can be achieved by adjusting the amplitude of the input signals with an automatic gain control before applying them to the ADC or by applying small values of K for low-amplitude input signals as future improvements.
+
+
+### AN ULTRA-LOW-POWER VAD HARDWARE IMPLEMENTATION FOR INTELLIGENT UBIQUITOUS SENSOR NETWORKS
+
+2009
+
+Uses a modified Zero-Crossing-Rate with a single adaptive threshold.
+
+? should be implementable using standard ADC
+
+Does not do a quantitative analysis of the performance. 
+
 ### gkonovalov/android-vad
 https://github.com/gkonovalov/android-vad
 
