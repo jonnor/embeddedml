@@ -268,6 +268,34 @@ With a large hop and/or dilation to reduce number of computations.
 Could this be faster than doing STFT/mel?
 
 
+#### Feature learning with raw-waveform CLDNNs for voice activity detection
+https://isca-speech.org/archive_v0/Interspeech_2016/pdfs/0268.PDF
+2016
+100+ citations.
+
+Compares architectures: DNNs, LSTMs, CLDNNs and raw waveform CLDNNs.
+For each, select model configurations of size ∼30k, ∼100k, and ∼200k parameters.
+
+MLP. 40d log-mel, context of 5 past frames and 5 future frames.
+10 ms, with 5 future frames gives 50ms delay.
+
+We show that using the raw waveform allows the neural network to learn features directly
+for the task at hand, which is more powerful than using log-mel features,
+especially for noisy environments.
+
+FR=2%, FA=5% with 30k raw waveform CLDNN.
+Better than other architectures using 3x and 6x number of features
+
+CLDNN = Convolutional, Long Short-Term Memory, Fully Connected Deep Neural Networks
+Introduced in paper at ICASSP, 2015
+1000+ citations.
+Each frame xt is a 40-dimensional log-mel feature.
+Use non-overlapping max pooling, only in frequency.
+
+
+Was tested in "A comprehensive empirical review of modern voice activity detection
+approaches for movies and TV shows" (2022) and performed very favorably.
+
 
 ### Microcontroller device models
 

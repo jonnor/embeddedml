@@ -68,3 +68,8 @@ To do own feature extaction
 http://www.openslr.org/17/
 https://arxiv.org/abs/1510.08484
 
+Said to be suitable for training Voice Activity Detection and Speech/Music classification systems.
+However does not define a test set or evaluation.
+Original paper did evaluation on a different dataset.
+
+

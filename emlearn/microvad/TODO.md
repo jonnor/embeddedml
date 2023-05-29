@@ -9,15 +9,39 @@ Primarily Cortex M4F/ESP32 class. HW FPU
 Stretch: Cortex M0. No FPU
 Ultra-stretch: AVR8
 - Higher performance and lower computational costs than WebRTC VAD
-- Demo on device. Battery power
-- Demo in browser.
+- Trigger latency. <100 ms.
+- Demo on device. Portable / battery powered
+- Demo in browser. Visualize input audio and detections
 
 ## TODO
 
-- Setup WebRTC VAD / libfvad as reference
+First model results
+
+- Setup evaluation pipeline. LibriParty dataset from SileroVAD
+- Implement an initial method
+- Run quality comparisons with libfvad and SileroVAD
+- Try running SileroVAD in C++
+
+C model deployment
+
 - Finish EmlSignalWindower
-- Test emlearn in browser
+- Implement the feature extraction methods
 - Finish proba support for eml_trees
+
+Demos
+
+- Test emlearn in browser
+
+## DONE
+
+
+### Testing some references
+Run Silero VAD. In Python on 16 second clip
+prediction time 476.6662120819092 ms
+
+Run fvaf/WebRTCVAD. In C on 16 second clip
+processing took 50.015 ms
+
 
 ## Overall
 
