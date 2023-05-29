@@ -1,4 +1,17 @@
 
+## Motivation
+- Improving emlearn library through a real-world usecase
+
+## Goals
+
+- Run efficiently on on small microcontrollers.
+Primarily Cortex M4F/ESP32 class. HW FPU
+Stretch: Cortex M0. No FPU
+Ultra-stretch: AVR8
+- Higher performance and lower computational costs than WebRTC VAD
+- Demo on device. Battery power
+- Demo in browser.
+
 ## Overall
 
 - Small dataset
@@ -30,6 +43,7 @@ Compare with WebRTCVAD
 ### Baselines
 
 WebRTC VAD. Available
+https://github.com/dpirch/libfvad/tree/master
 
 Silero VAD. PyTorch, JIT/ONNX compiled. Model code not available
 https://github.com/snakers4/silero-vad 
