@@ -29,8 +29,12 @@
 #include <signal_processing/resample_by_2_internal.c>
 #include <signal_processing/resample_48khz.c>
 
+/* Benchmarking utilities */
+#include <eml_benchmark.h>
+
+
 static bool process_sf(SNDFILE *infile, Fvad *vad,
-    size_t framelen, SNDFILE *outfiles[2], FILE *listfile)
+    size_t framelen, SNDFILE *outfiles[2], FILE *listfile, int samplerate)
 {
     bool success = false;
     double *buf0 = NULL;
@@ -46,6 +50,14 @@ static bool process_sf(SNDFILE *infile, Fvad *vad,
         goto end;
     }
 
+    const int64_t time_start = eml_benchmark_micros();
+    int64_t samples_processed = 0;
+
+    // Output a CSV header
+    if (listfile) {
+        fprintf(listfile, "time,vad\n");
+    }
+
     while (sf_read_double(infile, buf0, framelen) == (sf_count_t)framelen) {
 
         // Convert the read samples to int16
@@ -58,10 +70,12 @@ static bool process_sf(SNDFILE *infile, Fvad *vad,
             goto end;
         }
 
-        // FIXME: also output a CSV header
-        // FIXME: also output the timestamp
+        samples_processed += framelen;
+
+        // Output timestamp and result for this frame
         if (listfile) {
-            fprintf(listfile, "%d\n", vadres);
+            const float time = samples_processed/(float)samplerate;
+            fprintf(listfile, "%.4f,%d\n", time, vadres);
         }
 
         vadres = !!vadres; // make sure it is 0 or 1
@@ -75,6 +89,8 @@ static bool process_sf(SNDFILE *infile, Fvad *vad,
         prev = vadres;
     }
 
+    int64_t time_end = eml_benchmark_micros();
+
     printf("voice detected in %ld of %ld frames (%.2f%%)\n",
         frames[1], frames[0] + frames[1],
         frames[0] + frames[1] ?
@@ -83,6 +99,13 @@ static bool process_sf(SNDFILE *infile, Fvad *vad,
         segments[1], segments[1] ? (double)frames[1] / segments[1] : 0.0);
     printf("%ld non-voice segments, average length %.2f frames\n",
         segments[0], segments[0] ? (double)frames[0] / segments[0] : 0.0);
+
+    const float file_duration = samples_processed / (float)samplerate;
+    const float processing_time_ms = (time_end - time_start)/1000.0;
+    printf("file length %.3f s\n", file_duration);
+    printf("processing took %.3f ms\n", processing_time_ms);
+    printf("real-time-factor %.3f x\n", file_duration / (processing_time_ms/1000) );
+
 
     success = true;
 
@@ -235,7 +258,7 @@ int main(int argc, char *argv[])
      * run main loop
      */
     if (!process_sf(in_sf, vad,
-            (size_t)in_info.samplerate / 1000 * frame_ms, out_sf, list_file))
+            (size_t)in_info.samplerate / 1000 * frame_ms, out_sf, list_file, in_info.samplerate))
         goto fail;
 
     /*
