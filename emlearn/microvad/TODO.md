@@ -17,10 +17,11 @@ Ultra-stretch: AVR8
 
 First model results
 
-- Setup evaluation pipeline. LibriParty dataset from SileroVAD
 - Implement an initial method
-- Run quality comparisons with libfvad and SileroVAD
-- Try running SileroVAD in C++
+- Implement evaluation into PicoVoice voice-activity-benchmark
+- Run quality comparisons with libfvad and SileroVAD/CobraPicoVoice
+- Try running SileroVAD in C++ instead of Python
+- Try running PicoVoice in C/C++
 
 C model deployment
 
@@ -28,12 +29,37 @@ C model deployment
 - Implement the feature extraction methods
 - Finish proba support for eml_trees
 
+Testing dataset
+
+- Record some audio representative for the usecase
+A wearable device.
+Annotate with wearer-speech|other-speech|nospeech
+TTGO T-WATCH V3 microphone to SD card?
+https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/examples/BasicUnit/TwatcV3Special/Microphone/Microphone.ino
+
 Demos
 
 - Test emlearn in browser
 
 ## DONE
 
+### Testing PicoVoice benchmark
+
+```
+python benchmark.py --librispeech_dataset_path /data/emlearn/microvad/data/LibriSpeech/test-clean/ --demand_dataset_path /data/emlearn/microvad/data/demand/ --engine WebRTC
+
+export COBRA_ACCESS_KEY=
+
+python benchmark.py --librispeech_dataset_path /data/emlearn/microvad/data/LibriSpeech/test-clean/ --demand_dataset_path /data/emlearn/microvad/data/demand/ --engine Cobra --access_key ${COBRA_ACCESS_KEY}
+```
+
+Seems to work OK.
+Takes some 3 minutes to load the data.
+WebRTC runs in approx 1 minute. 4 different levels.
+Cobra takes approx 20 minutes. 200 levels.
+
+To support a custom method, would need to add to engine.py
+Does a sweep over different thresholds
 
 ### Testing some references
 Run Silero VAD. In Python on 16 second clip
@@ -42,6 +68,11 @@ prediction time 476.6662120819092 ms
 Run fvaf/WebRTCVAD. In C on 16 second clip
 processing took 50.015 ms
 
+Run PicoVoice Cobra. In Python on 16 second clip
+Processing time 67.93 ms
+Processing time 30.0 ms
+! very fast
+But seems to give very low probabilities
 
 ## Overall
 
