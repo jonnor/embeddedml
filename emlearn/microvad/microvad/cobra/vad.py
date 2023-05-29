@@ -5,21 +5,63 @@
 
 import time
 import argparse
+import os
 
 import soundfile
 import pvcobra
+import pandas
 
 
 def read_file(file_name, sample_rate):
 
     audio, sr = soundfile.read(file_name, dtype='int16')
-    assert sr == sample_rate
-    
+    assert sr == sample_rate   
     return audio
 
+def predict_file(file_path, access_key=None, library_path=None, **kwargs):
 
-def main():
-    parser = argparse.ArgumentParser()
+    if access_key is None:
+        access_key = os.envion['COBRA_ACCESS_KEY']
+
+    cobra = pvcobra.create(library_path=library_path, access_key=access_key)
+
+    audio = read_file(file_path, cobra.sample_rate)
+
+    df = predict_audio(cobra, audio, **kwargs)
+
+    cobra.delete()
+    return df
+
+def predict_audio(cobra, audio, threshold=0.5):
+
+    start_time = time.time()
+
+    times = []
+    predictions = []
+    num_frames = len(audio) // cobra.frame_length
+    for i in range(num_frames):
+        frame = audio[i * cobra.frame_length:(i + 1) * cobra.frame_length]
+        result = cobra.process(frame)
+        t = float(i * cobra.frame_length) / float(cobra.sample_rate)
+        if result >= threshold:
+            print("Detected voice activity at %0.1f sec" % t)
+        times.append(t)
+        predictions.append(result)
+
+    end_time = time.time()
+
+    df = pandas.DataFrame({
+        'time': times,
+        'probability': predictions,
+    }).set_index('time')
+
+    processing_time_ms = (end_time - start_time) * 1000.0
+    print(f'Processing time {processing_time_ms} ms')
+
+    return df
+
+def parse():
+    parser = argparse.ArgumentParser(description="Run PicoVoice Cobra VAD")
 
     parser.add_argument('input', help='Absolute path to input audio file.')
 
@@ -33,28 +75,22 @@ def main():
                         type=float,
                         default=0.8)
 
+    parser.add_argument('--out', help="Output file",
+                        type=str,
+                        default=None)
+
     args = parser.parse_args()
+    return args
 
-    cobra = pvcobra.create(library_path=args.library_path, access_key=args.access_key)
-    print("Cobra version: %s" % cobra.version)
-    audio = read_file(args.input, cobra.sample_rate)
+def main():
+    args = parse()
 
-    start_time = time.time()
+    predictions = predict_file(args.input,
+        threshold=args.threshold,
+        access_key=args.access_key,
+        library_path=args.library_path)
 
-    num_frames = len(audio) // cobra.frame_length
-    for i in range(num_frames):
-        frame = audio[i * cobra.frame_length:(i + 1) * cobra.frame_length]
-        result = cobra.process(frame)
-        if result >= args.threshold:
-            print("Detected voice activity at %0.1f sec" % (float(i * cobra.frame_length) / float(cobra.sample_rate)))
-
-    end_time = time.time()
-
-    processing_time_ms = (end_time - start_time) * 1000.0
-    print(f'Processing time {processing_time_ms} ms')
-
-    cobra.delete()
-
+    predictions.to_csv(args.out)
 
 if __name__ == '__main__':
     main()
