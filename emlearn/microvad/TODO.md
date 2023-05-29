@@ -12,6 +12,13 @@ Ultra-stretch: AVR8
 - Demo on device. Battery power
 - Demo in browser.
 
+## TODO
+
+- Setup WebRTC VAD / libfvad as reference
+- Finish EmlSignalWindower
+- Test emlearn in browser
+- Finish proba support for eml_trees
+
 ## Overall
 
 - Small dataset
