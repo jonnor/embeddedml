@@ -20,8 +20,12 @@ First model results
 - Implement an initial method
 - Implement evaluation into PicoVoice voice-activity-benchmark
 - Run quality comparisons with libfvad and SileroVAD/CobraPicoVoice
-- Try running SileroVAD in C++ instead of Python
-- Try running PicoVoice in C/C++
+
+Computational comparison
+
+- Setup automatic compute time for all methods
+- Running SileroVAD in C++ instead of Python
+- Running PicoVoice in C/C++
 
 C model deployment
 
