@@ -47,7 +47,33 @@ Does online updating of the GMM, with different update coefficients for the GMM 
 such that noise would increase slowly, but decrease quickly.
 With the assumption that the sound is mostly noise, and occationally speech segments.
 
+Implementation:
+https://github.com/dpirch/libfvad/blob/master/src/vad/vad_filterbank.c
+
+The 6 frequency sub-bands are computed using splitting filters,
+operating at progressively smaller sample rate.
+
+- Energy in 3000 Hz - 4000 Hz.
+- Energy in 2000 Hz - 3000 Hz.
+- Energy in 1000 Hz - 2000 Hz.
+- Energy in 500 Hz - 1000 Hz.
+- Energy in 250 Hz - 500 Hz.
+- Energy in 80 Hz - 250 Hz.
+
+This is a type of multi-rate filterbank.
+https://www.dsprelated.com/freebooks/sasp/Multirate_Filter_Banks.html
+https://ccrma.stanford.edu/~jos/sasp/Multirate_Filter_Banks.html
+
+? is it a analysis filterbank / transmultiplexer / transmux / polyphase filterbank ?
+
+Input is resampled to 8 kHz before entering the feature pre-processing.
+There are 2 gaussians (speech and noise), for each of the 6 bands, for 12 in total.
+
 Uses 30 ms samples.
+
+Uses int16 all the way for audio samples.
+Uses fixed-point integer math everywhere.
+LogOfEnergy has some tricks to compute decibel in fixed-point without using a logarithm.
 
 Works well at speech vs silence.
 But does poorly with music or other noise, will often get flagged as speech.
@@ -303,7 +329,7 @@ approaches for movies and TV shows" (2022) and performed very favorably.
 Used a 3 layer RNN on log mel spectrogram with 40 bands, and using 32 ms windows.
 Trained and evaluated on a dataset made by combining VCTK with Noisex-92.
 Large improvements against WebRTC VAD under noisy conditions.
-
+Model had total of 3200 parameters.
 
 [Voice Activity Detector (VAD) Based on Long-Term Mel Frequency Band Features](https://link.springer.com/chapter/10.1007/978-3-319-45510-5_40).
 VAD using long-term 200 ms Mel frequency band statistics, auditory masking, and a pre-trained two level decision tree ensemble based classifier.
@@ -436,6 +462,11 @@ Model and training code available at
 https://github.com/daniel03c1/NAS_VAD
 
 Used the AVA [36] and ACAM datasets [6] as test datasets.
+
+### LIMITING NUMERICAL PRECISION OF NEURAL NETWORKS TO ACHIEVE REALTIME VOICE ACTIVITY DETECTION
+2018.
+Microsoft
+https://pdfs.semanticscholar.org/4571/f02524c41916236a8a6e658edad6788874df.pdf
 
 
 ## Non-open

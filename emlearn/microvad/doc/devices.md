@@ -6,6 +6,8 @@
 PDM support limited to particular frequencies.
 Limits possible microphone choices a lot.
 
+https://github.com/zephyrproject-rtos/zephyr/tree/main/samples/subsys/usb/audio/headphones_microphone
+
 ## Nordic NRF53
 
 PCM/I2S and ADC all suitable for audio-rate input.

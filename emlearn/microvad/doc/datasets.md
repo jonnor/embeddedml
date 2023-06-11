@@ -60,8 +60,21 @@ Questions
 - Can audio be retrieved from the Youtube video?
 To do own feature extaction
 
+### Microsoft Scalable Noisy Speech Dataset (MS-SNSD)
+
+https://github.com/microsoft/MS-SNSD
+The main application of this dataset is to train Deep Neural Network (DNN) models to suppress background noise.
+Not clear if it has sufficient precision of labels to be used for Voice Activity Detection.
+
+- collection of clean speech files and variety of environmental noise files
+- .wav format sampled at 16 kHz.
+- provide the recipe to mix clean speech and noise
+at various signal to noise ratio (SNR) conditions
+to generate large noisy speech dataset.
+
 
 ## Background noise data
+
 
 ### MUSAN: A Music, Speech, and Noise Corpus
 

@@ -6,8 +6,8 @@ A microscopic Voice Activity Detection for microcontrollers.
 ## Voice Activity Detection
 
 Voice Activity Detection (VAD) is the task of detecting the presence of human voice.
-Speech Activity Detection.
-Closely related tasks are Speech Segmentation.
+It is also known as Speech Activity Detection,
+and a closely related task is Speech Segmentation.
 
 A Voice Activity Detection is often a component of a larger speech processing systems
 that do for example Automatic Speech Recognition (ASR) / Speech to Text (STT),
@@ -59,11 +59,15 @@ If any of the following are true, you probably should consider using something e
 - Want to track singing voice / vocals in music
 
 For these cases there are other alternatives, which might serve you better.
-Notable open-source altenatives models include [SpeechBrain VAD](https://huggingface.co/speechbrain/vad-crdnn-libriparty) and [Silero VAD](https://github.com/snakers4/silero-vad).
+Notable open-source altenatives models include
+[SpeechBrain VAD](https://huggingface.co/speechbrain/vad-crdnn-libriparty)
+and [Silero VAD](https://github.com/snakers4/silero-vad).
 
-If latency or compute power is not a major contraint, it is also an option to use a
-Automatic Speech Recognition software to do Voice Activity Detection / Speech Detection / Speech Segmentation.
-There are many open-source alternatives for this. One example would be to [use VOSK](https://github.com/jonnor/machinehearing/tree/master/handson/speech-segmentation-words).
+If latency or compute power is not a major contraint,
+it is also an option to use a *Automatic Speech Recognition* (*Speech to Text*) software to do
+Voice Activity Detection / *Speech Detection* / *Speech Segmentation*.
+There are many open-source alternatives for this.
+One example would be to [use VOSK](https://github.com/jonnor/machinehearing/tree/master/handson/speech-segmentation-words).
 
 ## License
 microvad is licensed under the MIT license

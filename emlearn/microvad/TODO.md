@@ -4,12 +4,6 @@
 
 ## Goals
 
-- Run efficiently on on small microcontrollers.
-Primarily Cortex M4F/ESP32 class. HW FPU
-Stretch: Cortex M0. No FPU
-Ultra-stretch: AVR8
-- Higher performance and lower computational costs than WebRTC VAD
-- Trigger latency. <100 ms.
 - Demo on device. Portable / battery powered
 - Demo in browser. Visualize input audio and detections
 
@@ -17,12 +11,15 @@ Ultra-stretch: AVR8
 
 First model results
 
-- Implement an initial method
+- Implement an baseline method. RNN on mel-spectrogram ?
+Try search for lower feature resolutions.
 - Implement evaluation into PicoVoice voice-activity-benchmark
 - Run quality comparisons with libfvad and SileroVAD/CobraPicoVoice
 
 Computational comparison
 
+- Try to compile and run libfvad on microcontroller
+- Compare libfvad compute time to emlearn STFT/mel-filterbank
 - Setup automatic compute time for all methods
 - Running SileroVAD in C++ instead of Python
 - Running PicoVoice in C/C++
@@ -41,11 +38,24 @@ Annotate with wearer-speech|other-speech|nospeech
 TTGO T-WATCH V3 microphone to SD card?
 https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/examples/BasicUnit/TwatcV3Special/Microphone/Microphone.ino
 
-Demos
+Device demo
 
-- Test emlearn in browser
+- Select a demo board and SW platform.
+NRF52/Thingy52 with Zephyr OS?
+- Get microphone input working on board
+
+Browser demo
+
+- Setup microphone input in browser.
+- Setup Emscripten build for C code
+
 
 ## DONE
+
+### Test emlearn in browser
+
+Works quite nicely.
+Documented at https://emlearn.readthedocs.io/en/latest/getting_started_browser.html
 
 ### Testing PicoVoice benchmark
 
@@ -197,4 +207,4 @@ Alternative: ESP32 with Espressif IDF
 
 Could have PortAudio support also for portability / support Embedded Linux
 
-Python API as a backup/test
+Python API as a backup/testH
