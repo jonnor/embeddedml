@@ -221,6 +221,17 @@ Supports 4 different classifier models
 Where one can post-process according to application.
 
 
+### VADLite
+
+VADLite: An Open-Source Lightweight System for Real-Time Voice Activity Detection on Smartwatches
+https://www.researchgate.net/publication/335765728_VADLite_an_open-source_lightweight_system_for_real-time_voice_activity_detection_on_smartwatches
+
+Extracts MFCC as features and classifies speech versus non-speech audio samples using a linear Support Vector Machine (SVM).
+2-stage system consisting of a no-silence detector as the first part, and a voice activity detector as second.
+
+Code: https://bitbucket.org/Jojo29/vadlite/src/master/
+Implemented in Java for the WearOS platform.
+
 
 ## Classic models
 
