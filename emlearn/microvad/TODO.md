@@ -52,6 +52,14 @@ Browser demo
 
 ## DONE
 
+### Test libfvad/WebRTC VAD on microcontroller
+
+Tested on ESP32-based TTGO T-Watch 2020 V3 microphone.
+At 48 kHz with 10 ms, processing 1 frame takes 0.60 ms. 15x real-time.
+Very fast processing. Expect to be even better at 16 or 8 kHz.
+However practically any sound event is treated as voice.
+Including handling noise, keyboard typing, knocks et.c
+
 ### Test emlearn in browser
 
 Works quite nicely.
