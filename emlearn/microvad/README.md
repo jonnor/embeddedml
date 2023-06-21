@@ -45,7 +45,7 @@ Some example applications could be
 
 - Low-power frontend for a Speech Recognition systems.
 - Battery-powered wearable devices that react on speech presence
-- Avoiding picking up human voice in Wireless Sensor Networks 
+- Avoiding picking up human voice in Wireless Sensor Networks
 
 ### When NOT to use it
 

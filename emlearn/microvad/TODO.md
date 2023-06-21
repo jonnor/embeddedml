@@ -18,11 +18,21 @@ Try search for lower feature resolutions.
 
 Computational comparison
 
-- Try to compile and run libfvad on microcontroller
-- Compare libfvad compute time to emlearn STFT/mel-filterbank
+- Compare libfvad compute time to emlearn/esp-dsp STFT/mel-filterbank
 - Setup automatic compute time for all methods
 - Running SileroVAD in C++ instead of Python
 - Running PicoVoice in C/C++
+
+Testing dataset v1
+
+- Get audio recording to SD card working
+- Try get 16kHz PDM working
+- Setup periodic sampling.
+Estimated dutycycle should be under 10% for 24 hours
+5 seconds ON, 55 seconds off. 1440 samples per day
+- Do a first round of collection
+- Annotate with wearer-speech|other-speech|nospeech
+Minimum 100 samples
 
 C model deployment
 
@@ -30,24 +40,69 @@ C model deployment
 - Implement the feature extraction methods
 - Finish proba support for eml_trees
 
-Testing dataset
-
-- Record some audio representative for the usecase
-A wearable device.
-Annotate with wearer-speech|other-speech|nospeech
-TTGO T-WATCH V3 microphone to SD card?
-https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/examples/BasicUnit/TwatcV3Special/Microphone/Microphone.ino
 
 Device demo
 
-- Select a demo board and SW platform.
-NRF52/Thingy52 with Zephyr OS?
-- Get microphone input working on board
+- Indicate speech on screen. Turn on screen, then off again
 
 Browser demo
 
 - Setup microphone input in browser.
 - Setup Emscripten build for C code
+
+Testing dataset v2
+
+- Measure device/microphone sensitivity
+- Also record IMU data during audio samples?
+50/100 Hz
+
+Device later
+
+- Reduce usage of use screen
+- Add battery status / current measurement. AXP202
+- Make code independent of the T-Watch library
+https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/src/board/twatch2020_v3.h
+
+### Audio recording
+
+Example code for recording .wav to SPI sdcard using ESP-IDF/Arduino
+https://github.com/atomic14/esp32_sdcard_audio/
+Uses sdspi_host and sdmmc_host from ESP-IDF
+https://github.com/arduino-libraries/SD/tree/master
+
+There is also a generic SD SPI Arduino library
+https://github.com/arduino-libraries/SD/tree/master
+It is used by this example
+https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/examples/BasicUnit/SDCard/SDCard.ino
+
+### Power consumption notes
+
+380mAh battery
+For 24 hours, max 15 mA
+
+https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/docs/power.md
+
+> 4 mA standby
+> 65 mA screen on
+
+People are reporting
+https://github.com/sharandac/My-TTGO-Watch/issues/316
+
+> the battery indicator is not accurate, rather a problem with the power management unit ( axp202 )
+https://github.com/sharandac/My-TTGO-Watch
+
+> In standby mode (using the M6/M8 GPS module backplane), the display is off and the current minimum power consumption is approximately ~3 mA.
+Source: https://github.com/Xinyuan-LilyGO/TTGO-T-Watch/blob/master/README.MD
+
+### Other hardware devices
+
+T-Watch-S3
+No WiFi. Has LoRa. And Bluetooth.
+Has PDM microphone.
+No mention of SD card??
+Released June 2023
+Arduino support in a branch. https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/tree/t-watch-s3
+https://www.cnx-software.com/2023/06/14/t-watch-s3-esp32-s3-smartwatch-supports-wifi-bluetooth-le-and-lora-connectivity/
 
 
 ## DONE

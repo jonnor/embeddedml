@@ -97,6 +97,10 @@ void setup()
     i2s_set_pin(I2S_NUM_0, &i2s_cfg);
     i2s_set_clk(I2S_NUM_0, AUDIO_SAMPLERATE, I2S_BITS_PER_SAMPLE_16BIT, I2S_CHANNEL_MONO);
 
+    // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2s.html#pdm-rx-usage
+    // i2s_pdm_rx_clk_config_t, i2s_pdm_rx_clk_config_t, mclk_multiple
+    // https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2s.html#_CPPv419i2s_mclk_multiple_t
+    // dn_sample_mode
 
     // Setup VAD
     fvad_reset(&vad);
