@@ -226,7 +226,7 @@ But SNR is very low, peaks just 3-5 dB over the rest of spectrum.
 
 # TODO
 
-- Implement digital filtering. HPF fc=0.5, LPF fc=3.4Hz, second order IIR
+- Test at different heartrates
 - Order a reference photodiode / known working sensor. TCRT1000
 - Order SMD leds. ultrabright green, and IR
 - Switch to ultrabright green LEDs.
