@@ -321,3 +321,18 @@ Bottom
 
 Register the bar-code when labeling data?
 
+
+## Secret knock detector
+
+Fun and simple project
+https://electronics.stackexchange.com/questions/190/how-do-i-detect-the-pattern-of-the-knock-on-a-door-and-use-it-as-a-signature-to
+
+Could do it with a piezo.
+Would need some input protection and low-pass filtering.
+Then can do sampling at 50 hz etc.
+
+Or could do it with audio mic.
+Doing same kind of low-pass/envelope et.c. in software.
+
+Could count the times between knocks, use that as features.
+

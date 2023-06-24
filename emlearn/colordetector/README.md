@@ -1,28 +1,33 @@
 
 # TODO
 
-First PoC
+First Object detector demo
 
-- Clean up "ambient" labels
-- Train a classification model for cards
-- Deploy model to device, test it
-- Add logging of predictions
-
-Object detector demo
-
-- Train model
+- Get some new objects to test with
+- Train RandomForest model on RGB
 - Make a demo video
+
+Cleaner model
+
+- Try fitting GMM to PCA data. Per-class, overall.
+Check decision boundaries
+- Implement PCA in emlearn
+- Implement centroid classifier in emlearn? With distance support
+- Make examples of handling unseen data
+- Write user guide on handling unseed data
+
+## Learning
 
 
 ## Later
 
-- Switch to 3-led version
+- Switch to 4-led (RGBW) version of the holder
 
 ### Custom PCB
 - Design a PCB and send to manufacturing
 Support both throughhole components and SMD
 5mm LEDs / SMD LEDs (1206 ?)
-Using Arduino shield form factor?
+Using Arduino shield form factor? Or just DIP for easy breadboarding
 Maybe have pieces that can be cutout to act as distace meters
 
 # Instructions

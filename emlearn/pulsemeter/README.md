@@ -226,16 +226,13 @@ But SNR is very low, peaks just 3-5 dB over the rest of spectrum.
 
 # TODO
 
-- Test at different heartrates
-- Order a reference photodiode / known working sensor. TCRT1000
-- Order SMD leds. ultrabright green, and IR
-- Switch to ultrabright green LEDs.
-Check that signal/noise ratio improves
-- Tweak holder. Make LEDs closer / point towards eachother
+- Test at different heartrates with standard green LEDs
 - Clean up Python processing code.
+- Test with reference photodiode / known working sensor. TCRT1000
+- Test IR LEDs
+- Test ultrabright green
 - Collect dataset with reference labels
 - Implement pre-processing in C
-
 
 MAYBE
 
@@ -254,6 +251,20 @@ https://www.digikey.no/no/products/detail/creeled-inc/C503B-GCS-CY0C0792/2341581
 https://www.digikey.no/no/products/detail/creeled-inc/C512A-WNN-CZ0B0152/2809666
 https://www.digikey.no/no/products/detail/creeled-inc/C503B-BCS-CV0Z0462/2341549
 https://www.digikey.no/no/products/detail/creeled-inc/C503B-ACS-CY0Z0252-030/2341527
+
+IR Leds
+
+Reflective sensor
+https://www.digikey.no/no/products/detail/vishay-semiconductor-opto-division/TCRT1000/1681165?s=N4IgTCBcDaICoGEBKcCMAGTIC6BfIA
+
+with filter
+https://www.digikey.no/en/products/detail/advanced-photonix/PDB-C134F/480578
+https://www.digikey.no/no/products/detail/kingbright/WP710A10F3BT/8591565
+
+clear, matched
+https://www.digikey.no/no/products/detail/vishay-semiconductor-opto-division/VSLB3940/4073522?s=N4IgTCBcDaIGoGUAyAhAzATgCwAYQF0BfIA
+https://www.digikey.no/en/products/detail/vishay-semiconductor-opto-division/TEFD4300/2987573
+
 
 Senseboard, as reference
 https://www.digikey.no/no/products/detail/sparkfun-electronics/SEN-11574/5762397
@@ -318,3 +329,8 @@ Stackup
 
 Seems tricky to get battery charger also included
 
+Components
+
+- RGB SMD LEDs, https://www.digikey.no/no/products/filter/led-indikasjon-frittst%C3%A5ende-diskret/105?s=N4IgjCBcoMwOxVAYygMwIYBsDOBTANCAPZQDaIMAnAKwwBsMIAuoQA4AuUIAyuwE4BLAHYBzEAF9CAJgAMCaCBSQMOAsTIVqADmpSELEBy69BoiYQC0UxIqj8ArmpKRy1EIUrNxkkHRsCAEy4LMBkINk5IEHcQdgBPVlwudGwUbyA
+- SMD reflective IR sensor package. https://www.digikey.no/no/products/detail/sharp-socle-technology/GP2S60B/857215
+https://www.digikey.no/no/products/detail/vishay-semiconductor-opto-division/VCNT2025X01/16351258t
