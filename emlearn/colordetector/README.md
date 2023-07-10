@@ -3,21 +3,29 @@
 
 First Object detector demo
 
+- Make the dataset configurable. Unhardcode colors
+- Clean up notebooks. Move longer functions to .py files
 - Get some new objects to test with
 - Train RandomForest model on RGB
 - Make a demo video
+- Finish the documentation below
 
-Cleaner model
+Better model
 
-- Try fitting GMM to PCA data. Per-class, overall.
-Check decision boundaries
-- Implement PCA in emlearn
+- Implement color space transformations and 2d reduction
 - Implement centroid classifier in emlearn? With distance support
+
+Handling unseen data
+
 - Make examples of handling unseen data
-- Write user guide on handling unseed data
+- Write user guide on handling unseen data 
+- Make a demo that shows unseen objects
 
-## Learning
+Improve docs
 
+- Move into an emlearn-demos repository
+- Setup a Sphinx build
+- Publish to read-the-docs
 
 ## Later
 
@@ -29,6 +37,11 @@ Support both throughhole components and SMD
 5mm LEDs / SMD LEDs (1206 ?)
 Using Arduino shield form factor? Or just DIP for easy breadboarding
 Maybe have pieces that can be cutout to act as distace meters
+
+## On-device learning
+
+- Implement kNN or similar in emlearn
+- Create a new demo for it
 
 # Instructions
  
