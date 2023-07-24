@@ -9,6 +9,11 @@
 
 ## TODO
 
+libfvad testing
+
+- Check if one can extract the filterbank data as features
+For visualization, potentially additional processing
+
 First model results
 
 - Implement an baseline method. RNN on mel-spectrogram ?
@@ -62,6 +67,12 @@ Device later
 - Add battery status / current measurement. AXP202
 - Make code independent of the T-Watch library
 https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/src/board/twatch2020_v3.h
+
+Neural networks
+
+- Try convering Keras RNN using NNoM
+- Try convering Keras RNN using tflite-micro
+NOTE: GRU currently not supported
 
 ### Audio recording
 
@@ -142,7 +153,7 @@ Does a sweep over different thresholds
 Run Silero VAD. In Python on 16 second clip
 prediction time 476.6662120819092 ms
 
-Run fvaf/WebRTCVAD. In C on 16 second clip
+Run fvad/WebRTCVAD. In C on 16 second clip
 processing took 50.015 ms
 
 Run PicoVoice Cobra. In Python on 16 second clip
@@ -205,6 +216,11 @@ ETSI AMR1. Hard to find?
 ETSI AMR2. Hard to find?
 
 RNNoise. Contains a VAD. Not exposed?
+
+NNoM RRNoise. Contains a VAD. Designed for use on microcontrollers.
+Is exposed in C APIs.
+https://medium.com/analytics-vidhya/real-time-rnn-speech-noise-suppression-on-a-microcontroller-stm32-e17d8c3eac57
+
 Opus. Contains a VAD. Not exposed?
 
 ### Post processing
