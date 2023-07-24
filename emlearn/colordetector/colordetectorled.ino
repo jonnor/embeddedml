@@ -1,5 +1,6 @@
 
 
+#include "model.h"
 
 class LightSensorLed {
 
@@ -85,6 +86,13 @@ measureLight(int rgb[3], int milliseconds)
 
 }
 
+static const char *class_names[] =
+{
+  "Other",
+  "Purple",
+  "Yellow",
+};
+
 void loop()
 {
 
@@ -104,16 +112,19 @@ void loop()
     const bool buttonPressed = digitalRead(buttonPin) == LOW;
     digitalWrite(ledIndicatorPin, buttonPressed);
 
+#if 1
     // log button state
     Serial.print("button,");
     Serial.print((long int)tick);
     Serial.print(",");
     Serial.println((int)buttonPressed);
+#endif
 
     // sample
     int rgb[3] = {-1, -1, -1};
     measureLight(rgb, sampleTime);
 
+#if 1
     // log sensor data
     Serial.print("val,");
     Serial.print((long int)tick);
@@ -123,9 +134,28 @@ void loop()
     Serial.print(rgb[1]);
     Serial.print(",");
     Serial.println(rgb[2]);
+#endif
 
+#if 1
+    // Run detection model
+    float features[3];
+    features[0] = rgb[0];
+    features[1] = rgb[1];
+    features[2] = rgb[2];
+    const int32_t predicted = simple_rgb_pink_yellow_other_predict(features, 3);
+    const char *predicted_class = "ERROR";
+    if (predicted >= 0) {
+      predicted_class = class_names[predicted];
+    }
+    Serial.print("predict,");
+    Serial.print((long int)tick);
+    Serial.print(",");
+    Serial.print(predicted);
+    Serial.print(",");
+    Serial.println(predicted_class);
+#endif
 
-    // TODO: run detection model, and log output
   }
+
 
 }
