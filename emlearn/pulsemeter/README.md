@@ -161,6 +161,23 @@ But mostly.
 
 100 hz sample rate. 16 bit.
 
+### Grove - Finger-clip Heart Rate Sensor
+https://wiki.seeedstudio.com/Grove-Finger-clip_Heart_Rate_Sensor/
+
+Heart Rate Detection (HRD)
+Using PAH8001EI-2G optical sensor. Green LED and integrated DSP.
+Has an STM32 onboard
+
+### Seedstudio - Goove Ear-clip Heart Rate Sensor
+https://wiki.seeedstudio.com/Grove-Ear-clip_Heart_Rate_Sensor/
+Uses a standard ear clip as the sensor.
+Kyoto HRM-2511B ear-lobe clip. Transmissive mode.
+Kyoto also has HRM-2511C and HRM-2511D, which are reflective mode.
+
+Lots of details on PPG heart rate detection in
+https://files.seeedstudio.com/wiki/Grove-Ear-clip_Heart_Rate_Sensor/res/PPG%20Sensor%20System.pdf
+
+
 ### Radar-based heartrate
 
 TinyML radar approach
@@ -171,6 +188,9 @@ Sitting still, clenching hand to increase heartrate. Grows slowly
 Gesture detection. Using TCN on top of CNN.
 https://arxiv.org/abs/2006.16281
 https://tinyradar.ethz.ch/ dataset
+
+
+
 
 ## Whys is green light used?
 

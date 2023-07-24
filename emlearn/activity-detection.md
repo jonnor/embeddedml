@@ -30,6 +30,22 @@ Code available here, including C feature extraction, Python feature extraction a
 https://github.com/atiselsts/feature-group-selection
 
 
+https://github.com/STMicroelectronics/STMems_Machine_Learning_Core
+
+Uses statistical feature summaries, plus decision tree.
+Sample rates between 26 and 104 Hz,
+windows between 0.6 and 3 seconds long.
+
+Head gestures. Sensor mounted on head.
+Nod, Shake, Stationary, Swing, Walk
+
+Yoga poses. Sensor mounted on front calf, just below the knee.
+Classes: Boat Pose, Bow Pose, Bridge, Child's Pose, Cobra's Pose, Downward-Facing Dog,
+Meditation Pose, Plank, Seated Forward Bend, Standing in Motion, Standing Still,
+The Extended Side Angle, The Tree, Upward Plank
+
+
+
 ## On-device learning
 
 Being able to store/annotate activities on the go would be great.
