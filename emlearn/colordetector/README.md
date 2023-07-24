@@ -4,11 +4,21 @@
 First Object detector demo
 
 - Make the dataset configurable. Unhardcode colors
+- Plot colors in sequence for dataset
+- Add 3 LEDs to indicate the class
+- Test without a holder. Just the LEDs sticking up
+- Test using ambient light as source, instead of white LED
 - Clean up notebooks. Move longer functions to .py files
-- Get some new objects to test with
-- Train RandomForest model on RGB
+- Get some fruits to test with
+- emlearn: Add class name generation. Enum+strings
 - Make a demo video
 - Finish the documentation below
+
+Improve docs
+
+- Move into an emlearn-demos repository
+- Setup a Sphinx build
+- Publish to read-the-docs
 
 Better model
 
@@ -21,11 +31,7 @@ Handling unseen data
 - Write user guide on handling unseen data 
 - Make a demo that shows unseen objects
 
-Improve docs
 
-- Move into an emlearn-demos repository
-- Setup a Sphinx build
-- Publish to read-the-docs
 
 ## Later
 
