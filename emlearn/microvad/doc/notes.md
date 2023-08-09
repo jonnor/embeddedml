@@ -42,3 +42,35 @@ LGPL
 
 http://portaudio.com/
 MIT
+
+## Efficient ML classifiers
+
+### GRU recurrent neural network
+
+GRU neural network is a good contender for a strong sequence model,
+which is still quite compact and computationally efficient.
+
+### TFLite Micro
+Not implemented as of Aug 2023?
+https://github.com/tensorflow/tensorflow/issues/46390
+Open since 2021
+
+### RNNoise
+There is an GRU implementation in RNNoise.
+
+Short, single-file implementation.
+https://github.com/xiph/rnnoise/blob/master/src/rnn.c
+compute_gru looks quite generic?
+Some rather large stack allocations. 128*4 bytes
+compute_rnn looks specific to their model?
+
+Works on float32 as standard input.
+Uses int8 to store weights.
+Has a tansig and sigmoid approximation using a lookup table.
+tansig_table is 201 floats, 804 bytes total
+
+Maybe try to benchmark it on a microcontroller?
+
+
+But NNoM has an implementation.
+
