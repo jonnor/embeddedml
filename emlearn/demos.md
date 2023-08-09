@@ -285,6 +285,16 @@ Register the bar-code when labeling data?
 Fun and simple project
 https://electronics.stackexchange.com/questions/190/how-do-i-detect-the-pattern-of-the-knock-on-a-door-and-use-it-as-a-signature-to
 
+Has potential for usable pretrained models.
+
+The simple-to-try case could be done with just a button.
+
+Threshold analog signal to digital, and count time between pulses?
+Might need a bit of debounce. Minimum on/off times.
+Keep an sliding window of such values as the feature vector.
+A distance metric would probably be the most effective ML solution
+But maybe RandomForest can do OK still
+
 Could do it with a piezo.
 Would need some input protection and low-pass filtering.
 Then can do sampling at 50 hz etc.
@@ -293,4 +303,97 @@ Or could do it with audio mic.
 Doing same kind of low-pass/envelope et.c. in software.
 
 Could count the times between knocks, use that as features.
+
+## Physical Iris classifier
+
+Mostly for the LOLs.
+
+Using a digital caliper
+Make some replicas of the leafs. 3d-print?
+Order some real flowers.
+
+The length and the width of the sepals and petals, in centimeters.
+
+Digital calipers often have a port with serial interface.
+Outputs measurement as 24 bits.
+Runs on 1.5V, so need level converters to interface with 3.3V MCU.
+But could run directly on that voltage, if using a 1.8V low-power MCU.
+Could probably just sample via ADC also?
+Could even run on the caliper battery??
+Might need a step up to at 1.8V or 2.0V.
+Might be needed to drive a LED anyways. Red LEDS should work from 1.8V. Maybe also at 1.5V.
+
+https://www.robotroom.com/Caliper-Digital-Data-Port.html
+https://sites.google.com/site/marthalprojects/home/arduino/arduino-reads-digital-caliper
+
+Step up
+https://www.analog.com/en/design-notes/tiny-synchronous-step-up-converter.html
+LTC3526LB for 1.8V out
+
+## Handwriting recognition
+MNIST etc.
+
+- Inertial. Uses accelerometer/gyro
+- Computer vision using camera
+- CV using LEDs matrix as sensing element
+- Touchscreen. Capacitive/resistive
+- TToF distance sensor.
+
+Interial version basically same setup as for magic wand.
+Simplest wiring, just I2C to accelerometer. Many options of those. Including on HW.
+
+Real-Time Finger-Writing Character Recognition via ToF Sensors on Edge Deep Learning
+https://www.mdpi.com/2079-9292/12/3/685
+
+ToF sensors acquire distance values between sensors to a writing finger within a 9.5 × 15 cm square on a surface.
+STM32F401.
+Tested long short-term memory (LSTM), convolutional neural networks (CNNs) and bidirectional LSTM (BiLSTM).
+Best result is extracted from the LSTM, with 98.31% accuracy and 50 ms of maximum latency.
+
+
+https://antimatter15.com/2015/06/handwriting-recognition-with-microcontrollers/
+LED matrix as CCD. 8x8. Used a light pen.
+
+Static Hand Gesture Recognition Using Capacitive Sensing and Machine Learning
+https://www.mdpi.com/1424-8220/23/7/3419
+
+## DIY microphone
+
+The carbon rod microphone was one of the first designs.
+Predates the carbon granula "button" microphone.
+
+Principle: The loose contact between two objects is suc
+Carbon is practical because it does not oxidice,
+and provices an inherent resistance.
+
+https://onetuberadio.com/2015/11/23/science-fair-idea-homemade-microphones/
+references November 1945 issue of Popular Science.
+Microphone is made using 3 nails, 1 positioned on top of two others, on a sounding board.
+
+http://www.vias.org/crowhurstba/crowhurst_basic_audio_vol1_035.html
+Carbon rod vertically, loosely held between two plates 
+
+https://simplifier.neocities.org/compound
+Speech sounds pretty good! Clear and OK frequency balance. A bit boxy/resonant.
+Uses a thin wood sheet as a diaphram.
+Uses 4 carbon rods suspeneded between 2 carbon terminals.
+Rods are connected 2 in series, 2 in parallell.
+Good contender for making a 3d-printed replica
+
+?? could one use a pencil, and just sharpen it in both ends with pencil sharpener?
+Alternatively a pure graphite / charcol pencil, found in art supply stores
+
+https://simplifier.neocities.org/carbon
+Diaphragm is a piece of pine board,
+with a 3 by 3 inch section milled down to a thickness of 1/16th of an inch.
+The loose contact is made between two pieces of 1/4 inch graphite rod.
+AC modulation 10mA p2p with normal speaking voice
+
+Matchbox microphone
+Many videos showing this on Youtube.
+Sound quality tends to be pretty bad however.
+Thin 0.5mm rods do not work.
+Many recommend sanding the connecting surfaces flat.
+Some just let the top electrode lie on top of the others - cannot be moved around.
+Others led the top be tensioned slightly across the others - can be moved.
 
