@@ -12,12 +12,18 @@ classification, regression and outlier/anomaly detection.
 
 Examples
 
-- Add KNN to classifier comparison
+- Add KNN to classifier comparison. Need to setup distance working buffer
 
 Demos
 
-- Color detector
+- Color detector. In C/Arduino
+- Color detector online learning. In MicroPython ?
 
+
+## Misc
+
+- Feature scaling.
+- Feature transformations. Support custom C code
 
 ## Event Detection
 
@@ -44,12 +50,6 @@ Demos
 - ? Heartrate detector
 - Impulse sound detector
 
-
-## Sound Event Detection
-
-- Mel-spectrogram. Using SignalWindower
-
-
 ## 1.2 - optimized models
 
 Fixed-point support for primary models.
@@ -61,6 +61,23 @@ Fixed-point support for primary models.
 Benchmarking
 
 - Tool for measuring RAM and FLASH memory
+
+## Sound Event Detection
+
+Preprocessing
+
+- Mel-spectrogram. Using SignalWindower
+
+Models
+
+- GRU recurrent neural network. Keras import
+
+Demos
+
+- Sound Event Detection.
+Car passing? Environmental Sounds?
+- Voice Activity Detection
+- Speech Commands / keyword spotting
 
 ## 1.0 - complete broad support
 
