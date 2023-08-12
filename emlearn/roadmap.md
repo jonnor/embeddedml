@@ -1,20 +1,25 @@
 
 # Roadmap
 
+Strategy. Keeping things application-oriented.
+Making sure that it is easy to achieve practical tasks,
+and that this documented well, and the utility is well demonstrated.
+
 ## Next
 
 Support for the standard tasks,
 classification, regression and outlier/anomaly detection.
 
+Examples
+
+- Add KNN to classifier comparison
+
 Demos
 
 - Color detector
 
-Documentation
 
-- Task pages. Classification/regression/anomaly
-
-## 0.5 - Event Detection
+## Event Detection
 
 Models
 
@@ -30,8 +35,8 @@ Documentation
 
 Examples
 
+- PR curves / threshold tuning
 - SignalWindower. Time-based features.
-- Mel-spectrogram. Using SignalWindower
 - Signal. LAF soundlevel. Using IIR filters
 
 Demos
@@ -39,38 +44,47 @@ Demos
 - ? Heartrate detector
 - Impulse sound detector
 
+
+## Sound Event Detection
+
+- Mel-spectrogram. Using SignalWindower
+
+
+## 1.2 - optimized models
+
+Fixed-point support for primary models.
+
+- trees. Use int16_t features and integer-only math.
+- preprocess. Float to int16 quantizer
+- trees. Optimized RF inference
+
+Benchmarking
+
+- Tool for measuring RAM and FLASH memory
+
 ## 1.0 - complete broad support
 
 Support the full width of common models.
 
 Models
 
+- net. MLP autoencoder
 - linear. Linear regression
 - linear. Logistic regression
-- neighbour. kNN
+- neighbour. kNN regression
 - neighbour. Nearest centroid 
+- neighbour. Outlier/anomaly
 - kernel. SVM regression
 - kernel. SVM classification
 - kernel. One-class SVM
-- net. MLP autoencoder
-- trees. IsolationForest
+- trees. IsolationForest inference
 
-
-## 1.2 - optimized models
-
-Fixed-point support for all models.
-
-- trees. Optimized RF inference
-
-Benchmarking
-
-- Tool for 
 
 ## 2.0 - on-device learning
 
-
 ? micropython
-
+- Isolation Forest
+- Random Forest
 
 ## Later
 
