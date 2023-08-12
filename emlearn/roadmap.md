@@ -93,6 +93,15 @@ Benchmarking
 - Comparison with m2cgen and micromlgen
 - Tool for measuring RAM and FLASH memory
 
+Documentation
+
+- Make a paper to go on Arxiv. Consider submitting to conferences/journals
+
+Marketing
+
+- Write a blogpost Medium 
+- Make a 2 minute video summary
+
 Outreach
 
 - Notify existing users of the optimized models trees.
