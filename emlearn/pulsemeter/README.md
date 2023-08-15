@@ -211,6 +211,17 @@ Such as lactate threshold and hydration/sweat.
 
 # Worklog
 
+## 16.08.2023
+
+Tested PulseSensor board. Works as documented.
+Gives clear bumps for each pulse. Centered around VCC/2.
+Removing the DC offset and thresholding can be good enough to measure pulse.
+
+Tested using TCRT1000 directly connected to microcontroller.
+Running at approx 50mA (3.3V and 22 ohms). 
+See large changes in output when placing finger in front.
+But no peaks/dips that correspond to heartbeats. Just noise.
+
 ## 19.04.2023
 Arduino Playground LedSensor approach.
 Tested with `ledsensor.ino`
