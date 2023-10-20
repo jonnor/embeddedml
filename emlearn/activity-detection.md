@@ -67,6 +67,20 @@ Just need to store feature vectors somewhere. FLASH/SDCARD
 And keep number managable, so not too slow things down too much.
 Need to have a good feature extraction system.
 
+## tinyML Talks: Enabling on-device learning on STM32 microcontrollers
+https://www.youtube.com/watch?v=G9VbDDpzaOw
+
+Used 1D-CNN and implemented backprop on-device.
+Evaluated on 2 public datasets
+https://www.cis.fordham.edu/wisdm/dataset.php
+Showed benefits of personalizing model.
+Retraining only last 2 layers gave most of the benefit.
+Using 1 second windows was enough for good performance.
+F1 scores of 0.93+
+Training took from 2-15 seconds per batch, depending on input size.
+
+How would a kNN compare with this?
+
 ## Models
 
 #### DTW kNN
