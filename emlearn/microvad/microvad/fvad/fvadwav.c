@@ -72,10 +72,37 @@ static bool process_sf(SNDFILE *infile, Fvad *vad,
 
         samples_processed += framelen;
 
-        // Output timestamp and result for this frame
         if (listfile) {
+
+            // Output timestamp and result for this frame
             const float time = samples_processed/(float)samplerate;
-            fprintf(listfile, "%.4f,%d\n", time, vadres);
+            fprintf(listfile, "%.4f,%d", time, vadres);
+
+            VadInstT *core = &vad->core;
+
+            // Output feature values
+            for (int channel = 0; channel < kNumChannels; channel++) {
+                // FIXME: convert to float from fixed-point
+                const int16_t feature = core->feature_vector[channel];
+                    fprintf(listfile, ",%d", feature);
+            }
+
+            // Output GMM components
+            for (int channel = 0; channel < kNumChannels; channel++) {
+                for (int k = 0; k < kNumGaussians; k++) {
+                    const int gaussian = channel + k * kNumChannels;
+                    const int16_t noise_mean = core->noise_means[gaussian];
+                    const int16_t noise_std = core->noise_stds[gaussian];
+                    const int16_t speech_mean = core->speech_means[gaussian];
+                    const int16_t speech_std = core->speech_stds[gaussian];
+
+                    // FIXME: convert to float from fixed-point
+                    fprintf(listfile, ",%d,%d,%d,%d",
+                        noise_mean, noise_std, speech_mean, speech_std);
+                }
+            }
+
+            fprintf(listfile, "\n");
         }
 
         vadres = !!vadres; // make sure it is 0 or 1
