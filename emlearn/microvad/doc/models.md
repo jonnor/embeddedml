@@ -30,53 +30,8 @@ It then thresholds the voice metrics using a threshold that varies according to 
 
 
 ### WebRTC VAD
-Code exists inside the Chromium tree, under webrt/modules/audio_processing/vad
 
-A fork has been created that separates out just the VAD as a C library. 
-https://github.com/dpirch/libfvad
-
-Available for Python in [py-webrtcvad](https://github.com/wiseman/py-webrtcvad).
-Expects int16 input of the audio waveform.
-Needs some massaging to work with typical floating point input. TODO, link
-
-The WebRTC VAD model is described in 2.3 of
-[Voice Activity Detection Scheme by Combining DNN Model with GMM Model](https://arxiv.org/abs/2005.08184).
-Is based on a two-mixture Gaussian Mixture Model (noise and speech).
-The input features are 6 frequency sub-bands.
-Does online updating of the GMM, with different update coefficients for the GMM coefficients,
-such that noise would increase slowly, but decrease quickly.
-With the assumption that the sound is mostly noise, and occationally speech segments.
-
-Implementation:
-https://github.com/dpirch/libfvad/blob/master/src/vad/vad_filterbank.c
-
-The 6 frequency sub-bands are computed using splitting filters,
-operating at progressively smaller sample rate.
-
-- Energy in 3000 Hz - 4000 Hz.
-- Energy in 2000 Hz - 3000 Hz.
-- Energy in 1000 Hz - 2000 Hz.
-- Energy in 500 Hz - 1000 Hz.
-- Energy in 250 Hz - 500 Hz.
-- Energy in 80 Hz - 250 Hz.
-
-This is a type of multi-rate filterbank.
-https://www.dsprelated.com/freebooks/sasp/Multirate_Filter_Banks.html
-https://ccrma.stanford.edu/~jos/sasp/Multirate_Filter_Banks.html
-
-? is it a analysis filterbank / transmultiplexer / transmux / polyphase filterbank ?
-
-Input is resampled to 8 kHz before entering the feature pre-processing.
-There are 2 gaussians (speech and noise), for each of the 6 bands, for 12 in total.
-
-Uses 30 ms samples.
-
-Uses int16 all the way for audio samples.
-Uses fixed-point integer math everywhere.
-LogOfEnergy has some tricks to compute decibel in fixed-point without using a logarithm.
-
-Works well at speech vs silence.
-But does poorly with music or other noise, will often get flagged as speech.
+Described in [separate document](./webrtc_vad.md).
 
 ### inaSpeechSegmenter
 CNN-based audio segmentation toolkit.
