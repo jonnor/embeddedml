@@ -78,6 +78,9 @@ Can get a pretty modern microcontroller.
 With USB!
 0.2 mA in LPRUN 2Mhz
 5 uA in STOP 1 no SRAM retention with RTC.
+- CH32V003. RISC-V
+16KB FLASH / 2KB RAM.  48MHz QFN-20
+`0.15 USD @ 1k`
 
 China MCU 16KB 512Byte at 0.25 USD
 China MCU 8KB 1.25KB at 0.15 USD
@@ -85,7 +88,7 @@ China MCU 8KB 1.25KB at 0.15 USD
 ### Sensors
 Prices from JLCPCB
 
-- MEMS microphones <0.2 USD
+- MEMS microphones `<0.2 USD`
 - Photointerruptor 0.1 USD
 - LIS2DH12TR accelerometer. 0.3 USD
 
@@ -94,12 +97,12 @@ Prices from JLCPCB
 Consumable battery
 
 - CR1216 battery at 0.2 USD
-- CR2477 0.8 USD @ 1k
+- CR2477 `0.8 USD @ 1k`
 
 Rechargable battery
 
-- LIR1220 0.2 USD @ 1k. 7 mAh
-- Battery charger 0.06 USD @ 1k
+- LIR1220 `0.2 USD @ 1k`. 7 mAh
+- Battery charger `0.06 USD @ 1k`
  
 
 ### System-view
@@ -118,9 +121,17 @@ Logging to internal FLASH, USB connectivity.
 - STMicroelectronics LIS2DH12TR
 - LIR1220 battery
 
-Total BOM: < 1.0 USD @ 1k
+Total BOM: `< 1.0 USD @ 1k`
 
 7 mAh / 24 hour = 0.29 mA average consumption.
+7 mAh / 40 days = 9 uA average consumption.
+
+32 kB FLASH / 8 kB RAM.
+
+16 kB / 4 kB for model.
+1 second @ 50 Hz triax = 0.3 kB
+
+32-slot data FIFO. Only need wakeup couple of times per second
 
 #### IoT sensor
 BLE beacon
@@ -130,7 +141,7 @@ HolyIoT or similar.
 7 USD @ 1
 5 USD @ 1k
 
-Not yet 1 USD. But << 10 USD.
+Not yet 1 USD. But `<< 10 USD`.
 
 Sensors 100x 7 = 700
 IoT gateway. 100 USD.
@@ -142,5 +153,16 @@ But 16 kB RAM and 192 kB FLASH.
 How to run ML on this?
 And what is feasible vs infeasible?
 
+
+Holtek BC7161
+BLE beacon IC
+`0.2 USD @ 1k`. 
+SO8 package
+https://www.holtek.com/productdetail/-/vg/BC7161
+Communication over I2C
+
+Holtek BC7262
+SO10 package
+Communication over I2C
 
 
