@@ -39,6 +39,13 @@ PDM/I2S support in ESP-IDF.
 6 IIR float32 biquads in approx the same time.
 https://docs.espressif.com/projects/esp-dsp/en/latest/esp32/esp-dsp-benchmarks.html
 
+https://shop.m5stack.com/products/atoms3u
+USB stick format development board for ESP32S3.
+With PDM microphone. WiFi connectivity and BLE.
+384 KB ROM, 512 KB SRAM
+Also has user button, RGB LED, Grove plus 6-pin extension header.
+Could be plugged directly to a USB stick for deployment.
+
 ## STM32
 
 PDM/I2S and ADC all capable of efficient audio-rate input.

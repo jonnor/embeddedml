@@ -13,11 +13,13 @@ Advantages
 Disadvantages
 
 - APIs are not that well designed
+- Lots of beginners that may need a lot of hand-holding
 
 Improvements
 
 - TODO: Publish an Arduino package, that can be installed.
 Avoids having to manually copy emlearn files into Arduino "libraries" 
+- TODO: Automate creation of Arduino package as part of CI/CD
 
 ## PlatformIO Core
 

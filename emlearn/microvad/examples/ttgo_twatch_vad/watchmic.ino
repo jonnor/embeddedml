@@ -137,6 +137,9 @@ void loop()
     const int result = fvad_process(&vad, vad_buffer, VAD_FRAME_SAMPLES);
     const int16_t process_end = micros();
 
+    // TODO: plot power and energy in bands
+    // vad->core->feature_vector
+    // vad->core->total_power
 
     // Log a bit
     Serial.print("frame ");

@@ -1,3 +1,6 @@
+
+import os.path
+
 import structlog
 import serial
 
@@ -31,12 +34,15 @@ def main():
     port = args.port
 
     with serial.Serial(port, baud, timeout=timeout) as ser:
+        assert not os.path.exists(out), out
+
         with open(out, 'wb+') as outfile:
 
             log.info('files-opened', serial=port, output=out)
 
             while True:
                 line = ser.readline()
+                #log.info('line', line=line)
                 if line:
                     outfile.write(line)
 
