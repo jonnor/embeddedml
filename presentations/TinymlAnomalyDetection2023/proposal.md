@@ -40,7 +40,6 @@ that accurately detect these issues.
 Both of these failure modes are monitored using an Anomaly Detection approach,
 and combined, the system provides both cost savings and lower downtime.
 
-
 ## Presenter
 
 Jon Nordby

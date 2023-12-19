@@ -90,9 +90,9 @@ Transmits vibration data every 1 minute.
 To an IoT gateway, that sends data to a cloud service, using 4G cellular or Ethernet.
 
 ### Sensor data quality
-For the Condition Monitoring established in the industry
-each measurement point often costs in excess of 1000 USD,
-(for accelerometer and signal processing units).
+Industrial vibration sensors costs often costs in excess of 1000 USD.
+This is too high for commercial buildings.
+
 Does the MEMS accelerometers have sufficient performance?
 
 To evaluate this we did a series of controlled tests.
@@ -108,9 +108,12 @@ Such as shaft misalignment, bearing failure, unusually high load, etc
 ### Normal conditions
 
 We realized quickly that the vibration data from different equipment varied widely.
+
 Based on the equipment type/brand/model, sensors placement, and component condition.
-Also the way that the equipment is being operated differed considerably,
-and for ventilation systems it is very common to have timer-based schedules
+
+Also the way that the equipment is being operated differed considerably.
+
+For ventilation systems it is very common to have timer-based schedules
 based on when the building is in use.
 
 To handle this complexity in the "normal" data we use Machine Learning
@@ -135,12 +138,9 @@ which is especially designed to handle collective anomalies.
 
 We are currently monitoring over 1000 components in many buildings in Scandinavia.
 
-
 Here is a motor for the heat exchanger that started to get erratic vibration.
 An alarm was raised, and operations team confirmed it was about to stop functioning.
 Were able to get a replacement done before functionality stopped.
-
-Estimated 0-4 weeks before failure.
 
 !! issue appeared just 1 week after service technician had done a bi-yearly service
 
@@ -154,10 +154,12 @@ Service technician confirmed that bearing was failing and scheduled a replacemen
 
 ### Example 3
 
-One somewhat suprising learning was that
-anomalies in machine ON/OFF state is quite common.
-Wide range of sources:
-Human errors, configuration problems, software bugs, communication problems.
+One somewhat suprising learning was that it is quite common in buildings
+that equipment are ON when they should be OFF,
+or OFF when they should be ON.
+ 
+There are a wide range of sources for this, including
+configuration problems, software bugs, communication problems.
 
 Here is an example of a system that was running day and night.
 This was spotted during the installation.

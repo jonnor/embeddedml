@@ -2,26 +2,6 @@
 ## Title
 HVAC monitoring in commercial buildings using anomaly detection
 
-## Abstract
-
-There are millions of commercial buildings in the world, from offices, to schools, hospitals and stores.
-Most of these are fitted with heating, ventilation and air conditioning (HVAC) systems,
-in order to provide a productive and comfortable indoor climate.
-As with all electromechanical systems, HVAC systems are subject to breakdowns
-and must be maintained in order to keep them functional.
-The most common strategy is time-based inspections by the building operations personnel and HVAC service providers.
-This labor-intensive approach is costly, but many failures still slip by because they happen between inspection intervals.
-
-In early 2022, Soundsensing started to deploy condition monitoring to HVAC systems in commercial buildings.
-The solution uses vibration- and sound-sensors to monitor rotating equipment in these systems.
-We find that the system is able to provide early-warning for many mechanical issues,
-enabling operations teams to schedule maintenance before the system goes down.
-Furthermore, we find that many systems repeatedly have problems with running when they should not,
-or not running when they should - and that most of the buildings lack Building Management Systems
-that accurately detect these issues.
-Both of these failure modes are monitored using an Anomaly Detection approach,
-and combined, the system provides both cost savings and lower downtime.
-
 ## Section
 Case studies revealing success in PdM and AD
 
@@ -51,15 +31,14 @@ Primariry alt B, with minor aspects of Alt C
 ## Take aways
 
 Condition Monitoring is valuable for HVAC systems
-    +   mechanical 
++   mechanical 
 
 Vibration monitoring is established best practice for rotating machinery from industry
 
-MEMS 
+MEMS accelerometers are good enough
 
 Soundsensing has a mature solution
     + Already used by many buildings
-
 
 
 ## Challenges
@@ -203,7 +182,6 @@ Use a variation of CAPA
 
 Collective And Point Anomalies (CAPA)
 
-
 ## Audience
 
 Pdm/AD forum.
@@ -213,11 +191,8 @@ Assuming that they know about Predictive
 
 Vibration monitoring one of the useful tools for rotating machinery
 
-
-
 ## Call to Action
 
 Expanding to Europe in 2024 onwards.
-
 
 
