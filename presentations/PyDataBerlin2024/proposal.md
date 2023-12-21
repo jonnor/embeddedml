@@ -1,13 +1,4 @@
 
-A) "Explainable Features for Acoustic Condition Monitoring of Machinery"
-B) "Dominant Sound Event method for automatic classification of noise events"
-
-Candidates
-
-- Machine Learning on microcontrollers using MicroPython and emlearn
-- Learning to detect sound events - without labling every single event
-
-
 ## Title
 Machine Learning on microcontrollers using MicroPython and emlearn
 
@@ -19,194 +10,69 @@ Optional 45 minutes (long)
 PyData: Machine Learning & Deep Learning & Stats
 
 ## Keywords
+Embedded devices, Internet of Things, physical computing
 
+## Tweet abstract
+Deploy ML models to microcontrollers - using just the Python you already know!
+A practical presentation on how to use the emlearn Machine Learning package and MicroPython to build smart sensor systems.
 
 ## Abstract
 200 to 1500 characters.
 Shortened version of description.
 
+This presentation will show you how to deploy machine learning models
+to affordable microcontroller-based systems - using the Python that you already know.
+Combined with sensors, such as microphone, accelerometer or camera,
+this makes it possible to create devices that can automatically analyze and react to physical phenomena.
+This enables a wide range of useful and fun applications, and is often referred to as "TinyML".
+
+The presentation will cover key concepts and explain the different steps of the process.
+We will train the machine learning models using standard scikit-learn and Keras,
+and then execute them on device using the emlearn library.
+To run Python code on the microcontroller, MicroPython will be used.
+We will demonstrate some practical use-cases using different sensors, such as
+Sound Event Detection (microphone), Image Classification (camera), and Human Activity Recognition (accelerometer).
+
 
 ## Description
 400 and 50000 characters
 
+Modern Machine Learning makes it possible to automatically extract valuable information from sensor data.
+While Machine Learning is often associated with costly, compute-intensive systems,
+it is becoming feasible to deploy ML systems to very small embedded devices and sensors.
+These devices typically use low-power, microcontrollers that cost as little as 1 USD.
+This niche is often referred to as "TinyML", and is enabling a range of new applications
+in scientific applications, industry and consumer electronics.
 
-### Audience
+While microcontrollers are getting more powerful year by year,
+it is still important to fit within the limited RAM, program size and CPU time available.
+emlearn is an open-source Python library that allows converting scikit-learn and Keras models to efficient C code.
+This makes it easy to deploy models to any microcontroller with a C99 compiler,
+while keeping Python-based workflow that is familiar to Machine Learning Engineers.
+Via emlearn-micropython it also supports MicroPython, a Python implementation designed for microcontrollers.
+MicroPython runs on practically all microcontrollers with 16kB+ RAM,
+and this makes it possible to write an entire application for microcontrollers using Python.
+The emlearn-micropython packages provided as a set of MicroPython modules
+that can be installed onto a device, without having to recompile any C code.
+This preserves the ease-of-use that Python developers are used to on a desktop system.
+Compared to pure-Python approaches, the emlearn-micropython models are typically 10-100x faster and smaller.
 
-Level: Intermediate
+The models in emlearn support the core Machine Learning tasks types: classification, regression and anomaly detection.
+Additionally there are also tools for data preprocessing, feature engineering and estimation of compute requirements. 
+Since the start in 2019, emlearn has been used in a wide range of applications,
+from detection of vechicles in acoustic sensor nodes,
+to hand gesture recognition based on sEMG data,
+to real-time malware detection in Android devices.
 
-Assumed knowledge
+While emlearn and MicroPython can target a very wide range of hardware,
+we will focus on the Espressif ESP32 family of devices.
+These are very powerful and affordable, with good WiFi+BLE connectivity support,
+gpod open-source toolchains, very popular both among hobbyist and companies,
+and have many good ready-to-use hardware development kits.
 
-- Basic literacy in Python and proficiency in programming
-- Familiarity with core Machine Learning concepts.
-Supervised/unsupervised learning. Classification/regression.
-
-Beneficial but not neccesary
-
-- Familiarity with embedded devices
-- Familiarity with time-series data
-
-Who is it for
-
-- Researchers/Engineers/developers working on embedded devices / IoT
-- Tinkerers/makers who like to make physical things
-- Those interested in computationally-efficient Machine Learning
-
-
-## Goal
-Purpose of this presentation
-
-> You as a Python developer
-> with some experience with standard Python ML libraries (scikit-learn/Keras)
-> can deploy ML models to a microcontroller device
-> using emlearn
-
-## Key elements
-
-Minimum
-
-- What can and cannot be done (in terms of ML) on a microcontroller. Conceptual,guidelines,tooling
-- What are usecases where microcontrollers shine. Autonomous. Battery power. Placement.
-- Motivating usecases. Examples
-- Choosing/buying hardware. Very brief
-- Installing MicroPython. Very brief
-- Installing emlearn-micropython. Thorough
-- Training a model. Brief
-- Converting model to emlearn. Thorough
-- Deploying to device. 
-- Loading model on device, running on data
-- Verifying performance after conversion
-- Checking size constraints
-- Using model outputs. Transmitting
-- Demo to show that it is real
-
-Bonus
-
-- Collecting data. Transmit to host or record to FLASH.
-
-## Take aways
-
-Primary
-
-- Runs everywhere that MicroPython runs.
-Which is most microcontrollers with 16 kB+ RAM plus
-- Super easy to get started. 
-Installable as a module
-- Do not have do deal with any C code
-- Very good performance. Inference time, size, RAM
-- Compatible with standard PyData stack. scikit-learn, Keras, etc
-- Supports common tasks. Classification, regression, anomaly/outlier detection
-- Supports common usecases. Image classification, Sound Event Detection, Human Activity Recognition
-
-If you know how to make a scikit-learn/Keras model,
-you know how to deploy it to a microcontroller
-
-
-## Choosing hardware
-
-ESP32 is probably the best general bet.
-Huge community
-Lots of hardware options
-From very cheap bare-bones, to more plug & play solutions
-
-If not familiar with hardware, start with something that has interesting sensors built-in.
-Sensors available on I2C breakout boards generally easy to add later.
-
-M5Stack AtomS3U. 15 USD
-LilyGo T-Watch S3. 50 USD
-T-Camera S3. 20 USD
-M5Stack CoreS3. 60 USD
-ESP32-S3-BOX. 50 USD
-
-Adafruit's MEMENTO
-SparkFun MicroMod
-
-M5Stack Core2. 50 USD
-Arduino Nano 33 BLE Sense. 
-Raspberry PI Pico also strong community
-
-
-## MicroPython BLE communication
-
-
-https://github.com/micropython/micropython/blob/master/examples/bluetooth/ble_advertising.py
-gap_advertise
-
-https://github.com/Wave1art/ESP32-Web-Bluetooth
-
-
-## MicroPython WiFi HTTP communication
-
-WLAN. HTTP. requests + json
-https://docs.micropython.org/en/latest/esp32/quickref.html#wlan
-
-WiFi managers
-https://github.com/brainelectronics/Micropython-ESP-WiFi-Manager
-https://github.com/george-hawkins/micropython-wifi-setup
-https://github.com/ferreira-igor/micropython-wifi_manager
-
-## Notes
-
-Microcontrollers are getting more powerful
-Raspberry PI Pico, ESP32
-
-It used to be that everything had to be writte in C or C++.
-Now you can get a 10 USD development board.
-
-
-
-MicroPython
-
-Program everything in Python
-
-Practical examples of
-Image classification, Sound Event Detection, Human Activation Recognition
-
-emlearn is a tiny machine learning for embedded devices and microcontrollers.
-It focuses on inference, but also supports a few on-device learning methods.
-
-
-scikit-learn for microcontrollers.
-
-emlearn-micropython are MicroPython bindings
-
-Models can be loaded from CSV files.
-
-Install as a module
-Without any recompilation.
-
-
-## Questions
-
-How much under-the-hood to show?
-Implementation details on the bindings.
-Maybe the choice of array.array is relevant
-Minimize allocations
-Dynamic user module versus existing module
-Separate modules instead of big
-
-Comparison with ulab
-
-MicroPython contributions
-- linker fixes
-- ? HTTP support in mpremote cp 
-
-What is the FOTA story with MicroPython?
-
-## Misc
-
-### GRU
-RNNs explained (covering RNN and LSTM, but not GRU explicitly)
-https://cs231n.github.io/rnn/
-
-Pytorch implementation. See class GRU
-https://github.com/pytorch/pytorch/blob/main/torch/nn/modules/rnn.py 
-
-Keras implementation. See class GRUCell, and standard_gru and its step() function
-https://github.com/keras-team/keras/blob/v2.14.0/keras/layers/rnn/gru.py#L45-L391
-
-Fixed point implementation, mostly using q15
-https://github.com/majianjia/nnom/blob/master/src/layers/nnom_gru_cell.c
-
-Open issue about Tensorflow lite micro
-https://github.com/tensorflow/tensorflow/issues/43380
+The audience is expected to have a basic literacy in Python and proficiency in programming,
+and familiarity with core Machine Learning concepts such as
+supervised/unsupervised learning, classification/regression, et.c.
+Familiarity with microcontrollers and embedded systems is of course an advantage,
+but the talk should be approachable to those who are new to this area.
 
