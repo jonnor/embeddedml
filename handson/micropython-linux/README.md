@@ -203,3 +203,33 @@ qemu-system-mips -M malta \
 
 
 
+#### Run MIPS images in Docker with qemu
+
+Using multiarch one can run different architectures in Docker using multiarch
+https://github.com/multiarch/qemu-user-static
+
+However, there is a bug in the registration scripts for mips
+https://github.com/multiarch/qemu-user-static/issues/15#issuecomment-619594628
+
+This causes problems like
+```
+docker run -it --rm multiarch/debian-debootstrap:mips-buster uname -m
+exec /bin/uname: no such file or directory
+```
+
+or 
+
+```
+docker run lpenz/debian-buster-mips:latest
+WARNING: The requested image's platform (linux/mips) does not match the detected host platform (linux/amd64/v4) and no specific platform was requested
+qemu-mipsn32-static: /bin/bash: Invalid ELF image for this architecture
+```
+
+After applying the workaround in the github issue, then can get the correct output
+
+```
+docker run -it --rm multiarch/debian-debootstrap:mips-buster uname -m
+mips
+```
+
+
