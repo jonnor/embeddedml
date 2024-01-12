@@ -271,18 +271,38 @@ Could even use an FPGA - which typically does not.
 
 Simple protocol. Just set a few registers with configuration, and then transmit the.
 Automatic handling of power states.
-So
-
-
-### A working demo
 
 
 
+### Sending some data from a Arduino
 
-### Outro
+I have a bunch of old Arduino/ATMegas around (like many others, I am sure).
+So lets use that for testing.
+
+CODE. Arduino class for Holtek
+
+? keep this with some existing hardware/MCU
+A non-BLE enabled one is most relevant.
+Atmega32 ? 
+To be replaced by
+
+Use IMU like MPU
+
+Orientation
+Temperature
+
+BONUS: use the data for something. Keep it simple / funny
+Like a 6 sided die that one can roll. 3d-printed
+Arduino Pro Micro. 33 mm long
+Updates advertisement data on change.
+Send on change, or every 30 seconds?
+Maybe blink the LEDs on transmission
+
+### Next
 
 Next steps in the 1 dollar TinyML project
 
-Could this be?
+Could this be it?
 
+Human Activity Detection is a candidate
 
