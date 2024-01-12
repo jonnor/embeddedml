@@ -17,11 +17,12 @@ License: MIT
 #include <stdbool.h>
 #include <stdint.h>
 
+// Register definitions
 #define HOLBEACON_REG_CHIPID_LOW 0x30
 #define HOLBEACON_REG_CHIPID_HIGH 0x30
 
 typedef struct _Holbeacon {
-    
+    void *i2c_user_data; // pointer to . Is passed to the i2c_read/i2c_write as first argument
 } Holbeacon;
 
 
@@ -29,32 +30,63 @@ typedef enum _HolbeaconError {
     HolbeaconOK = 0,
     HolbeaconErrorUnknown,
     HolbeaconErrorWrongDevice,
+    HolbeaconErrorNotImplemented,
+    HolbeaconErrorCommunicationFailure,
     HolbeaconErrorSizeMismatch,
     HolbeaconError_Length
 } HolbeaconError;
 
 
-// FIXME: introduce the I2C abstraction
+
+// I2C transport abstraction
+int
+holbeacon_default_i2c_write(const void *user_data, const uint8_t *buf, uint32_t num_bytes, uint16_t addr)
+{
+    return HolbeaconErrorNotImplemented;
+}
+
+int
+holbeacon_default_i2c_read(const void *user_data, uint8_t *buf, uint32_t num_bytes, uint16_t addr)
+{
+    return HolbeaconErrorNotImplemented;
+}
+
+
+#ifndef holbeacon_i2c_write
+#define holbeacon_i2c_write holbeacon_default_i2c_write
+#warning "holbeacon_i2c_write not defined"
+#endif
+
+#ifndef holbeacon_i2c_read
+#define holbeacon_i2c_read holbeacon_default_i2c_read
+#warning "holbeacon_i2c_read not defined"
+#endif
+
 
 // Convenience for reading single byte-sized register
 HolbeaconError
-holbeacon_register_read(Holbeacon *self, uint8_t reg)
+holbeacon_read_register(Holbeacon *self, uint8_t addr)
 {
-    
+    uint8_t buffer[1];
+    const int ret = holbeacon_i2c_read(self->i2c_user_data, buffer, 1, addr);
+    return (ret == 0) ? HolbeaconOK : HolbeaconErrorCommunicationFailure;
 }
 
 // Convenience for writing a single byte-sized register
 HolbeaconError
-holbeacon_register_write(Holbeacon *self, uint8_t reg, uint8_t data)
+holbeacon_write_register(Holbeacon *self, uint8_t addr, uint8_t data)
 {
-    
+    uint8_t buffer[1];
+    buffer[0] = data;
+    const int ret = holbeacon_i2c_write(self->i2c_user_data, buffer, 1, addr);    
+    return (ret == 0) ? HolbeaconOK : HolbeaconErrorCommunicationFailure;
 }
 
 HolbeaconError
 holbeacon_check_chip_id(Holbeacon *self)
 {
-    const uint8_t high = holbeacon_register_read(self, HOLBEACON_REG_CHIPID_HIGH);
-    const uint8_t low = holbeacon_register_read(self, HOLBEACON_REG_CHIPID_LOW);
+    const uint8_t high = holbeacon_read_register(self, HOLBEACON_REG_CHIPID_HIGH);
+    const uint8_t low = holbeacon_read_register(self, HOLBEACON_REG_CHIPID_LOW);
     const bool correct = (high == 0x61) & (low == 0x71);
 
     if (!correct) {
