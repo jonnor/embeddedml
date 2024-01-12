@@ -6,10 +6,14 @@ Assuming 1k volumes.
 
 #### Microcontroller
 
-Can get a pretty modern microcontroller.
+Can get a pretty modern microcontroller for 1 USD.
+Even down 0.10 USD. Some options also below this.
 
 - 1x RP2040 chip. Cortex M0+
 `1 USD @ 1k`
+- WCH CH582F
+`0.68 USD @ 1k`.
+**BLE** microcontroller
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.
@@ -17,16 +21,35 @@ With USB!
 0.2 mA in LPRUN 2Mhz
 5 uA in STOP 1 no SRAM retention with RTC.
 `0.30 USD @ 1k`
-- CH32V003. RISC-V
+- WCH CH32V003. RISC-V
 16KB FLASH / 2KB RAM.  48MHz QFN-20
 `0.15 USD @ 1k`
 - PY32F002. Cortex M0+
 `0.10 USD @ 1k`
 20 Kb FLASH / 3 kB RAM. 24 Mhz
+- Padauk PFS154
+`0.06 USD @ 1k`
+2 kB FLASH / 128 bytes of RAM
+- Fremont Micro Devices FMD FT60F011A-RB
+`0.06 USD @ 1k`.
+- Padauk PMS150C
+`0.03 USD @ 1k`
+1 kB OTP / 64 bytes of RAM. **One-time-Programmable**
 
+Review of 3 cent MCUs
+https://cpldcpu.wordpress.com/2019/08/12/the-terrible-3-cent-mcu/
 
 Flashing tools for low-cost microcontrollers. Implemented in pure Python
 https://github.com/wagiminator/MCU-Flash-Tools
+
+Padauk
+https://github.com/free-pdk
+
+SDCC C compiler. For tiny/old/odd 8 bit targets
+https://sdcc.sourceforge.net/
+
+
+
 
 ### Sensors
 Prices from JLCPCB
@@ -50,6 +73,9 @@ Rechargable battery
 
 ### Connectivity
 
+- 315Mhz/433 Mhz. Below `0.1 USD @ 1k`
+- BLE. From `0.2 USD @ 1k`
+
 #### Holtek BC7161
 BLE beacon IC
 `0.2 USD @ 1k`. 
@@ -60,6 +86,8 @@ Communication over I2C
 Holtek BC7262
 SO10 package
 Communication over I2C
+
+
 
 
 ### System-view
@@ -92,18 +120,47 @@ Total BOM: `< 1.0 USD @ 1k`
 
 #### Smart audio
 
-
-- MCU. PY32F002 . `0.10 USD @ 1k`
+- MCU. CH32V003. `0.13 USD @ 1k`
 - Microphone. LinkMems `0.10 @ 1k`
 - BLE. Holtek BC7161 `0.20 @ 1k`
-- Analog opamp. `0.10 @ 1k`
-- Power. USB edge connector?
+- Analog opamp. `0.10 @ 1k`. Maybe not needed?? With CH32V003
+- Power. LIR1220?. Edge USB connector?
 
 Also very constrained for audio with 2 kB RAM.
 Probably will use 1-10 mA, for continious listening.
 Just 1 hour or so on battery?
 
 But if one can put it in a USB socket somewhere, can do continious monitoring.
+
+
+### CH32V003
+
+Ch32v003 with Microphone Module and Telemetry Viewer
+https://www.youtube.com/watch?v=AnvOQRSDUao
+
+CH32V003 USB support
+https://github.com/cnlohr/rv003usb
+https://www.youtube.com/watch?v=j-QazXghkLY
+
+2kB RAM. 48 MHz frequency.
+Enough for soundlevel computations.
+Is it enough for FFT?
+
+CH32V003A4M6 is SOP14
+
+RUN VDD=3.3V internal RC
+FHCLK = 48MHz   6.57  4.16 mA
+FHCLK = 750KHz  1.11  
+
+SLEEP VDD=5.0V internal RC
+FHCLK = 750KHz 0.47 0.43 mA
+
+Sleep wakeup    30 us
+Standby wakeup  200 us
+
+ADC sample rate up to 430 kHz
+
+2 opamp inputs, 1 output. 1 single/differential opamp.
 
 #### IoT sensor
 BLE beacon
@@ -126,6 +183,106 @@ How to run ML on this?
 And what is feasible vs infeasible?
 
 
+## BLE beacon 20 cents - the Holtek BC7161
 
+Blogpost candidate.
+Would be best to include a demo. But could do a Part I and a Part II
+Submit it to HackADay. Maybe put 1 dollar TinyML sensor as project there also.
+Submit to the .... forums where people post about
+
+Outline
+
+- Ultra cheap IoT
+- Sending sensor data using BLE
+- Holtek chip - what is it, how it works
+- 
+
+### TLDR
+Ultracheap 20 cent chip for creating BLE beacons with any microcontroller - the Holtek BC7161
+
+### Ingress
+
+The prices of electronics hardware and Internet-of-Things (IoT) technology is continuing to drop.
+For example, one can get microcontrollers for under 20 cents USD that have 2KB+ RAM and 16 kB+ FLASH.
+This matches or is better than than the classic ATMega32 known from Arduino Uno.
+Popular candidtes include WCH CH32V003, PY32F002, and Padauk PFS154.
+LINKS
+
+And it turns out, there are now 
+
+While scanning LCSC I came across the 20 cent USD
+
+I came across this when researching how cheap it is possible to transmit sensor data,
+as part of a quest to create a Machine Learning system for under 1 USD total.
+LINK 
+I have not seeen much written about it so far, so I thought I would document the finding here a bit.
+
+ https://www.lcsc.com/
+
+This has not been written much about yet, so I thought it.
+Recently I found a Bluetooth Low Energy (Bluetooth LE / BLE)
+
+
+### Sending sensor data as BLE advertisements
+
+? maybe split into two sections - first main motivations.
+Then underlying tech and best practices. Could also refer to another off-site post.
+
+BLE advertisements are used in BLE beacons.
+Traditionally used for static data. And basis for discovery.
+Indoor positioning. Asset tracking. Find my X.
+Couple of different standard formats for beacons
+But can be used for dynamic data.
+
+IMAGE. BLE advertisement data structure. 
+
+One-way-communication without guaranteed delivery
+Lots of off-the-shelf examples of this
+Note: data is transmitted plain, no built-in encryption mechanism
+Would have to be done in the application layer
+In practice can send XX bytes
+Probably want to have a sequence number
+
+Since no guaranteed delivery, want to resend each packet a few times
+Retransmission guidelines
+
+
+### Quick introduction to Holtek BC7161
+
+BC7162 / BC716x ? 
+
+Not just a really amazing price.
+Also has features that makes it super simple to use.
+
+IMAGE module options
+LINK datasheet
+LINK website
+LINK where I bought it
+
+I2C. Can be used with ANY microcontroller.
+
+Super because it allow to pick the best microcontroller.
+Or just the one one is most famililiar with.
+Or already used on in a project, adding BLE seamlessly.
+
+For example, at Soundsensing we work a lot with sound.
+And the STM32L4 is one of the absolute best at low-power digital sound from PDM microphones
+Could even use an FPGA - which typically does not.
+
+Simple protocol. Just set a few registers with configuration, and then transmit the.
+Automatic handling of power states.
+So
+
+
+### A working demo
+
+
+
+
+### Outro
+
+Next steps in the 1 dollar TinyML project
+
+Could this be?
 
 
