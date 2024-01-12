@@ -15,7 +15,7 @@ typedef struct _HolbeaconFake {
     // internal state
     uint64_t last_run_time;
     // the register map data
-    uint8_t configration_registers[HOLBEACON_REGISTERS_LENGTH];
+    uint8_t registers[HOLBEACON_REGISTERS_LENGTH];
 
     // statistics
     // TODO: split this out
@@ -24,6 +24,8 @@ typedef struct _HolbeaconFake {
 
 } HolbeaconFake; 
 
+HolbeaconError holbeacon_fake_initialize_registers(HolbeaconFake *self);
+
 HolbeaconError
 holbeacon_fake_init(HolbeaconFake *self) 
 {
@@ -31,6 +33,18 @@ holbeacon_fake_init(HolbeaconFake *self)
 
     self->advertisement_counter = 0;
     self->advertisement_last_time = 0;
+
+    return holbeacon_fake_initialize_registers(self);
+}
+
+HolbeaconError
+holbeacon_fake_initialize_registers(HolbeaconFake *self)
+{
+
+    // Chip ID
+    self->registers[HOLBEACON_REG_CHIPID_LOW] = 0x61;
+    self->registers[HOLBEACON_REG_CHIPID_HIGH] = 0x71;
+
 
     return HolbeaconOK;
 }

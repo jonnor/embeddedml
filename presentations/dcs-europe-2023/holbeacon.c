@@ -19,7 +19,17 @@ License: MIT
 
 // Register definitions
 #define HOLBEACON_REG_CHIPID_LOW 0x30
-#define HOLBEACON_REG_CHIPID_HIGH 0x30
+#define HOLBEACON_REG_CHIPID_HIGH 0x31
+
+#define HOLBEACON_REG_PDUDATA 0x10
+
+// Flag definitions
+#define HOLBEACON_RFTXSTART_REGISTER 0x1A
+#define HOLBEACON_RFTXSTART_BIT 7
+
+#define HOLBEACON_RSTPDUFF_REGISTER 0x11
+#define HOLBEACON_RSTPDUFF_BIT 7
+
 
 typedef struct _Holbeacon {
     void *i2c_user_data; // pointer to . Is passed to the i2c_read/i2c_write as first argument
@@ -63,12 +73,20 @@ holbeacon_default_i2c_read(const void *user_data, uint8_t *buf, uint32_t num_byt
 #endif
 
 
+// Return error if it is set 
+#define HOLBEACON_CHECK_ERROR(expr) \
+    do { \
+        const HolbeaconError _e = (expr); \
+        if (_e != HolbeaconOK) { \
+            return _e; \
+        } \
+    } while (0);
+
 // Convenience for reading single byte-sized register
 HolbeaconError
-holbeacon_read_register(Holbeacon *self, uint8_t addr)
+holbeacon_read_register(Holbeacon *self, uint8_t addr, uint8_t data[0])
 {
-    uint8_t buffer[1];
-    const int ret = holbeacon_i2c_read(self->i2c_user_data, buffer, 1, addr);
+    const int ret = holbeacon_i2c_read(self->i2c_user_data, data, 1, addr);
     return (ret == 0) ? HolbeaconOK : HolbeaconErrorCommunicationFailure;
 }
 
@@ -82,11 +100,43 @@ holbeacon_write_register(Holbeacon *self, uint8_t addr, uint8_t data)
     return (ret == 0) ? HolbeaconOK : HolbeaconErrorCommunicationFailure;
 }
 
+// Convenience for modifying a single byte-sized register
+HolbeaconError
+holbeacon_set_register(Holbeacon *self, uint8_t addr, uint8_t update)
+{
+    uint8_t read;
+    HOLBEACON_CHECK_ERROR(holbeacon_read_register(self, addr, &read));
+
+    uint8_t value = read;
+    // FIXME: modify value using mask     
+
+    HOLBEACON_CHECK_ERROR(holbeacon_write_register(self, addr, value));
+
+    return HolbeaconOK;
+}
+
+// Convenience for modifying a single byte-sized register
+HolbeaconError
+holbeacon_clear_register(Holbeacon *self, uint8_t addr, uint8_t update)
+{
+    uint8_t read;
+    HOLBEACON_CHECK_ERROR(holbeacon_read_register(self, addr, &read));
+
+    uint8_t value = read;
+    // FIXME: modify value using mask     
+
+    HOLBEACON_CHECK_ERROR(holbeacon_write_register(self, addr, value));
+
+    return HolbeaconOK;
+}
+
 HolbeaconError
 holbeacon_check_chip_id(Holbeacon *self)
 {
-    const uint8_t high = holbeacon_read_register(self, HOLBEACON_REG_CHIPID_HIGH);
-    const uint8_t low = holbeacon_read_register(self, HOLBEACON_REG_CHIPID_LOW);
+    uint8_t high;
+    uint8_t low;
+    HOLBEACON_CHECK_ERROR(holbeacon_read_register(self, HOLBEACON_REG_CHIPID_HIGH, &high));
+    HOLBEACON_CHECK_ERROR(holbeacon_read_register(self, HOLBEACON_REG_CHIPID_LOW, &low));
     const bool correct = (high == 0x61) & (low == 0x71);
 
     if (!correct) {
@@ -104,23 +154,38 @@ holbeacon_set_advertisement(Holbeacon *self, const uint8_t *data, uint8_t length
         return HolbeaconErrorSizeMismatch;
     }
 
-    /* FIXME: implement
-    Set RSTPDUFF to 1
-    Wait for RSTPDUFF to become 0
-    Write all packet data to PDUDATA register
-        Header, Address, Payload
-    Set PDULEN to the length
-    */
+    // Set RSTPDUFF to 1
+    const uint8_t RSTPDUFF_MASK = (uint8_t)(1<<HOLBEACON_RSTPDUFF_BIT);
+    HOLBEACON_CHECK_ERROR(holbeacon_set_register(self, HOLBEACON_RSTPDUFF_REGISTER, RSTPDUFF_MASK));
+
+    // Wait for RSTPDUFF to become 0
+    // FIXME iterate, with spacing and timeout
+
+    // Write all packet data to PDUDATA register
+    for (int i=0; i<length; i++) {
+        const uint8_t val = data[i];
+        HOLBEACON_CHECK_ERROR(holbeacon_write_register(self, HOLBEACON_REG_PDUDATA, val));
+    }
+
+    // Set PDULEN to the length
+    // FIXME modify lower 6 bits, make sure top bit is preserved
 
     return HolbeaconOK;
 }
 
 
 HolbeaconError
-holbeacon_transmit(Holbeacon *self, bool transmit) 
+holbeacon_transmit_enable(Holbeacon *self, bool transmit) 
 {
-    // FIXME: configure RFTXSTART
 
+    const uint8_t mask = (uint8_t)1<<HOLBEACON_RFTXSTART_BIT;
+    const uint8_t addr = HOLBEACON_RFTXSTART_REGISTER;
+    if (transmit) {
+        return holbeacon_set_register(self, addr, mask);
+    } else {
+        return holbeacon_clear_register(self, addr, mask);
+    }
+    
 }
 
 

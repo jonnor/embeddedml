@@ -22,7 +22,7 @@ test_holbeacon_simple()
 
     holbeacon_set_advertisement(beacon, TEST_ADVERTISEMENT_DATA, TEST_ADVERTISEMENT_LENGTH);
 
-    holbeacon_transmit(beacon, true);
+    holbeacon_transmit_enable(beacon, true);
 
 
     holbeacon_fake_run(fake, 0);
