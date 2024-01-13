@@ -162,6 +162,67 @@ ADC sample rate up to 430 kHz
 
 2 opamp inputs, 1 output. 1 single/differential opamp.
 
+https://github.com/sad-electronics/wch-kicad-lbr
+
+## Accelerometers
+
+Silan SC7A20
+`0.18 USD @ 1k` LCSC
+Supported in Linux Industrial IO driver
+Datasheet only in Chinese??
+Patch says they are clones of LIS2DH
+https://patchwork.kernel.org/project/linux-iio/patch/20200811134846.3981475-3-daniel@0x0f.com/
+
+https://wiki.analog.com/software/linux/docs/iio/iio
+https://github.com/analogdevicesinc/pyadi-iio
+https://wiki.analog.com/university/labs/software/iio_intro_toolbox#pyadi-iio
+Shows AXL345 accelerometer on Raspberry PI as example
+
+## Microphone
+
+### Analog microphone
+
+https://www.lcsc.com/products/Audio-Components-Vibration-Motors_385.html
+Both MEMS and elecret microphone below 0.1 USD
+
+MEMS microphones down to 0.03 USD @ 1k
+
+LMA2718B381 / LMA2718T421
+200μA, -42 dB sensitivity
+
+Elecret examples
+
+INGHAi GMI6050
+INGHAi GMI9767
+
+Might want to have analog opamp, to not rely on WCH uC opamp.
+
+SOT23-5 options under 0.1 USD
+https://www.lcsc.com/products/Operational-Amplifier-Comparator_515.html
+
+COS6001, LMV321IL
+50 uA current consumption
+
+
+# Power
+
+## Lipo battery chargers
+
+Many options below 0.1 USD
+https://www.lcsc.com/products/Battery-Management-ICs_612.html?keyword=battery%20charger
+Typically in SOT23-5 package
+GX4054, LTH7R, LR4054A-T
+3000 pcs reel down to 33 USD.
+
+
+## Weight measurement
+
+Strain gauge BF350-3AA, 0.30 USD @ 100 pcs
+Need a Weatstone bridge and opamp for signal conditioning.
+Plus needs to be attached to an elastic bar that experiences strain.
+Can probably be FR4 PCB structure.
+
+
 #### IoT sensor
 BLE beacon
 
