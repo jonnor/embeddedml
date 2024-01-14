@@ -51,8 +51,9 @@ then we get around:
 Review of 3 cent MCUs
 https://cpldcpu.wordpress.com/2019/08/12/the-terrible-3-cent-mcu/
 
+## Candidates
 
-## WCH CH32V003
+### WCH CH32V003
 
 Ch32v003 with Microphone Module and Telemetry Viewer
 https://www.youtube.com/watch?v=AnvOQRSDUao
@@ -81,10 +82,24 @@ ADC sample rate up to 430 kHz
 
 2 opamp inputs, 1 output. 1 single/differential opamp.
 
+KiCAD symbols
 https://github.com/sad-electronics/wch-kicad-lbr
+https://github.com/Taoyukai/wch_kicad_library
 
 Flashing tools for low-cost microcontrollers. Implemented in pure Python
 https://github.com/wagiminator/MCU-Flash-Tools
+
+## Puya PY32F0
+
+PY32F002A/003/030 considered very similar.
+
+English datasheets here
+https://github.com/IOsetting/py32f0-template/wiki
+
+Open source toolchain here
+https://github.com/IOsetting/py32f0-template/
+Based on STM32HAL, GCC, JLINK
+
 
 ### Padauk
 

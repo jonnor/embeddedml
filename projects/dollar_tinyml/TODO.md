@@ -3,7 +3,7 @@
 
 - Create project on HackADay, with introduction post
 - Create post on sub-dollar microcontrollers
-- Create initial schematic
+- Finish initial schematic, calculate BOM with prices
 - Create post on tree-based models
 - Create post on RNN models
 - Get Holtek BLE PoC working
