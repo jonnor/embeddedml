@@ -1,7 +1,6 @@
 
 # TODO
 
-- Move files to embeddedml/projects/dollar_tinyml
 - Create project on HackADay, with introduction post
 - Create post on sub-dollar microcontrollers
 - Create initial schematic
@@ -13,6 +12,7 @@
 
 # DONE
 
+- Initial research on microcontrollers,
 - Theoretical check that RNN can fit into 2 kB RAM / 32 kB RAM.
 Confirmed. FastGRNN etc.
 
