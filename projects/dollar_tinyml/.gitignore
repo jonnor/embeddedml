@@ -1,3 +1,4 @@
 *.kicad_sch.lck
 *-backups/
 *auto_saved_files*
+*autosave*

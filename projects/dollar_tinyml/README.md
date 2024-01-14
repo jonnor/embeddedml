@@ -16,15 +16,12 @@ Taking this to an extreme, this project raises the question
 
 ## Current status
 
-**Initial research phase**.
+**Feasibility research done. Prototyping hardware+software**.
 
-- Feasibility research underway, see [references](./references)
+- Initial system architecture decided. See below
+- Feasibility research documented under [references](./references)
 
-See also, [TODO](./TODO.md)
-
-## Related projects
-
-[emlearn](https://emlearn.org), a Machine Learning engine in C99, designed for tiny microcontroller and embedded systems.
+See also [TODO](./TODO.md)
 
 ## Scope and limitations
 
@@ -37,5 +34,43 @@ Example: smartphone, USB charger, PC
 - PCB Assembly (PCBA) costs are not included
 - Mechanical elements apart from PCB not included
 - Assuming production volume of 1000 units
+
+
+## System architecture
+
+Key functionality
+
+- Capture and process motion/vibration data (from accelerometers)
+- Capture and process audio data (from microphone)
+- Running classification algorithms such as decision tree ensembles and recurrent neural networks
+- Transmit results using BLE advertisements
+
+Example usecases
+
+- Human Activity Detection
+- Sound Event Detection
+- Voice/Speech Activity Detection
+
+Components
+
+```
+Microcontroller                 PY32F003A
+MEMS accelerometer.             ST LIS2DH12
+MEMS microphone (analog)        LinkMEMS LMA2718
+Bluetooth Low Energy beacon     Holtek BC7161
+Battery                         LIR1220, charger included
+External power                  USB Type A (PCB edge connector)
+```
+
+BOM for core components `0.90 USD`.
+This leaves `0.10 USD` for jellybeans (standard capacitors/resistors).
+Possible to drop either the microphone+opamp (0.12 USD) or accelerometer (0.26 USD).
+Should also be possible to drop the battery (0.25 USD), if running on USB power.
+
+[Bill of Materials](hardware/dml10/BOM.csv).
+
+## Related projects
+
+[emlearn](https://emlearn.org), a Machine Learning engine in C99, designed for tiny microcontroller and embedded systems.
 
 

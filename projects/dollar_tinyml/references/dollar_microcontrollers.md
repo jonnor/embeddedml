@@ -93,6 +93,19 @@ https://github.com/wagiminator/MCU-Flash-Tools
 
 PY32F002A/003/030 considered very similar.
 
+- PY32F002A 3 KB RAM / 20 KB FLASH / 24 MHz. 0.09 USD @ 1k
+- PY32F030. Multiple variants. 2-8 KB RAM, 16-64 KB FLASH
+- PY32F003. Multiple variants. 2-8 KB RAM, 16-64 KB FLASH
+
+LCSC has PY32F003x6, 4 kB RAM / 32 kB FLASH.
+PY32F003W16S6TU SOP16, 0.13 USD @ 1k.
+
+Meet Puya PY32 – The 8-cent Arm Cortex-M0+ microcontroller
+https://www.cnx-software.com/2023/02/09/8-cents-for-an-arm-cortex-m0-microcontroller-meet-puya-py32-series-mcus/
+
+EEVBLOG thread on Puya PY32
+https://www.eevblog.com/forum/microcontrollers/$0-11-py32f002a-m0-24mhz-320kb-actually-324kb-more-peripherals/
+
 English datasheets here
 https://github.com/IOsetting/py32f0-template/wiki
 
