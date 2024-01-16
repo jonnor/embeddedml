@@ -4,7 +4,7 @@
 Constraints
 Under 50% of RAM and FLASH for ML model
 2 kB of RAM and 16 kB FLASH
-Preferably would like to be closer to 25%, ie half this
+Preferably would like to be closer to 25%, ie 1 kB RAM and 8 kB FLASH
 
 Task
 Human Activity Detection
@@ -46,6 +46,16 @@ At 10 trees, used 10kB FLASH for model.
 At 100 trees, used nearly 100 kB FLASH
 50 trees appear to be around 50 kB FLAH
 ! Not clear if feature compute code size is counted.
+
+According to benchmarks in emlearn,
+when using integers the code size for model is approximately halved.
+Would be 25 kB instead of 50 kB.
+A forest with average tree depth of 7.78 and 50 trees took under 11 kB with uint8_t on Cortex-M0
+
+Tested 128 and 256 samples window size
+1.5kB or 3.0 kB for triaxial int16 data
+!! a bit high for our RAM
+Can we go down to 8 bit? Potentially applying some non-linear compression, like pow
 
 Running on NRF5340
 Inference time of approx 1ms
