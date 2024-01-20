@@ -1,8 +1,16 @@
 
-### Connectivity
+# Connectivity
 
 - 315Mhz/433 Mhz. Below `0.1 USD @ 1k`
 - BLE. From `0.2 USD @ 1k`
+- USB
+
+## USB
+
+CH340 US $0.2848
+
+
+## Bluetooth 
 
 #### Holtek BC7161
 BLE beacon IC
@@ -14,7 +22,6 @@ Communication over I2C
 Holtek BC7262
 SO10 package
 Communication over I2C
-
 
 ### BLE advertisement
 
