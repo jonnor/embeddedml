@@ -1,5 +1,23 @@
 
-## Post
+## Human Activity Detection using accelerometer and tree-based ML models 
+
+It seems that our project will have a 32-bit microcontroller
+with around 4 kB RAM and 32 kB FLASH (such as the Puya PY32F003x6).
+This sets the contraints that our entire firmware needs to fit inside.
+The firmware needs to collect data from the sensors, process the sensor data, run the Machine Learning model, and then transmit (or store) the output data.
+
+The input buffers, intermediate buffers, tends to take up a considerable amount of RAM.
+Therefore we must consider them carefully to establish an appropriate tradeoff between sampling rate, precision (bit width) and length (in time).
+
+
+TABLE: RAM utilization versus samplerate,bitwidth,duration
+
+Accelerometer data used in this manner tends to be sampled at relatively low sample rates,
+for example 100 Hz.
+However there needs to be.
+Furthermore the input data from a tri-axial accelerometer has 3 channels, and often comes in 16-bit resolution. 
+
+
 
 Constraints
 Under 50% of RAM and FLASH for ML model
@@ -20,6 +38,7 @@ How to realize
 Feature computations
 
 IMAGE: feature extraction illustrated
+
 
 Decision tree ensemble
 TODO: Estimate model size for Cortex M0+ with emlearn using integers
@@ -72,6 +91,8 @@ https://github.com/atiselsts/feature-on-board-activities/blob/main/rf/ml_state.p
 
 Some odd remapping of classes, into 12 classes total?
 https://github.com/atiselsts/feature-on-board-activities/blob/main/cnn/datasets.py#L54
+
+
 
 
 

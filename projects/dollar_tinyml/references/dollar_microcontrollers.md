@@ -121,3 +121,15 @@ https://github.com/free-pdk
 SDCC C compiler. For tiny/old/odd 8 bit targets
 https://sdcc.sourceforge.net/
 
+
+### Storage
+
+SPI NOR FLASH
+
+- ZD25Q16CTIGT  2 MB   `0.09 USD @ 1k`
+- ZD25WD20BUIGR 256 kB `0.05 @ 1k`
+
+
+
+
+
