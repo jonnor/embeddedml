@@ -10,17 +10,25 @@ import pandas
 
 def assert_data_correct(data):
 
+    # check dataset size
     assert len(data) == 2872533, len(data)
     assert len(data.columns) == (3*13)+2, len(data.columns)
 
+    # check index
     assert data.index.names == ['subject', 'time']
     assert data.dtypes['activity'] == 'category'
 
+    # check subjects
     subjects = data.index.levels[0]
     n_subjects = subjects.nunique()
     assert n_subjects == 9, (n_subjects, list(subjects.unique()))
 
+    # check activities
+    activity_counts = data.activity.value_counts()
+    assert activity_counts['transient'] == 929661, activity_counts['transient']
+
     
+
 def load_data(path) -> pandas.DataFrame:
     """
     Load all data in the dataset
@@ -55,7 +63,7 @@ def load_data(path) -> pandas.DataFrame:
     # Use proper types
     data['time'] = pandas.to_timedelta(data.time, unit='s')
     data['subject'] = data.subject.astype('category')
-    data['activity'] = pandas.Categorical(data.activity, categories=activity_categories)
+    data['activity'] = pandas.Categorical.from_codes(data.activity, categories=activity_categories)
 
     # Set a reasonable index
     data = data.set_index(['subject', 'time'])
@@ -139,19 +147,22 @@ def load_activities() -> dict[int, str]:
 
     return map
 
+def load_packed(packed_path):
+
+    loaded = pandas.read_parquet(packed_path)
+    assert_data_correct(loaded)
+
+    return loaded
 
 def main():
 
     dataset_path = '/data/emlearn/PAMAP2_Dataset/'
     packed_path = 'pamap2.parquet'
 
-    #data = load_data(dataset_path)
-    #data.to_parquet(packed_path)
+    data = load_data(dataset_path)
+    data.to_parquet(packed_path)
 
-    loaded = pandas.read_parquet(packed_path)
-    assert_data_correct(loaded)
-    
-
+    loaded = load_packed(packed_path)
 
 
 if __name__ == '__main__':
