@@ -3,7 +3,6 @@
 
 - Create 1 or 2 project images
 - Add a link to the main README in embeddedml
-- Finish hyperparameter search on PAMAP2 HAR. Plots of performance versus FLASH usage
 - Create post on HAR with tree-based models.
 - Check approximate dimensions for board.
 Want to be smaller than 40x40 mm

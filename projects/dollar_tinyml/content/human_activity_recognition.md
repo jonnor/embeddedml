@@ -1,24 +1,29 @@
 
+# Activity Recognition using accelerometer with tree-based ML models 
 
-# Human Activity Detection using accelerometer and tree-based ML models 
+### Summary
 
-TLDR: This should be a barely-doable task on the chosen microcontroller (4 kB RAM and 32 kB FLASH).
+This should be a just-barely-doable task on the chosen microcontroller (4 kB RAM and 32 kB FLASH).
 Expected RAM usage is between 0.5 kB to 3.0 kB,
 and FLASH usage between 10 kB to 32 kB FLASH.
 There are accelerometers available that add 20 to 30 cents USD to the Bill-of-Materials.
+Random Forest on time-domain features can do a good job at Activity Recognition.
+emlearn has efficient Random Forest implementation for microcontrollers
+https://github.com/emlearn/emlearn
 
-### Human Activity Detection
+### Applications for Activity Recognition
 
-Human Activity Detection (HAR).
-TODO: write about about 
+The most common sub-task for Activity Recognition using accelerometers is Human Activity Recognition (HAR).
+It can be used for Activities of Daily Living (ADL) recognition
+such as walking, sitting/standing, running, biking etc,
+which is now a standard feature on fitness watches and smartphones etc.
 
-Task
-Human Activity Detection
+But there are ranges of other use-cases that are more specialized
 
-Have a wide range of applications.
-Medical, health, exercise, elderly care etc
-Not just human activities, also animals
-Wrist mounted device. Smart watch. Fitness bracelet etc.
+- Tracking sleep quality (calm vs restless motion during sleep)
+- Detecting exercise type counting repetitions
+- Tracking activities of free-roaming domestic animals
+- Fall detection etc as alerting system in elderly care
 
 ### Ultra low cost accelerometers
 
@@ -36,6 +41,7 @@ The Silan SC7A20 chip is said to be a clone of LIS2DH.
 https://patchwork.kernel.org/project/linux-iio/patch/20200811134846.3981475-3-daniel@0x0f.com/
 
 So there looks to be several options in the 20-30 cent USD range.
+Combined with a 20 cent microcontroller, we are still below 50% of our 1 dollar budget.
 
 ### Resource constraints
 
@@ -43,7 +49,8 @@ It seems that our project will have a 32-bit microcontroller
 with around 4 kB RAM and 32 kB FLASH (such as the Puya PY32F003x6).
 This sets the contraints that our entire firmware needs to fit inside.
 The firmware needs to collect data from the sensors, process the sensor data, run the Machine Learning model, and then transmit (or store) the output data.
-Would like to use under 50% of RAM and FLASH for buffers and for model combined.
+Would like to use under 50% of RAM and FLASH for buffers and for model combined,
+so **under 2 kB RAM** and **under 16 kB FLASH**.
 
 ### Overall system architecture
 
@@ -52,17 +59,18 @@ fixed-length windows (typically a few seconds long) that are classified independ
 Simple features are extracted from each of the windows,
 and a Random Forest is used for classification.
 
-This kind of architecture was used for example in the paper
+IMAGE: 
+A systematic review of smartphone-based human activity recognition methods for health research
+https://www.nature.com/articles/s41746-021-00514-4
+
+This kind of architecture was used for in the paper
 Are Microcontrollers Ready for Deep Learning-Based Human Activity Recognition? 
 https://www.mdpi.com/2079-9292/10/21/2640
 which shows that it was able to perform similarly to a deep-learning approach,
 but with resource usage that was 10x to 100x better.
 They were able to run on Cortex-M3, Cortex-M4F and Cortex M7 microcontrollers with 
 at least 96 kB RAM and 512 kB FLASH.
-
-Using the optimized Random Forest implementation in emlearn,
-we should be able to fit this on microcontrollers that have only 5% of these resources.
-https://github.com/emlearn/emlearn
+We need to fit into 5% of that resource budget.
 
 ### Data buffers
 
@@ -80,7 +88,7 @@ It may be possible to reduce this down to 8 bit with sacrificing much performanc
 This can be done by scaling the data linearly, or implementing a non-linear transform
 such as square-root or logarithm to reduce the range of values needed.
 
-Being able to use 50 Hz sampling rate would also be very beneficial to reduce RAM usage.
+Using 50 Hz sampling rate would also be very beneficial to reduce RAM usage.
 Assuming that feature processing is quite fast, it should also be possible to not use full double-buffering.
 
 It may also be possible to keep a buffer of computed features (much smaller in size) for the windows and classify them together.
@@ -89,39 +97,37 @@ This would allow to reduce the window size, but maintain infomation from a simil
 ### Feature extraction
 
 In the previously referenced paper they used 9 features.
-These have neglible RAM and FLASH usage.
+These compute simple statistics directly. No FFT or similar heavy processing is used.
+This should have a neglible RAM (under 256 bytes) and FLASH usage (under 5kB).
 
 IMAGE: feature extraction illustrated
 
+Just 9 features
+
 ### Random Forest classifier
 
-Just 9 features
-max_depth 9.
-
 The previously mentioned paper tested using 10-100 trees, with a max_depth of 9.
-After 50 trees, marginal improvements in F1 score
-At 10 trees, used 10kB FLASH for model.
-At 100 trees, used nearly 100 kB FLASH
-50 trees appear to be around 50 kB FLAH
+Found after 50 trees, marginal improvements in F1 score
+Reported 10 trees using 10kB FLASH, and 50 trees appear to be around 50 kB FLASH.
+Assume that this is only counting the size of the model, and not the feature processing code.
+
+However it does not appear that they did any hyperparameter optimization to reduce the model size.
 
 
-! did not try different depth limits based on trees.
-Possible that smaller amount of trees could have performed better with more regularization
-! used floating point, not integers
 
-! Not clear if feature compute code size is counted.
+IMAGE:
 
 According to benchmarks in emlearn,
 when using integers the code size for model is approximately halved.
-Would be 25 kB instead of 50 kB.
-A forest with average tree depth of 7.78 and 50 trees took under 11 kB with uint8_t on Cortex-M0
+LINK: 
 
 
+Based on this
 
+## References
 
-Decision tree ensemble
+A systematic review of smartphone-based human activity recognition methods for health research
+https://www.nature.com/articles/s41746-021-00514-4
 
-
-
-IMAGE: decision tree forest
-
+A Comprehensive Study of Activity Recognition Using Accelerometers 
+https://www.mdpi.com/2227-9709/5/2/27
