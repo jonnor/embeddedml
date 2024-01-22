@@ -7,7 +7,58 @@
 
 ## USB
 
-CH340 US $0.2848
+Having ability to do USB Mass Storage would enable sensor
+to be a "USB stick" that one can dump data from.
+This is useful for "data logger" type deployments,
+where sensor is running autonomously for some hours/days (possibly on battery),
+but it is OK to get the results as one batch afterwards.
+As opposed to a 24/7 autonomous system that transmits data continious all the time.
+
+CH552G. 16 kB FLASH, 1.25 kB RAM. USB. 8 bit
+1000+ US$0.3103 
+https://www.wch-ic.com/products/CH552.html
+
+CH32V003 bitbang USB
+https://github.com/cnlohr/rv003usb/tree/master
+
+CH32V103 USB 2.0. 1000+ US$0.7207 
+Has USB, but too expensive
+
+CH32X035 has built-in USB and PD PHY
+https://www.wch-ic.com/products/CH32X035.html
+Scale pricing not available?
+AliExpress has 20 pcs for 13 USD, so should be sub 1 dollar.
+50 cent maybe?
+
+Puya PY32.
+Open issue for software/bitbanging based USB
+https://github.com/IOsetting/py32f0-template/issues/12
+
+
+Cortex M0+ software bitbanged
+Has been demonstrated to work on 48 Mhz units, since 2015
+But never really deployed widely?
+https://github.com/lemcu/LemcUSB
+https://github.com/xobs/grainuum
+
+
+USB to serial chips. CH340 US $0.2848. Nothing cheaper?
+Can only act as serial device.
+Not very useful. And the same cost as the entire microcontroller.
+
+For Atmel AVR8 there are multiple software-only USB projects, notably V-USB and USBTiny.
+https://www.obdev.at/products/vusb/index.html
+https://dicks.home.xs4all.nl/avr/usbtiny/
+
+TinyUSB is a popular microcontroller USB stack,
+but I am pretty sure it requires USB pheripherals in hardware.
+https://github.com/hathach/tinyusb
+https://github.com/dmitrystu/libusb_stm32
+
+TinyUSB mass storage example
+https://github.com/hathach/tinyusb/blob/master/examples/device/cdc_msc/src/msc_disk.c
+16 blocks a 512 bytes = 8kB. Said to be smallest that Windows will mount
+FAT32 file system is exposed.
 
 
 ## Bluetooth 

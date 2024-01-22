@@ -94,15 +94,17 @@ Assuming that feature processing is quite fast, it should also be possible to no
 It may also be possible to keep a buffer of computed features (much smaller in size) for the windows and classify them together.
 This would allow to reduce the window size, but maintain infomation from a similar amount of time in order to keep performance up.
 
+So it seems feasible to find a configuration under 2 kB RAM that has good performance.
+
 ### Feature extraction
 
 In the previously referenced paper they used 9 features.
-These compute simple statistics directly. No FFT or similar heavy processing is used.
+These compute simple statistics directly on each window.
+No FFT or similar heavy processing is used.
 This should have a neglible RAM (under 256 bytes) and FLASH usage (under 5kB).
 
 IMAGE: feature extraction illustrated
 
-Just 9 features
 
 ### Random Forest classifier
 
@@ -111,18 +113,27 @@ Found after 50 trees, marginal improvements in F1 score
 Reported 10 trees using 10kB FLASH, and 50 trees appear to be around 50 kB FLASH.
 Assume that this is only counting the size of the model, and not the feature processing code.
 
-However it does not appear that they did any hyperparameter optimization to reduce the model size.
+However it does not appear that they did any hyperparameter optimization to find smaller models.
+Therefore I forked the git repository with the experimenents
+https://github.com/jonnor/feature-on-board-activities
+and added my own tuning by varying the depth of the trees
+
+IMAGE: 
+
+The original performance (50 trees, max_depth=9) is marked with a green dot.
+We can see that 5 trees can just barely hit the same performance levels,
+and that 10 trees is able to improve the performance.
+And that the model size can be 4-10x with no or marginal degradation in performance.
+
+The size estimates in the plot are for the "loadable" inference strategy in emlearn.
+Benchmarks show that when using the "inline" inference strategy with 8-bit integers,
+then model size is approximately half.
+LINK: https://emlearn.readthedocs.io/en/latest/auto_examples/trees_feature_quantization.html#sphx-glr-auto-examples-trees-feature-quantization-py
+
+So the models that take 20 kB in the plot should in practice take around 10 kB.
+These matches performance of the untuned model, and fit in our 16 kB FLASH budget.
 
 
-
-IMAGE:
-
-According to benchmarks in emlearn,
-when using integers the code size for model is approximately halved.
-LINK: 
-
-
-Based on this
 
 ## References
 

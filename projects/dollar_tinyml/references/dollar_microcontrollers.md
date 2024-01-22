@@ -16,7 +16,6 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.
-With USB!
 0.2 mA in LPRUN 2Mhz
 5 uA in STOP 1 no SRAM retention with RTC.
 `0.30 USD @ 1k`
