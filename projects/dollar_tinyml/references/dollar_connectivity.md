@@ -3,7 +3,61 @@
 
 - 315Mhz/433 Mhz. Below `0.1 USD @ 1k`
 - BLE. From `0.2 USD @ 1k`
-- USB
+- USB. 
+
+## Usecases
+
+Transmitting regularly.
+For at 1 second to 10 minute intervals, and up to 29 bytes.
+Can use BLE.
+Receive with smartphone or PC.
+
+Dumping a batch of data.
+For example 1 MB, collected over some hours or days.
+Use USB? Tricky, most solutions too expensive.
+Use SDcard? Unknown
+
+## Audio
+
+http://web.eecs.umich.edu/~prabal/projects/hijack/
+
+## Visible light / LEDs
+
+### WebJack
+https://webjack.io/
+
+SoftModem Arduino library
+to create two-way communication between a browser windo
+Bell 202 modem-like
+FSK 1225 bit/s
+
+
+#### HiJack
+300 baud data transfer using Bell 202 FSK signaling, or
+8.82 kbaud using a Manchester-encoded, direct-digital communication using hardware accelerators on the HiJack microcontroller.
+
+https://github.com/ggerganov/ggwave
+8-16 bytes/sec depending on the protocol parameter
+Provides libraries for many platforms, including Arduino and WebAssembly
+
+https://github.com/weckbach/AstroMech
+
+
+https://github.com/cstroie/Arabell300
+Frequency modulated (FM) protocol
+Old school Arduino modem, Bell 103 compatible, at 300 baud
+
+#### Audio jack hardware
+
+Needs to be 4 pin for 2 way communication.
+Several options at LCSC at decent prices.
+
+Shenzhen Kinghelm Elec KH-PJ-313B-6P
+1000+ 	US$0.0518 	US$ 51.80
+HC-PJ-3134-6P-D
+HC-PJ-313E8-B-SMT
+PJ-313B6-B
+
 
 ## USB
 
@@ -59,6 +113,22 @@ TinyUSB mass storage example
 https://github.com/hathach/tinyusb/blob/master/examples/device/cdc_msc/src/msc_disk.c
 16 blocks a 512 bytes = 8kB. Said to be smallest that Windows will mount
 FAT32 file system is exposed.
+
+
+## SDCard
+Many (most?) people have an (micro) SDcard reader.
+Could one provide that interface, in order to be able to drop files?
+Need to emulate both the communication protocol, the electrical levels, and the physical/mechanical interface.
+
+Protocol
+Can the SPI pheripheral be used?
+Are there software implementations available?
+
+Mechanical, SD
+
+
+Mechanical, microSD
+Is thinner than 1.6 mm PCB? Only around 10 mm wide.
 
 
 ## Bluetooth 
