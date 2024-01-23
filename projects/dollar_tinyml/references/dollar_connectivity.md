@@ -47,6 +47,55 @@ https://github.com/cstroie/Arabell300
 Frequency modulated (FM) protocol
 Old school Arduino modem, Bell 103 compatible, at 300 baud
 
+AFSK1200, Bell 202
+https://en.wikipedia.org/wiki/Bell_202_modem
+
+AX.25
+https://en.wikipedia.org/wiki/AX.25
+
+FX.25
+https://en.wikipedia.org/wiki/FX.25_Forward_Error_Correction
+
+IL2P (Improved Layer 2 Protocol)
+https://en.wikipedia.org/wiki/Improved_Layer_2_Protocol
+
+ITU V.21
+
+https://github.com/amedes/pico_tnc
+Encode and decode Bell 202 AFSK signal without modem chip
+
+https://github.com/eleccoder/raspi-pico-aprs-tnc
+TX-only TNC (Terminal Node Controller) to generate the AFSK (Audio Frequency-Shift Keying) audio tones
+for APRS (Automatic Packet Reporting System) messages using a RP2040 microcontroller on a Raspberry Pi Pico board.
+Contains a beacon test application, instructions on how to test together wth Direwolf
+Contains hardware schematic for analog output filter
+
+https://github.com/cho45/WebAudio-Modem
+JavaScript / WebAudio implementation of 300 baud
+
+https://github.com/dolske/modem.js
+A JavaScript 1200 baud audio modem (modulator/demodulator for Bell 202 / AFSK / AX.25)
+MIT licensed
+
+http://www.whence.com/minimodem/
+Linux software for transmitting/receiving data using AFSK Bell103, Bell202, etc
+
+https://github.com/MrLordLeon/TNCMCU/tree/master
+TNCwith an STM32 or similar microcontroller
+
+AFSK and AX.25 together is also called a TNC (Terminal Node Controller). 
+
+https://github.com/sq8vps/vp-digi
+STM32F103C8T6
+
+    1200 Bd AFSK Bell 202 (VHF standard)
+    300 Bd AFSK Bell 103 (HF standard)
+    9600 Bd GFSK G3RUH (UHF standard)
+    1200 Bd AFSK V.23
+
+FX.25 which adds Forward Error Correction (FEC)
+https://github.com/wb2osz/direwolf
+
 #### Audio jack hardware
 
 Needs to be 4 pin for 2 way communication.
@@ -74,6 +123,9 @@ https://www.wch-ic.com/products/CH552.html
 
 CH32V003 bitbang USB
 https://github.com/cnlohr/rv003usb/tree/master
+
+Can it support USB mass storage class?
+https://github.com/cnlohr/rv003usb/issues/41
 
 CH32V103 USB 2.0. 1000+ US$0.7207 
 Has USB, but too expensive
