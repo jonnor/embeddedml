@@ -1,0 +1,25 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#(c) SnapEDA 2016 (snapeda.com)
+#This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA) with Design Exception 1.0
+#
+# CMM-2718AT-42308-TR
+#
+DEF CMM-2718AT-42308-TR U 0 40 Y Y 1 L N
+F0 "U" -300 300 50 H V L BNN
+F1 "CMM-2718AT-42308-TR" -300 -500 50 H V L BNN
+F2 "XDCR_CMM-2718AT-42308-TR" 0 0 50 H I L BNN
+F3 "" 0 0 50 H I L BNN
+F4 "" 0 0 50 H I L BNN "PARTREV"
+F5 "CUI Inc" 0 0 50 H I L BNN "MANUFACTURER"
+F6 "Manufacturer Recommendations" 0 0 50 H I L BNN "STANDARD"
+DRAW
+S -300 -400 300 300 0 0 10 f
+X OUTPUT 4 500 0 200 L 40 40 0 0 O 
+X GND 2 500 -200 200 L 40 40 0 0 W 
+X VDD 1 500 200 200 L 40 40 0 0 W 
+X GND__1 3 500 -300 200 L 40 40 0 0 W 
+ENDDRAW
+ENDDEF
+#
+# End Library

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "dml10")(type "KiCad")(uri "${KIPRJMOD}/footprints/dml10.pretty")(options "")(descr ""))
+)
