@@ -3,8 +3,6 @@
 
 - Create 1 or 2 project images
 - Add a link to the main README in embeddedml
-- Check approximate dimensions for board.
-Want to be smaller than 40x40 mm
 - Make mockup/concept sketch/image for use as wristband
 - Finish initial schematic
 - Get Holtek BLE PoC working
@@ -15,6 +13,16 @@ Want to be smaller than 40x40 mm
 - Maybe order a devboard
 https://github.com/wagiminator/Development-Boards/tree/main/PY32F002AF15P_DevBoard
 
+### Hardware
+
+dml10 rev1
+
+- Make a proper PCB outline. Round corners, dog/tbones for USB stickout. In FreeCAD
+- Make a concept for casing. In FreeCAD. With USB charger.
+- Add 5v connector and mousebites at USB connector. Allow breaking it off
+- Line up headers on 2.54mm grid
+- Get quote. At JLCPCB
+
 # DONE
 
 - Initial research on microcontrollers,
@@ -23,3 +31,4 @@ Confirmed. FastGRNN etc.
 - Theoretical check that RF for HAR can fit into 2kB RAM / 32 kB FLASH
 - Hyperparameter tuning RF for small size, for HAR on PAMAP2 dataset
 - Post on HAR+RF feasibility
+- Check approximate dimensions for board. Currently 52x26mm incl USB connector, 40x26mm excluding
