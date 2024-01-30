@@ -29,6 +29,10 @@ Compatible
 - CMM-2718AT-42316-TR
 - LMA2718T421
 
+specifications
+
+
+
 ### Bottom port 1.85x2.75mm.
 
 Correct size:
@@ -63,4 +67,63 @@ COS6001, LMV321IL
 SO70 would be alternative. Bit smaller size. 2.1x2.0 mm
 
 50 uA current consumption
+
+
+## Opamp specifications and selection
+
+Analog Devices AN-1165, Op Amps for MEMS Microphone Preamp Circuits
+
+Matching the peaks of the microphone’s signal level to the full-scale
+input voltage of an ADC makes maximum use of the ADC’s dynamic range,
+and reduces the noise that subsequent processing may add to the signal
+
+Op amp’s voltage noise in a preamp design. noise density unit of nV/√Hz.
+
+The current noise becomes limiting in the design only when high value resistors are used
+To keep low, typically resistors with values less than 10 kΩ are used.
+
+Assuming uniform noise spectrum, to get the device noise in the bandwidth of interest,
+multiply this noise density by the square root of the bandwidth.
+For 20 kHz bandwidth, this multiplication factor is 141
+
+Noise density plot. Check that the 1/f range is below 20Hz.
+And reasonably flat in audible range.
+
+Microphone self noise. Noise floor of.
+
+Op amp should be to be significantly quieter than microphone.
+At at least 10 dB quieter
+
+dbV reference V0 is 1.0 volts 
+
+
+opamp_noise_density =  # [nV/√Hz]
+
+noise_density = sqrt(bandwidth) * 
+
+dbv from voltage
+
+
+SR = 2 × π × fMAX × VP
+
+bandwidth product (GBP) = amp bandwidth * gain
+
+Most below 40 dB of gain, which is a factor of 100
+Recommends designing for 50 kHz bandwith, 2.5x safety factor
+
+InverSense AN-1165, Op Amps for MEMS Microphone Preamp Circuits
+
+
+Inverting vs non-inverting design
+
+Common-mode rejection (CMRR) is a spec that is of more concern for noninverting circuits than for inverting topologies.
+
+
+Invering. R1 resistor forms a voltage divider with the MEMS microphone output
+Neds to be high enough not to load the microphone output, but not so high that it adds unnecessary noise to the circuit.
+The analog MEMS microphones typically have an output impedance of 200 Ω.
+If R1 is chosen to be 2.0 kΩ, the resulting voltage divider
+
+Select the cutoff frequency at least one octave below that of the microphone
+
 

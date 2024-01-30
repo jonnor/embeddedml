@@ -1,0 +1,7 @@
+#PN,USD@1k,dbV,ohms,db(A),%,Hz
+part,cost,sensitivity,impedance,snr,thd,highpass,comments
+LMA2718T421-OA5,0.0578,-42,300,55,0.10,200,
+LMA2718T381-OC1,0.1468,-38,300,62,0.10,50,Similar to OA5. But has specified tolerances on freq response down to 100Hz
+LMA2718T381-OY1,0.2753,-38,300,64,0.15,20,Similar to OC1. But has specified tolerances on freq response down to 20Hz
+S15OT421-005,0.0888,-42,400,59,1.0,50,THD is max. Freq response only specified down to 100Hz
+
