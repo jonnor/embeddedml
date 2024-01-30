@@ -1,0 +1,8 @@
+#MPN,USD@1k,mA,nV/Hz@1khz,V/μs,Mhz
+manufacturer,part,cost,current,noise_density,slewrate,gbp
+UMW,LMV321IDBVR,0.029,0.060,27.0,0.52,1.0
+TI,TLV333,0.2085,0.060,55.0,0.16,0.35
+TI,LM321LVIDBVR,0.032,0.090,40.0,1.5,1.0
+Gainsil,GS8621,0.0702,0.250,18.0,1.66,3.0
+Gailsil,GS8721,0.0847,1.5,12.0,9.0,11.0
+Tokmas,LMV721,0.0732,1.5,11.5,9.0,11.0
