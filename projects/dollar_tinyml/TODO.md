@@ -4,7 +4,6 @@
 - Create 1 or 2 project images
 - Add a link to the main README in embeddedml
 - Make mockup/concept sketch/image for use as wristband
-- Finish initial schematic
 - Get Holtek BLE PoC working
 - Create post on holbeacon
 - Make mockup/concept sketch/image for use as sound sensor. With USB PSU?
@@ -19,6 +18,7 @@ dml10 rev1
 
 - Make a proper PCB outline. Round corners, dog/tbones for USB stickout. In FreeCAD
 - Make a concept for casing. In FreeCAD. With USB charger.
+- Add header or testpoint for the analog input after amplifier
 - Add 5v connector and mousebites at USB connector. Allow breaking it off
 - Line up headers on 2.54mm grid
 - Get quote. At JLCPCB

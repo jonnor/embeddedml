@@ -48,8 +48,8 @@ Compatible:
 ### Analog elecret microphones
 
 
-INGHAi GMI6050
-INGHAi GMI9767
+INGHAi GMI6050  0.0899 
+INGHAi GMI9767  0.0844 
 
 
 ### Analog opamp
@@ -116,4 +116,79 @@ The analog MEMS microphones typically have an output impedance of 200 Ω.
 If R1 is chosen to be 2.0 kΩ, the resulting voltage divider reduces gain by under 10%.
 
 Select the cutoff frequency at least one octave below that of the microphone.
+
+
+## Programmable Gain Amplifiers
+
+12 bit up to 72 dB  dynamic range,
+and 16 bits up to 96 dB dynamic range.
+
+### Digital potmeter
+
+https://www.lcsc.com/products/Digital-Potentiometers_620.html
+MCP4017T-502E/LT
+US$0.4519 
+Too expensive in this project.
+
+### Switched resistor gain
+
+Programmable Gain Amplifier. Using switching of resistors.
+JFET recommended. Or integrated analog switch.
+Should be done in second stage, to avoid introducing noise.
+
+Analog switches
+SN74LVC1G66 0.0432 @ 1k
+
+Is an acceptable cost.
+20 dB is 4 bits gain.
+Alternative is an 16 bit ADC, over SPI.
+
+ES7243E
+Low noise PGA
+24-bit, 8 to 48 kHz sampling frequency
+I2S output
+Auto level control (ALC) and noise gate
+USD 0.2514 @ 1k
+
+MCP3461/MCP3462
+SPI interface 
+Programmable Gain: 0.33x to 64x
+
+
+
+
+### ADC multiplexiing
+
+Use 2 ADC inputs on the microcontroller?
+Each to a different gain stage.
+Switch between them as needed.
+
+
+
+## Output
+
+Sound Event to MIDI?
+DIN-5 connectors around US$0.1698
+For plugging into music instruments, front-of-house, DMX lighting controllers etc
+
+MIDI uses 31250 baud.
+5 volts. Can be done with just NPN.
+But optocoupler preferred for input/output.
+https://www.pjrc.com/teensy/td_libs_MIDI.html
+MIDI sometimes using TRS. However there are two different pinouts. And it is still less common?
+
+DMX for lighting control.
+Uses RS-485. Off the shelf tranceivers
+
+RS1905 0.0759 USD
+
+I2C at 1 meter. Should be OK with shielded cable. Would benefit from a bus extender.
+For example PCA9617A. Or the older PCA9515. Or 
+
+https://www.reddit.com/r/AskElectronics/comments/hq1vyh/why_does_my_i2c_bus_perform_worse_with_shielded/
+
+> I've recently done a test board to try and use the PCA9615 or P82b96 in a noisy (automotive) environment
+> specifically to avoid putting a micro at the "far" end
+> but came to the conclusion that they are a pain in the arse
+> and not worth the effort over putting a small low-power micro and a cheap RS485 chip down.
 

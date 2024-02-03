@@ -21,7 +21,12 @@ Taking this to an extreme, this project raises the question
 - Initial system architecture decided. See below
 - Feasibility research documented under [references](./references)
 
-See also [TODO](./TODO.md)
+There are also notes about next steps in [TODO](./TODO.md)
+
+## See also
+
+You can also follow [this project on Hackaday.io](https://hackaday.io/project/194511-1-dollar-tinyml).
+
 
 ## Scope and limitations
 
