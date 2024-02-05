@@ -24,3 +24,14 @@ Examples: GX4054, LTH7R, LR4054A-T
 
 English datasheets. LP4054H, PJ4054B
 Still under 0.05 USD @ 1k.
+
+## Lipo battery protection
+
+Fully integrated undervoltage "overdischarge".
+
+- JSMSEMI DW06. 0.05 USD
+- DW03. 0.04 USD
+
+Semi-integrated. Needs external NMOS
+
+- DW01 

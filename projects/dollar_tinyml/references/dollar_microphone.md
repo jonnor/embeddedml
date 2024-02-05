@@ -79,6 +79,28 @@ TL08x and TL07x only work from 4.5V.
 Not working on lipo battery.
 Is an option on USB powered.
 
+Dual opamps
+Common packages SO-8, MiniSO-8/MSOP-8, vssop-8, TSSOP-8
+
+MiniSO-8 seems to be synonym for MSOP-8.
+SSOP-8 package can probably be placed on MSOP-8 footprint. Legs seem thinner
+TSSOP-8 package can probably be placed on MSOP-8 footprint. Legs have shorter touchdown area
+VSSOP-8 3x3 mm (0.65mm pitch) can probably be placed on MSOP-8 footprint.
+! VSSOP-8 also exists in 0.5mm pitch. Will not fit
+
+
+COS602
+COS822
+COS722
+GS8632
+COS2314
+LMV358
+LMV602
+TLV906
+TLV2316
+
+GS8722
+TP10-2
 
 ## Opamp specifications and selection
 
@@ -164,6 +186,19 @@ Each to a different gain stage.
 Switch between them as needed.
 
 
+Music has a widely varying crest factor.
+Typical values for a processed mix are around 4–8 (which corresponds to 12–18 dB of headroom, usually involving audio level compression),
+and 8–10 for an unprocessed recording (18–20 dB)
+https://en.wikipedia.org/wiki/Crest_factor
+
+As we have seen, normal speech has a peak factor of about 12 dB.
+Music on the other hand can have peak factors that are in the range of 16 to 20 dB, depending on the nature of the material.
+https://www.prosoundweb.com/an-examination-of-bandwidth-dynamic-range-and-normal-operating-levels/
+
+Typically, the peaks are 20-23 dB above the RMS level.
+The ratio between the peak level and the RMS level is called the crest factor.
+This factor is an important parameter when a voice is to be recorded or reproduced in an electroacoustic system.
+https://www.dpamicrophones.com/mic-university/facts-about-speech-intelligibility
 
 ## Output
 

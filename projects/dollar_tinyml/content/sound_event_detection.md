@@ -58,9 +58,9 @@ The key criteria, and their implications on opamp specifications are a follows:
 
 - achieve the neccessary gain (Gain Bandwidth Product) 
 - not introduce noise (Input Noise Density)
-- flat frequency response (Slew Rate)
+- flat frequency response (Gain Bandwidth Product)
 - not introducing too much distortion (Slew Rate, THD)
- 
+
 Furthermore it must work at the voltages available in the system,
 typically 3.3V from a regulator, or 3.0-4.2V from Li-ion battery.
 
