@@ -16,7 +16,6 @@ https://github.com/wagiminator/Development-Boards/tree/main/PY32F002AF15P_DevBoa
 
 dml10 rev1
 
-- Make a proper PCB outline. Round corners, dog/tbones for USB stickout. In FreeCAD
 - Make a concept for casing. In FreeCAD. With USB charger.
 - Get quote. At JLCPCB
 
