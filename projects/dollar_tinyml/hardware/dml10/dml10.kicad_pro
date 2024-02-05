@@ -442,8 +442,8 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
-      "vrml": ""
+      "step": "dml10.step",
+      "vrml": "dml10.wrl"
     },
     "page_layout_descr_file": ""
   },
