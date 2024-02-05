@@ -18,9 +18,6 @@ dml10 rev1
 
 - Make a proper PCB outline. Round corners, dog/tbones for USB stickout. In FreeCAD
 - Make a concept for casing. In FreeCAD. With USB charger.
-- Add header or testpoint for the analog input after amplifier
-- Add 5v connector and mousebites at USB connector. Allow breaking it off
-- Line up headers on 2.54mm grid
 - Get quote. At JLCPCB
 
 # DONE
