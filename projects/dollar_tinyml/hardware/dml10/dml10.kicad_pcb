@@ -3285,6 +3285,11 @@
         )
       )
     )
+    (model "/home/jon/projects/embeddedml/projects/dollar_tinyml/hardware/bm7161/bm7161-mils.wrl"
+      (offset (xyz 0 7.8 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
   )
 
   (footprint "TestPoint:TestPoint_Pad_D1.0mm" (layer "B.Cu")

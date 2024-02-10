@@ -426,8 +426,8 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
-      "vrml": "bm7161.wrl"
+      "step": "bm7161.step",
+      "vrml": "bm7161-mils.wrl"
     },
     "page_layout_descr_file": ""
   },
