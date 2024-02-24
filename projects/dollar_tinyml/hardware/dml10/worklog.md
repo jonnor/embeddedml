@@ -116,8 +116,74 @@ DC voltage at elecret was 2.6V.
 Whistling a tone very close to the mic.
 Get 500 mV peak to peak at AUDIO_LOW.
 
+## Accelerometer testing
+
+Using ESP32-S3 with MicroPython
+Tried communicating with LIS3DH
+Tried communicating with BC7161
+Just getting ENODEV or ETIMEOUT
+Both on 100 and 400 kHz
+
+Observing SDA and SCL lines on scope.
+! Seeing rise times of close to 1500 ns
+Out of specification. Need 1000 ns for 100kHz
+
+Have 3k3 pull up.
+With 1.2 us time constant, that would be
+Effective capacitance of 454.545 pF.
+! seems very high. Expected 10-100 pF max
+
+Adding additiona 3.3k pullups
+Now rise time is 1000 ns approx
+Still not working
+
+Seing sent data being decoded on scope
+71 for Holtek
+18 for LIS3DH
+Not working either on 10 kHz
+
+LIS3DH address.
+0x18 is SA0 is low
+0x19 if SA0 is high (default)
+
+ACC_CS is 3.2v
+1: SPI idle mode / I2C communication enabled
+OK
+
+Pinout compared with datasheet.
+All looks OK
+
+Accelerometer looks to be oriented correctly.
+Pin 1 top right
+
+MicroPython code for LIS3DH works with LIS2DH breakout
+Rise time is over 2 us
+First transaction is
+W:18 A8 R:18 00 FE
+
+LIS2DH Gravity board (working).
+Has pull-down for address selection
+https://wiki.dfrobot.com/Gravity__I2C_Triple_Axis_Accelerometer_-_LIS2DH_SKU_SEN0224
+
+! we do not have any resistor
+In LIS3DH is internally pulled up
+Might be the address is 0x19
+
+Changing address=0x19 in code - can read data!
+
+## BLE I2C testing
+
+Implemented 
+
+? does it actually go out of deep sleep ?
+Could try from hard power on
+
+xtal should be ON in light sleep
+? probe it
+
 ## Issues
 
+- BLE modem is connected to up to 4.2V VDD. Has 3.6V as absolute maximum rating. Needs 3.3v reg
 - R15 unpopulated. Resistor for red LED
 - Blue LED wrong way
 - C2 and C11 populated. Should not have been
@@ -128,3 +194,8 @@ Get 500 mV peak to peak at AUDIO_LOW.
 MAYBE.
 
 Other LEDs wrong way around?
+
+# References
+
+Nice experiments with I2C in a cable
+https://axotron.se/blog/crosstalk-problems-when-running-i2c-signals-in-a-cable/
