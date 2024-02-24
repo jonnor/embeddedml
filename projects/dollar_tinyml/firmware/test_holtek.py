@@ -57,11 +57,11 @@ def init():
     #scl.value(0)
     #time.sleep_ms(20)
 
-    acs = i2c.scan()
-    print("scan", [hex(a) for a in acs])
+    #acs = i2c.scan()
+    #print("scan", [hex(a) for a in acs])
 
-    #chipid = reg_read(i2c, I2C_ADDR, REG_CHIPID, 1)
-    #print(chipid)
+    chipid = reg_read(i2c, I2C_ADDR, REG_CHIPID, 2)
+    print(list(hex(p) for p in chipid))
 
 while True:
     try:
