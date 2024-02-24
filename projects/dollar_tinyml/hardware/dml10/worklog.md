@@ -173,13 +173,21 @@ Changing address=0x19 in code - can read data!
 
 ## BLE I2C testing
 
-Implemented 
+Implemented some test code in MicroPython to try to wakeup and run I2C.
+Could not get it to respond.
+Always EONDEV.
+By scope it looked like wakeup sequence was according to spec
+But there was no ACK on I2C from device after writing address
 
 ? does it actually go out of deep sleep ?
 Could try from hard power on
 
 xtal should be ON in light sleep
 ? probe it
+
+After adding this probe, and powering back on, I2C communication started working.
+Not sure why...
+
 
 ## Issues
 
