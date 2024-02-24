@@ -10,16 +10,40 @@
 
 ## TODO
 
-Tests
-
-- Try flash microcontroller over SWD
-- Solder on BLE module. Try communication over I2C
-- Try talk to accelerometer over I2C
+- Add case, test USB connection
+- Debug MEMS microphone. Try again on board only exposed to 3.3V
 
 Fixes
 
 - Try rotate LED
-- Try debug MEMS microphone
+- Remove battery charger to avoid BLE module overload
+
+Firmware
+
+- Get I2C working generally
+- Get BLE module to send advertising data
+- Get accel reading at 100 hz
+- Get ADC reading from mic at 8 kHz. Preferably with DMA 
+
+## Found issues
+
+- BLE and MEMS microphone is connected to up to 4.2V VDD. Has 3.6V as absolute maximum rating. Needs 3.3v regulator
+- R15 unpopulated. Resistor for white LED
+- Blue LED wrong way
+- C2 and C11 populated. Should not have been
+- R5 populated. Should not have been
+- Battery regulator not working without battery connected. Lots of noise on VDD.
+
+MAYBE.
+
+- Other LEDs also wrong way around?
+
+# References
+
+Nice experiments with I2C in a cable
+https://axotron.se/blog/crosstalk-problems-when-running-i2c-signals-in-a-cable/
+
+# Worklog
 
 ## 23.02.2024
 
@@ -116,7 +140,10 @@ DC voltage at elecret was 2.6V.
 Whistling a tone very close to the mic.
 Get 500 mV peak to peak at AUDIO_LOW.
 
-## Accelerometer testing
+## 24.02.2024
+
+
+#### Accelerometer I2C testing
 
 Using ESP32-S3 with MicroPython
 Tried communicating with LIS3DH
@@ -171,7 +198,7 @@ Might be the address is 0x19
 
 Changing address=0x19 in code - can read data!
 
-## BLE I2C testing
+#### BLE I2C testing
 
 Implemented some test code in MicroPython to try to wakeup and run I2C.
 Could not get it to respond.
@@ -188,22 +215,15 @@ xtal should be ON in light sleep
 After adding this probe, and powering back on, I2C communication started working.
 Not sure why...
 
+#### Flashing microcontroller
 
-## Issues
+Used SDK https://github.com/IOsetting/py32f0-template
+Used daplink programmer. With PyOCD
+Connected board over SWD
+Changed LED blink example from PA0 to PA6
 
-- BLE modem is connected to up to 4.2V VDD. Has 3.6V as absolute maximum rating. Needs 3.3v reg
-- R15 unpopulated. Resistor for red LED
-- Blue LED wrong way
-- C2 and C11 populated. Should not have been
-- R5 populated. Should not have been
+Was able to flash. OK
+Was able to toggle GPIO out. OK
 
-- Battery regulator not working without battery connected. Lots of noise on VDD.
 
-MAYBE.
 
-Other LEDs wrong way around?
-
-# References
-
-Nice experiments with I2C in a cable
-https://axotron.se/blog/crosstalk-problems-when-running-i2c-signals-in-a-cable/
