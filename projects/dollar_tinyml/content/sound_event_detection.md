@@ -15,81 +15,42 @@ Keyword Spotting
 Speech Command
 
 
+## general overheads
+!! py32f template uses lots of RAM?
+2280 bytes by default with HAL
+1760 bytes with LL
 
-## Ultra low cost Microphone
+[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-size -A Build/app.elf 
+Build/app.elf  :
+section               size        addr
+.ram_vector            192   536870912
+.isr_vector            192   134217728
+.text                 6808   134217920
+.rodata                140   134224728
+.init_array              4   134224868
+.fini_array              4   134224872
+.data                  104   536871104
+.bss                   444   536871208
+._user_heap_stack     1540   536871652
 
-The go to options for a microphone for a microcontroller based system are 
-digital MEMS (PDM/I2S/TDM protocl), analog MEMS or analog elecret microphone.
+.bss, .data and .ram_vector go into RAM. Total of 740 bytes
 
-The ultra low cost microcontrollers we have found, do not have pheripherals for decoding I2S or PDM.
-It is sometimes possible to decode I2S or PDM using fast interrupts/timers or a SPI pheriperal,
-but usually at quite some difficulty and CPU usage.
-Furthermore, the cheapest digital MEMS microphone we were able to find cost 66 cents.
-This is too large part of our 100 cent budget, so a digital MEMS microphone is ruled out.
+_user_heap_stack represents left over space. Actually not used?
 
-Below are some examples of analog microphones that could be used.
-All prices are in quantity 1k, from LCSC.
+avr-nm -Crtd --size-sort the_program.elf | grep -i ' [dbv] '
 
-MEMS analog. SMD mount
+[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-nm -td -r --size-sort Build/app.elf | grep ' B '
+00000312 B __sf
+00000076 B DebugUartHandle
+00000004 B uwTick
+00000004 B __stdio_exit_handler
+00000004 B __malloc_sbrk_start
+00000004 B __malloc_free_list
+00000004 B errno
 
-- LinkMEMS LMA2718T421-OA5 0.06 USD
-- LinkMEMS LMA2718T421-OA1 0.08 USD 
-- Goertek S15OT421-005     0.09 USD
-- CMM-2718AT-42316-TR      0.47 USD
+__sf is for printf support, it has stdout/stderr/stdin I think
 
-Analog elecret. Capsule
-
-- INGHAi GMI6050  0.09 USD
-- INGHAi GMI9767  0.09 USD 
-
-So there looks to be multiple options within our budget.
-
-## Analog pre-amplifier
-
-Any analog microphone will need to have an external pre-amplifier
-to bring the output up to a suitable level for the ADC of the microcontroller.
-
-An opamp based pre-amplifier is the go-to solution for this.
-The requirements for a suitable opamp can be found using the guide in
-Analog Devices AN-1165, Op Amps for MEMS Microphone Preamp Circuits
-https://www.analog.com/media/en/technical-documentation/application-notes/AN-1165.pdf
-
-The key criteria, and their implications on opamp specifications are a follows:
-
-- achieve the neccessary gain (Gain Bandwidth Product) 
-- not introduce noise (Input Noise Density)
-- flat frequency response (Gain Bandwidth Product)
-- not introducing too much distortion (Slew Rate, THD)
-
-Furthermore it must work at the voltages available in the system,
-typically 3.3V from a regulator, or 3.0-4.2V from Li-ion battery.
-
-Having an appropriate gain is especially important when ADC resolution is low.
-Puya PY32V003 has a 12 bit resolution ADC.
-This means a theoretical max dynamic range of 72 dB.
-However some of the lower bits will likely be noise, reducing the effective range.
-If we are not utilizing the higher ranges, that will further the practical range.
-
-Standard for audio is 16 bit. Or 24 bits for high end audio.
-
-10 bit 60 dB.
-8 bit 42 dB.
-
-?? what should the gain be
-Speech. 50 dB(A) SPL for nomal speech level at 3 meters.
-90 dB for shouting up close.
-
-How much headroom, max versus average level? At least 10 dB? Maybe 20 dB?
-
-TODO: check out dual-channel opamps. So we can have another stage with 20dB / 10x gain
-
-## Audio input
-
-Microphone  Goertek S15OT421-005	0.0888
-Opamp       Gainsil GS8621	        0.0702
-
-Totalt of 16 cents, rounding up to 20 cents with passives.
-
+Seems prudent to budget at least 1 kB RAM to system things
 
 ## Feature extraction: Spectrograms
 
@@ -114,3 +75,5 @@ Unproven: MLP frame-wise + MLP across frames
 
 
 CMSIS-NN supports LSTM, but not GRU
+
+FIXME: add issue in emlearn for recurrent support, LINK here 
