@@ -1,4 +1,61 @@
 
+# Puya PY32
+
+## General overheads between 0.5-1 kB
+
+!! py32f template uses lots of RAM?
+2280 bytes by default with HAL
+1760 bytes with LL
+
+[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-size -A Build/app.elf 
+Build/app.elf  :
+section               size        addr
+.ram_vector            192   536870912
+.isr_vector            192   134217728
+.text                 6808   134217920
+.rodata                140   134224728
+.init_array              4   134224868
+.fini_array              4   134224872
+.data                  104   536871104
+.bss                   444   536871208
+._user_heap_stack     1540   536871652
+
+.bss, .data and .ram_vector go into RAM. Total of 740 bytes
+
+_user_heap_stack represents left over space. Actually not used?
+
+avr-nm -Crtd --size-sort the_program.elf | grep -i ' [dbv] '
+
+[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-nm -td -r --size-sort Build/app.elf | grep ' B '
+00000312 B __sf
+00000076 B DebugUartHandle
+00000004 B uwTick
+00000004 B __stdio_exit_handler
+00000004 B __malloc_sbrk_start
+00000004 B __malloc_free_list
+00000004 B errno
+
+__sf is for printf support, it has stdout/stderr/stdin I think
+
+Seems prudent to budget at least 1 kB RAM to system things
+
+## CMSIS-DSP RFFT tables too big
+
+CMSIS-DSP RFFT tables are always 8192 long?
+Two tables a 16 bit. Takes 32 kB FLASH !!!
+https://arm-software.github.io/CMSIS-DSP/latest/group__RealFFT__Table.html#gaf8699e77c7774359b96ef388efa7d453
+
+Looks like one would need to generate those tables oneself, in a smaller size
+
+Remaining code size is 44kB - 32kB = 12 kB. Seems acceptable
+
+arm_mfcc_q15 needs a q31 temporary, 2x the length
+
+arm_mfcc_q15 can be used as reference code, even though we do not want the mel filter part
+https://github.com/ARM-software/CMSIS-DSP/blob/647b755ad80d53ecca56a555508084663f97c0eb/Source/TransformFunctions/arm_mfcc_q15.c
+
+
+
 ## FFT tiny
 
 https://www.embedded.com/develop-fft-apps-on-low-power-mcus/

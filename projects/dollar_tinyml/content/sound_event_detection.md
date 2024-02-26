@@ -1,67 +1,64 @@
 
-# Sound Event Detection
+# Audio Machine Learning inference
+
+TLDR: 
+Theoretically possible.
+Need custom mel spectrogram implementation.
 
 ## Applications
 
 Noise Monitoring
-Counting cars
 Counting beans cracking. LINK Roest
 Voice Activity Detection
-Brewing counting detection. Stack 3 frames. Maybe bandpass filter.
+Brewing counting detection. LINK brewsed
 Audience clapping detection.
 
 Related tasks
 Keyword Spotting
 Speech Command
 
+## Feature extraction: Mel spectrograms
 
-## general overheads
-!! py32f template uses lots of RAM?
-2280 bytes by default with HAL
-1760 bytes with LL
+Standard.
 
-[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-size -A Build/app.elf 
-Build/app.elf  :
-section               size        addr
-.ram_vector            192   536870912
-.isr_vector            192   134217728
-.text                 6808   134217920
-.rodata                140   134224728
-.init_array              4   134224868
-.fini_array              4   134224872
-.data                  104   536871104
-.bss                   444   536871208
-._user_heap_stack     1540   536871652
+## Requirements
 
-.bss, .data and .ram_vector go into RAM. Total of 740 bytes
+The Puya PYF003xx6 only has 4 kB RAM total.
+This needs to fit both the audio preprocessing, the machine learning model,
+as well as drivers and general system code.
 
-_user_heap_stack represents left over space. Actually not used?
+Would like to have the audio preprocessing take 1 kB RAM.
+Or at the very least below 2 kB.
+This leaves another 1-2 kB RAM for the Machine Learning model.
 
-avr-nm -Crtd --size-sort the_program.elf | grep -i ' [dbv] '
-
-[jon@jon-thinkpad py32f0-template]$ arm-none-eabi-nm -td -r --size-sort Build/app.elf | grep ' B '
-00000312 B __sf
-00000076 B DebugUartHandle
-00000004 B uwTick
-00000004 B __stdio_exit_handler
-00000004 B __malloc_sbrk_start
-00000004 B __malloc_free_list
-00000004 B errno
-
-__sf is for printf support, it has stdout/stderr/stdin I think
-
-Seems prudent to budget at least 1 kB RAM to system things
-
-## Feature extraction: Spectrograms
-
-ARM CMSIS
-
-4kB RAM total. 1 kB RAM for feature extraction?
+TODO: include buffer size calculations
 
 Audio buffer
 FFT working buffers
 Output buffer
 
+
+## Mel spectrogram implementation with CMSIS DSP
+
+CMSIS-DSP provides optimized code for ARM Cortex M devices.
+https://github.com/ARM-software/CMSIS-DSP
+
+This includes a lot of useful primitives, such as FFT.
+The library has good support for fixed-point operations, both 32 bit and 16 bit wide datatypes.
+This is very important for Cortex M0+ devices, which does not have a hardware FPU.
+16 bit also saves 2x the RAM over 32 bit, which will be critical with only having 4 kB RAM total.
+
+CMSIS-DSP has support for Mel Frequency Cepstrum Coefficients (MFCC).
+However there are no functions to only get the mel spectrogram.
+
+During testing, I also uncovered that the FFT support always use 8192 coefficients.
+This is over 32 kB of FLASH usage, which is more than the total FLASH available.
+
+Open issue about this. Since August 2021. Acknowlegded, but to fix yet
+https://github.com/ARM-software/CMSIS-DSP/issues/25
+So we will need to generate our own FFT tables.
+
+Also need to generate mel tables.
 
 ## Kilobyte sized Neural Networks
 
@@ -73,7 +70,14 @@ Unproven: MLP frame-wise + MLP across frames
 4 kB RAM total.
 1-2 kB RAM for ML model
 
-
 CMSIS-NN supports LSTM, but not GRU
 
 FIXME: add issue in emlearn for recurrent support, LINK here 
+
+TODO: include bit of info on efficient RNNs
+
+## 
+
+Some usecases may be solvable with a MLP.
+? any proof of this ?
+
