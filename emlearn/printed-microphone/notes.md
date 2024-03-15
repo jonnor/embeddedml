@@ -20,7 +20,7 @@ https://onetuberadio.com/2015/11/23/science-fair-idea-homemade-microphones/
 references November 1945 issue of Popular Science.
 Microphone is made using 3 nails, 1 positioned on top of two others, on a sounding board.
 
-#### Simplifier: Compoud, high quality wooden microphone
+#### Simplifier: Compound, high quality wooden microphone
 https://simplifier.neocities.org/compound
 Speech sounds pretty good! Clear and OK frequency balance. A bit boxy/resonant.
 Uses a thin wood sheet as a diaphram.
