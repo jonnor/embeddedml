@@ -42,6 +42,24 @@ Double sided tape to attach carbon rods.
 
 # Testing
 
+### Second iteration
+March 16, 2024
+
+Designed conductive parts to be 3d-printed.
+Using ProtoPasta Conductive Graphite filament. PLA based.
+Printing at 0.20mm with 205 deg C failed. Lots of areas with critical underextrusion.
+
+Tried printing at 0.16 mm with 215 deg C.
+Results were ??
+
+Issue: holder can rotate. Will be hard to hold both carbon rods equally.
+Use double slots? Allows adjustment and should at least be stable after set.
+Rods are a bit long. When glued to center, at least need more adjustment downwards to be able to insert.
+Could make slight adjustment also to the holder, moving the screw hole up.
+
+Also added a stand. 
+
+
 ### First test
 Jan 01, 2024.
 
