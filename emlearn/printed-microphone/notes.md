@@ -47,9 +47,10 @@ March 16, 2024
 
 Designed conductive parts to be 3d-printed.
 Using ProtoPasta Conductive Graphite filament. PLA based.
-Printing at 0.20mm with 205 deg C failed. Lots of areas with critical underextrusion.
+Printing at 0.20mm with 205 deg C, with 40 mm/second speed.
+Failed. Lots of areas with critical underextrusion.
 
-Tried printing at 0.16 mm with 215 deg C.
+Tried printing at 0.16 mm with 215 deg C. 40mm/s in slicer, but 80% on machine.
 Results were ??
 
 Issue: holder can rotate. Will be hard to hold both carbon rods equally.
