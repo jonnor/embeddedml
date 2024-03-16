@@ -51,14 +51,22 @@ Printing at 0.20mm with 205 deg C, with 40 mm/second speed.
 Failed. Lots of areas with critical underextrusion.
 
 Tried printing at 0.16 mm with 215 deg C. 40mm/s in slicer, but 80% on machine.
-Results were ??
+Results were better, but still some areas with underextrusion.
 
-Issue: holder can rotate. Will be hard to hold both carbon rods equally.
-Use double slots? Allows adjustment and should at least be stable after set.
-Rods are a bit long. When glued to center, at least need more adjustment downwards to be able to insert.
-Could make slight adjustment also to the holder, moving the screw hole up.
+Tried 0.10 mm with 225 deg C.
+40 mm/s in slicer, 70% on machine. Effective speed 28 mm/s.
+This printed well.
 
-Also added a stand. 
+Added an initial stand design.
+For attaching to standard 1/4" thread.
+Conceptually it seems OK.
+But hole for thread adapter should be slightly bigger.
+The arms should have slight pre-tension inwards.
+And there should be a way to lock the rotation of the plate.
+Especially since the angle influences the function of the carbon rods.
+Thumb screws on the outside?
+
+TODO: test sound with the printed carbon rods
 
 
 ### First test
