@@ -1,6 +1,15 @@
 
 # Meta
 
+## TODO
+
+- Implement accelerometer data capture on watch
+- Reproduce simple gesture detection example
+- Capture some data
+
+## Format
+30 minutes. 25 minutes, 5 minutes Q+A
+
 ## Goal
 Purpose of this presentation
 
@@ -8,7 +17,6 @@ Purpose of this presentation
 > with some experience with standard Python ML libraries (scikit-learn/Keras)
 > can deploy ML models to a microcontroller device
 > using emlearn
-
 
 ## Audience
 
@@ -97,6 +105,130 @@ M5Stack Core2. 50 USD
 Arduino Nano 33 BLE Sense. 
 Raspberry PI Pico also strong community
 
+## Worked example
+
+Would be nice to have a worked example.
+Something that we are going to show how to make.
+
+Ideally there will be overlap with what is needed for TinyML EMEA / 1 dollar ML project.
+
+### Constraints
+Might be best for now to go with accelerometer!
+
+Accelerometer
+
+- Low data rate.
+- Can do feature-enginering in Python.
+- Can do drivers in Python (I2C/SPI)
+- Easy to store and transfer recorded data. Can probably use MicroPython file-system. CSV files
+- Bunch of drivers already out there
+- Should be able to get far with RandomForest ?
+- Have a paper with reference for the HAR pre-processing
+
+Sound Event detection
+
+- Driver needs to be in C
+- PDM support is WIP for ESP32, not yet mainline
+https://github.com/micropython/micropython/pull/14176
+- Feature pre-processing has to happen in C
+- emlearn missing strong classifiers. RNN/CNN
+- emlearn-micropython missing bindings for audio pre-processing
+- Might get into performance issues
+
+### Ideas
+
+Should be fun and/or useful. But relatively simple.
+
+Accelerometer/IMU
+
+- Human Activity Detection
+- Gesture detection
+
+Specifics
+
+- Excercise repetitions
+- Shake to turn on
+- Continious motion classification
+- Magic wand
+- Air writing.
+- Air drummer.
+- Washing machine cycle tracker. Is it done yet?
+
+
+Could use a smart-watch type hardware as the base?
+https://www.lilygo.cc/products/t-watch-s3
+Has same MCU as T-watch 2020 V3. BMA423
+
+Could display on screen.
+Could communicate results to a phone or central. Using BLE of WiFi.
+Left as exercise for the reader
+
+## Activity recognition examples
+
+https://blog.tensorflow.org/2021/05/building-tinyml-application-with-tf-micro-and-sensiml.html
+jab vs hook
+
+https://www.hackster.io/leonardocavagnis/gesture-recognition-tinyml-for-8-bit-microcontroller-1cb0a8
+punch vs flex
+
+https://github.com/tkeyo/tinyml-esp
+x move vs Y move vs circle
+
+## Continious gestures example
+
+https://edge-impulse.gitbook.io/docs/tutorials/end-to-end-tutorials/continuous-motion-recognition
+
+uses spectral features pre-processing block
+https://edge-impulse.gitbook.io/docs/edge-impulse-studio/processing-blocks/spectral-features
+- a low or high filter with optional decimation
+- automatically removes FFT bins based on the low/high freq settings
+- does mean subtraction before FFT
+- overlapped 50% windows by default
+- optional log transform
+- FFT bins in window are summarized using max()
+
+
+uses Anomaly Detection (with k means) to handle out-of-distribution data
+
+provides a dataset
+https://edge-impulse.gitbook.io/docs/pre-built-datasets/continuous-gestures
+15 minutes of data sampled from a MEMS accelerometer at 62.5Hz
+idle - board sits idly on your desk. There might be some movement detected, e.g. from typing while the board is present.
+Snake - board moves over the desk as a snake.
+Updown - board moves up and down in a continuous motion.
+Wave - board moves left and right like you're waving to someone.
+
+## Activity Tracking
+
+https://gadgetbridge.org/basics/features/sports/
+
+## Physical Activity Monitor Service - BLE standard
+
+https://www.bluetooth.com/specifications/pams-1-0/
+
+Have a concept of a "session".
+Physical activity session/sub-session is started when the user triggers the start of a session/sub-session via the server User Interface (UI),
+when the server starts a session/sub-session on its own (for example,
+every 24 hours or based on automatic activity detection and segmentation in user activity-defined sessions/sub-sessions).
+
+## MicroPython on smart watch
+
+https://github.com/jeffmer/TTGO-T-watch-2020-Micropython-OS
+Updated to MicroPython 1.22 recently
+Does not include LVGL
+
+https://github.com/wasp-os/wasp-os
+PineTime64, nRF52 devices
+
+https://github.com/antirez/t-watch-s3-micropython
+Uses "generic" ESP32 S3 image
+
+
+https://unexpectedmaker.com/shop.html#!/TinyWATCH-S3/p/597047015/category=0
+Has a board definition in mainline MicroPython
+https://micropython.org/download/UM_TINYWATCHS3/
+
+
 
 ## MicroPython BLE communication
 
@@ -168,6 +300,8 @@ What is the FOTA story with MicroPython?
 # Misc unrelated
 
 ### GRU
+Would enable SED. With small RAM usage
+
 RNNs explained (covering RNN and LSTM, but not GRU explicitly)
 https://cs231n.github.io/rnn/
 
@@ -185,4 +319,14 @@ https://github.com/majianjia/nnom/blob/master/src/layers/nnom_gru_cell.c
 
 Open issue about Tensorflow lite micro
 https://github.com/tensorflow/tensorflow/issues/43380
+
+### DTW KNN
+
+Would enable on-device learning
+
+https://github.com/wannesm/dtaidistance/blob/master/dtaidistance/lib/DTAIDistanceC/DTAIDistanceC/dd_dtw.c
+Wearable Real-time Air-writing System Employing KNN and Constrained Dynamic Time Warping
+https://ieeexplore.ieee.org/document/10118944
+Constrained dynamic time warping (cDTW) algorithm for the distance measure and K-nearest neighbors (KNN) as the classifier
+
 

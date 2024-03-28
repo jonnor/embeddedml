@@ -1,6 +1,8 @@
 
 # PyData Berlin 2024
 
+Program: https://pretalx.com/pyconde-pydata-2024/talk/NYHFSB/
+
 ## Machine Learning on microcontrollers using MicroPython and emlearn
 
 A presentation on deploying ML models to microcontrollers using
