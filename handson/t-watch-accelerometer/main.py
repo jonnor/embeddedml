@@ -88,7 +88,7 @@ def write_buffer(buffer, file):
         x = buffer[(row*rowstride)+0]
         y = buffer[(row*rowstride)+1]
         z = buffer[(row*rowstride)+2]
-        fmt = '%.6f,%.6f,%.6f\n' % (x, y, z)
+        fmt = '%.4f,%.4f,%.4f\n' % (x, y, z)
         file.write(fmt)
 
     file.flush()
@@ -100,13 +100,13 @@ data_dir = 'data'
 if not dir_exists(data_dir):
     os.mkdir(data_dir)
 
-WAIT_SECONDS = 20.0
-
 
 accel_samplerate = 50
 accel_duration = 10.0
 accel_samples = int(3 * accel_samplerate * accel_duration)
 accel_buffer = array.array('f', ( 0 for _ in range(accel_samples)))
+
+WAIT_SECONDS = 120.0-accel_duration
 
 while True:
     dt = rtc.datetime()
@@ -125,4 +125,4 @@ while True:
         write_buffer(accel_buffer, f)
     print('buffer-write-end')
     print('sleep-start')
-    time.sleep(WAIT_SECONDS)
+    machine.lightsleep(int(1000*WAIT_SECONDS))
