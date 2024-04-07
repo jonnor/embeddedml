@@ -2,20 +2,29 @@
 # Audio Machine Learning inference
 
 TLDR: 
-Theoretically possible.
+Theoretically possible on Puya PYF003xx6.
 Need custom mel spectrogram implementation.
 
 ## Applications
 
-Noise Monitoring
-Counting beans cracking. LINK Roest
-Voice Activity Detection
-Brewing counting detection. LINK brewsed
-Audience clapping detection.
+For speech, the relevant tasks would be
 
-Related tasks
-Keyword Spotting
-Speech Command
+- Voice Activity Detection. Determine if someone is speaking or not. Usually pre-processing for speech recognition.
+- Keyword Spotting
+- Speech Command. Detecting 
+
+Outside of the world of speech there are, though these are more varied and may individually be a bit more niche.
+Some examples I have experience with would be
+
+- Environmental Sound Classification for Noise Monitoring
+https://github.com/jonnor/ESC-CNN-microcontroller
+- Gunshot counting for Noise Monitoring
+https://www.youtube.com/watch?v=tklZSUUwcjs&t=2s
+- Counting beans cracking during coffee bean roasting.
+https://www.youtube.com/watch?v=muZY1eCke40
+- Counting bubbles during fermentation for beer/wine brewing
+https://www.youtube.com/watch?v=JrhsFfCOL-s
+
 
 ## Feature extraction: Mel spectrograms
 

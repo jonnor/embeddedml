@@ -55,6 +55,7 @@ arm_mfcc_q15 can be used as reference code, even though we do not want the mel f
 https://github.com/ARM-software/CMSIS-DSP/blob/647b755ad80d53ecca56a555508084663f97c0eb/Source/TransformFunctions/arm_mfcc_q15.c
 
 
+# Feature processing
 
 ## FFT tiny
 
@@ -105,6 +106,22 @@ then 16 IIR filters would take
 54.0 ms
 
 
+# Deep Neural Networks
+
+TinyMaix.
+Can run 3 layer CNN with INT8 in under 2 kB of RAM on Puya PY32F0xx.
+https://github.com/sipeed/TinyMaix/tree/main/examples/mnist
+Runs in 44 ms, over 20 instances per second.
+https://github.com/sipeed/TinyMaix/pull/74
+
+Takes 28x28x1 as input (MNIST).
+Can maybe go up to 32x32 in similar RAM use?
+256 samples @ 8 kHz is 32 ms.
+With 32 samples that is a 1024 ms window.
+Similar to what is used for Speech Commands.
+Maybe it can be sufficient to be useful?
+
+
 ## Audio Anomaly detection
 
 There is an MLP example in DCASE baselines.
@@ -128,6 +145,13 @@ Can work within 1 kB buffer. If using 8 bits.
 
 https://github.com/KinWaiCheuk/AudioLoader/blob/master/AudioLoader/speech/speech_README.md#SpeechCommandsv2
 
+#### kahrendt/microWakeWord
+https://github.com/kahrendt/microWakeWord
+
+Open source project implementing wake word detection for microcontrollers
+Using Tensorflow Lite for Microcontrollers
+Has benchmarks and provides result for multiple phrases
+
 
 #### Keyword Spotting System using Low-complexity Feature Extraction and Quantized LSTM
 
@@ -150,6 +174,17 @@ Probably not, at least without implementing multirate
 32 bit integer MFCC approxmimation. Same accuracy as floats.
 Using 16 bit, only 0.3% drop.
 Tested on Google Speech Commands.
+
+
+
+
+##### Streaming keyword spotting on mobile devices
+https://arxiv.org/pdf/2005.06720.pdf
+
+Converts CNNs and RNNs to streaming
+Tests on Google Speech Commands dataset
+Focus is on improving latency
+Memory usage not much mentioned?
 
 
 
