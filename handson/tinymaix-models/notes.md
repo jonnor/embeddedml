@@ -83,6 +83,8 @@ There are warnings regarding TF1 compat
 This API was designed for TensorFlow v1. See https://www.tensorflow.org/guide/migrate for instructions on how to migrate your code to TensorFlow v2.
 ```
 
+## Issues
+
 ```
   File "/home/jon/projects/embeddedml/handson/tinymaix-models/TinyMaix/tools/tflite2tmdl.py", line 24, in <module>
     from tflite_reader import read_tflite
@@ -90,5 +92,8 @@ This API was designed for TensorFlow v1. See https://www.tensorflow.org/guide/mi
     from keras.utils import np_utils
 ImportError: cannot import name 'np_utils' from 'keras.utils' (/home/jon/projects/embeddedml/handson/tinymaix-models/venv/lib/python3.11/site-packages/keras/utils/__init__.py)
 ```
+
+Import can be removed.
+MR: https://github.com/sipeed/TinyMaix/pull/73
 
 

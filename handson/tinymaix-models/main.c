@@ -15,13 +15,12 @@
 #include "tm_stat.c"
 
 #if TM_MDL_TYPE == TM_MDL_INT8
-#error "INT8 model missing"
-//#include "mnist_arduino_custom.h"
+#include "mnist_arduino_custom_q.h"
 #elif TM_MDL_TYPE == TM_MDL_FP32
 #include "mnist_arduino_custom.h"
 #endif
 
-#if 1
+#if 0
 uint8_t mnist_pic[28*28]={
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

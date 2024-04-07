@@ -57,7 +57,8 @@ def generate_tinymaix_model(h5_file,
         tools_dir,
         python_bin='python',
         precision='fp32',
-        quantize=False,
+        quantize_data=None,
+        quantize_type='0to1',
         output_dequantize=False,
     ):
 
@@ -71,10 +72,14 @@ def generate_tinymaix_model(h5_file,
         h5_file,
         tflite_file,
     ]
-    if quantize:
-        raise NotImplementedError()
-    else:
+    if quantize_data is None:
         args += [ '0' ] 
+    else:
+        args += [
+            '1',
+            quantize_data,
+            quantize_type,
+        ]
 
     cmd = ' '.join(args)
     print('RUN', cmd)
@@ -117,18 +122,19 @@ def main():
 
     #data = x_test[1]
 
+    quantize_data = None # disables quantization
+    quantize_data = './TinyMaix/tools/quant_img_mnist/'
+    precision = 'int8' if quantize_data else 'fp32'
+
     # Export the model using TinyMaix
     tinymaix_tools_dir = './TinyMaix/tools'
     generate_tinymaix_model(h5_file,
         input_shape=(28,28,1),
         output_shape=(1,),
-        tools_dir=tinymaix_tools_dir\
+        tools_dir=tinymaix_tools_dir,
+        precision=precision,
+        quantize_data=quantize_data,
     )
-
-
-
-    #  python3 h5_to_tflite.py h5/mnist_valid.h5 tflite/mnist_valid_f.tflite 0
-    #  python3 tflite2tmdl.py tflite/mnist_valid_f.tflite tmdl/mnist_valid_f.tmdl fp32 1 28,28,1 10"
 
 if __name__ == '__main__':
     main()
