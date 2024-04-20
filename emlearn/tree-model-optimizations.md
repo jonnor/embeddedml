@@ -35,6 +35,13 @@ So it should be possible to quantize to 16 bits.
 
 Math operations can still be done with 32 bit integers.
 
+
+Should use a large amount of dataset to evaluate performance.
+
+For example:
+OpenML-CC18 Curated Classification benchmark
+https://www.openml.org/search?type=study&study_type=task&id=99&sort=tasks_included
+
 ### Default to next on true comparison
 
 Put either the right or left child always as the next item.
@@ -59,6 +66,29 @@ typedef struct _EmlTreesNode {
 Fits into one 32 bits word.
 
 # Leaf node optimizations
+
+## Probability quantization
+
+The leaf node deduplication implemented in emlearn works with identical leaf nodes.
+This works great when leaves are class index, which naturally have a low set of unique values. 
+When leaves are class probabilities (for exapmle 8bit fixed-point) then getting identical values is much less likely.
+One could have an option to quantize the probabilities to lower amount of bits (1-7 bits).
+
+Must then investigate how this influences predictive performance - and also how effective.
+
+## Probability codebook
+
+An alternative approach to quantize the class probabilities might be to use a codebook.
+Where leaf nodes are selected to be a fixed subset that minimizes.
+
+Vector quantization. Can easily be implemented using k-means.
+Desire to have a small codebook. Say `K<<256`.
+Alternative strategy for the de-duplication, using nearest vector instead of direct match.
+
+Will need some way of specifying the parameters.
+Codebook size is possible, but maximum error might be more understandable?
+Expect to have interaction with number of classes, and class distribution/imbalance.
+Must then investigate how it influences predictive performance - and savings.
 
 ## LUT lookup for probabilities
 

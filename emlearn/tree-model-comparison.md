@@ -43,3 +43,7 @@ Model size
 Platform
 
 - ARM Cortex M4F ?
+- ARM Cortex M0+
+- ESP32
+
+
