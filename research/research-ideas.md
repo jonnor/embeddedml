@@ -19,6 +19,39 @@ References
 
 * [A Unifying Review of Linear Gaussian Models](https://cs.nyu.edu/~roweis/papers/NC110201.pdf)
 
+# Feature learning
+
+Shallow, low-power feature extraction.
+Especially for combination
+
+
+### IIR filter selection
+AutoML for On-Sensor Tiny Machine Learning
+ST Microelectronics.
+November, 2023.
+Describes learning for their machine learning core (MLC),
+part of the iNEMO series of IMUs.
+Have a parametric pipeline of IIR filters and statistical summarizers,
+and a decision tree classifier.
+
+Checks Human Activity Detection tasks.
+In general the paper shows comparable predictive performance to Bonsai and FastGRNN.
+The best DT consumes ∼1 mW power on the MLC during inference,
+which is 41–137× lower than models for Cortex-M4 microcontrollers.
+
+IIR selection procedure:
+
+The basic algorithm finds significant peaks (and their frequencies)
+that are greater than the average energy of the signal in the frequency domain.
+Any candidate filters on signals with low overall power are discarded.
+For each candidate filter, the algorithm finds the cutoff frequencies, applies the filter on the signal, and then compares the accuracy of a DT trained on the unfiltered versus filtered data.
+Any filters with overlapping frequencies are folded together.
+The exhaustive algorithm is an entropy-based method that searches the supported Fourier band
+and selects the regions of interest that minimize the entropy against the other classes.
+The algorithm selects a bandwidth (ranging from 0.1 to 1.6) to subdivide the frequency band.
+Candidate filters with the selected bandwidth are constructed by sliding through the band on a logarithmic scale.
+The entropy of the filtered data is calculated, and the filter that minimizes the entropy across all classes is saved.
+
 
 # Research questions
 
