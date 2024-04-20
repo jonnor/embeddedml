@@ -54,6 +54,38 @@ arm_mfcc_q15 needs a q31 temporary, 2x the length
 arm_mfcc_q15 can be used as reference code, even though we do not want the mel filter part
 https://github.com/ARM-software/CMSIS-DSP/blob/647b755ad80d53ecca56a555508084663f97c0eb/Source/TransformFunctions/arm_mfcc_q15.c
 
+## ADC
+
+https://github.com/IOsetting/py32f0-template/tree/main/Examples/PY32F0xx/HAL/ADC/ContinuousConversion_DMA
+
+Uses DMA.
+Has a comment re ADC performance. "/* Valid resolution is around 8 bit */"
+DMA pheripheral sets a flag. Checking this in main to get the data.
+Has a buffer of 1024 32 bit values.
+? not clear how many are filled per
+? not clear how the samplerate/sampling time is configured
+
+## I2C
+
+Lots of examples of sensor readout available. Including multiple accelerometers.
+Nothing for LIS3xx/LI2xx. But ADXL345 etc.
+
+None using DMA though. Would be ideal.
+But when reading say 32 samples at 50 Hz, it is not problematic to use I2C blocking read either.
+Will just take ~1 millisecond every 500 milliseconds.
+Should even be possible to sleep a lot in between?
+
+## Sleep
+
+LL_LPM_EnableDeepSleep();
+__WFI();
+
+Examples using low-power timer and RTC:
+
+https://github.com/IOsetting/py32f0-template/blob/2d13ff9f5a0d90ef11de90bd7367093f79dfc82e/Examples/PY32F0xx/LL/LPTIM/LPTIM1_Wakeup/main.c#L36
+https://github.com/IOsetting/py32f0-template/blob/2d13ff9f5a0d90ef11de90bd7367093f79dfc82e/Examples/PY32F0xx/LL/RTC/Alarm_Wakeup/main.c#L132
+
+Stop and sleep wakeup is under 10 microseconds.
 
 # Feature processing
 
@@ -105,6 +137,10 @@ then 16 IIR filters would take
 >>> 4.500*((72/24)*1)*(256/1024)*16
 54.0 ms
 
+https://github.com/dpirch/libfvad/
+Uses efficient IIR filterbank. Operates on 8 kHz natively.
+`VadInstT.feature_vector` exposes the filterbank energy.
+Supports a couple of different window lengths, 
 
 # Deep Neural Networks
 

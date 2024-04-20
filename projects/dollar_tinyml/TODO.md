@@ -1,23 +1,18 @@
 
 # TODO
 
-- Create 1 or 2 project images
+- Prototype/test audio preprocessing. Mel spectrogram (CMSIS+emlearn) and IIR filterbank (libvfad).
+- Finish post on audio preprocessing.
 - Add a link to the main README in embeddedml
 - Make mockup/concept sketch/image for use as wristband
 - Get Holtek BLE PoC working
-- Create post on holbeacon
-- Make mockup/concept sketch/image for use as sound sensor. With USB PSU?
-- Setup app code skeleton, for checking prog/RAM sizes. Especially FFT
+- Create post on holbeacon C library
 - Create post on Sound Event Detection with Recurrent Neural Networks
-- Maybe order a devboard
-https://github.com/wagiminator/Development-Boards/tree/main/PY32F002AF15P_DevBoard
+
 
 ### Hardware
 
-dml10 rev1
-
-- Make a concept for casing. In FreeCAD. With USB charger.
-- Get quote. At JLCPCB
+See [./dml10/worklog.md](./dml10/worklog.md)
 
 # DONE
 
@@ -28,3 +23,8 @@ Confirmed. FastGRNN etc.
 - Hyperparameter tuning RF for small size, for HAR on PAMAP2 dataset
 - Post on HAR+RF feasibility
 - Check approximate dimensions for board. Currently 52x26mm incl USB connector, 40x26mm excluding
+- Create 1 or 2 project images
+- dml10. Hardware ordered
+- dml10. Hardware initial bringup done.
+- Make mockup/concept sketch/image for use as sound sensor. With USB PSU?
+- Tested TinyMaix CNN on device.
