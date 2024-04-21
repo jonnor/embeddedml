@@ -45,10 +45,10 @@ def load_dataset(path):
     return out    
 
 
-
-path = 'data/original/training'
-df = load_dataset(path)
-print(df)
+if __name__ == '__main__':
+    path = 'data/original/training'
+    df = load_dataset(path)
+    print(df)
 
 
     #print(obj)
