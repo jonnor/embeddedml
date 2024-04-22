@@ -4,18 +4,26 @@ def compute_rms(arr):
     pass
 
 def compute_mean(arr):
-    
+   
     pass
+
+def compute_scew(arr):
+
+    pass
+
 
 
 class TriaxialSpectralFeatures():
     """
-    
+    Compute spectral features using FFT and also statistical summaries.
+
+    Inspired by the Spectral Features processing block in Edge Impulse
+    https://edge-impulse.gitbook.io/docs/edge-impulse-studio/processing-blocks/spectral-features
     """
 
     def __init__(self, filter_cutoff):
 
-        # FIXME: load array
+        # FIXME: load array or compute coefficients using Butterworth directly
         coefficients = array.array('f', [])
 
         self.fft_length = 64
@@ -25,7 +33,7 @@ class TriaxialSpectralFeatures():
         self.fft = emlfft.new(fft_length)    
         self.fft_buffer = array.array('f', [0.0]*fft_length)
 
-    def compute_spectral_features(signal, output, output_offset):
+    def compute_spectral_features(self, signal, output, output_offset):
 
         length = self.fft_length
         hop = length // 2
@@ -36,12 +44,12 @@ class TriaxialSpectralFeatures():
         # aggregated using max response
         while (start + length) < len(signal):
             end = max(start+length)
-
             start += hop
 
-            self.fft.run(input, output)
+            # 
+            self.fft.run(input, self.fft_buffer)
 
-            feature_index
+            feature_index = 0
             for fft_bin in enumerate(output):
                 frequency = 
 
@@ -49,43 +57,28 @@ class TriaxialSpectralFeatures():
                     # Not included as features
                     continue
 
-                # max aggregation
-                index = output_offset + feature_index
+                # compute power, log scale
+                
+
+                # max aggregation, write to output
+                output_index = output_offset + feature_index
+                if value > output[output_index]:
+                    output[output_index] = value
 
                 feature_index += 1
 
-            # compute spectral features using FFT
-            hop_length = fft_length//2 if fft_overlap else fft_length
-            S = numpy.abs(librosa.stft(mean_removed, n_fft=fft_length, hop_length=hop_length, window='hann'))
-            S = numpy.log10(S**2 + 1e-12) # log scale
-            frequencies = librosa.fft_frequencies(n_fft=fft_length, sr=sr)
-            stft = pandas.DataFrame(S.T, columns=frequencies)
 
-            # cut irrelevant FFT columns
-            freq_columns = [ f for f in stft.columns if f > 0.0 and f < filter_cutoff ]
-
-
-            # aggreate FFT sub-windows over time
-            spectral = stft.max(axis=0).to_dict()
-            for k, v in spectral.items():
-                features[k] = v
-
-    def run(self, signal, ):
-
-        # 9 features per axis
-        features = array.array('f', [0.0] * 3 * (3 + 6))
+    def run(self, input, features):
 
         feature_index = 0
 
         for axis in self.axes:
-            filter = filters[axis]
-
-            offset = # FIXME
-
-            axis_data[offset:] 
-            signal = 
+            # select data for this axis only
+            offset = # FIXME: compute this
+            signal = input[offset:]
 
             # Apply low-pass filter, reduce high frequency noise
+            filter = filters[axis]
             filter.run(data)
 
             # Remove mean
@@ -100,8 +93,19 @@ class TriaxialSpectralFeatures():
             output[feature_index] = compute_kurtosis(signal)
             feature_index += 1
 
-            output[feature_index] = compute_kurtosis(signal)
+            output[feature_index] = compute_skew(signal)
             feature_index += 1
 
             # Compute spectral features using FFT
-            self.compute_spectral_features(signal, )
+            feature_index += self.compute_spectral_features(signal, output, output_offset=feature_index)
+            
+
+def main():
+
+    # 23 features per axis. 3 statistical summaries, and up to 20 FFT features
+    spectral = SpectralFeatures(axes=['x', 'y', 'z'])
+    features = array.array('f', [0.0] * 3 * (3 + 6))
+
+    spectral.run(sensor_data, features)
+
+
