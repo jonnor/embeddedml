@@ -79,7 +79,7 @@ def capture_acceleration(sensor, buffer, duration=10.0, samplerate=50):
         previous_time = t
 
 
-def write_buffer(buffer, file):
+def write_buffer_csv(buffer, file):
     rowstride = 3
     rows = int(len(buffer) / rowstride)
 
@@ -108,11 +108,47 @@ accel_buffer = array.array('f', ( 0 for _ in range(accel_samples)))
 
 WAIT_SECONDS = 120.0-accel_duration
 
+import st7789_ext
+
+# https://github.com/Xinyuan-LilyGO/TTGO_TWatch_Library/blob/master/docs/watch_2020_v3.md
+TFT_MOSI =19
+TFT_SCLK =18
+TFT_DC = 27
+TFT_CS = 5
+TFT_BACKLIGHT = 15
+
+display_spi = SoftSPI(1, baudrate=40000000, phase=0, polarity=1,
+    sck=TFT_SCLK,
+    mosi=TFT_MOSI,
+    miso=37
+)
+
+#vspi = SPI(2, baudrate=80000000, polarity=0, phase=0, bits=8, firstbit=0,
+#sck=Pin(18), mosi=Pin(23), miso=Pin(19))
+
+display = st7789_ext.ST7789(
+    display_spi,
+    240, 240,
+    reset=False,
+    dc=machine.Pin(TFT_DC, machine.Pin.OUT),
+    cs=machine.Pin(TFT_CS, machine.Pin.OUT),
+)
+display.init(landscape=False,mirror_y=True,mirror_x=True,inversion=True)
+
+# NOTE: should be possible to PWM the backlight
+backlight = machine.Pin(TFT_BACKLIGHT, machine.Pin.OUT)
+backlight.set(1)
+
 while True:
     dt = rtc.datetime()
     t = isoformat(dt)
 
     print('start-iter t='+ t)
+    
+
+    # TEMP
+    continue
+
 
     log_state(i2c, t)
     sensor = bma423.BMA423(i2c, addr=0x19)
