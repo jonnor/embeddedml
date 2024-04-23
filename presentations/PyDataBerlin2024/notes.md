@@ -1,16 +1,37 @@
 
 # Meta
 
-## TODO
+## Presentation TODO
 
-- Implement accelerometer data capture on watch
-- Reproduce simple gesture detection example
-- Capture some data
+
+- Styling. Add emlearn logo on all slides
+
+## Example application TODOs
+
+- Test emltrees on RP2040
+- Fix emltrees on ESP32.
+Enable debug prints in the module
+Try to reduce the example further
+Check allocations any writes - potentially out-of-bounds
+- Classify basic gestures w/o feature preprocessing
+- Record a demo video / take demo images
+- Implement spectral gesture detection preprocessing
+
 
 ## Format
 30 minutes. 25 minutes, 5 minutes Q+A
 
-## Goal
+## Goals
+
+- Establish emlearn-micropython project for TinyML for Python developers
+- Get contributors make TinyML + MicroPython great.
+Application examples, demos.
+Documentation of best practices.
+- Introduce people to MicroPython,
+building a Python experience for microcontrollers.
+mpip install ...
+
+## Purpose
 Purpose of this presentation
 
 > You as a Python developer
@@ -48,9 +69,12 @@ Minimum
 - Motivating usecases. Examples
 - Choosing/buying hardware. Very brief
 - Installing MicroPython. Very brief
-- Installing emlearn-micropython. Thorough
+- Installing emlearn-micropython. Thorough, concise
 - Training a model. Brief
-- Converting model to emlearn. Thorough
+- Preprocessing code. Continious classification. Overlapped windows
+- ? data recording and labeling. Skip
+- ? sensor reading. Skip
+- Converting model with emlearn. Thorough
 - Deploying to device. 
 - Loading model on device, running on data
 - Verifying performance after conversion
@@ -61,6 +85,28 @@ Minimum
 Bonus
 
 - Collecting data. Transmit to host or record to FLASH.
+
+Ecosystem challenges
+
+- Packaging of native modules.
+mpip install https://
+mpip install nativemodule
+- No standard/interoperable multi-dimensional array type
+- Lack of best-practices for performant numerical compute
+- Lack of best-practices for performant sensor-readout.
+Use the FIFO!
+
+Other
+
+- Audio classification. CNN/RNN, spectrogram preprocessing
+- Image classification. CNN
+- Comparison with other tools in MicroPython
+m2cgen, everywhereml
+OpenMV (TensorFlow Lite for Microcontrollers / tflite_micro)
+https://docs.openmv.io/library/omv.tf.html
+ulab. https://github.com/v923z/micropython-ulab
+
+Install method. Supported models. Performance
 
 ## Take aways
 
@@ -78,6 +124,151 @@ Installable as a module
 
 If you know how to make a scikit-learn/Keras model,
 you know how to deploy it to a microcontroller
+
+
+# Outline
+
+- Motivation - why ML on microcontrollers. 3-5 minutes
+- MicroPython - a Python for microcontrollers. 3-5 minutes
+
+- emlearn - TinyML project. 5 minutes
+- How to use emlearn with MicroPython. 10 minutes
+
+## Assumed knowledge
+
+Machine Learning core concepts.
+Familiarity with scikit-learn.
+Classic ML models.
+
+If you do not yet have this, the talk might be a little bit confusing.
+But there are plenty of resources online to help fill these gaps.
+
+
+# Code examples
+
+
+### Convert
+
+import emlearn
+
+converted = emlearn.convert(estimator)
+
+converted.save(name='gesture', format=’csv’, file='gesture_model.csv')
+
+
+### Recording data
+
+def write_buffer_csv(buffer, file, rowstride = 3):
+    rows = int(len(buffer) / rowstride)
+
+    file.write('x,y,z\n')
+    for row in range(0, rows):
+        x = buffer[(row*rowstride)+0]
+        y = buffer[(row*rowstride)+1]
+        z = buffer[(row*rowstride)+2]
+        file.write('%.4f,%.4f,%.4f\n' % (x, y, z))
+
+t = isoformat(rtc.datetime())
+with open(data_dir + '/acceleration-'+t+'.csv', 'w') as f:
+    write_buffer(accel_buffer, f)
+
+### Reading sensor
+
+    # Setup accelerometer
+    i2c = SoftI2C(sda=10,scl=11)
+    sensor = bma423.BMA423(i2c, addr=0x19)
+    sensor.set_accelerometer_freq(50)
+    sensor.fifo_enable()
+    sensor.fifo_clear()
+
+    # Overlapped window handling
+    window_samples = 60
+    hop_samples = 20
+    assert (window_samples % hop_samples) == 0, 'window must be divisible by hop'
+    accel_buffer = bytearray(hop_samples*3*2) # Raw bytes from sensor. 3 axes, 2 bytes per value
+    window = array.array('f', list(range(0, window_samples*3))) # Sensor data in g
+    window_offset = 0
+
+    while True:
+
+
+# Check if sufficient new data is available
+if sensor.fifo_level() >= len(accel_buffer):
+
+    # Read raw data
+    sensor.fifo_read(accel_buffer)
+    
+    # check if window buffer is full. Shift old data over to make room for more
+    if window_offset == window_samples:
+        window[0:(window_samples-hop_samples)*3] = window[hop_samples*3:]
+        window_offset -= hop_samples
+
+    # Decode sensor data
+    decode_acceleration(sensor, accel_buffer, window, window_offset)
+    window_offset += hop_samples
+
+    # Preprocess features
+    preprocessor.run(window, features)
+
+    # Run model
+    out = model.predict(features)
+
+
+## Loading model
+
+# Instantiate model
+# Specifying capacity for trees, decision nodes, classes
+model = emltrees.new(20, 200, 10)
+
+# Load model "weights"
+with open('gesture_model.csv') as f:
+    emltrees.load_model(model, f)
+
+
+## Training model
+
+
+# preprocess data
+windows = train.groupby(['class', 'sample']).apply(create_windows, length=int(2000/15), hop=int(260/16))
+features = windows.groupby(['class', 'sample', 'window']).apply(spectral_features, include_groups=False)
+
+# train model
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_validate
+
+X_train = features
+Y_train = features.reset_index()['class']
+estimator = RandomForestClassifier(n_estimators=10, max_depth=5)
+out = cross_validate(estimator, X_train, Y_train)
+
+
+
+# Ideas
+
+### When are C modules needed?
+And when can Viper do a good enough job?
+
+Especially on pre-processing, which tends to be custom.
+Examples.
+- Computing the RMS of vibration/audio signal (chunk)?
+- Multiplying by scaler and/or converting data-type
+- Copying/slicing an array
+Probably depends on length. Maybe also on data-type?
+Ideal: As much as possible is doable in Python
+Would like to have some benchmarks on this.
+Gives performance numbers.
+Also a reference to copy from.
+And use as starting-point for new calculations.
+
+This is also an open questions for the ML classifiers themselves.
+MicroPython general recommendations:
+Write it first in Python, then optimize the slow parts.
+Although datastructures, overall algorithmic approach may not follow from this approach.
+Avoiding frequent allocations.
+Also, no reference what is the ballpark of maximal achievable speed.
+
+Depends a bit on how efficient the data shuffling is,
+the size of work, and the call overheads for FFI.
 
 
 # Content planning
@@ -174,18 +365,61 @@ punch vs flex
 https://github.com/tkeyo/tinyml-esp
 x move vs Y move vs circle
 
+## Preprocessing strategies
+
+FFT. Energy in bands
+IIR filterbank. Energy in bands (per axis).
+Statistical time-based summaries. catch22
+
+Projection to 2d. As used in Magic Wand example.
+
+? TODO: provide references to the various types
+
+## Magic wand preprocessing
+Project strokes to 2d image
+
+Convert the strokes into rastered images 
+https://colab.research.google.com/github/tinyMLx/colabs/blob/master/4-8-11-CustomMagicWand.ipynb#scrollTo=Ml1UYg-oMpQo
+Uses fixed point mult/add - interesting
+
+Here is the C++ code
+https://github.com/petewarden/magic_wand/blob/main/rasterize_stroke.cpp
+Uses a linear array.
+Still uses R,G,B ??? Why?
+
+
+? is this fast enough to run directly as MicroPython
+Uses numpy array. But otherwise might be portable
+
+? can RandomForestClassifier to a resonable job at this data
+
+Seems to only record the X and Y coordinates!
+Use must make sure to hold it horizontal
+Rasterized into 32x32
+Training pipeline also has some data augmentation
+
+
 ## Continious gestures example
 
 https://edge-impulse.gitbook.io/docs/tutorials/end-to-end-tutorials/continuous-motion-recognition
 
+Window size. 2000 ms
+Window hop. 240 ms
+
+Low pass. Cutoff 8 Hz, 6th order
+
+FFT 64 bin
+
 uses spectral features pre-processing block
 https://edge-impulse.gitbook.io/docs/edge-impulse-studio/processing-blocks/spectral-features
-- a low or high filter with optional decimation
+- a low or high filter with optional decimation. Butterworth
+- statistical features (RMS, skewness, kurtosis)
 - automatically removes FFT bins based on the low/high freq settings
-- does mean subtraction before FFT
+- does filter first, then mean subtraction, then statistical features and FFT
 - overlapped 50% windows by default
 - optional log transform
 - FFT bins in window are summarized using max()
+
 
 
 uses Anomaly Detection (with k means) to handle out-of-distribution data
