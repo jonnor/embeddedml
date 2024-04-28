@@ -112,12 +112,13 @@ def main():
 
     FORMAT = I2S.MONO
     SAMPLERATE = 16000
-    BITDEPTH = 16
+    BITDEPTH = 32
     BUFFER_LENGTH = 40000
 
+    # 38/39 is pins on M5Stack AtomS3U
     audio_in = I2S(0,
-        sck=Pin(38),
-        sd=Pin(39),
+        sck=Pin(39),
+        sd=Pin(38),
         mode=I2S.PDM_RX,
         ws=None, # unused for PDM
         bits=BITDEPTH,
@@ -126,10 +127,10 @@ def main():
         ibuf=BUFFER_LENGTH,
     )
 
-    audio_input = AudioInput(audio_in, chunk=8000)
+    audio_input = AudioInput(audio_in, chunk=4000)
 
     WAV_FILE = "mic.wav"
-    wav_writer = WavWriter(samplerate=SAMPLERATE, bitdepth=BITDEPTH)
+    wav_writer = WavWriter(samplerate=SAMPLERATE, bitdepth=BITDEPTH//2)
     wav_writer.start(WAV_FILE)
 
     record_duration = 5.0
@@ -141,7 +142,7 @@ def main():
         audio_chunk = audio_input.get()
         if audio_chunk and wav_writer.file:
             wav_writer.add(audio_chunk)
-            print('wav-write', dt)
+            print('wav-write', dt, wav_writer.bytes_written, audio_input.overflows)
         
         if len(audio_input.queue) == 4:
             raise Exception()
