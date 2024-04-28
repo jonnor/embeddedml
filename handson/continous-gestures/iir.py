@@ -21,14 +21,64 @@
 # https://github.com/GStreamer/gst-plugins-good/blob/master/gst/audiofx/audiocheblimit.c
 # more general code for Chebyshev Type I IIR biquads
 
+import math
+
 # https://stackoverflow.com/a/20932062
 def butter2_lowpass(f, sr):
-    ff = 
-    const double ita =1.0/ tan(M_PI*ff);
-    const double q=sqrt(2.0);
-    b0 = 1.0 / (1.0 + q*ita + ita*ita);
-    b1= 2*b0;
-    b2= b0;
-    a1 = 2.0 * (ita*ita - 1.0) * b0;
-    a2 = -(1.0 - q*ita + ita*ita) * b0;
+    ff = f / sr
+    ita = 1.0/ math.tan(math.pi*ff)
+    q = math.sqrt(2.0)
+    b0 = 1.0 / (1.0 + q*ita + ita*ita)
+    b1 = 2 * b0
+    b2 = b0
+    a1 = 2.0 * (ita*ita - 1.0) * b0
+    a2 = -(1.0 - q*ita + ita*ita) * b0
 
+    # Return in biquad / Second Order Stage format
+    # to be compatible with scipy, a1 and a2 needed to be flipped??
+    sos = [ b0, b1, b2, 1.0, -a1, -a2 ]
+
+    return sos
+
+def plot_frequency_response(filters : dict, sr, cutoff=None):
+    import scipy.signal
+    import numpy
+    from matplotlib import pyplot as plt
+
+    for name, sos in filters.items():
+        b, a = scipy.signal.sos2tf(sos)
+        w, h = scipy.signal.freqz(b, a, fs=sr)
+        plt.semilogx(w, 20 * numpy.log10(abs(h)), label=name)
+
+    plt.title('Butterworth filter frequency response')
+    plt.xlabel('Frequency [radians / second]')
+    plt.ylabel('Amplitude [dB]')
+    plt.margins(0, 0.1)
+    plt.grid(which='both', axis='both')
+    plt.legend()
+    plt.ylim(-120, 20)
+
+    if cutoff is not None:
+        plt.axvline(cutoff, color='green')
+        plt.axhline(-3.0, color='green', ls='--')
+
+    plt.show()
+
+def main():
+
+    sr = 100
+    cutoff = 1.0
+
+    import scipy.signal
+
+    ref = scipy.signal.butter(2, cutoff, btype='low', analog=False, output='sos', fs=sr)
+    sos = [ butter2_lowpass(cutoff, sr) ]
+
+    print(ref)
+    print(sos)
+    
+    plot_frequency_response({'scipy': ref, 'our': sos}, sr=sr, cutoff=cutoff)
+
+
+if __name__ == '__main__':
+    main()
