@@ -21,7 +21,15 @@
 # https://github.com/GStreamer/gst-plugins-good/blob/master/gst/audiofx/audiocheblimit.c
 # more general code for Chebyshev Type I IIR biquads
 
+# https://github.com/berndporr/py-iir-filter/blob/master/iir_filter.py
+# sosfilt type implementation in pure Python
+
+# https://www.samproell.io/posts/yarppg/yarppg-live-digital-filter/
+# SOSfilt implementation in pure Python
+
 import math
+import array
+import time
 
 # https://stackoverflow.com/a/20932062
 def butter2_lowpass(f, sr):
@@ -40,45 +48,115 @@ def butter2_lowpass(f, sr):
 
     return sos
 
-def plot_frequency_response(filters : dict, sr, cutoff=None):
-    import scipy.signal
-    import numpy
-    from matplotlib import pyplot as plt
+class IIRFilter():
+    def __init__(self, coefficients : array.array):
+        stages = len(coefficients)//6
 
-    for name, sos in filters.items():
-        b, a = scipy.signal.sos2tf(sos)
-        w, h = scipy.signal.freqz(b, a, fs=sr)
-        plt.semilogx(w, 20 * numpy.log10(abs(h)), label=name)
+        self.sos = coefficients
+        self.state = array.array('f', [0.0]*(2*stages))
 
-    plt.title('Butterworth filter frequency response')
-    plt.xlabel('Frequency [radians / second]')
-    plt.ylabel('Amplitude [dB]')
-    plt.margins(0, 0.1)
-    plt.grid(which='both', axis='both')
-    plt.legend()
-    plt.ylim(-120, 20)
+    @micropython.native
+    def process(self, samples : array.array):
+        """Filter incoming data with cascaded second-order sections.
+        """
 
-    if cutoff is not None:
-        plt.axvline(cutoff, color='green')
-        plt.axhline(-3.0, color='green', ls='--')
+        stages = len(self.sos)//6
 
-    plt.show()
+        # iterate over all samples
+        for i in range(len(samples)):
+            x = samples[i]
+
+            # apply all filter sections
+            for s in range(stages):
+                b0, b1, b2, a0, a1, a2 = self.sos[s*6:(s*6)+6]
+
+                # compute difference equations of transposed direct form II
+                y = b0*x + self.state[(s*2)+0]
+                self.state[(s*2)+0] = b1*x - a1*y + self.state[(s*2)+1]
+                self.state[(s*2)+1] = b2*x - a2*y
+                # set biquad output as input of next filter section
+                x = y
+
+            # assign to output
+            samples[i] = x
+
+        return None
+
+try:
+    from ulab import numpy
+    from ulab import scipy
+except ImportError as e:
+    print(e)
+    pass
+
+try:
+    import emliir
+except ImportError as e:
+    print(e)
+    pass
+
+
+def iir_python(sos, samples):
+    #out = samples.copy()
+    iir = IIRFilter(sos)
+    iir.process(samples)
+
+def iir_ulab(sos, samples):
+    return scipy.signal.sosfilt(sos, samples)
+
+def iir_emlearn(sos, samples):
+    iir = emliir.new(sos)
+    iir.run(samples)
 
 def main():
 
+    cutoff = 10.0
     sr = 100
-    cutoff = 1.0
+    sos = [
+        butter2_lowpass(cutoff, sr),
+        butter2_lowpass(cutoff, sr),
+        butter2_lowpass(cutoff, sr),
+        butter2_lowpass(cutoff, sr),
+        butter2_lowpass(cutoff, sr),
+    ]
+    coeff = []
+    for s in sos:
+        coeff += s
+    coeff = array.array('f', coeff)
+    print('cc', len(coeff))
 
-    import scipy.signal
+    repeats = 100000
+    inp = numpy.load('sines-input.npy')
 
-    ref = scipy.signal.butter(2, cutoff, btype='low', analog=False, output='sos', fs=sr)
-    sos = [ butter2_lowpass(cutoff, sr) ]
+    # use array.array always
+    # NOTE: accessing/setting single values of ulab arrays is very slow
+    a = array.array('f', inp)
 
-    print(ref)
-    print(sos)
-    
-    plot_frequency_response({'scipy': ref, 'our': sos}, sr=sr, cutoff=cutoff)
+    # Pure Python
+    iir = IIRFilter(sos)
+    start = time.ticks_us()
+    for r in range(repeats):
+        #iir.process(a)
+        iir_python(sos, a)
+    t = time.ticks_diff(time.ticks_us(), start) / repeats
+    print('python', t)
 
+    # ulab
+    start = time.ticks_us()
+    for r in range(repeats):
+        #iir.process(a)
+        iir_ulab(sos, inp)
+    t = time.ticks_diff(time.ticks_us(), start) / repeats
+    print('ulab', t)
+
+    # emlearn
+    start = time.ticks_us()
+    iir = emliir.new(coeff)
+    for r in range(repeats):
+        iir.run(a)
+        #iir_emlearn(coeff, a)
+    t = time.ticks_diff(time.ticks_us(), start) / repeats
+    print('emlearn', t)
 
 if __name__ == '__main__':
     main()
