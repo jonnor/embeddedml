@@ -130,14 +130,27 @@ num_read = audio_in.readinto(mic_samples_mv)
 # audio sample recording to SD card will be running in the background
 # changing 'state' can cause the recording to Pause, Resume, or Stop
 
+def fibonacci_iterative(n):
+  a, b = 0, 1
+  for i in range(n):
+    a, b = b, a + b
+  return a
+
 print("starting recording for", recording_time)
 state = RECORD
 
 start = time.ticks_ms()
 while True:
     dt = time.ticks_diff(time.ticks_ms(), start) / 1000.0
+
+    # simulate some work being done
+    processing_start = time.ticks_us()
+    fibonacci_iterative(n=1000)
+    processing = time.ticks_diff(time.ticks_us(), processing_start) / 1000.0 # ms
+    print('PROCESS t=', dt, 'processing=', processing, '(ms)')
     
-    time.sleep(0.100)
+    # wait until next main loop iter
+    time.sleep_ms(100)
 
     if dt > recording_time:
         print("stopping recording and closing WAV file")
