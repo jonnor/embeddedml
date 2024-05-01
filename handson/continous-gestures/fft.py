@@ -40,39 +40,6 @@ except ImportError as e:
 
 
 
-# in-place, mutates X
-def fft_bit_reversal(x, seq):
-    n = len(seq)
-
-    # seq : permutation of 0 to n-1 using bit reversal technique
-    for i in range(n):
-        seq_i = seq[i]
-        x[i] = x[seq_i]
-
-    k = 2
-    
-    # at each level, the even FFT lies from index i+j to i+j+u-1
-    # and odd FFT lies from index i+j+u to i+j+k-1
-    # merge the 2 FFTs into a single FFT from i+j to i+j+k-1
-    while k <= n:
-        w = cmath.exp(-2j*math.pi/k) # FIXNE: switch to cmath
-        #w = numpy.exp(-2j*numpy.pi/k)
-        u = int(k/2)
-        
-        for i in range(0, n, k):
-            h = 1
-            for j in range(u):
-                a, b = x[i+j], x[i+j+u]
-                
-                x[i+j] = a + h*b
-                x[i+j+u] = a - h*b
-                h *= w
-                
-        k *= 2
-
-    return x
-
-
 def fft_ulab(a):
     real, _ = numpy.fft.fft(a)
     return real
@@ -112,58 +79,66 @@ class FFTPreInplace:
         self.cos_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
         self.sin_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
 
+    @micropython.native
     def compute(self, real, imag):
         # check inputs
         assert len(real) == self.length
         assert len(imag) == self.length
 
-        self._compute(real, imag)
-
-    @micropython.native
-    def _compute(self, real, imag):
-
-        length = len(real)
-        cos = self.cos_table
-        sin = self.sin_table
-
 	    # Bit-reversed addressing permutation
-        for i in range(length):
+        # does not compile with viper
+        for ii in range(self.length):
+            i = int(ii)
             j = self.bit_reverse_table[i]
             if j > i:
-                temp = real[i]
+                temp : object = real[i]
                 real[i] = real[j]
                 real[j] = temp
                 temp = imag[i]
                 imag[i] = imag[j]
                 imag[j] = temp
 
+        self._compute(real, imag)
+
+    @micropython.native
+    def _compute(self, real, imag):
+
+        cos = self.cos_table
+        sin = self.sin_table
+        n : int = int(self.length)
+
     	## Cooley-Tukey in-place decimation-in-time radix-2 FFT
-        n = self.length
-        size = 2
-        while size <= length:
-            halfsize = size // 2
-            tablestep = n // size
+        size : int = 2
+        while size <= n:
+            halfsize : int = size // 2
+            tablestep : int = n // size
 
-            for i in range(0, n, size):
-                k = 0
-                #print(i)
-                for j in range(i, i + halfsize):
-                    #print('k', k)
-                    self._compute_inner(real, imag, j, k, halfsize, cos, sin)
-                    # next
+            i = 0
+            while i < n:
+                k : int = 0
+                j = i
+                while j < i+halfsize:
+                    l : int = j + halfsize
+
+                    #tpre =  real[l] * cos[k] + imag[l] * sin[k]
+                    #tpim = -real[l] * sin[k] + imag[l] * cos[k]
+                    # splitting these gives 25% speedup
+                    c = cos[k]
+                    s = sin[k]
+                    r = real[l]
+                    im = imag[l]
+                    tpre =  r * c + im * s
+                    tpim = -r * s + im * c
+                    real[l] = real[j] - tpre
+                    imag[l] = imag[j] - tpim
+                    real[j] += tpre
+                    imag[j] += tpim
                     k += tablestep
-            # next
-            size = size * 2
+                    j += 1
 
-    @micropython.viper
-    def _compute_inner(self, real, imag, j, k, halfsize, cos, sin):
-        l = j + halfsize;
-        tpre =  real[l] * cos[k] + imag[l] * sin[k]
-        tpim = -real[l] * sin[k] + imag[l] * cos[k]
-        real[l] = real[j] - tpre
-        imag[l] = imag[j] - tpim
-        real[j] += tpre
-        imag[j] += tpim
+                i += size
+
+            size = size * 2
 
 
 def main():
@@ -174,6 +149,7 @@ def main():
     sines = make_two_sines(dur=10.0)
     data = sines[0][0:n]
     imag = numpy.zeros(data.shape, dtype=data.dtype)
+    assert len(data) == n
 
     repeat = 100
 
@@ -192,7 +168,7 @@ def main():
     for n in range(repeat):
         out = fft_ulab(data)
     d = ((time.time() - start) / repeat) * 1000.0 # ms
-    print('numpy', d)
+    print('ulab', d)
 
 if __name__ == '__main__':
 
