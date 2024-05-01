@@ -27,7 +27,6 @@ import array
 
 try:
     import ulab
-    #from ulab.numpy.fft import fft as ulab_fft
     from ulab import numpy
     pass
 except ImportError as e:
@@ -75,12 +74,9 @@ def fft_bit_reversal(x, seq):
 
 
 def fft_ulab(a):
-    real, _ = ulab_fft(a)
+    real, _ = numpy.fft.fft(a)
     return real
 
-def fft_numpy(a):
-    out = numpy.fft.fft(a)
-    return out
 
 def make_two_sines(f1 = 2.0, f2 = 20.0, sr = 100, dur = 1.0):
     np = numpy
@@ -153,25 +149,27 @@ class FFTPreInplace:
                 #print(i)
                 for j in range(i, i + halfsize):
                     #print('k', k)
-                    l = j + halfsize;
-                    tpre =  real[l] * cos[k] + imag[l] * sin[k]
-                    tpim = -real[l] * sin[k] + imag[l] * cos[k]
-                    real[l] = real[j] - tpre
-                    imag[l] = imag[j] - tpim
-                    real[j] += tpre
-                    imag[j] += tpim
+                    self._compute_inner(real, imag, j, k, halfsize, cos, sin)
                     # next
                     k += tablestep
             # next
             size = size * 2
+
+    @micropython.viper
+    def _compute_inner(self, real, imag, j, k, halfsize, cos, sin):
+        l = j + halfsize;
+        tpre =  real[l] * cos[k] + imag[l] * sin[k]
+        tpim = -real[l] * sin[k] + imag[l] * cos[k]
+        real[l] = real[j] - tpre
+        imag[l] = imag[j] - tpim
+        real[j] += tpre
+        imag[j] += tpim
 
 
 def main():
 
     n = 512
     s = [ reverse_bits(i, n) for i in range(n) ]
-    print(n, s)
-
 
     sines = make_two_sines(dur=10.0)
     data = sines[0][0:n]
@@ -179,10 +177,11 @@ def main():
 
     repeat = 100
 
-    start = time.time()
     a = array.array('f', data)
     i = array.array('f', imag)
     fft = FFTPreInplace(n)
+
+    start = time.time()
     for n in range(repeat):
         fft.compute(a, i)
         #out = fft_optimized(data, seq)
@@ -191,7 +190,7 @@ def main():
 
     start = time.time()
     for n in range(repeat):
-        out = fft_numpy(data)
+        out = fft_ulab(data)
     d = ((time.time() - start) / repeat) * 1000.0 # ms
     print('numpy', d)
 
