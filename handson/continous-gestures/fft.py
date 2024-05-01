@@ -22,6 +22,25 @@
 import math
 import cmath
 
+import time
+import array
+
+try:
+    import ulab
+    #from ulab.numpy.fft import fft as ulab_fft
+    from ulab import numpy
+    pass
+except ImportError as e:
+    print(e)
+
+try:
+    import numpy
+    import numpy.fft
+except ImportError as e:
+    print(e)
+
+
+
 # in-place, mutates X
 def fft_bit_reversal(x, seq):
     n = len(seq)
@@ -37,8 +56,8 @@ def fft_bit_reversal(x, seq):
     # and odd FFT lies from index i+j+u to i+j+k-1
     # merge the 2 FFTs into a single FFT from i+j to i+j+k-1
     while k <= n:
-        #w = cmath.exp(-2j*math.pi/k) # FIXNE: switch to cmath
-        w = numpy.exp(-2j*numpy.pi/k)
+        w = cmath.exp(-2j*math.pi/k) # FIXNE: switch to cmath
+        #w = numpy.exp(-2j*numpy.pi/k)
         u = int(k/2)
         
         for i in range(0, n, k):
@@ -55,138 +74,118 @@ def fft_bit_reversal(x, seq):
     return x
 
 
-def generate_swapping_constants(n):
-    # This function returns the constants used with bitwise AND
-    # i.e. for extracting alternate elements, then pairs of 2, then
-    # batches of 4 and so on.
-    swap_constants = []
-    
-    i = 0
-    while (1 << i) <= int(n/2):
-        nbits = (1 << i)
-        
-        p = '0'*nbits + '1'*nbits
-        q = '1'*nbits + '0'*nbits
-
-        h = len(p)
-
-        d, r = int(n/h), n % h
-        
-        a = '0b' + p*d + p[:r]
-        b = '0b' + q*d + q[:r]
-
-        swap_constants += [(nbits, eval(a), eval(b))]
-        i += 1
-
-    return swap_constants
-
-def get_bit_reversed_seq(n, m, swap_constants, nxt_power):
-    seq = []
-    
-    for x in range(n):
-        x *= (1 << (nxt_power-m))
-        
-        for q, a, b in swap_constants:
-            x = ((x & a) << q) | ((x & b) >> q)
-            
-        seq += [x]
-
-    return seq
-
-
-# XXX: this takes many seconds!!
-def make_sequences():
-    max_bits = 32
-    swap_table = []
-
-    nbits = 1
-    while nbits <= max_bits:
-        swap_constants = generate_swapping_constants(nbits)
-        swap_table += [(nbits, swap_constants)]
-        nbits *= 2
-
-    sequences = {}
-    i = 0
-    for m in range(1, 16):
-        n = 1 << m
-        print(n)
-
-        while i < len(swap_table) and m > swap_table[i][0]:
-            i += 1
-
-        sequences[m] = \
-            get_bit_reversed_seq(n, m, 
-                swap_table[i][1], swap_table[i][0])
-
-    return sequences
-
-def num_bits(n):
-    c = 0
-    while n > 0:
-        n = n >> 1
-        c += 1
-
-    return c
-
-def fft_optimized(x, sequences):
-    n = len(x)
-
-    # n is power of 2, but sequence is from 0 to n-1
-    # number of bits required is 1 minus the number of bits in n
-    m = num_bits(n)-1
-
-    return fft_bit_reversal(x, sequences[m])
-
-import time
-import array
-
-try:
-    from ulab.numpy.fft import fft as ulab_fft
-    from ulab import numpy
-except ImportError as e:
-    print(e)
-
-try:
-    import numpy
-    import numpy.fft
-except ImportError as e:
-    print(e)
-
-
 def fft_ulab(a):
     real, _ = ulab_fft(a)
     return real
 
 def fft_numpy(a):
-    out = numpy.fft.rfft(a)
+    out = numpy.fft.fft(a)
     return out
 
 def make_two_sines(f1 = 2.0, f2 = 20.0, sr = 100, dur = 1.0):
     np = numpy
 
-    t = np.linspace(0, 1, int(dur*sr), False)
+    t = np.linspace(0, 1, num=int(dur*sr))
     sig = np.sin(2*np.pi*f1*t) + np.sin(2*np.pi*f2*t)
 
     return t, sig
 
+def reverse_bits(index, length):
+
+    # Compute levels = floor(log2(n))
+    levels = 0
+    temp = length
+    while temp > 1:
+        temp = (temp >> 1)
+        levels +=1
+
+    result = 0
+    x = index
+    for i in range(levels):
+        result = (result << 1) | (x & 1)
+        x = (x >> 1)
+
+    return result
+
+class FFTPreInplace:
+
+    def __init__(self, length):
+
+        self.length = length
+        self.bit_reverse_table = array.array('h', (reverse_bits(i, length) for i in range(length)))
+        self.cos_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
+        self.sin_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
+
+    def compute(self, real, imag):
+        # check inputs
+        assert len(real) == self.length
+        assert len(imag) == self.length
+
+        self._compute(real, imag)
+
+    @micropython.native
+    def _compute(self, real, imag):
+
+        length = len(real)
+        cos = self.cos_table
+        sin = self.sin_table
+
+	    # Bit-reversed addressing permutation
+        for i in range(length):
+            j = self.bit_reverse_table[i]
+            if j > i:
+                temp = real[i]
+                real[i] = real[j]
+                real[j] = temp
+                temp = imag[i]
+                imag[i] = imag[j]
+                imag[j] = temp
+
+    	## Cooley-Tukey in-place decimation-in-time radix-2 FFT
+        n = self.length
+        size = 2
+        while size <= length:
+            halfsize = size // 2
+            tablestep = n // size
+
+            for i in range(0, n, size):
+                k = 0
+                #print(i)
+                for j in range(i, i + halfsize):
+                    #print('k', k)
+                    l = j + halfsize;
+                    tpre =  real[l] * cos[k] + imag[l] * sin[k]
+                    tpim = -real[l] * sin[k] + imag[l] * cos[k]
+                    real[l] = real[j] - tpre
+                    imag[l] = imag[j] - tpim
+                    real[j] += tpre
+                    imag[j] += tpim
+                    # next
+                    k += tablestep
+            # next
+            size = size * 2
+
+
 def main():
 
-    seq = make_sequences()
-
     n = 512
-    m = num_bits(n)-1
-    s = seq[m]
-    print(n, m, s)
+    s = [ reverse_bits(i, n) for i in range(n) ]
+    print(n, s)
+
 
     sines = make_two_sines(dur=10.0)
     data = sines[0][0:n]
+    imag = numpy.zeros(data.shape, dtype=data.dtype)
 
     repeat = 100
 
     start = time.time()
     a = array.array('f', data)
+    i = array.array('f', imag)
+    fft = FFTPreInplace(n)
     for n in range(repeat):
-        out = fft_optimized(a, seq)
+        fft.compute(a, i)
+        #out = fft_optimized(data, seq)
     d = ((time.time() - start) / repeat) * 1000.0 # ms
     print('python', d)
 
