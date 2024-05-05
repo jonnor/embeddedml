@@ -38,7 +38,7 @@ try:
 except ImportError as e:
     print(e)
 
-
+import emlfft
 
 def fft_ulab(a):
     real, _ = numpy.fft.fft(a)
@@ -77,7 +77,7 @@ class FFTPreInplace:
         self.length = length
         self.bit_reverse_table = array.array('h', (reverse_bits(i, length) for i in range(length)))
         self.cos_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
-        self.sin_table = array.array('f', (math.cos(2.0*math.pi*i/length) for i in range(length)) )
+        self.sin_table = array.array('f', (math.sin(2.0*math.pi*i/length) for i in range(length)) )
 
     @micropython.native
     def compute(self, real, imag):
@@ -125,6 +125,9 @@ class FFTPreInplace:
                     # splitting these gives 25% speedup
                     c = cos[k]
                     s = sin[k]
+                    #iii = 2.0*math.pi*k/n
+                    #c = math.cos(iii)
+                    #s = math.sin(iii)
                     r = real[l]
                     im = imag[l]
                     tpre =  r * c + im * s
@@ -143,32 +146,42 @@ class FFTPreInplace:
 
 def main():
 
-    n = 512
+    n = 512*2
     s = [ reverse_bits(i, n) for i in range(n) ]
 
-    sines = make_two_sines(dur=10.0)
+    sines = make_two_sines(dur=100.0)
     data = sines[0][0:n]
     imag = numpy.zeros(data.shape, dtype=data.dtype)
     assert len(data) == n
 
     repeat = 100
 
-    a = array.array('f', data)
-    i = array.array('f', imag)
+    re = array.array('f', data)
+    im = array.array('f', imag)
     fft = FFTPreInplace(n)
 
     start = time.time()
-    for n in range(repeat):
-        fft.compute(a, i)
+    for i in range(repeat):
+        fft.compute(re, im)
         #out = fft_optimized(data, seq)
     d = ((time.time() - start) / repeat) * 1000.0 # ms
     print('python', d)
 
     start = time.time()
-    for n in range(repeat):
+    for i in range(repeat):
         out = fft_ulab(data)
     d = ((time.time() - start) / repeat) * 1000.0 # ms
     print('ulab', d)
+
+    start = time.time()
+    fft = emlfft.new(n)
+    emlfft.fill(fft, n)
+    assert len(re) == n, (len(re), n)
+    assert len(im) == n, (len(im), n)
+    for n in range(repeat):
+        out = fft.run(re, im)
+    d = ((time.time() - start) / repeat) * 1000.0 # ms
+    print('emlearn', d)
 
 if __name__ == '__main__':
 
