@@ -131,16 +131,17 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
         assert leaves.shape[1] == 1, 'only single output supported'
         leaves = numpy.squeeze(leaves)
 
-        n_unique_leaves = len(numpy.unique(leaves, axis=0))        
+        n_leaves = len(leaves)
         n_classes = len(numpy.unique(y))
         n_samples = len(y)
-
+        n_unique_leaves = len(numpy.unique(leaves, axis=0))
         max_leaves = max(self.clusters, n_classes)
+        max_leaves = min(max_leaves, n_leaves)
         max_leaves = min(max_leaves, n_samples)
 
-        #print('clusters', n_clusters, n_classes, n_samples, self.clusters)
+        print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, self.clusters)
 
-        if n_unique_leaves <= n_classes:
+        if (n_unique_leaves <= n_classes) or (n_unique_leaves <= max_leaves):
             # assume already optimial
             pass
 
@@ -156,6 +157,8 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
                 is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
                 values = e.tree_.value
                 assert values.shape[1] == 1
+
+                # FIXME: fix this collapsing into 1-d. Probably happens for binary classification?
                 c_idx = cluster.predict(numpy.squeeze(values))
                 centroids = cluster.cluster_centers_[c_idx]
                 #print('SS', centroids.shape)
@@ -170,15 +173,8 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
         return ret        
 
+def setup_data_pipeline(data):
 
-
-def run_dataset(pipeline, dataset_path,
-    n_jobs = 4,
-    repetitions = 1,
-    scoring = 'roc_auc_ovo_weighted',
-    ):
-
-    data = pandas.read_parquet(dataset_path)
     target_column = '__target'
     feature_columns = list(set(data.columns) - set([target_column]))
     Y = data[target_column]
@@ -188,10 +184,22 @@ def run_dataset(pipeline, dataset_path,
     cat_columns = make_column_selector(dtype_include=[object, 'category'])(X)
     num_columns = list(set(feature_columns) - set(cat_columns))
 
+    # FIXME: specify the categories, to avoid unknown categories ValueError
     preprocessor = ColumnTransformer(transformers=[
         ('num', RobustScaler(), num_columns),
         ('cat', OrdinalEncoder(), cat_columns)
     ])
+
+    return X, Y, preprocessor
+
+def run_dataset(pipeline, dataset_path,
+    n_jobs = 4,
+    repetitions = 1,
+    scoring = 'roc_auc_ovo_weighted',
+    ):
+
+    data = pandas.read_parquet(dataset_path)
+    X, Y, preprocessor = setup_data_pipeline(data)
 
     # combine into a pipeline
     pipeline = make_pipeline(
@@ -239,7 +247,9 @@ def run_datasets(pipeline, out_dir, run_id, kvs={}, dataset_dir=None, **kwargs):
 
         #o = os.path.join(out_dir, f'dataset={dataset_id}')
         #ensure_dir(o)
-        res.to_parquet(os.path.join(out_dir, f'r_{run_id}_ds_{dataset_id}.part'))
+        o = os.path.join(out_dir, f'r_{run_id}_ds_{dataset_id}.part')
+        assert not os.path.exists(o), o
+        res.to_parquet(o)
 
         print(res)
 
@@ -253,14 +263,47 @@ def main():
     # reduce number of trees
     # try replace nodes with k-means quantized versions
 
+    # TODO: run a hyperparameter search on each dataset.
+    # Find appropriate parameters, when no optimizations used
+    # for a particular set of trees. 10 is a good starting point?
+    # 1. Leaf quantize 8 bit
+    # 2. Feature quantize 16 bit
+    # 3. Leaf+feature quantize
+    # 4. Leaf reduce, in 5-10 levels. Percentage of unique? Maybe in log2 scale 1 / (2,4,8,16,32,64,128)
+    
+    # Research questions
+    # A) how well does feature and leaf quantization work?
+    # Hypothesis: 16 bit feature and 8 bit leaf probabilities is ~lossless
+
+    # B) how well does leaf clustering work?
+    # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
+    # Preliminary results do indicate that up to 5x model size reduction is possible with low perf drops
+    # however there are a few outliers, where even 0.8 the original size causes drop in performance 
+
+    # C) how does code generation vs data structure compare, wrt size and inference time
+    # Hypothesis: datastructure "loadable" is smaller in size, but slower in inference time
+    # 
+
+    # D) what are limitating factors for practical models on microcontrollers
+    # Hypothesis: Model size is the primary bottleneck/constraint
+    # accelerometer. 10 FPS
+    # sound. 25 FPS
+    # images 1 FPS
+    # Hypothesis: Feature extraction dominates tree execution
+    # maybe compare tree execution speed with a simple preprocessing. EX: RMS
+
+
+    # E) how does emlearn RF compare to other frameworks. m2cgen and micromlgen
+    # in terms of size and execution speed. At near 0 error rate 
+    
+    
     experiments = {
         'rf10_noclust': dict(clusters=None, n_estimators=10),
         'rf10_100clust': dict(clusters=100, n_estimators=10),
         'rf10_30clust': dict(clusters=30, n_estimators=10),
-        'rf10_10clust': dict(clusters=30, n_estimators=10),
+        'rf10_10clust': dict(clusters=10, n_estimators=10),
     }
 
-    run_id = uuid.uuid4().hex.upper()[0:6]
     for experiment, config in experiments.items():
 
         log.info('experiment-start', experiment=experiment, **config)
@@ -276,6 +319,8 @@ def main():
                 clusters=config['clusters'],
             ),
         ]
+
+        run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
         run_datasets(p, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id)
 

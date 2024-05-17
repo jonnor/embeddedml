@@ -14,6 +14,9 @@ df['leaf_size'] = df['test_leasize'] * leaf_bytes_per_class * df['test_uniquelea
 df['decision_size'] = decision_nodes * decision_node_bytes
 df['total_size'] = df['leaf_size'] + df['decision_size']
 
+print(df.experiment.value_counts())
+
+print(df.run.value_counts())
 
 
 order = df.groupby('dataset').mean()['test_roc_auc'].sort_values().index
@@ -35,9 +38,12 @@ ref = mm.loc['rf10_noclust']
 mm['rel_size'] = mm['total_size'] / ref['total_size']
 mm['perf_drop'] = mm['test_roc_auc'] - ref['test_roc_auc']
 
+seaborn.set_style("ticks",{'axes.grid' : True})
 g = seaborn.relplot(data=mm.reset_index(),
     x='rel_size', y='perf_drop',
     hue='experiment',
+    height=8,
+    size=10.0,
     #col='dataset',
     #col_wrap=6,
 )
