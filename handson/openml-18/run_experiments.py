@@ -5,7 +5,8 @@ import uuid
 
 from sklearn.metrics import roc_auc_score, make_scorer
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import RobustScaler, FunctionTransformer
+from sklearn.preprocessing import RobustScaler, FunctionTransformer, OrdinalEncoder
+from sklearn.compose import ColumnTransformer, make_column_selector
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
@@ -90,11 +91,21 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
         self.clusters = clusters
 
     def get_params(self, deep=True):
-        return self.estimator.get_params()    
+        params = self.estimator.get_params()
+        params['clusters'] = self.clusters
+        return params
 
     def set_params(self, **parameters):
         #print("SET", **parameters)
-        return self.estimator.set_params(**parameters)
+        our_keys = set(['clusters'])
+        our_params = { k: v for k, v in parameters if k in our_keys }
+        rf_params = { k: v for k, v in parameters if k not in our_keys }
+        ret = self.estimator.set_params(**rf_params)
+
+        for k, v in our_params:
+            setattr(self, k, v)
+
+        return ret 
 
     def predict(self, X):
         return self.estimator.predict(X)
@@ -104,30 +115,39 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         ret = self.estimator.fit(X, y)
+        self.classes_ = self.estimator.classes_
 
-        if self.clusters is not None:
+        if self.clusters is None:
+            return ret
 
-            n_classes = len(numpy.unique(y))
-            n_samples = len(y)
+        # Find leaves
+        ll = []
+        for e in self.estimator.estimators_:
+            is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
+            l = e.tree_.value[is_leaf]
+            ll.append(l)
 
-            n_clusters = max(self.clusters, n_classes)
-            n_clusters = min(n_clusters, n_samples)
+        leaves = numpy.concatenate(ll)
+        assert leaves.shape[1] == 1, 'only single output supported'
+        leaves = numpy.squeeze(leaves)
 
-            #print('clusters', n_clusters, n_classes, n_samples, self.clusters)
+        n_unique_leaves = len(numpy.unique(leaves, axis=0))        
+        n_classes = len(numpy.unique(y))
+        n_samples = len(y)
 
-            # Find leaves
-            ll = []
-            for e in self.estimator.estimators_:
-                is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
-                l = e.tree_.value[is_leaf]
-                ll.append(l)
+        max_leaves = max(self.clusters, n_classes)
+        max_leaves = min(max_leaves, n_samples)
 
-            leaves = numpy.concatenate(ll)
-            assert leaves.shape[1] == 1, 'only single output supported'
-            leaves = numpy.squeeze(leaves)
+        #print('clusters', n_clusters, n_classes, n_samples, self.clusters)
+
+        if n_unique_leaves <= n_classes:
+            # assume already optimial
+            pass
+
+        else:
 
             # Cluster the leaves
-            cluster = KMeans(n_clusters=n_clusters, tol=1e-4, max_iter=100)
+            cluster = KMeans(n_clusters=max_leaves, tol=1e-4, max_iter=100)
             cluster.fit(leaves)
 
             # Replace by closest centroid
@@ -148,8 +168,6 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
                     e.tree_.value[i] = v[i]
 
 
-        self.classes_ = self.estimator.classes_
-
         return ret        
 
 
@@ -165,6 +183,21 @@ def run_dataset(pipeline, dataset_path,
     feature_columns = list(set(data.columns) - set([target_column]))
     Y = data[target_column]
     X = data[feature_columns]
+
+    # data preprocessing
+    cat_columns = make_column_selector(dtype_include=[object, 'category'])(X)
+    num_columns = list(set(feature_columns) - set(cat_columns))
+
+    preprocessor = ColumnTransformer(transformers=[
+        ('num', RobustScaler(), num_columns),
+        ('cat', OrdinalEncoder(), cat_columns)
+    ])
+
+    # combine into a pipeline
+    pipeline = make_pipeline(
+        preprocessor,
+        *pipeline,
+    )
 
     scoring = {
         'nodes': tree_nodes,
@@ -220,18 +253,31 @@ def main():
     # reduce number of trees
     # try replace nodes with k-means quantized versions
 
-    quantizer = FunctionTransformer(linear_quantize,
-        kw_args=dict(target_min=0, target_max=255, dtype=numpy.uint8))
-
-    p = make_pipeline(
-        RobustScaler(),
-        #quantizer,
-        CustomRandomForestClassifier(n_estimators=10, max_depth=10, clusters=None),
-    )
+    experiments = {
+        'rf10_noclust': dict(clusters=None, n_estimators=10),
+        'rf10_100clust': dict(clusters=100, n_estimators=10),
+        'rf10_30clust': dict(clusters=30, n_estimators=10),
+        'rf10_10clust': dict(clusters=30, n_estimators=10),
+    }
 
     run_id = uuid.uuid4().hex.upper()[0:6]
+    for experiment, config in experiments.items():
 
-    out = run_datasets(p, kvs=dict(experiment='rf10_noclust'), out_dir='out.parquet', run_id=run_id)
+        log.info('experiment-start', experiment=experiment, **config)
+
+        quantizer = FunctionTransformer(linear_quantize,
+            kw_args=dict(target_min=0, target_max=255, dtype=numpy.uint8))
+
+        p = [
+            #quantizer,
+            CustomRandomForestClassifier(
+                n_estimators=config['n_estimators'], 
+                min_samples_leaf=0.01,
+                clusters=config['clusters'],
+            ),
+        ]
+
+        run_datasets(p, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id)
 
 
 
