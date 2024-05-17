@@ -33,7 +33,7 @@ g.figure.savefig('performance-grouped.png')
 mm = df.groupby(['experiment', 'dataset']).median()[['total_size', 'test_roc_auc']]
 print(mm)
 
-ref = mm.loc['rf10_noclust']
+ref = mm.loc['rf10_float']
 
 mm['rel_size'] = mm['total_size'] / ref['total_size']
 mm['perf_drop'] = mm['test_roc_auc'] - ref['test_roc_auc']

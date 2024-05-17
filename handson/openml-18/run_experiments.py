@@ -24,8 +24,9 @@ def linear_quantize(img, target_min, target_max, dtype):
 
     a = (target_max - target_min) / (imax - imin)
     b = target_max - a * imax
-    new_img = (a * img + b).astype(dtype, casting='unsafe')
-    return new_img
+    o = (a * img + b)
+    new_img = o.astype(dtype, casting='unsafe')
+    return new_img.astype(float)
 
 
 def get_tree_estimators(estimator):
@@ -173,7 +174,7 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
         return ret        
 
-def setup_data_pipeline(data):
+def setup_data_pipeline(data, quantizer=None):
 
     target_column = '__target'
     feature_columns = list(set(data.columns) - set([target_column]))
@@ -184,22 +185,37 @@ def setup_data_pipeline(data):
     cat_columns = make_column_selector(dtype_include=[object, 'category'])(X)
     num_columns = list(set(feature_columns) - set(cat_columns))
 
+    # ensure that all categories have a well defined mapping, regardless of train/test splits
+    categories = OrdinalEncoder().fit(X[cat_columns]).categories_
+
+    log.debug('setup-data-pipeline',
+        samples=len(X),
+        quantizer=quantizer,
+        categorical=len(cat_columns),
+        numerical=len(num_columns),
+    )
+
+    if quantizer:
+        num_transformer = make_pipeline(RobustScaler(), quantizer)
+    else:
+        num_transformer = make_pipeline(RobustScaler())
+
     # FIXME: specify the categories, to avoid unknown categories ValueError
     preprocessor = ColumnTransformer(transformers=[
-        ('num', RobustScaler(), num_columns),
-        ('cat', OrdinalEncoder(), cat_columns)
+        ('num', num_transformer, num_columns),
+        ('cat', OrdinalEncoder(categories=categories), cat_columns)
     ])
 
     return X, Y, preprocessor
 
-def run_dataset(pipeline, dataset_path,
+def run_dataset(pipeline, dataset_path, quantizer=None,
     n_jobs = 4,
     repetitions = 1,
     scoring = 'roc_auc_ovo_weighted',
     ):
 
     data = pandas.read_parquet(dataset_path)
-    X, Y, preprocessor = setup_data_pipeline(data)
+    X, Y, preprocessor = setup_data_pipeline(data, quantizer=quantizer)
 
     # combine into a pipeline
     pipeline = make_pipeline(
@@ -230,7 +246,7 @@ def ensure_dir(p):
     if not os.path.exists(p):
         os.makedirs(p)
 
-def run_datasets(pipeline, out_dir, run_id, kvs={}, dataset_dir=None, **kwargs):
+def run_datasets(pipeline, out_dir, run_id, quantizer=None, kvs={}, dataset_dir=None, **kwargs):
 
     if dataset_dir is None:
         dataset_dir = 'data/datasets'
@@ -239,7 +255,7 @@ def run_datasets(pipeline, out_dir, run_id, kvs={}, dataset_dir=None, **kwargs):
         dataset_id = os.path.splitext(f)[0]
         dataset_path = os.path.join(dataset_dir, f)
 
-        res = run_dataset(pipeline, dataset_path, **kwargs)
+        res = run_dataset(pipeline, dataset_path, quantizer=quantizer, **kwargs)
         res['dataset'] = str(dataset_id)
         for k, v in kvs.items():
             res[k] = v
@@ -298,31 +314,46 @@ def main():
     
     
     experiments = {
-        'rf10_noclust': dict(clusters=None, n_estimators=10),
-        'rf10_100clust': dict(clusters=100, n_estimators=10),
-        'rf10_30clust': dict(clusters=30, n_estimators=10),
-        'rf10_10clust': dict(clusters=10, n_estimators=10),
+        #'rf10_noclust': dict(clusters=None, n_estimators=10),
+        #'rf10_100clust': dict(clusters=100, n_estimators=10),
+        #'rf10_30clust': dict(clusters=30, n_estimators=10),
+        #'rf10_10clust': dict(clusters=10, n_estimators=10),
+
+       'rf10_none': dict(dtype=None),
+       'rf10_float': dict(dtype=float, target_min=-10.0, target_max=10.0),   
+       'rf10_32bit': dict(dtype=numpy.int32, target_min=-2**30, target_max=2**30),   
+       'rf10_16bit': dict(dtype=numpy.int16, target_min=-2**14, target_max=2**14),
+        #'rf10_12bit': dict(dtype=numpy.int16, target_min=-2**12, target_max=2**12),
+        #'rf10_10bit': dict(dtype=numpy.int16, target_min=-2**10, target_max=2**10),
+        'rf10_8bit': dict(dtype=numpy.int8, target_min=-127, target_max=127),
     }
 
     for experiment, config in experiments.items():
 
         log.info('experiment-start', experiment=experiment, **config)
 
-        quantizer = FunctionTransformer(linear_quantize,
-            kw_args=dict(target_min=0, target_max=255, dtype=numpy.uint8))
+        p = []
 
-        p = [
-            #quantizer,
-            CustomRandomForestClassifier(
-                n_estimators=config['n_estimators'], 
-                min_samples_leaf=0.01,
-                clusters=config['clusters'],
-            ),
-        ]
+        # feature quantization (optional)
+        quantizer = None
+        if config.get('dtype'):
+            quantizer = FunctionTransformer(linear_quantize, kw_args=dict(\
+                target_min=config['target_min'],
+                target_max=config['target_max'],
+                dtype=config['dtype'],
+            ))
+
+        # classifier
+        rf = CustomRandomForestClassifier(
+            n_estimators=config.get('n_estimators', 10), 
+            #min_samples_leaf=0.01,
+            clusters=config.get('clusters', None),
+        )
+        p.append(rf)
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id)
+        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id)
 
 
 
