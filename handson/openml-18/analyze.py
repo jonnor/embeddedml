@@ -33,14 +33,14 @@ g.figure.savefig('performance-grouped.png')
 mm = df.groupby(['experiment', 'dataset']).median()[['total_size', 'test_roc_auc']]
 print(mm)
 
-ref = mm.loc['rf10_float']
+ref = mm.loc['rf10_none']
 
 mm['rel_size'] = mm['total_size'] / ref['total_size']
-mm['perf_drop'] = mm['test_roc_auc'] - ref['test_roc_auc']
+mm['perf_change'] = mm['test_roc_auc'] - ref['test_roc_auc']
 
 seaborn.set_style("ticks",{'axes.grid' : True})
 g = seaborn.relplot(data=mm.reset_index(),
-    x='rel_size', y='perf_drop',
+    x='rel_size', y='perf_change',
     hue='experiment',
     height=8,
     size=10.0,
@@ -48,3 +48,8 @@ g = seaborn.relplot(data=mm.reset_index(),
     #col_wrap=6,
 )
 g.figure.savefig('relperf.png')
+
+mm = mm.sort_values('perf_change', ascending=True)
+print(mm.head(50))
+print(mm.head(50).reset_index().dataset.unique())
+

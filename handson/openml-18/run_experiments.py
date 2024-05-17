@@ -12,6 +12,10 @@ from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+#from emlearn.preprocessing.quantizer import Quantizer
+
+from check_quant import Quantizer
+
 import pandas
 import numpy
 import structlog
@@ -19,11 +23,15 @@ import structlog
 log = structlog.get_logger()
 
 def linear_quantize(img, target_min, target_max, dtype):
+
     imin = img.min()
     imax = img.max()
 
     a = (target_max - target_min) / (imax - imin)
     b = target_max - a * imax
+
+    print('linear', img.shape, imin, imax, a, b)
+
     o = (a * img + b)
     new_img = o.astype(dtype, casting='unsafe')
     return new_img.astype(float)
@@ -267,9 +275,10 @@ def run_datasets(pipeline, out_dir, run_id, quantizer=None, kvs={}, dataset_dir=
         assert not os.path.exists(o), o
         res.to_parquet(o)
 
-        print(res)
+        score = res['test_roc_auc'].median()
+        nodes = res['test_nodes'].median()
 
-        log.info('dataset-run-end', dataset=dataset_id)
+        log.info('dataset-run-end', dataset=dataset_id, score=score, **kvs)
 
 def main():
 
@@ -285,11 +294,16 @@ def main():
     # 1. Leaf quantize 8 bit
     # 2. Feature quantize 16 bit
     # 3. Leaf+feature quantize
+    #
     # 4. Leaf reduce, in 5-10 levels. Percentage of unique? Maybe in log2 scale 1 / (2,4,8,16,32,64,128)
-    
+    # Could also be reported as X times the number of classes?    
+
     # Research questions
     # A) how well does feature and leaf quantization work?
-    # Hypothesis: 16 bit feature and 8 bit leaf probabilities is ~lossless
+    # Hypothesis: 16 bit feature is ~lossless. A 8 bit leaf probabilities is ~lossless
+
+    # even float conversion is doing bad. Indicates a general problem, not just quantization
+    # badly performing [ '1478' '40983' '40984' '1494' '40982' '1486' '4134' '44' '151' '1050' '1487' '458' '37' '1475' '1510']
 
     # B) how well does leaf clustering work?
     # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
@@ -320,12 +334,12 @@ def main():
         #'rf10_10clust': dict(clusters=10, n_estimators=10),
 
        'rf10_none': dict(dtype=None),
-       'rf10_float': dict(dtype=float, target_min=-10.0, target_max=10.0),   
-       'rf10_32bit': dict(dtype=numpy.int32, target_min=-2**30, target_max=2**30),   
-       'rf10_16bit': dict(dtype=numpy.int16, target_min=-2**14, target_max=2**14),
-        #'rf10_12bit': dict(dtype=numpy.int16, target_min=-2**12, target_max=2**12),
-        #'rf10_10bit': dict(dtype=numpy.int16, target_min=-2**10, target_max=2**10),
-        'rf10_8bit': dict(dtype=numpy.int8, target_min=-127, target_max=127),
+       'rf10_float': dict(dtype=float, target_max=1000.0),   
+       #'rf10_32bit': dict(dtype=numpy.int32, target_max=2**31-1),   
+       'rf10_16bit': dict(dtype=numpy.int16, target_max=2**15-1),
+        #'rf10_12bit': dict(dtype=numpy.int16, target_max=2**12-1),
+        #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
+        #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
     }
 
     for experiment, config in experiments.items():
@@ -337,11 +351,13 @@ def main():
         # feature quantization (optional)
         quantizer = None
         if config.get('dtype'):
-            quantizer = FunctionTransformer(linear_quantize, kw_args=dict(\
-                target_min=config['target_min'],
-                target_max=config['target_max'],
-                dtype=config['dtype'],
-            ))
+            #quantizer = FunctionTransformer(linear_quantize, kw_args=dict(\
+            #    target_min=-config['target_max'],
+            #    target_max=config['target_max'],
+            #    dtype=config['dtype'],
+            #))
+            quantizer = Quantizer(dtype=config['dtype'],
+                max_quantile=0.001, out_max=config['target_max'])
 
         # classifier
         rf = CustomRandomForestClassifier(
