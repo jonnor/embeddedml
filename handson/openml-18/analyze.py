@@ -49,7 +49,24 @@ g = seaborn.relplot(data=mm.reset_index(),
 )
 g.figure.savefig('relperf.png')
 
+
+order = mm.groupby('experiment').min()['test_roc_auc'].sort_values().index
+print('\norder\n', order)
+order = [ 'rf10_float', 'rf10_16bit', 'rf10_8bit' ]
+seaborn.set_style("ticks",{'axes.grid' : True})
+g = seaborn.catplot(kind='box', data=mm.reset_index(),
+    x='perf_change',
+    y='experiment',
+    order=order,
+    #hue='dataset',
+    height=8,
+    aspect=2.0,
+    #col='dataset',
+    #col_wrap=6,
+)
+g.figure.savefig('stripplot.png')
+
 mm = mm.sort_values('perf_change', ascending=True)
-print(mm.head(50))
-print(mm.head(50).reset_index().dataset.unique())
+print(mm.head(10))
+#print(mm.head(10).reset_index().dataset.unique())
 
