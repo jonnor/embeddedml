@@ -12,30 +12,16 @@ from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
 from sklearn.base import BaseEstimator, ClassifierMixin
 
-#from emlearn.preprocessing.quantizer import Quantizer
+from emlearn.preprocessing.quantizer import Quantizer
+import emlearn
+print('emlearn', emlearn.__path__)
 
-from check_quant import Quantizer
 
 import pandas
 import numpy
 import structlog
 
 log = structlog.get_logger()
-
-def linear_quantize(img, target_min, target_max, dtype):
-
-    imin = img.min()
-    imax = img.max()
-
-    a = (target_max - target_min) / (imax - imin)
-    b = target_max - a * imax
-
-    print('linear', img.shape, imin, imax, a, b)
-
-    o = (a * img + b)
-    new_img = o.astype(dtype, casting='unsafe')
-    return new_img.astype(float)
-
 
 def get_tree_estimators(estimator):
     """
@@ -208,7 +194,6 @@ def setup_data_pipeline(data, quantizer=None):
     else:
         num_transformer = make_pipeline(RobustScaler())
 
-    # FIXME: specify the categories, to avoid unknown categories ValueError
     preprocessor = ColumnTransformer(transformers=[
         ('num', num_transformer, num_columns),
         ('cat', OrdinalEncoder(categories=categories), cat_columns)
@@ -301,9 +286,7 @@ def main():
     # Research questions
     # A) how well does feature and leaf quantization work?
     # Hypothesis: 16 bit feature is ~lossless. A 8 bit leaf probabilities is ~lossless
-
-    # even float conversion is doing bad. Indicates a general problem, not just quantization
-    # badly performing [ '1478' '40983' '40984' '1494' '40982' '1486' '4134' '44' '151' '1050' '1487' '458' '37' '1475' '1510']
+    # 
 
     # B) how well does leaf clustering work?
     # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
@@ -339,7 +322,7 @@ def main():
        'rf10_16bit': dict(dtype=numpy.int16, target_max=2**15-1),
         #'rf10_12bit': dict(dtype=numpy.int16, target_max=2**12-1),
         #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
-        #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
+       'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
     }
 
     for experiment, config in experiments.items():
@@ -351,11 +334,6 @@ def main():
         # feature quantization (optional)
         quantizer = None
         if config.get('dtype'):
-            #quantizer = FunctionTransformer(linear_quantize, kw_args=dict(\
-            #    target_min=-config['target_max'],
-            #    target_max=config['target_max'],
-            #    dtype=config['dtype'],
-            #))
             quantizer = Quantizer(dtype=config['dtype'],
                 max_quantile=0.001, out_max=config['target_max'])
 
@@ -369,7 +347,7 @@ def main():
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id)
+        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
 
 
 
