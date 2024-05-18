@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 from sklearn.cluster import KMeans
 from sklearn.base import BaseEstimator, ClassifierMixin
+import scipy.special
 
 from emlearn.preprocessing.quantizer import Quantizer
 import emlearn
@@ -77,22 +78,51 @@ def leaf_size(model, a=None, b=None):
     sizes = [ e.tree_.value[(e.tree_.children_left == -1) & (e.tree_.children_right == -1)].shape[-1] for e in trees ]
     return numpy.median(sizes)
 
+
+def quantize_probabilities(p, bits=8):
+    assert bits <= 32
+    assert bits >= 1
+    max = numpy.max(p)
+    min = numpy.min(p)
+    assert max <= 1.0, max
+    assert min >= 0.0, min
+
+    steps = (2**bits)
+
+    quantized = (p * steps).round(0).astype(numpy.uint32)
+    out = quantized.astype(float) / steps
+
+    return out
+
+def get_leaves(estimator):
+
+    ll = []
+    for e in estimator.estimators_:
+        is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
+        l = e.tree_.value[is_leaf]
+        ll.append(l)
+
+    leaves = numpy.concatenate(ll)
+    return leaves
+
 class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
-    def __init__(self, clusters=None, **kwargs):
-        #print('INIT', kwargs)
+    def __init__(self, clusters=None, leaf_quantization=None, **kwargs):
+        #print('INIT', leaf_quantization)
 
         self.estimator = RandomForestClassifier(**kwargs)
         self.clusters = clusters
+        self.leaf_quantization = leaf_quantization 
 
     def get_params(self, deep=True):
         params = self.estimator.get_params()
         params['clusters'] = self.clusters
+        params['leaf_quantization'] = self.leaf_quantization
         return params
 
     def set_params(self, **parameters):
         #print("SET", **parameters)
-        our_keys = set(['clusters'])
+        our_keys = set(['clusters', 'leaf_quantization'])
         our_params = { k: v for k, v in parameters if k in our_keys }
         rf_params = { k: v for k, v in parameters if k not in our_keys }
         ret = self.estimator.set_params(**rf_params)
@@ -112,17 +142,8 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
         ret = self.estimator.fit(X, y)
         self.classes_ = self.estimator.classes_
 
-        if self.clusters is None:
-            return ret
-
         # Find leaves
-        ll = []
-        for e in self.estimator.estimators_:
-            is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
-            l = e.tree_.value[is_leaf]
-            ll.append(l)
-
-        leaves = numpy.concatenate(ll)
+        leaves = get_leaves(self.estimator)
         assert leaves.shape[1] == 1, 'only single output supported'
         leaves = numpy.squeeze(leaves)
 
@@ -130,9 +151,58 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
         n_classes = len(numpy.unique(y))
         n_samples = len(y)
         n_unique_leaves = len(numpy.unique(leaves, axis=0))
-        max_leaves = max(self.clusters, n_classes)
-        max_leaves = min(max_leaves, n_leaves)
-        max_leaves = min(max_leaves, n_samples)
+        if self.clusters is None:
+            max_leaves = None
+        else:
+            max_leaves = max(self.clusters, n_classes)
+            max_leaves = min(max_leaves, n_leaves)
+            max_leaves = min(max_leaves, n_samples)
+
+
+        # Quantize leaves
+
+        if self.leaf_quantization is not None:
+
+            for e in self.estimator.estimators_:
+
+                is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
+                values = e.tree_.value
+                assert values.shape[1] == 1
+            
+                z = numpy.zeros_like(values)
+                quantized = quantize_probabilities(values, bits=self.leaf_quantization)
+                assert quantized.shape == values.shape
+
+                #print('quant', quantized.shape)
+
+                #v = numpy.where(is_leaf, quantized, values)
+                #assert v.shape == values.shape, (v.shape, values.shape)
+                #v = numpy.reshape(v, values.shape)
+
+                for i in range(len(e.tree_.value)):
+                    is_leaf = (e.tree_.children_left[i] == -1) and (e.tree_.children_right[i] == -1)
+                    if is_leaf:
+                        # make sure probabilities still sum to 1.0
+                        q = scipy.special.softmax(quantized[i])
+                        #print('qq', q.shape, numpy.sum(q))
+                        e.tree_.value[i] = q
+
+            leaves = get_leaves(self.estimator)
+            assert leaves.shape[1] == 1, 'only single output supported'
+            leaves = numpy.squeeze(leaves)
+            n_unique_leaves_quantized = len(numpy.unique(leaves, axis=0))
+            
+            log.debug('leaf quantized',
+                bits=self.leaf_quantization,
+                unique_after=n_unique_leaves_quantized,
+                unique_before=n_unique_leaves,
+            )
+            
+
+        # Cluster leaves
+        if self.clusters is None:
+            return ret
+
 
         print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, self.clusters)
 
@@ -142,7 +212,6 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
         else:
 
-            # Cluster the leaves
             cluster = KMeans(n_clusters=max_leaves, tol=1e-4, max_iter=100)
             cluster.fit(leaves)
 
@@ -286,7 +355,10 @@ def main():
     # Research questions
     # A) how well does feature and leaf quantization work?
     # Hypothesis: 16 bit feature is ~lossless. A 8 bit leaf probabilities is ~lossless
-    # 
+    # Results indicate that 16 bit featurs is indeed lossless. Within the margins of error for experiment
+    # TODO: merge the int16 support to emlearn
+    #
+    # TODO: check 8 bit leaf probability quantization on CC-18
 
     # B) how well does leaf clustering work?
     # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
@@ -302,6 +374,9 @@ def main():
     # accelerometer. 10 FPS
     # sound. 25 FPS
     # images 1 FPS
+    # maybe do a "worst case" analysis of largesr ensembles that fit on a micro. 10kB, 100kB.
+    # Execution speed for max depths.
+    # Or do a synthetic N deep execution speed test? To get time-per-decision. On common micros
     # Hypothesis: Feature extraction dominates tree execution
     # maybe compare tree execution speed with a simple preprocessing. EX: RMS
 
@@ -309,6 +384,10 @@ def main():
     # E) how does emlearn RF compare to other frameworks. m2cgen and micromlgen
     # in terms of size and execution speed. At near 0 error rate 
     
+
+    #q = quantize_probabilities(numpy.array([0, 0.10, 0.25, 0.75, 0.90, 1.0]), bits=8)
+    #print(q)
+
     
     experiments = {
         #'rf10_noclust': dict(clusters=None, n_estimators=10),
@@ -316,13 +395,18 @@ def main():
         #'rf10_30clust': dict(clusters=30, n_estimators=10),
         #'rf10_10clust': dict(clusters=10, n_estimators=10),
 
-       'rf10_none': dict(dtype=None),
-       'rf10_float': dict(dtype=float, target_max=1000.0),   
+       #'rf10_none': dict(dtype=None),
+       #'rf10_float': dict(dtype=float, target_max=1000.0),   
        #'rf10_32bit': dict(dtype=numpy.int32, target_max=2**31-1),   
-       'rf10_16bit': dict(dtype=numpy.int16, target_max=2**15-1),
+       #'rf10_16bit': dict(dtype=numpy.int16, target_max=2**15-1),
         #'rf10_12bit': dict(dtype=numpy.int16, target_max=2**12-1),
         #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
-       'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
+       #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
+
+       'rf10_leaf8bit': dict(leaf_quantization=8),
+       'rf10_none': dict(leaf_quantization=None),
+       #'rf10_leaf16bit': dict(leaf_quantization=16),
+       #'rf10_leaf4bit': dict(leaf_quantization=8),
     }
 
     for experiment, config in experiments.items():
@@ -340,14 +424,15 @@ def main():
         # classifier
         rf = CustomRandomForestClassifier(
             n_estimators=config.get('n_estimators', 10), 
-            #min_samples_leaf=0.01,
+            min_samples_leaf=0.01,
             clusters=config.get('clusters', None),
+            leaf_quantization=config.get('leaf_quantization', None),
         )
         p.append(rf)
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
+        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=1)
 
 
 
