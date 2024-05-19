@@ -169,15 +169,18 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
                 values = e.tree_.value
                 assert values.shape[1] == 1
             
-                z = numpy.zeros_like(values)
-                quantized = quantize_probabilities(values, bits=self.leaf_quantization)
+                if self.leaf_quantization == 0:
+                    # simple voting. highest probability gets 1.0, rest 0.0
+                    # in practice only returning the index of the most probable class
+                    voted_class = numpy.argmax(values, axis=-1)
+
+                    quantized = numpy.zeros_like(values)
+                    for i, c in enumerate(voted_class):
+                        quantized[i, 0, c] = 1.0
+
+                else:
+                    quantized = quantize_probabilities(values, bits=self.leaf_quantization)
                 assert quantized.shape == values.shape
-
-                #print('quant', quantized.shape)
-
-                #v = numpy.where(is_leaf, quantized, values)
-                #assert v.shape == values.shape, (v.shape, values.shape)
-                #v = numpy.reshape(v, values.shape)
 
                 for i in range(len(e.tree_.value)):
                     is_leaf = (e.tree_.children_left[i] == -1) and (e.tree_.children_right[i] == -1)
@@ -192,11 +195,11 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
             leaves = numpy.squeeze(leaves)
             n_unique_leaves_quantized = len(numpy.unique(leaves, axis=0))
             
-            log.debug('leaf quantized',
-                bits=self.leaf_quantization,
-                unique_after=n_unique_leaves_quantized,
-                unique_before=n_unique_leaves,
-            )
+            #log.debug('leaf quantized',
+            #    bits=self.leaf_quantization,
+            #    unique_after=n_unique_leaves_quantized,
+            #    unique_before=n_unique_leaves,
+            #)
             
 
         # Cluster leaves
@@ -403,7 +406,8 @@ def main():
         #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
        #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
 
-       'rf10_leaf8bit': dict(leaf_quantization=8),
+       #'rf10_majority': dict(leaf_quantization=0),
+       #'rf10_leaf8bit': dict(leaf_quantization=8),
        'rf10_none': dict(leaf_quantization=None),
        #'rf10_leaf16bit': dict(leaf_quantization=16),
        #'rf10_leaf4bit': dict(leaf_quantization=8),
@@ -432,7 +436,7 @@ def main():
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=1)
+        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
 
 
 

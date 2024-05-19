@@ -52,7 +52,11 @@ g.figure.savefig('relperf.png')
 
 order = mm.groupby('experiment').min()['test_roc_auc'].sort_values().index
 print('\norder\n', order)
+
 order = [ 'rf10_float', 'rf10_16bit', 'rf10_8bit' ]
+
+order = [ 'rf10_leaf16bit', 'rf10_leaf8bit', 'rf10_leaf4bit', 'rf10_majority' ]
+
 seaborn.set_style("ticks",{'axes.grid' : True})
 g = seaborn.catplot(kind='box', data=mm.reset_index(),
     x='perf_change',
