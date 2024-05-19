@@ -5,6 +5,8 @@ import pandas
 df = pandas.read_parquet('out.parquet')
 print(df)
 
+
+
 # enrich results
 leaf_bytes_per_class = 1
 decision_node_bytes = 2
@@ -13,6 +15,8 @@ decision_nodes = df['test_nodes'] - df['test_leaves']
 df['leaf_size'] = df['test_leasize'] * leaf_bytes_per_class * df['test_uniqueleaves']
 df['decision_size'] = decision_nodes * decision_node_bytes
 df['total_size'] = df['leaf_size'] + df['decision_size']
+
+df['test_roc_auc'] = 100.0 * df['test_roc_auc'] # scale up to avoid everything being in the decimals
 
 print(df.experiment.value_counts())
 

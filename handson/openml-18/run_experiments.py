@@ -406,11 +406,11 @@ def main():
         #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
        #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
 
-       #'rf10_majority': dict(leaf_quantization=0),
-       #'rf10_leaf8bit': dict(leaf_quantization=8),
+       'rf10_majority': dict(leaf_quantization=0),
+       'rf10_leaf8bit': dict(leaf_quantization=8),
        'rf10_none': dict(leaf_quantization=None),
-       #'rf10_leaf16bit': dict(leaf_quantization=16),
-       #'rf10_leaf4bit': dict(leaf_quantization=8),
+       'rf10_leaf16bit': dict(leaf_quantization=16),
+       'rf10_leaf4bit': dict(leaf_quantization=8),
     }
 
     for experiment, config in experiments.items():
