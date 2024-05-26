@@ -65,6 +65,45 @@ Has a buffer of 1024 32 bit values.
 ? not clear how many are filled per
 ? not clear how the samplerate/sampling time is configured
 
+## Streaming audio over serial
+
+Raw ADC values would be up to 16 bits at 8-16 kHz, so 16kB/s - 32 kB/s.
+Standard baudrate is 115200, so only 14.4 kB/s.
+This can be configured using `DEBUG_USART_BAUDRATE`.
+
+Py32 datasheet claims max baudrate of 4.5Mbit/s.
+USB USART converters might be good for up to 1Mbps.
+So 921600 baud is our target.
+
+TODO: try to increase DEBUG_USART_BAUDRATE to 2x / 4x / 8x.
+
+An ASCII printable encoding is practical.
+Good candiates would be base64, base85, z85 or rfc1924 (used for IPv6).
+
+base64 is the most common, and likely good-enough. 33% overhead, plus padding to multiple of 3 bytes.
+z85: https://rfc.zeromq.org/spec/32/
+
+8 Khz, 16 bit at 64 byte buffers + 10 bytes frame in message: estimated 23.750 kB/s
+In theory doable at 2*115200, but without much margin.
+The USART write might be blocking, in which case we would spend 80%.
+So we want to have 4x or 8x. 500Kbits
+
+TODO: implement serialization of PCM buffers to ASCII
+Using a reasonable length, like 16-160 bytes per "packet". Whatever DMA buffer size is used
+
+TODO: implement a reader which can write PCM stream to .wav
+
+MAYBE: implement an virtual microphone/capture device in reader.
+Would allow to use standard audio tools for recording/monitoring etc
+Using ALSA loopback?
+https://sysplay.in/blog/linux/2019/06/playing-with-alsa-loopback-devices/
+Using PulseAudio loopback?
+https://askubuntu.com/questions/257992/how-can-i-use-pulseaudio-virtual-audio-streams-to-play-music-over-skype
+Setup the loopback devices, then write to the "playback" end. Ex using sounddevice in Python
+Should then be able to record using standard ALSA/PulseAudio client at capture end. Ex: Using Audacity
+Likely will need to use queues. And handle buffer underruns. Maybe 
+
+
 ## I2C
 
 Lots of examples of sensor readout available. Including multiple accelerometers.
