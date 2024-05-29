@@ -38,20 +38,16 @@ def welch_fixed(data):
 
     length = len(data)
     half = length // 2
-
     QMAX = 8192
 
     for i in range(length):
         # a -1.0 => 0.0 => +1.0
         a = (QMAX*(i - half)) // (half) 
-
         # c 0.0 => 1.0 => 0.0
         c = ((QMAX*QMAX) - (a*a))//QMAX # scaling factor
         #print('a', float(a)/QMAX, float(c)/(QMAX))
-
-        x = data[i]
-        o = (c * x) // QMAX
-        data[i] = o
+        #o = (c * data[i]) // QMAX
+        data[i] = (c * data[i]) // QMAX
 
 def welch_float(data):
 
@@ -79,44 +75,47 @@ def hann_float(data):
 
 def test_window():
 
-    repeats = 1000
-    length = 1*256
+    repeats = 100
+    lengths = 64, 128, 256, 512
+    print("Windowing", lengths, repeats)
 
-    ones = array.array('f', (1.0 for _ in range(length)))
+    for length in lengths:
 
-    # Hann
-    a = array.array('f', ones)
-    start = time.ticks_us()
-    for r in range(repeats):
-        hann_float(a)
-    t = time.ticks_diff(time.ticks_us(), start) / repeats
-    print('Hann', t)
+        ones = array.array('f', (1.0 for _ in range(length)))
 
-    # Welch floating point
-    a = array.array('f', ones)
-    start = time.ticks_us()
-    for r in range(repeats):
-        welch_float(a)
-    t = time.ticks_diff(time.ticks_us(), start) / repeats
-    print('Welch(float)', t)
+        # Hann
+        a = array.array('f', ones)
+        start = time.ticks_us()
+        for r in range(repeats):
+            hann_float(a)
+        t = (time.ticks_diff(time.ticks_us(), start) / repeats) / 1000.0 # ms
+        print('Hann', length, t)
 
-    # Welch fixed-point
-    a = array.array('f', ones)
-    a = array.array('h', (int(32767 * x) for x in a))
-    start = time.ticks_us()
-    for r in range(repeats):
-        welch_fixed(a)
-    t = time.ticks_diff(time.ticks_us(), start) / repeats
-    print('Welch(fixed)', t)
+        # Welch floating point
+        a = array.array('f', ones)
+        start = time.ticks_us()
+        for r in range(repeats):
+            welch_float(a)
+        t = (time.ticks_diff(time.ticks_us(), start) / repeats) / 1000.0 # ms
+        print('Welch(float)', length, t)
+
+        # Welch fixed-point
+        a = array.array('f', ones)
+        a = array.array('h', (int(32767 * x) for x in a))
+        start = time.ticks_us()
+        for r in range(repeats):
+            welch_fixed(a)
+        t = (time.ticks_diff(time.ticks_us(), start) / repeats) / 1000.0 # ms
+        print('Welch(fixed)', length, t)
 
 
-    #trig = array.array('f', ones)
+        #trig = array.array('f', ones)
 
-    #welch_fixed_float(welch)
+        #welch_fixed_float(welch)
 
-    #print(welch)
-    #triangular_float(trig)
-    #print(trig)
+        #print(welch)
+        #triangular_float(trig)
+        #print(trig)
 
 if __name__ == '__main__':
     test_window()
