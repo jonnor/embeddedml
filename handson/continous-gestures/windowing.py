@@ -37,16 +37,18 @@ def welch_fixed(data):
     """
 
     length = len(data)
-    half = length // 2
-    QMAX = 8192
+    half = int(length) // 2
+    QMAX : int = 8192
+    QMAX2 : int = (QMAX*QMAX)
 
     for i in range(length):
         # a -1.0 => 0.0 => +1.0
         a = (QMAX*(i - half)) // (half) 
         # c 0.0 => 1.0 => 0.0
-        c = ((QMAX*QMAX) - (a*a))//QMAX # scaling factor
+        c = (QMAX2 - (a*a))//QMAX # scaling factor
         #print('a', float(a)/QMAX, float(c)/(QMAX))
-        #o = (c * data[i]) // QMAX
+        #print(type(c), type(c*data[i]), type(QMAX))
+        #o : int = (c * data[i]) // QMAX
         data[i] = (c * data[i]) // QMAX
 
 def welch_float(data):
