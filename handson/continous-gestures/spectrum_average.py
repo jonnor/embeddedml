@@ -28,3 +28,47 @@ Took 27 kB space after minification.
 """
 
 
+import time
+import math
+import array
+
+@micropython.native
+def spectrum_summarize(spec, out):
+
+    binsize = len(spec) // len(out)
+
+    for bin in range(len(out)):
+        s = 0.0
+        for i in range(bin*binsize, (bin+1)*binsize):
+            s += spec[i]        
+            #print(bin, i)
+
+        out[bin] = s / binsize
+    
+
+def test_spectrum():
+
+    repeats = 100
+    lengths = 64, 128, 256, 512
+    out_length = 32
+
+    for length in lengths:
+
+        ones = array.array('f', (1.0 for _ in range(length)))
+        out = array.array('f', (0.0 for _ in range(out_length)))
+
+        a = array.array('f', ones)
+        #spectrum_summarize(a, out)
+        #print(out)
+
+        start = time.ticks_us()
+        for r in range(repeats):
+            spectrum_summarize(a, out)
+        t = (time.ticks_diff(time.ticks_us(), start) / repeats) / 1000.0 # ms
+        print('Summarize', length, t)
+
+
+if __name__ == '__main__':
+    test_spectrum()
+
+
