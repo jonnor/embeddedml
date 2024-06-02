@@ -56,14 +56,17 @@ https://github.com/ARM-software/CMSIS-DSP/blob/647b755ad80d53ecca56a555508084663
 
 ## ADC
 
-https://github.com/IOsetting/py32f0-template/tree/main/Examples/PY32F0xx/HAL/ADC/ContinuousConversion_DMA
+To sample at a fixed sampling rate, need to use a timer.
+Can be connected directly to the ADC pheripheral.
+DMA can be used for the data readout.
 
-Uses DMA.
+https://github.com/IOsetting/py32f0-template/tree/main/Examples/PY32F0xx/LL/ADC/ADC_SingleConversion_TriggerTimer_DMA
+Uses timer + ADC + DMA.
+Interrupt on DMA data ready. Calls 
+
+
 Has a comment re ADC performance. "/* Valid resolution is around 8 bit */"
-DMA pheripheral sets a flag. Checking this in main to get the data.
-Has a buffer of 1024 32 bit values.
-? not clear how many are filled per
-? not clear how the samplerate/sampling time is configured
+
 
 ## Streaming audio over serial
 
@@ -75,12 +78,26 @@ Py32 datasheet claims max baudrate of 4.5Mbit/s.
 USB USART converters might be good for up to 1Mbps.
 So 921600 baud is our target.
 
-TODO: try to increase DEBUG_USART_BAUDRATE to 2x / 4x / 8x.
+TESTING: Increasing DEBUG_USART_BAUDRATE to 2x / 4x / 8x.
+
+Can send data with 460800 on 8Mhz.
+
+With 921600 on default 8 Mhz clock.
+Gets stuck forever inside putchar implementation on line.
+
+    while (!LL_USART_IsActiveFlag_TC(DEBUG_USART));
+
+With 921600 on 24 Mhz clock, can send data data
+Need to update
+  LL_RCC_HSI_SetCalibFreq(LL_RCC_HSICALIBRATION_24MHz);
+
+## Serializing audio data
 
 An ASCII printable encoding is practical.
 Good candiates would be base64, base85, z85 or rfc1924 (used for IPv6).
 
-base64 is the most common, and likely good-enough. 33% overhead, plus padding to multiple of 3 bytes.
+base64 is the most common, and likely good-enough.
+33% overhead, plus padding to multiple of 3 bytes.
 z85: https://rfc.zeromq.org/spec/32/
 
 8 Khz, 16 bit at 64 byte buffers + 10 bytes frame in message: estimated 23.750 kB/s
@@ -88,20 +105,24 @@ In theory doable at 2*115200, but without much margin.
 The USART write might be blocking, in which case we would spend 80%.
 So we want to have 4x or 8x. 500Kbits
 
-TODO: implement serialization of PCM buffers to ASCII
-Using a reasonable length, like 16-160 bytes per "packet". Whatever DMA buffer size is used
+Implemented using base64, and tested with 64 sample buffers at 8 kHz samplerate.
+On 921600 baud samplerate.
 
-TODO: implement a reader which can write PCM stream to .wav
+## Creating a standard audio device using virtual/loopback
 
-MAYBE: implement an virtual microphone/capture device in reader.
-Would allow to use standard audio tools for recording/monitoring etc
-Using ALSA loopback?
-https://sysplay.in/blog/linux/2019/06/playing-with-alsa-loopback-devices/
-Using PulseAudio loopback?
+User/log.py implements reading of encoded PCM stream, and writes it standard audio device.
+This can be used together with a loopback device to make the device/board appear as a standard microphone.
+Allow to use standard audio tools for recording/monitoring etc.
+
+Tested working using using ALSA loopback on Linux.
+Ref https://sysplay.in/blog/linux/2019/06/playing-with-alsa-loopback-devices/
+
+NOTE: each loopback device creates two ALSA devices.
+Must send to the first, and record from the second.
+
+Using PulseAudio loopback? Not tested.
+
 https://askubuntu.com/questions/257992/how-can-i-use-pulseaudio-virtual-audio-streams-to-play-music-over-skype
-Setup the loopback devices, then write to the "playback" end. Ex using sounddevice in Python
-Should then be able to record using standard ALSA/PulseAudio client at capture end. Ex: Using Audacity
-Likely will need to use queues. And handle buffer underruns. Maybe 
 
 
 ## I2C
