@@ -3,15 +3,19 @@ import os
 import glob
 import uuid
 
+import sklearn.base
 from sklearn.metrics import roc_auc_score, make_scorer
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import RobustScaler, FunctionTransformer, OrdinalEncoder
 from sklearn.compose import ColumnTransformer, make_column_selector
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.cluster import KMeans
 from sklearn.base import BaseEstimator, ClassifierMixin
 import scipy.special
+
+from parallel import ProgressParallel, joblib
 
 from emlearn.preprocessing.quantizer import Quantizer
 import emlearn
@@ -28,6 +32,9 @@ def get_tree_estimators(estimator):
     """
     Get the DecisionTree instances from ensembles or single-tree models
     """
+
+    estimator = estimator.named_steps['randomforestclassifier']
+
     if hasattr(estimator, 'estimators_'):
         trees = [ e for e in estimator.estimators_]
     else:
@@ -38,8 +45,6 @@ def tree_nodes(model, a=None, b=None):
     """
     Number of nodes total
     """
-    model = model.named_steps['customrandomforestclassifier'].estimator
-
     trees = get_tree_estimators(model)
     nodes = [ len(e.tree_.children_left) for e in trees ]
     return numpy.sum(nodes)
@@ -47,8 +52,6 @@ def tree_nodes(model, a=None, b=None):
 def tree_leaves(model, a=None, b=None):
     """
     """
-    model = model.named_steps['customrandomforestclassifier'].estimator
-
     trees = get_tree_estimators(model)
     leaves = [ numpy.count_nonzero((e.tree_.children_left == -1) & (e.tree_.children_right == -1)) for e in trees ]
     return numpy.sum(leaves)
@@ -56,8 +59,6 @@ def tree_leaves(model, a=None, b=None):
 def unique_leaves(model, a=None, b=None):
     """
     """
-    model = model.named_steps['customrandomforestclassifier'].estimator
-
     trees = get_tree_estimators(model)
 
     ll = []
@@ -72,8 +73,6 @@ def leaf_size(model, a=None, b=None):
     """
     Average size of leaves
     """
-    model = model.named_steps['customrandomforestclassifier'].estimator
-
     trees = get_tree_estimators(model)
     sizes = [ e.tree_.value[(e.tree_.children_left == -1) & (e.tree_.children_right == -1)].shape[-1] for e in trees ]
     return numpy.median(sizes)
@@ -96,6 +95,8 @@ def quantize_probabilities(p, bits=8):
 
 def get_leaves(estimator):
 
+    assert type(estimator) == RandomForestClassifier, type(estimator)
+
     ll = []
     for e in estimator.estimators_:
         is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
@@ -104,6 +105,102 @@ def get_leaves(estimator):
 
     leaves = numpy.concatenate(ll)
     return leaves
+
+def optimize(estimator, n_samples, n_classes, leaf_quantization=None, clusters=None):
+
+    # Find leaves
+    leaves = get_leaves(estimator)
+    assert leaves.shape[1] == 1, 'only single output supported'
+    leaves = numpy.squeeze(leaves)
+
+    n_leaves = len(leaves)
+
+    n_unique_leaves = len(numpy.unique(leaves, axis=0))
+    if clusters is None:
+        max_leaves = None
+    else:
+        max_leaves = max(clusters, n_classes)
+        max_leaves = min(max_leaves, n_leaves)
+        max_leaves = min(max_leaves, n_samples)
+
+
+    # Quantize leaves
+    if leaf_quantization is not None:
+
+        for e in estimator.estimators_:
+
+            is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
+            values = e.tree_.value
+            assert values.shape[1] == 1
+        
+            if leaf_quantization == 0:
+                # simple voting. highest probability gets 1.0, rest 0.0
+                # in practice only returning the index of the most probable class
+                voted_class = numpy.argmax(values, axis=-1)
+
+                quantized = numpy.zeros_like(values)
+                for i, c in enumerate(voted_class):
+                    quantized[i, 0, c] = 1.0
+
+            else:
+                quantized = quantize_probabilities(values, bits=leaf_quantization)
+            assert quantized.shape == values.shape
+
+            for i in range(len(e.tree_.value)):
+                is_leaf = (e.tree_.children_left[i] == -1) and (e.tree_.children_right[i] == -1)
+                if is_leaf:
+                    # make sure probabilities still sum to 1.0
+                    q = scipy.special.softmax(quantized[i])
+                    #print('qq', q.shape, numpy.sum(q))
+                    e.tree_.value[i] = q
+
+        leaves = get_leaves(estimator)
+        assert leaves.shape[1] == 1, 'only single output supported'
+        leaves = numpy.squeeze(leaves)
+        n_unique_leaves_quantized = len(numpy.unique(leaves, axis=0))
+        
+        #log.debug('leaf quantized',
+        #    bits=self.leaf_quantization,
+        #    unique_after=n_unique_leaves_quantized,
+        #    unique_before=n_unique_leaves,
+        #)
+        
+
+    # Cluster leaves
+    if clusters is None:
+        return None
+
+    print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, clusters)
+
+    if (n_unique_leaves <= n_classes) or (n_unique_leaves <= max_leaves):
+        # assume already optimial
+        pass
+
+    else:
+
+        cluster = KMeans(n_clusters=max_leaves, tol=1e-4, max_iter=100)
+        cluster.fit(leaves)
+
+        # Replace by closest centroid
+        for e in estimator.estimators_:
+
+            is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
+            values = e.tree_.value
+            assert values.shape[1] == 1
+
+            # FIXME: fix this collapsing into 1-d. Probably happens for binary classification?
+            c_idx = cluster.predict(numpy.squeeze(values))
+            centroids = cluster.cluster_centers_[c_idx]
+            #print('SS', centroids.shape)
+            #print('cc', len(numpy.unique(centroids, axis=0)), len(numpy.unique(c_idx)))
+            # XXX: is this correct ??
+            v = numpy.where(numpy.expand_dims(is_leaf, -1), centroids, numpy.squeeze(values))
+            v = numpy.reshape(v, values.shape)
+
+            for i in range(len(e.tree_.value)):
+                e.tree_.value[i] = v[i]
+
+
 
 class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
 
@@ -142,101 +239,7 @@ class CustomRandomForestClassifier(BaseEstimator, ClassifierMixin):
         ret = self.estimator.fit(X, y)
         self.classes_ = self.estimator.classes_
 
-        # Find leaves
-        leaves = get_leaves(self.estimator)
-        assert leaves.shape[1] == 1, 'only single output supported'
-        leaves = numpy.squeeze(leaves)
-
-        n_leaves = len(leaves)
-        n_classes = len(numpy.unique(y))
-        n_samples = len(y)
-        n_unique_leaves = len(numpy.unique(leaves, axis=0))
-        if self.clusters is None:
-            max_leaves = None
-        else:
-            max_leaves = max(self.clusters, n_classes)
-            max_leaves = min(max_leaves, n_leaves)
-            max_leaves = min(max_leaves, n_samples)
-
-
-        # Quantize leaves
-
-        if self.leaf_quantization is not None:
-
-            for e in self.estimator.estimators_:
-
-                is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
-                values = e.tree_.value
-                assert values.shape[1] == 1
-            
-                if self.leaf_quantization == 0:
-                    # simple voting. highest probability gets 1.0, rest 0.0
-                    # in practice only returning the index of the most probable class
-                    voted_class = numpy.argmax(values, axis=-1)
-
-                    quantized = numpy.zeros_like(values)
-                    for i, c in enumerate(voted_class):
-                        quantized[i, 0, c] = 1.0
-
-                else:
-                    quantized = quantize_probabilities(values, bits=self.leaf_quantization)
-                assert quantized.shape == values.shape
-
-                for i in range(len(e.tree_.value)):
-                    is_leaf = (e.tree_.children_left[i] == -1) and (e.tree_.children_right[i] == -1)
-                    if is_leaf:
-                        # make sure probabilities still sum to 1.0
-                        q = scipy.special.softmax(quantized[i])
-                        #print('qq', q.shape, numpy.sum(q))
-                        e.tree_.value[i] = q
-
-            leaves = get_leaves(self.estimator)
-            assert leaves.shape[1] == 1, 'only single output supported'
-            leaves = numpy.squeeze(leaves)
-            n_unique_leaves_quantized = len(numpy.unique(leaves, axis=0))
-            
-            #log.debug('leaf quantized',
-            #    bits=self.leaf_quantization,
-            #    unique_after=n_unique_leaves_quantized,
-            #    unique_before=n_unique_leaves,
-            #)
-            
-
-        # Cluster leaves
-        if self.clusters is None:
-            return ret
-
-
-        print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, self.clusters)
-
-        if (n_unique_leaves <= n_classes) or (n_unique_leaves <= max_leaves):
-            # assume already optimial
-            pass
-
-        else:
-
-            cluster = KMeans(n_clusters=max_leaves, tol=1e-4, max_iter=100)
-            cluster.fit(leaves)
-
-            # Replace by closest centroid
-            for e in self.estimator.estimators_:
-
-                is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
-                values = e.tree_.value
-                assert values.shape[1] == 1
-
-                # FIXME: fix this collapsing into 1-d. Probably happens for binary classification?
-                c_idx = cluster.predict(numpy.squeeze(values))
-                centroids = cluster.cluster_centers_[c_idx]
-                #print('SS', centroids.shape)
-                #print('cc', len(numpy.unique(centroids, axis=0)), len(numpy.unique(c_idx)))
-                # XXX: is this correct ??
-                v = numpy.where(numpy.expand_dims(is_leaf, -1), centroids, numpy.squeeze(values))
-                v = numpy.reshape(v, values.shape)
-
-                for i in range(len(e.tree_.value)):
-                    e.tree_.value[i] = v[i]
-
+        optimize(self, leaf_quantization=self.leaf_quantization, clusters=self.clusters)
 
         return ret        
 
@@ -273,9 +276,78 @@ def setup_data_pipeline(data, quantizer=None):
 
     return X, Y, preprocessor
 
+
+def flatten(l):
+     flat = []
+     for items in l:
+         flat.extend(items)
+     return flat
+
+def cross_validate(pipeline, X, Y,
+        cv=10,
+        n_jobs=4,
+        repetitions=1,
+        verbose=1,
+        optimizers=[{'quantize': None, 'cluster': None}],
+    ):
+
+    scoring = {
+        'nodes': tree_nodes,
+        'leaves': tree_leaves,
+        'leasize': leaf_size,
+        'uniqueleaves': unique_leaves,
+        'roc_auc': 'roc_auc_ovo_weighted',
+    }
+
+    n_classes = (Y.unique())
+
+    def run_one(run, train_index, test_index):
+        X_train = X.iloc[train_index]
+        Y_train = Y.iloc[train_index]
+        X_test = X.iloc[test_index]
+        Y_test = Y.iloc[test_index]
+
+        estimator = sklearn.base.clone(pipeline)
+        estimator.fit(X_train, Y_train)
+
+        dfs = []
+
+        for options in optimizers:
+            res = {}
+            opt = sklearn.base.clone(estimator)
+
+            q = options['quantize']
+            c = options['cluster']
+            res['leaves_per_class'] = c
+            res['leaf_bits'] = q
+
+            # optimize the model
+            classifier = estimator.named_steps['randomforestclassifier']
+            optimize(classifier, n_samples=len(Y_train), n_classes=n_classes, leaf_quantization=q, clusters=c)
+
+            # evaluation
+            for metric, scorer in scoring.items():
+                res[f'test_{metric}'] = scorer(opt, X_test, Y_test)
+
+            dfs.append(res)
+
+        return dfs 
+            
+
+    splitter = RepeatedStratifiedKFold(n_splits=cv, n_repeats=repetitions, random_state=1)
+    jobs = [ joblib.delayed(run_one)(i, train_index, test_index) for i, (train_index, test_index) in enumerate(splitter.split(X, Y)) ]
+
+    executor = ProgressParallel(n_jobs=n_jobs, verbose=verbose, total=len(jobs))
+    out = executor(jobs)
+
+    df = pandas.DataFrame.from_records(flatten(out))        
+
+    return df
+
 def run_dataset(pipeline, dataset_path, quantizer=None,
     n_jobs = 4,
     repetitions = 1,
+    optimizers={},
     scoring = 'roc_auc_ovo_weighted',
     ):
 
@@ -288,21 +360,8 @@ def run_dataset(pipeline, dataset_path, quantizer=None,
         *pipeline,
     )
 
-    scoring = {
-        'nodes': tree_nodes,
-        'leaves': tree_leaves,
-        'leasize': leaf_size,
-        'uniqueleaves': unique_leaves,
-        'roc_auc': 'roc_auc_ovo_weighted',
-    }
+    df = cross_validate(pipeline, X, Y, cv=10, n_jobs=n_jobs, repetitions=repetitions, optimizers=optimizers)
 
-    dfs = []
-
-    for repetition in range(repetitions):
-        out = cross_validate(pipeline, X, Y, cv=10, n_jobs=n_jobs, scoring=scoring)
-        df = pandas.DataFrame.from_records(out)        
-        df['repetition'] = repetition
-        dfs.append(df)
     
     out = pandas.concat(dfs)
     return out
@@ -348,12 +407,12 @@ def main():
     # TODO: run a hyperparameter search on each dataset.
     # Find appropriate parameters, when no optimizations used
     # for a particular set of trees. 10 is a good starting point?
-    # 1. Leaf quantize 8 bit
-    # 2. Feature quantize 16 bit
+    # 1. Feature quantize 16 bit
+    # 2. Leaf quantize 8 bit
     # 3. Leaf+feature quantize
     #
-    # 4. Leaf reduce, in 5-10 levels. Percentage of unique? Maybe in log2 scale 1 / (2,4,8,16,32,64,128)
-    # Could also be reported as X times the number of classes?    
+    # 4. Leaf reduce.
+    # TODO: specify  clusters as max leaves per class. 1,2,4,8,16,32,64,128
 
     # Research questions
     # A) how well does feature and leaf quantization work?
@@ -367,6 +426,7 @@ def main():
     # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
     # Preliminary results do indicate that up to 5x model size reduction is possible with low perf drops
     # however there are a few outliers, where even 0.8 the original size causes drop in performance 
+
 
     # C) how does code generation vs data structure compare, wrt size and inference time
     # Hypothesis: datastructure "loadable" is smaller in size, but slower in inference time
@@ -387,10 +447,6 @@ def main():
     # E) how does emlearn RF compare to other frameworks. m2cgen and micromlgen
     # in terms of size and execution speed. At near 0 error rate 
     
-
-    #q = quantize_probabilities(numpy.array([0, 0.10, 0.25, 0.75, 0.90, 1.0]), bits=8)
-    #print(q)
-
     
     experiments = {
         #'rf10_noclust': dict(clusters=None, n_estimators=10),
@@ -398,20 +454,19 @@ def main():
         #'rf10_30clust': dict(clusters=30, n_estimators=10),
         #'rf10_10clust': dict(clusters=10, n_estimators=10),
 
-       #'rf10_none': dict(dtype=None),
+       'rf10_none': dict(dtype=None),
        #'rf10_float': dict(dtype=float, target_max=1000.0),   
        #'rf10_32bit': dict(dtype=numpy.int32, target_max=2**31-1),   
        #'rf10_16bit': dict(dtype=numpy.int16, target_max=2**15-1),
         #'rf10_12bit': dict(dtype=numpy.int16, target_max=2**12-1),
         #'rf10_10bit': dict(dtype=numpy.int16, target_max=2**10-1),
        #'rf10_8bit': dict(dtype=numpy.int8, target_max=127),
-
-       'rf10_majority': dict(leaf_quantization=0),
-       'rf10_leaf8bit': dict(leaf_quantization=8),
-       'rf10_none': dict(leaf_quantization=None),
-       'rf10_leaf16bit': dict(leaf_quantization=16),
-       'rf10_leaf4bit': dict(leaf_quantization=8),
     }
+
+    quantizers = [None, 0, 4, 8, 16]
+    clusters = [ None, 1, 2, 4, 8, 16, 32 ]
+
+    optimizers = [ {'quantize': q, 'cluster': c} for q in quantizers for c in clusters ]
 
     for experiment, config in experiments.items():
 
@@ -426,17 +481,17 @@ def main():
                 max_quantile=0.001, out_max=config['target_max'])
 
         # classifier
-        rf = CustomRandomForestClassifier(
+        rf = RandomForestClassifier(
             n_estimators=config.get('n_estimators', 10), 
             min_samples_leaf=0.01,
-            clusters=config.get('clusters', None),
-            leaf_quantization=config.get('leaf_quantization', None),
+            #clusters=config.get('clusters', None),
+            #leaf_quantization=config.get('leaf_quantization', None),
         )
         p.append(rf)
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
+        run_datasets(p, quantizer=quantizer, optimizers=optimizers, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
 
 
 
