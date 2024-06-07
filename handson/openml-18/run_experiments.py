@@ -127,18 +127,8 @@ def optimize(estimator, n_samples, n_classes, leaf_quantization=None, leaves_per
     assert leaves.shape[1] == 1, 'only single output supported'
     leaves = numpy.squeeze(leaves)
 
-    n_leaves = len(leaves)
-
-    n_unique_leaves = len(numpy.unique(leaves, axis=0))
-    if leaves_per_class is None:
-        max_leaves = None
-    else:
-        max_leaves = int(leaves_per_class * n_classes)
-        max_leaves = min(max_leaves, n_leaves)
-        max_leaves = min(max_leaves, n_samples)
-
-
     # Quantize leaves
+    n_unique_leaves_quantized = None
     if leaf_quantization is not None:
 
         for e in estimator.estimators_:
@@ -181,6 +171,17 @@ def optimize(estimator, n_samples, n_classes, leaf_quantization=None, leaves_per
         
 
     # Cluster leaves
+    n_leaves = len(leaves)
+    n_unique_leaves = len(numpy.unique(leaves, axis=0))
+    if leaves_per_class is None:
+        max_leaves = None
+    else:
+        max_leaves = int(leaves_per_class * n_classes)
+        max_leaves = min(max_leaves, n_unique_leaves)
+        if n_unique_leaves_quantized is not None:
+            max_leaves = min(max_leaves, n_unique_leaves_quantized)
+        max_leaves = min(max_leaves, n_samples)
+
     if max_leaves is None:
         return None
 
