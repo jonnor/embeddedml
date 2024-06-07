@@ -2,9 +2,10 @@
 import os
 import glob
 import uuid
+import copy
 
 import sklearn.base
-from sklearn.metrics import roc_auc_score, make_scorer
+from sklearn.metrics import get_scorer
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import RobustScaler, FunctionTransformer, OrdinalEncoder
 from sklearn.compose import ColumnTransformer, make_column_selector
@@ -106,7 +107,20 @@ def get_leaves(estimator):
     leaves = numpy.concatenate(ll)
     return leaves
 
-def optimize(estimator, n_samples, n_classes, leaf_quantization=None, clusters=None):
+def reshape_leaves_as_features(leaves):
+
+    # reshape to 2d
+    vv = leaves
+    if len(vv.shape) == 3:
+        assert vv.shape[1] == 1, 'only single output supported'
+        vv = vv[:, 0, :]
+    #vv = vv.reshape(-1, 1) if len(vv.shape) == 1 else vv
+    assert len(vv.shape) == 2, (vv.shape, leaves.shape)
+
+    return vv
+
+
+def optimize(estimator, n_samples, n_classes, leaf_quantization=None, leaves_per_class=None):
 
     # Find leaves
     leaves = get_leaves(estimator)
@@ -116,10 +130,10 @@ def optimize(estimator, n_samples, n_classes, leaf_quantization=None, clusters=N
     n_leaves = len(leaves)
 
     n_unique_leaves = len(numpy.unique(leaves, axis=0))
-    if clusters is None:
+    if leaves_per_class is None:
         max_leaves = None
     else:
-        max_leaves = max(clusters, n_classes)
+        max_leaves = int(leaves_per_class * n_classes)
         max_leaves = min(max_leaves, n_leaves)
         max_leaves = min(max_leaves, n_samples)
 
@@ -167,10 +181,10 @@ def optimize(estimator, n_samples, n_classes, leaf_quantization=None, clusters=N
         
 
     # Cluster leaves
-    if clusters is None:
+    if max_leaves is None:
         return None
 
-    print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, clusters)
+    #print('clusters', max_leaves, n_unique_leaves, n_classes, n_samples, max_leaves)
 
     if (n_unique_leaves <= n_classes) or (n_unique_leaves <= max_leaves):
         # assume already optimial
@@ -179,17 +193,15 @@ def optimize(estimator, n_samples, n_classes, leaf_quantization=None, clusters=N
     else:
 
         cluster = KMeans(n_clusters=max_leaves, tol=1e-4, max_iter=100)
-        cluster.fit(leaves)
+        cluster.fit(reshape_leaves_as_features(leaves))
 
         # Replace by closest centroid
         for e in estimator.estimators_:
 
             is_leaf = (e.tree_.children_left == -1) & (e.tree_.children_right == -1)
             values = e.tree_.value
-            assert values.shape[1] == 1
-
-            # FIXME: fix this collapsing into 1-d. Probably happens for binary classification?
-            c_idx = cluster.predict(numpy.squeeze(values))
+            vv = reshape_leaves_as_features(values)
+            c_idx = cluster.predict(vv)
             centroids = cluster.cluster_centers_[c_idx]
             #print('SS', centroids.shape)
             #print('cc', len(numpy.unique(centroids, axis=0)), len(numpy.unique(c_idx)))
@@ -296,12 +308,12 @@ def cross_validate(pipeline, X, Y,
         'leaves': tree_leaves,
         'leasize': leaf_size,
         'uniqueleaves': unique_leaves,
-        'roc_auc': 'roc_auc_ovo_weighted',
+        'roc_auc': get_scorer('roc_auc_ovo_weighted'),
     }
 
-    n_classes = (Y.unique())
+    n_classes = len(Y.unique())
 
-    def run_one(run, train_index, test_index):
+    def run_one(split, train_index, test_index):
         X_train = X.iloc[train_index]
         Y_train = Y.iloc[train_index]
         X_test = X.iloc[test_index]
@@ -314,16 +326,17 @@ def cross_validate(pipeline, X, Y,
 
         for options in optimizers:
             res = {}
-            opt = sklearn.base.clone(estimator)
+            opt = copy.deepcopy(estimator)
 
             q = options['quantize']
             c = options['cluster']
             res['leaves_per_class'] = c
             res['leaf_bits'] = q
-
-            # optimize the model
-            classifier = estimator.named_steps['randomforestclassifier']
-            optimize(classifier, n_samples=len(Y_train), n_classes=n_classes, leaf_quantization=q, clusters=c)
+            res['split'] = split
+    
+            # run model optimizations
+            classifier = opt.named_steps['randomforestclassifier']
+            optimize(classifier, n_samples=len(Y_train), n_classes=n_classes, leaf_quantization=q, leaves_per_class=c)
 
             # evaluation
             for metric, scorer in scoring.items():
@@ -348,6 +361,7 @@ def run_dataset(pipeline, dataset_path, quantizer=None,
     n_jobs = 4,
     repetitions = 1,
     optimizers={},
+    cv=10,
     scoring = 'roc_auc_ovo_weighted',
     ):
 
@@ -360,11 +374,10 @@ def run_dataset(pipeline, dataset_path, quantizer=None,
         *pipeline,
     )
 
-    df = cross_validate(pipeline, X, Y, cv=10, n_jobs=n_jobs, repetitions=repetitions, optimizers=optimizers)
+    df = cross_validate(pipeline, X, Y, cv=cv, n_jobs=n_jobs, repetitions=repetitions, optimizers=optimizers)
 
     
-    out = pandas.concat(dfs)
-    return out
+    return df
 
 def ensure_dir(p):
     if not os.path.exists(p):
@@ -375,7 +388,7 @@ def run_datasets(pipeline, out_dir, run_id, quantizer=None, kvs={}, dataset_dir=
     if dataset_dir is None:
         dataset_dir = 'data/datasets'
 
-    for f in glob.glob('*.parquet', root_dir=dataset_dir):
+    for no, f in enumerate(glob.glob('*.parquet', root_dir=dataset_dir)):
         dataset_id = os.path.splitext(f)[0]
         dataset_path = os.path.join(dataset_dir, f)
 
@@ -391,10 +404,11 @@ def run_datasets(pipeline, out_dir, run_id, quantizer=None, kvs={}, dataset_dir=
         assert not os.path.exists(o), o
         res.to_parquet(o)
 
-        score = res['test_roc_auc'].median()
-        nodes = res['test_nodes'].median()
+        score = res.groupby(['leaves_per_class', 'leaf_bits'], dropna=False)['test_roc_auc'].median().sort_values(ascending=False)
 
-        log.info('dataset-run-end', dataset=dataset_id, score=score, **kvs)
+        log.info('dataset-run-end', dataset=dataset_id, dataset_no=no, **kvs)
+        print(score)
+
 
 def main():
 
@@ -491,7 +505,7 @@ def main():
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, optimizers=optimizers, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5)
+        run_datasets(p, quantizer=quantizer, optimizers=optimizers, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=1, cv=4)
 
 
 
