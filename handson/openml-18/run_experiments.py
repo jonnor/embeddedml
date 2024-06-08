@@ -506,7 +506,7 @@ def main():
 
         run_id = uuid.uuid4().hex.upper()[0:6] + f'_{experiment}'
 
-        run_datasets(p, quantizer=quantizer, optimizers=optimizers, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=1, cv=4)
+        run_datasets(p, quantizer=quantizer, optimizers=optimizers, kvs=dict(experiment=experiment), out_dir='out.parquet', run_id=run_id, repetitions=5, cv=5)
 
 
 
