@@ -437,6 +437,9 @@ def main():
     #
     # TODO: check 8 bit leaf probability quantization on CC-18
 
+    # TODO: set a few model size budgets. See how much performance one gets within that boundary
+    # uncontrained, 100kB, 10kB, 1kB
+
     # B) how well does leaf clustering work?
     # Hypothesis: Can reduce leaf size by 2-10 without ~zero loss in performance. Can reduce overall model size by 2-5x
     # Preliminary results do indicate that up to 5x model size reduction is possible with low perf drops

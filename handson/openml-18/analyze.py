@@ -81,6 +81,17 @@ def plot_leaf_clustering(df, path):
 
     return g
 
+def name_strategies(df):
+
+    mm = df.copy()
+    mm['strategy'] = 'other'
+    mm.loc[mm.leaves_per_class.isna() & mm.leaf_bits.isna(), 'strategy'] = 'original'
+    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits.notna()), 'strategy'] = 'quantize'
+    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.isna()), 'strategy'] = 'cluster'
+    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.notna()), 'strategy'] = 'joint'
+    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits == 0.0), 'strategy'] = 'majority'
+
+    return mm
 
 def plot_perf_vs_size(df, path):
 
@@ -107,13 +118,7 @@ def plot_perf_vs_size(df, path):
     df['size_change'] = grouped.apply(divide_ref, metric='total_size', include_groups=False).reset_index().set_index('id')['total_size']
 
     mm = df.groupby(['leaf_bits', 'leaves_per_class'], dropna=False).median(numeric_only = True).reset_index()
-
-    mm['strategy'] = 'other'
-    mm.loc[mm.leaves_per_class.isna() & mm.leaf_bits.isna(), 'strategy'] = 'original'
-    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits.notna()), 'strategy'] = 'quantize'
-    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.isna()), 'strategy'] = 'cluster'
-    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.notna()), 'strategy'] = 'joint'
-    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits == 0.0), 'strategy'] = 'majority'
+    mm = name_strategies(mm)
 
     #assert 'perf_change' in df.columns
     #df = df.dropna(subset=['leaves_per_class'])
@@ -131,6 +136,69 @@ def plot_perf_vs_size(df, path):
         print('Wrote', path)
 
     return g
+
+
+
+def plot_size_improvement(df, path):
+
+    # Filter data
+    pass
+
+    # Extract change in performance
+    def subtract_ref(df, metric='test_roc_auc'):
+        matches = df[df.leaves_per_class.isna() & df.leaf_bits.isna()]
+        assert len(matches) == 1, matches
+        ref = matches.iloc[0][metric]
+        out = df[metric] - ref
+        return out
+
+    def divide_ref(df, metric='test_roc_auc'):
+        matches = df[df.leaves_per_class.isna() & df.leaf_bits.isna()]
+        assert len(matches) == 1, matches
+        ref = matches.iloc[0][metric]
+        out = df[metric] / ref
+        return out
+
+    grouped = df.groupby(['dataset', 'split'], as_index=False)
+    df['perf_change'] = grouped.apply(subtract_ref, include_groups=False).reset_index().set_index('id')['test_roc_auc']
+    df['size_change'] = grouped.apply(divide_ref, metric='total_size', include_groups=False).reset_index().set_index('id')['total_size']
+
+    df = name_strategies(df)
+
+
+    df = df[df.strategy == 'joint']
+    df = df[df.leaf_bits == 8]
+    df = df[df.perf_change >= -1.0]
+
+    #df.groupby(['dataset', ''])
+
+    # make categorical
+    df['leaves_per_class'] = df['leaves_per_class'].astype('Int64').astype(str)
+
+    best = df.groupby(['dataset', 'leaves_per_class'], dropna=False).median(numeric_only=True).reset_index()
+
+    def find_best(df):
+        s = df.sort_values('size_change', ascending=True)
+        b = s.iloc[0]
+        return b
+
+
+    best = best.groupby(['dataset']).apply(find_best)
+
+    # Plot results
+    g = seaborn.relplot(data=best, kind='scatter',
+        x='size_change', y='perf_change', hue='leaves_per_class',
+        height=6, aspect=2.0, #s=5.0,
+    )
+    g.refline(y=0.0)
+    g.set(xlim=(0, 1.0))
+
+    if path is not None:
+        g.figure.savefig(path)
+        print('Wrote', path)
+
+    return g
+
 
 
 def enrich_results(df):
@@ -180,7 +248,9 @@ def main():
     print(df.leaf_bits.unique())
 
 
-    plot_perf_vs_size(df, path='size-change.png')
+    plot_size_improvement(df, path='size-improvement.png')
+
+    #plot_perf_vs_size(df, path='size-change.png')
 
     #plot_leaf_quantization(df, path='leaf-quantization.png')
 
