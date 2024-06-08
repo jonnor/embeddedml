@@ -79,12 +79,62 @@ def plot_leaf_clustering(df, path):
     return g
 
 
+def plot_perf_vs_size(df, path):
+
+    
+    # Extract change in performance
+    def subtract_ref(df, metric='test_roc_auc'):
+        matches = df[df.leaves_per_class.isna() & df.leaf_bits.isna()]
+        assert len(matches) == 1, matches
+        ref = matches.iloc[0][metric]
+        out = df[metric] - ref
+        return out
+
+    def divide_ref(df, metric='test_roc_auc'):
+        matches = df[df.leaves_per_class.isna() & df.leaf_bits.isna()]
+        assert len(matches) == 1, matches
+        ref = matches.iloc[0][metric]
+        out = df[metric] / ref
+        return out
+
+    grouped = df.groupby(['dataset', 'split'], as_index=False)
+    df['perf_change'] = grouped.apply(subtract_ref, include_groups=False).reset_index().set_index('id')['test_roc_auc']
+    df['size_change'] = grouped.apply(divide_ref, metric='total_size', include_groups=False).reset_index().set_index('id')['total_size']
+
+    mm = df.groupby(['leaf_bits', 'leaves_per_class'], dropna=False).median(numeric_only = True).reset_index()
+
+    mm['strategy'] = 'other'
+    mm.loc[mm.leaves_per_class.isna() & mm.leaf_bits.isna(), 'strategy'] = 'original'
+    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits.notna()), 'strategy'] = 'quantize'
+    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.isna()), 'strategy'] = 'cluster'
+    mm.loc[mm.leaves_per_class.notna() & (mm.leaf_bits.notna()), 'strategy'] = 'joint'
+    mm.loc[mm.leaves_per_class.isna() & (mm.leaf_bits == 0.0), 'strategy'] = 'majority'
+
+    #assert 'perf_change' in df.columns
+    #df = df.dropna(subset=['leaves_per_class'])
+
+    # Plot results
+    g = seaborn.relplot(data=mm, kind='scatter',
+        x='size_change', y='perf_change', hue='strategy',
+        height=5, aspect=2.0,
+    )
+    g.refline(y=0.1)
+    g.refline(y=-0.1)
+    #g.set(xlim=(0.50, 1.0))
+
+    if path is not None:
+        g.figure.savefig(path)
+        print('Wrote', path)
+
+    return g
+
 
 def enrich_results(df):
 
     # enrich results
     leaf_bytes_per_class = 1
     decision_node_bytes = 2
+    # FIXME: must take the leaf precision into account
 
     decision_nodes = df['test_nodes'] - df['test_leaves']
     df['leaf_size'] = df['test_leasize'] * leaf_bytes_per_class * df['test_uniqueleaves']
@@ -121,69 +171,14 @@ def main():
     print(df.leaf_bits.unique())
 
 
+    plot_perf_vs_size(df, path='size-change.png')
+
     #plot_leaf_quantization(df, path='leaf-quantization.png')
 
-    plot_leaf_clustering(df, path='leaf-clustering.png')
-
-
-    # XXX
-    return
-
-
-    order = df.groupby('dataset').mean()['test_roc_auc'].sort_values().index
-    g = seaborn.catplot(data=df, kind='box',
-        x='test_roc_auc', y='dataset', hue='experiment',
-        height=12, aspect=1.0, order=order,
-    )
-    g.set(xlim=(0.50, 1.0))
-
-    g.figure.savefig('performance-grouped.png')
+    #plot_leaf_clustering(df, path='leaf-clustering.png')
 
 
 
-    mm = df.groupby(['experiment', 'dataset']).median()[['total_size', 'test_roc_auc']]
-    print(mm)
-
-    ref = mm.loc['rf10_none']
-
-    mm['rel_size'] = mm['total_size'] / ref['total_size']
-    mm['perf_change'] = mm['test_roc_auc'] - ref['test_roc_auc']
-
-    seaborn.set_style("ticks",{'axes.grid' : True})
-    g = seaborn.relplot(data=mm.reset_index(),
-        x='rel_size', y='perf_change',
-        hue='experiment',
-        height=8,
-        size=10.0,
-        #col='dataset',
-        #col_wrap=6,
-    )
-    g.figure.savefig('relperf.png')
-
-
-    order = mm.groupby('experiment').min()['test_roc_auc'].sort_values().index
-    print('\norder\n', order)
-
-    order = [ 'rf10_float', 'rf10_16bit', 'rf10_8bit' ]
-
-    order = [ 'rf10_leaf16bit', 'rf10_leaf8bit', 'rf10_leaf4bit', 'rf10_majority' ]
-
-    seaborn.set_style("ticks",{'axes.grid' : True})
-    g = seaborn.catplot(kind='box', data=mm.reset_index(),
-        x='perf_change',
-        y='experiment',
-        order=order,
-        #hue='dataset',
-        height=8,
-        aspect=2.0,
-        #col='dataset',
-        #col_wrap=6,
-    )
-    g.figure.savefig('stripplot.png')
-
-    mm = mm.sort_values('perf_change', ascending=True)
-    print(mm.head(10))
-    #print(mm.head(10).reset_index().dataset.unique())
 
 if __name__ == '__main__':
     main()
