@@ -2,6 +2,9 @@
 import seaborn
 import pandas
 
+import uuid
+import math
+
 def plot_leaf_quantization(df, path):
 
     # TODO: also plot KDE and/or histogram
@@ -81,7 +84,9 @@ def plot_leaf_clustering(df, path):
 
 def plot_perf_vs_size(df, path):
 
-    
+    # Drop data
+    df = df[df.leaf_bits != 4]    
+
     # Extract change in performance
     def subtract_ref(df, metric='test_roc_auc'):
         matches = df[df.leaves_per_class.isna() & df.leaf_bits.isna()]
@@ -118,8 +123,7 @@ def plot_perf_vs_size(df, path):
         x='size_change', y='perf_change', hue='strategy',
         height=5, aspect=2.0,
     )
-    g.refline(y=0.1)
-    g.refline(y=-0.1)
+    g.refline(y=0.0)
     #g.set(xlim=(0.50, 1.0))
 
     if path is not None:
@@ -131,18 +135,23 @@ def plot_perf_vs_size(df, path):
 
 def enrich_results(df):
 
-    # enrich results
-    leaf_bytes_per_class = 1
+    # compute storage size
+    leaf_bytes_per_class = df['leaf_bits'] / 8
+    leaf_bytes_per_class = leaf_bytes_per_class.fillna(value=4).astype(int)
+
+    # FIXME: take the feature precision into account
     decision_node_bytes = 2
-    # FIXME: must take the leaf precision into account
+
+    df = df.rename(columns={'test_leasize': 'test_leafsize'}) # Fixup typo
 
     decision_nodes = df['test_nodes'] - df['test_leaves']
-    df['leaf_size'] = df['test_leasize'] * leaf_bytes_per_class * df['test_uniqueleaves']
+    df['leaf_size'] = df['test_leafsize'] * leaf_bytes_per_class * df['test_uniqueleaves']
     df['decision_size'] = decision_nodes * decision_node_bytes
     df['total_size'] = df['leaf_size'] + df['decision_size']
 
     df['test_roc_auc'] = 100.0 * df['test_roc_auc'] # scale up to avoid everything being in the decimals
-    import uuid
+
+    # Add identifier per row, for ease of merging data
     df['id'] = df.apply(lambda _: uuid.uuid4(), axis=1)
     df = df.set_index('id')
 
