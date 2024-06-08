@@ -5,11 +5,10 @@ import pandas
 def plot_leaf_quantization(df, path):
 
     # TODO: also plot KDE and/or histogram
+    # Isolate experiments that only change leaf quantization
+    df = df[df.leaves_per_class.isna()]
 
-    no_clustering = df[df.leaves_per_class.isna()]
-    print(no_clustering.shape)
-
-    # XXX: assumes no experiment or run difference
+    # Extract change in performance wrt no change
     def rel_perf(df, metric='test_roc_auc'):
         matches = df[df.leaf_bits.isna()]
         assert len(matches) == 1, matches
@@ -17,18 +16,17 @@ def plot_leaf_quantization(df, path):
         out = df[metric] - ref
         return out
 
-    rel = no_clustering.groupby(
+    rel = df.groupby(
         ['dataset', 'split'], as_index=False
     ).apply(rel_perf, include_groups=False).reset_index().set_index('id')['test_roc_auc']
+    df['perf_change'] = rel
 
-    no_clustering['perf_change'] = rel
+    assert 'perf_change' in df.columns
+    df = df.dropna(subset=['leaf_bits'])
+    df['leaf_bits'] = df['leaf_bits'].astype('int').replace({0: '0 (majority vote)'})
 
-    assert 'perf_change' in no_clustering.columns
-    no_clustering = no_clustering.dropna(subset=['leaf_bits'])
-    no_clustering['leaf_bits'] = no_clustering['leaf_bits'].astype('int').replace({0: '0 (majority vote)'})
-
-    #order = df.groupby('dataset').mean()['test_roc_auc'].sort_values().index
-    g = seaborn.catplot(data=no_clustering, kind='strip',
+    # Plot results
+    g = seaborn.catplot(data=df, kind='strip',
         x='leaf_bits', y='perf_change',
         height=5, aspect=2.0,
     )
@@ -43,14 +41,46 @@ def plot_leaf_quantization(df, path):
     return g
 
 
-def main():
+def plot_leaf_clustering(df, path):
 
-    df = pandas.read_parquet('out.parquet')
+    # isolate experiments that are only changing clustering
+    df = df[df.leaf_bits.isna()]
 
-    print(df.shape)
-    print(list(sorted(df.columns)))
-    print(df.head(1))
+    
+    # Extract change in performance
+    def rel_perf(df, metric='test_roc_auc'):
+        matches = df[df.leaves_per_class.isna()]
+        assert len(matches) == 1, matches
+        ref = matches.iloc[0][metric]
+        out = df[metric] - ref
+        return out
 
+    rel = df.groupby(
+        ['dataset', 'split'], as_index=False
+    ).apply(rel_perf, include_groups=False).reset_index().set_index('id')['test_roc_auc']
+    df['perf_change'] = rel
+
+    assert 'perf_change' in df.columns
+    df = df.dropna(subset=['leaves_per_class'])
+
+    # Plot results
+    g = seaborn.catplot(data=df, kind='strip',
+        x='leaves_per_class', y='perf_change',
+        height=5, aspect=2.0,
+    )
+    g.refline(y=0.1)
+    g.refline(y=-0.1)
+    #g.set(xlim=(0.50, 1.0))
+
+    if path is not None:
+        g.figure.savefig(path)
+        print('Wrote', path)
+
+    return g
+
+
+
+def enrich_results(df):
 
     # enrich results
     leaf_bytes_per_class = 1
@@ -66,6 +96,21 @@ def main():
     df['id'] = df.apply(lambda _: uuid.uuid4(), axis=1)
     df = df.set_index('id')
 
+    return df
+
+def main():
+
+    # Load data
+    df = pandas.read_parquet('out.parquet')
+
+    print(df.shape)
+    print(list(sorted(df.columns)))
+    print(df.head(1))
+
+    # Enrich
+    df = enrich_results(df)
+
+
     print(df.experiment.value_counts())
 
     print(df.run.value_counts())
@@ -76,7 +121,9 @@ def main():
     print(df.leaf_bits.unique())
 
 
-    plot_leaf_quantization(df, path='leaf-quantization.png')
+    #plot_leaf_quantization(df, path='leaf-quantization.png')
+
+    plot_leaf_clustering(df, path='leaf-clustering.png')
 
 
     # XXX
