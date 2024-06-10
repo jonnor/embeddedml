@@ -10,6 +10,9 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 
 - 1x RP2040 chip. Cortex M0+
 `0.80 USD @ 1k`
+- JieLi Tech AC6329C4
+**BLE** microcontroller. 8 kB RAM / 256 kB FLASH.
+`0.30 USD @ 1k`.
 - WCH CH582F
 `0.68 USD @ 1k`.
 **BLE** microcontroller
@@ -120,6 +123,23 @@ https://github.com/free-pdk
 SDCC C compiler. For tiny/old/odd 8 bit targets
 https://sdcc.sourceforge.net/
 
+
+### AC6329C4
+
+Under 0.30 USD. Incredibly cheap.
+Available from LCSC, https://www.lcsc.com/products/Microcontroller-Units-MCUs-MPUs-SOCs_11329.html?keyword=AC6329C4
+
+Bluetooth 5.x support.
+USB OTG support.
+Integrated Li-ion changer.
+73 kB RAM??
+RISC-V MCU?
+96 Mhz clock.
+PMU with power saving.
+
+Open SDK here: https://github.com/Jieli-Tech/fw-AC63_BT_SDK
+
+Documentation primarily in Chinese. Only a little bit in English.
 
 ### Storage
 
