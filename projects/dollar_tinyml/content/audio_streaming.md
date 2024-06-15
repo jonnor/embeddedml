@@ -4,12 +4,20 @@ LINK
 It consists of a 10 cent analog MEMS microphone, a 10 cent operational amplifier, and internal ADC of the Puya PY32.
 Now we need to verify that this audio input works, and has sufficient quality.
 
-Need to know that we have a reasonable fidelity.
-Important to be able to record data from device to build and validate ML models.
-FIXME: distribution shift
+Our goal is to be able to capture speech, music and general sounds well
+enough to do practical ML tasks.
+That the audio sounds good to the human ear is not important.
 
-The preferred way to record audio from on a modern microcontroller system would be
-to implement audio over USB using the Audio Device Class.
+For Machine Learning it is critical to have (at least some) data from the device we deploy on.
+This is because the particular characteristics of the device,
+such as the frequency response and noise of the microphone/audio subsystem,
+influence the data in a considerable way.
+We as humans are great at ignoring inconsequential differences, but this property does not come automatically in ML systems.
+Failing to account for this can lead to an ML model that works well in training and evaluation,
+but performs much worse in practice when deployed.
+
+The preferred way to record audio from on a microcontroller system would be
+to implement audio over USB using the Audio Device Class, and record on a PC (or embedded device like RPi).
 https://www.usb.org/document-library/usb-audio-devices-release-40-and-adopters-agreement
 This ensures plug & play with all operating systems, without needing any drivers.
 
@@ -64,10 +72,14 @@ Such as PulseAudio/PipeWire on Linux, or on Mac OS or Windows.
 
 ### Audio recording using ADC
 
-There was a very useful example in the PyF0 template repository, which had the main pieces needed.
 
 A timer for sampling at.
-And DMA for buffering the data, so we can easily do audio processing and , in parallel with the input stream.
+And DMA for buffering the data.
+This allows to easily do processing of audio while handling the data from the input stream.
+
+Used this example in the PyF0 template repository as starting point.
+https://github.com/IOsetting/py32f0-template/tree/main/Examples/PY32F0xx/LL/ADC/ADC_SingleConversion_TriggerTimer
+
 
 
 ### Demo

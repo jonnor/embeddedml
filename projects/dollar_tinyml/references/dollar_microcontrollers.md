@@ -16,6 +16,8 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - WCH CH582F
 `0.68 USD @ 1k`.
 **BLE** microcontroller
+- CH32V203G6U6. 64 kB RAM / 256 kB. USB
+- CH32X035. 64 kB RAM / 256 kB. USB
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.

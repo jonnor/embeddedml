@@ -112,5 +112,19 @@ noise_band{X}_component{C}_mean
 speech_band{X}_component{C}_std
 speech_band{X}_component{C}_mean
 
+## 
+
+https://webrtc.googlesource.com/src/+/85228d6af6c13c0a63ea11d8fe0bf240b752cfd0/webrtc/modules/audio_processing/vad/pitch_based_vad.cc
+https://webrtc.googlesource.com/src/+/85228d6af6c13c0a63ea11d8fe0bf240b752cfd0/webrtc/modules/audio_processing/vad/pitch_internal.cc
+
+PitchBasedVAD.
+Computes LPC coefficients.
+GetSubframesPitchParameters()
+Pitch parameters updated every 7.5 ms.
+"Within a 30-ms interval we are interested in pitch parameters of 0-5 ms, 10-15ms and 20-25ms".
+
+ 
+Uses a longer audio buffer.
+Combines with a "noise vad".
 
 

@@ -42,12 +42,54 @@ Seems prudent to budget at least 1 kB RAM to system things
 ## CMSIS-DSP RFFT tables too big
 
 CMSIS-DSP RFFT tables are always 8192 long?
+
+arm-none-eabi-nm -td -r --size-sort Build/app.elf | head -n 10
+```
+00016384 R realCoefBQ15
+00016384 R realCoefAQ15
+```
+
 Two tables a 16 bit. Takes 32 kB FLASH !!!
 https://arm-software.github.io/CMSIS-DSP/latest/group__RealFFT__Table.html#gaf8699e77c7774359b96ef388efa7d453
+
+https://github.com/ARM-software/CMSIS-DSP/issues/25
 
 Looks like one would need to generate those tables oneself, in a smaller size
 
 Remaining code size is 44kB - 32kB = 12 kB. Seems acceptable
+
+
+### CMSIS-DSP RFFT inverse always included
+
+Inverse functions are included even if one jus uses forward pass.
+Takes at least 3.5 kB extra program memory?
+
+00001828 T arm_radix4_butterfly_inverse_q15
+00001420 t arm_radix4_butterfly_inverse_q15.constprop.0
+
+00001848 T arm_radix4_butterfly_q15
+00001440 t arm_radix4_butterfly_q15.constprop.0
+
+
+## fvad
+
+Takes around 10 kB FLASH total.
+
+00001712 t GmmProbability
+00001700 T WebRtcVad_CalculateFeatures
+
+
+### FFT testing
+
+With 24 Mhz. On Py32F003
+
+64 RFFT q15. 1 ms
+128 RFFT q15. 2 ms
+These numbers are great, very promising.
+
+FFT and audio enabled with under 20 kB FLASH.
+
+## Mel filter implemetation
 
 arm_mfcc_q15 needs a q31 temporary, 2x the length
 
@@ -123,6 +165,22 @@ Must send to the first, and record from the second.
 Using PulseAudio loopback? Not tested.
 
 https://askubuntu.com/questions/257992/how-can-i-use-pulseaudio-virtual-audio-streams-to-play-music-over-skype
+
+## Testing libfvad on device
+
+Using PY32F003 at 24 Mhz.
+Using 8kHz samplerate, and 10ms / 80 samples buffer.
+
+- Only DC blocking filter. 2ms
+- DC + fvad process. 4 ms
+- DC + audio send. 7 ms.
+- DC + audio send + fvad. 9-10ms. Around 100%. Some overflows occurring! 17 per 10 seconds.
+
+Audio send over serial is slow.
+Mostly expected (blocking calls), but maybe a bit slower than anticipated.
+Should have a mode to switch between data collection and prediction.
+
+Have some 5 ms per 10 ms to run an ML classifier on top of fvad features.
 
 
 ## I2C
@@ -216,7 +274,6 @@ Can maybe go up to 32x32 in similar RAM use?
 With 32 samples that is a 1024 ms window.
 Similar to what is used for Speech Commands.
 Maybe it can be sufficient to be useful?
-
 
 ## Audio Anomaly detection
 
