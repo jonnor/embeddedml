@@ -1,11 +1,7 @@
 
 ## TODO
 
-- Send slides for review
-- Do a talk-through of entire presentation. Check timing
-- Fixup the result plots
-- Add some demo image / data. Audio + FFT + RF
-- Send final slides
+- Give the talk
 
 ## Goals
 
@@ -18,9 +14,9 @@ Core values. Tiny models, easy-to-use, efficient (compute/power)
 
 ## Format
 
-20-25 minutes + 5 minutes QA.
+20-25 minutes + 0-5 minutes QA.
 
-2x sessions between 10:50 am to 11:40
+2x sessions between 10:50 am to 11:40 (50 min).
 https://www.tinyml.org/event/emea-2024/
 
 ## Audience
@@ -108,17 +104,39 @@ Slides
 - Summary.
 
 
+#### 
+
+First run through.
+31 minutes
+
+Need to reduce by approx 5 minutes.
+Find a natural half-way point. 
+PROJECTS start by 12 minutes ?
+
+MicroPython start by 16 minutes ?
+
+Second pass. 26 minutes
+Reached projects by 16 mins.
+
+Third run through.
+24 minutes
+
+
+#### Intro
+
+Thank you so much for the introduction.
+
 #### Soundsensing
 
 Soundsensing provides an end-to-end solution for Condition Monitoring of technial machinery in commercial buildings.
 Primarily this is the systems for Heating, Cooling and Air Conditioning.
 
 Over the last 3 years,
-many of the largest commercial building operators in Norway are our customers.
+many of the largest commercial building operators in Norway have become our customers.
 
 We use a combination of vibration and sound-based monitoring.
 For us TinyML is primarily a way to run advanced and adaptive feature extraction on our sensors. Which can be sent in an energy efficient way over Bluetooth,
-for doing continious Anomaly Detection and healt estimates in the cloud.
+for doing continious Anomaly Detection and machine health estimates in the cloud.
 
 #### Outline
 
@@ -126,34 +144,19 @@ Today I will talk about the emlearn project.
 An open-source software for TinyML on microcontrollers.
 
 1. Quick introduction.
-2. Shine a focus on a very useful: tree-based ensembles (Random Forest etc)
+2. Shine a focus on a very useful type: tree-based ensembles (Random Forest etc)
 3. Mention a couple of projects using emlearn
 4. How we enable application developers to make TinyML purely in Python
 
 
 #### Sensor data analysis with Machine Learning
 
-Key aspect:
-Size of the information out << sensor data in.
-
 emlearn primarily provides tools to deploy the Trained Model (blue).
-
-Smaller data amounts.
-Much easier to integrate into existing system.
-BLE beacons 27 bytes.
-Modbus RTU 2-100 bytes.
-< 10 bytes per second.
 
 
 #### Applications
 
-No single killer application
-- thousands of smaller applications, across dozens of industries.
-
-Applications are basically everywhere.
-TinyML is like electricity, like wireless connectivity, like microcontrollers.
-A key part of the engineering toolbox.
-But mostly a piece of a larger puzzle, to unlock actual benefits for end users.
+Applications are basically in all fields that benefit from sensors.
 
 Will mention a couple of concrete examples later in this talk.
 
@@ -166,7 +169,6 @@ Training. On a host computer.
 Running. Inference, on a microcontroller.
 
 Make this quite seamless. Ideally same person can do both.
-We take care of the nitty gritty for you.
 
 
 #### Supported tasks
@@ -211,8 +213,9 @@ Excellent properties for TinyML usecases.
 
 Low complexity.
 ....
-Neural networks overkill.
-More trouble than they are worth.
+RF performs very well, very easily
+Neural networks overkill,
+more trouble than they are worth.
 
 Medium complexity.
 ....
@@ -222,10 +225,10 @@ Human Activity Detection
 
 
 High complexity.
-Can be used toteg
+Can be used together with a neural network.
+Random Forest used to classify the simple cases, neural network the others
 Especially in a continious monitoring scenario.
 Might have 99% where almost nothing of interest happens.
-And some classes/events of interest can also be relatively simple to detect.
 
 ### emlearn trees
 
@@ -340,23 +343,9 @@ TinyML is about massive scale.
 Adressing huge range of usecases.
 Low cost is a key enabler.
 
-Electronics and IoT prices are falling continiously.
-
-How low-cost can TinyML actually be, right now? What does this say about the future?
+How low-cost can TinyML actually be, right now?
 
 1 dollar here is an arbitary target/constraints.
-
-10 dollars is trivial.
-Can get off-the-shelf complete BLE beacon with sensors for that price.
-
-Doing it on a 1 USD microcontroller.
-Easy - can get RP2040 with 100 Mhz+ and tons of SRAM/FLASH.
-
-Adding TinyML for +1 USD.
-Also quite easy.
-Can get a huge boost in microcontroller capability, or MEMS sensing capability.
-
-
 
 !! this is not the cheapest hardware.
 Found a 30 cent microcontroller with built-in BLE and USB. And a lot more RAM/FLASH.
@@ -371,7 +360,6 @@ Have assembled them and tested basics to be working.
 I realized that accelerometer data can be done easily.
 Human Activity Detection etc, just requires 100 Hz sampling.
 So I decided to go straight for a more difficult problem: audio TinyML.
-80x the data rate.
 
 Got audio to work via ADC.
 Quality is currently very poor - needs some debugging.
@@ -380,7 +368,7 @@ But confident that can do
 
 - basic anomaly detection
 - basic speech commands
-- basic sound event detection. Plops from beer brewing
+- basic sound event detection
 
 CONCLUSION:
 Hardware cost barriers to TinyML are VERY LOW. And will continue going down.
@@ -400,8 +388,8 @@ Therefore also provides IIR filters, FFT transformation.
 
 Just as a simple comparison, did some tests on the digits dataset.
 Compared with everywhereml and m2cgen - which generate plain Python code.
-Inference time expected to improve by 5x on Cortex M0 devices when moving to int16
 
+! Inference time expected to improve by 5x on Cortex M0 devices when moving to int16
 ? size comparison. Maybe do a spot check
 
 #### emlearn-micropython. Install and export
@@ -409,17 +397,10 @@ Inference time expected to improve by 5x on Cortex M0 devices when moving to int
 Training is done in the standard way.
 
 Support a CSV format, which can be loaded at runtime.
-Stored on disk, loaded into efficient in-memory format.
 
 Copy model to device.
 Copy library to device. Architecture-specific binary module.
 
-
-FIXME: skip
-Simple, not really optimized for size.
-But since MicroPython devices are typically high RAM/FLASH, not a bit deal.
-(will improve with int16 trees also)
-(! interesting to include in comparison with other frameworks )
 
 ### emlearn-micropython. Load and run
 
@@ -427,11 +408,10 @@ Create the model.
 Load the weights.
 Make predictions by passing sensor data.
 
-Hope this.
-To speed up prototyping for experienced embedded engineers.
-To enable DS/ML engineers with primarily Python skills to make TinyML applications.
-Make it for those learning TinyML - by using a high-level language like Python
-- which has tons more learning resources than C or C++.
+Hope this:
+- Speed up prototyping for experienced embedded engineers.
+- Enable DS/ML engineers with primarily Python skills to make TinyML applications.
+- Make it easier to teach TinyML development in an educational setting
 
 #### Summary
 
