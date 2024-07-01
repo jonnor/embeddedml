@@ -7,30 +7,33 @@ import array
 import time
 
 @micropython.native
-def argmin_euclidean3(vectors, v):
+def argmin_euclidean3(vectors, v0, v1, v2):
     """Find the closest"""
 
-    channels = len(v)
-    #assert channels == 3, "specialized/unrolled for 3 channels"
-
+    channels = 3
     #assert len(vectors) % channels == 0, len(vectors)
-    elements = len(vectors) // channels
+    elements = int(len(vectors)) // channels
 
     #print('ee', elements)
 
     min_idx = 0
     min_value = int(3*(255**2)) # initialize to max
     for i in range(elements):
-        c = vectors[i:i+3] # Suprisingly slow
-        #c = (0, 0, 0)
+        c0 = vectors[i+0]
+        c1 = vectors[i+1]
+        c2 = vectors[i+2]
 
-        # euclidean distance. Quite slow
-        d = (v[0] - c[0])**2 + (v[1] - c[1])**2 + (v[2] - c[2])**2
+        d = 0
+
+        # euclidean distance
+        # d = (v0 - c0)**2 + (v1 - c1)**2 + (v2 - c2)**2
+
+        # euclidean distance written out. Fastest
+        #d = int(((v0 - c0)*(v0 - c0)) + ((v1 - c1)*(v1 - c1)) + ((v2 - c2)*(v2 - c2)))
 
         # manhattan distance. Slower than Euclidean??
-        #d = abs(v[0] - c[0]) + abs(v[1] - c[1]) + abs(v[2] - c[2])
-            
-        #d = 0
+        #d = int(abs(v0 - c0) + abs(v1 - c1) + abs(v2 - c2))
+
         if d < min_value:
             min_value = d
             min_idx = i
@@ -39,15 +42,29 @@ def argmin_euclidean3(vectors, v):
 
 def apply_palette(img, quant, palette, rowstride):
 
+    # check palette
+    channels = 3
+    assert len(palette) % channels == 0, len(palette)
+    n_palette = len(palette) // channels
+    assert n_palette >= 2
+    assert n_palette <= 256
+
+    # check images
+    assert len(img) % (channels*rowstride) == 0, len(img)
+    assert len(quant) % (channels*rowstride) == 0, len(quant)
+
     rows = len(img) // (rowstride * 3)
     for row in range(rows):
         for col in range(rowstride):
             i = (row*col*3)
-            rgb = img[i:i+3]
+            #rgb = img[i:i+3]
+            r = img[i+0]
+            g = img[i+1]
+            b = img[i+2]
             #continue
 
             # find closest value in palette
-            palette_idx, distance = argmin_euclidean3(palette, rgb)
+            palette_idx, distance = argmin_euclidean3(palette, r, g, b)
 
             #palette_idx, distance = 0, 0
 
