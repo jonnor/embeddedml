@@ -356,6 +356,51 @@ for i, h in enumerate(hh):
 
 #raise Exception()
 
+def sample_pixels(img, samples, n, channels=3):
+    import random
+
+    assert (len(samples) // channels) > n, len(samples)
+    elements = len(img) // channels
+
+    for i in range(n):
+        e = random.randint(0, elements)
+        samples[i*channels:(i+1)*channels] = img[e*channels:(e+1)*channels]
+
+
+def kmeans_cluster(values, centroids, channels=3, max_iter=10):
+
+    # values Samples x Channels
+    #
+    # assignments. 
+    # Matrix. Clusters x Samples x 1-2 bytes. Need to "unset" when re-assigning
+    # Linked list. Samples x 6 bytes capacity
+    # realistically want to keep
+    # Samples << 1000 and clusters << 100. 200 kB matrix
+    # For color quantization maybe 100 samples, 16 clusters. 3.2 kB
+    # bi-map ?
+
+    # https://reasonabledeviations.com/2019/10/02/k-means-in-cpp/
+    # sums and numbers. 1x Clusters x 32 bit, 1xClusters x 16 bits
+
+    for i in range(max_iter):
+
+        # identify cluster assignments
+        # go over all samples
+        for v in range(len(values)//channels):
+            idx, _ argmin_euclidean3()
+            assignments
+
+        # find cluster mean
+        # per cluster in principle
+        # but we can do it by iterating samples, by tracking the C cluster means at same time
+        # sums + numbers
+
+
+        # check for convergence?
+
+        # TODO: make this into a generator? so other work can be done in between
+        
+
 def quantize_path(inp, outp):
     # https://github.com/jacklinquan/micropython-microbmp
     from microbmp import MicroBMP
@@ -366,18 +411,26 @@ def quantize_path(inp, outp):
 
     out = MicroBMP(res[0], res[1], 24)
 
-    # Do quantization
+    # Learn a palette
+    samples = out.parray # make_image(*res)
+
     start = time.ticks_us()
-    apply_palette(loaded.parray, out.parray, palette, rowstride=res[1])
+    sample_pixels(loaded.parray, samples, n=50)
+    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
+    print('sample duration (ms)', dur)
+
+    # Apply palette
+    start = time.ticks_us()
+    #apply_palette(loaded.parray, out.parray, palette, rowstride=res[1])
 
     dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
-    print('dur (ms)', dur)
+    print('apply palette duration (ms)', dur)
 
     # Save output
     out.save(outp)
 
-#import machine
-#machine.freq(160000000)
+import machine
+machine.freq(240000000)
 
 inp = 'IMG_20240626_175314_MP_cifm.bmp'
 out = 'quant.bmp'
