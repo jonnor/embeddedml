@@ -6,7 +6,7 @@ Color quantization
 import array
 import time
 
-@micropython.native
+@micropython.viper
 def argmin_euclidean3(vectors, v0, v1, v2):
     """Find the closest"""
 
@@ -345,8 +345,8 @@ def hex_to_rgb8(s : str) -> tuple:
     return r, g, b
 
 # Load a fixed palette
-hh = PALETTE_RAL_CLASSIC
-#hh = PALETTE_EGA16_HEX
+#hh = PALETTE_RAL_CLASSIC
+hh = PALETTE_EGA16_HEX
 palette = make_image(1, len(hh))
 for i, h in enumerate(hh):
     rgb = hex_to_rgb8(h)
@@ -376,14 +376,14 @@ def quantize_path(inp, outp):
     # Save output
     out.save(outp)
 
+#import machine
+#machine.freq(160000000)
+
 inp = 'IMG_20240626_175314_MP_cifm.bmp'
 out = 'quant.bmp'
 
 quantize_path(inp, out)
 
-
-# TODO: complete fixed palette case
-# TODO: test performance on ESP32
 # TODO: implement dynamic palettes using k-means++
 
 # https://github.com/robert-ancell/pygif
