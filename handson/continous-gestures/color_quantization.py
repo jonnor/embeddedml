@@ -117,225 +117,6 @@ PALETTE_EGA16_HEX = [
     '#ffff55',
 ]
 
-PALETTE_RAL_CLASSIC = [
-'#CDBA88',
-'#D0B084',
-'#D2AA6D',
-'#F9A900',
-'#E49E00',
-'#CB8F00',
-'#E19000',
-'#E88C00',
-'#AF8050',
-'#DDAF28',
-'#E3D9C7',
-'#DDC49B',
-'#E6D2B5',
-'#F1DD39',
-'#F6A951',
-'#FACA31',
-'#A48F7A',
-'#A08F65',
-'#F6B600',
-'#F7B500',
-'#BA8F4C',
-'#FFFF00',
-'#A77F0F',
-'#FF9C00',
-'#E2A300',
-'#F99A1D',
-'#EB9C52',
-'#8F8370',
-'#806440',
-'#F09200',
-'#DA6E00',
-'#BA481C',
-'#BF3922',
-'#F67829',
-'#E25304',
-'#FF4D08',
-'#FFB200',
-'#EC6B22',
-'#DE5308',
-'#D05D29',
-'#E26E0F',
-'#D5654E',
-'#923E25',
-'#FC5500',
-'#A72920',
-'#9B2423',
-'#9B2321',
-'#861A22',
-'#6B1C23',
-'#59191F',
-'#3E2022',
-'#6D342D',
-'#782423',
-'#C5856D',
-'#972E25',
-'#CB7375',
-'#D8A0A6',
-'#A63D30',
-'#CA555D',
-'#C63F4A',
-'#BB1F11',
-'#CF6955',
-'#FF2D21',
-'#FF2A1C',
-'#AB273C',
-'#CC2C24',
-'#A63437',
-'#701D24',
-'#A53A2E',
-'#816183',
-'#8D3C4B',
-'#C4618C',
-'#651E38',
-'#76689A',
-'#903373',
-'#47243C',
-'#844C82',
-'#9D8692',
-'#BB4077',
-'#6E6387',
-'#6A6B7F',
-'#304F6E',
-'#0E4C64',
-'#00387A',
-'#1F3855',
-'#191E28',
-'#005387',
-'#376B8C',
-'#2B3A44',
-'#215F78',
-'#004F7C',
-'#1A2B3C',
-'#0089B6',
-'#193153',
-'#637D96',
-'#007CAF',
-'#005B8C',
-'#048B8C',
-'#005E83',
-'#00414B',
-'#007577',
-'#222D5A',
-'#41698C',
-'#6093AC',
-'#20697C',
-'#0F3052',
-'#3C7460',
-'#366735',
-'#325928',
-'#50533C',
-'#024442',
-'#114232',
-'#3C392E',
-'#2C3222',
-'#36342A',
-'#27352A',
-'#4D6F39',
-'#6B7C59',
-'#2F3D3A',
-'#7C765A',
-'#474135',
-'#3D3D36',
-'#00694C',
-'#587F40',
-'#60993B',
-'#B9CEAC',
-'#37422F',
-'#8A9977',
-'#3A3327',
-'#008351',
-'#5E6E3B',
-'#005F4E',
-'#7EBAB5',
-'#315442',
-'#006F3D',
-'#237F52',
-'#45877F',
-'#7AADAC',
-'#194D25',
-'#04574B',
-'#008B29',
-'#00B51B',
-'#B3C43E',
-'#7A888E',
-'#8C979C',
-'#817863',
-'#797669',
-'#9A9B9B',
-'#6B6E6B',
-'#766A5E',
-'#745F3D',
-'#5D6058',
-'#585C56',
-'#52595D',
-'#575D5E',
-'#575044',
-'#4F5358',
-'#383E42',
-'#2F3234',
-'#4C4A44',
-'#808076',
-'#45494E',
-'#374345',
-'#928E85',
-'#5B686D',
-'#B5B0A1',
-'#7F8274',
-'#92886F',
-'#C5C7C4',
-'#979392',
-'#7A7B7A',
-'#B0B0A9',
-'#6B665E',
-'#989EA1',
-'#8E9291',
-'#4F5250',
-'#B7B3A8',
-'#8D9295',
-'#7E868A',
-'#C8C8C7',
-'#817B73',
-'#89693F',
-'#9D622B',
-'#794D3E',
-'#7E4B27',
-'#8D4931',
-'#70462B',
-'#724A25',
-'#5A3827',
-'#66332B',
-'#4A3526',
-'#5E2F26',
-'#4C2B20',
-'#442F29',
-'#3D3635',
-'#1A1719',
-'#A45729',
-'#795038',
-'#755847',
-'#513A2A',
-'#7F4031',
-'#E9E0D2',
-'#D6D5CB',
-'#ECECE7',
-'#2B2B2C',
-'#0E0E10',
-'#A1A1A0',
-'#868581',
-'#F1EDE1',
-'#27292B',
-'#F8F2E1',
-'#F1F1EA',
-'#29292A',
-'#C8CBC4',
-'#858583',
-'#787B7A',
-]
-
 def hex_to_rgb8(s : str) -> tuple:
     assert s[0] == '#'
 
@@ -343,6 +124,141 @@ def hex_to_rgb8(s : str) -> tuple:
     g = int(s[2:4], 16)
     b = int(s[4:6], 16)
     return r, g, b
+
+
+def sample_pixels(img, samples, n, channels=3):
+    import random
+
+    assert (len(samples) // channels) >= n, len(samples)
+    elements = len(img) // channels
+
+    for i in range(n):
+        e = random.randint(0, elements)
+        samples[i*channels:(i+1)*channels] = img[e*channels:(e+1)*channels]
+
+@micropython.native
+def kmeans_cluster(values, centroids, channels=3, max_iter=10, stop_changes=0):
+    """
+    Perform K-Means clustering of @values
+
+    Uses the @centroid as initial values.
+    NOTE: will mutate @centroids
+    """
+
+    # https://reasonabledeviations.com/2019/10/02/k-means-in-cpp/
+
+    n_clusters = len(centroids) // channels
+    n_samples = len(values) // channels
+
+    assert channels == 3, 'only support 3 channels for now'
+
+    assert channels < 255, channels
+    assert n_clusters < 255, n_clusters
+    assert n_samples < 65535, n_samples
+
+    assignments = array.array('B', (255 for _ in range(n_samples)))
+    cluster_sums = array.array('L', (0 for _ in range(n_clusters*channels)))
+    cluster_counts = array.array('H', (0 for _ in range(n_clusters)))
+
+    for i in range(max_iter):
+
+        ## update sample assignments
+        changes = 0
+        for s in range(n_samples):
+            v0 = values[(s*channels)+0]
+            v1 = values[(s*channels)+1]
+            v2 = values[(s*channels)+2]
+
+            idx, dist = argmin_euclidean3(centroids, v0, v1, v2)
+            #idx, dist = 0, 0
+
+            if idx != assignments[s]:
+                changes += 1            
+            assignments[s] = idx
+
+        print('iter', i, changes)
+        if changes <= stop_changes:
+            break
+
+        ## update cluster centroids
+        # reset old values
+        for c in range(n_clusters*channels):
+            cluster_sums[c] = 0
+        for c in range(n_clusters):
+            cluster_counts[c] = 0
+
+        # evaluate samples
+        for s in range(n_samples):
+            c = assignments[s]
+            v0 = values[(s*channels)+0]
+            v1 = values[(s*channels)+1]
+            v2 = values[(s*channels)+2]            
+
+            cluster_sums[(c*channels)+0] += v0
+            cluster_sums[(c*channels)+1] += v1
+            cluster_sums[(c*channels)+2] += v2
+            cluster_counts[c] += 1
+
+        # set new centroid means
+        for c in range(n_clusters):
+            count = cluster_counts[c]
+            if count == 0:
+                continue
+
+            centroids[(c*channels)+0] = cluster_sums[(c*channels)+0] // count
+            centroids[(c*channels)+1] = cluster_sums[(c*channels)+1] // count
+            centroids[(c*channels)+2] = cluster_sums[(c*channels)+2] // count
+
+        #yield assignments
+        # TODO: make this into a generator? so other work can be done in between
+        
+
+    return assignments
+
+
+def quantize_path(inp, outp, palette):
+    # https://github.com/jacklinquan/micropython-microbmp
+    from microbmp import MicroBMP
+
+    loaded = MicroBMP().load(inp)
+    res = (loaded.DIB_w, loaded.DIB_h)
+    print('LOADED', res)
+
+    out = MicroBMP(res[0], res[1], 24)
+
+    # Sample some pixels
+    n_samples = 100
+    samples = make_image(1, n_samples)
+
+    start = time.ticks_us()
+    sample_pixels(loaded.parray, samples, n=n_samples)
+    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
+    print('sample duration (ms)', dur)
+
+    # Learn a palette
+    start = time.ticks_us()
+    kmeans_cluster(samples, palette, max_iter=20)
+    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
+    print('cluster duration (ms)', dur)
+
+    for i in range(len(palette)//3):
+        print(palette[(i*3):(i*3)+3])
+
+    # Apply palette
+    start = time.ticks_us()
+    apply_palette(loaded.parray, out.parray, palette, rowstride=res[1])
+
+    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
+    print('apply palette duration (ms)', dur)
+
+    # Save output
+    out.save(outp)
+
+#import machine
+#machine.freq(240000000)
+
+inp = 'IMG_20240626_175314_MP_cifm.bmp'
+out = 'quant.bmp'
 
 # Load a fixed palette
 #hh = PALETTE_RAL_CLASSIC
@@ -354,88 +270,7 @@ for i, h in enumerate(hh):
     #print(i, rgb, c)
     palette[(i*3):(i*3)+3] = c
 
-#raise Exception()
-
-def sample_pixels(img, samples, n, channels=3):
-    import random
-
-    assert (len(samples) // channels) > n, len(samples)
-    elements = len(img) // channels
-
-    for i in range(n):
-        e = random.randint(0, elements)
-        samples[i*channels:(i+1)*channels] = img[e*channels:(e+1)*channels]
-
-
-def kmeans_cluster(values, centroids, channels=3, max_iter=10):
-
-    # values Samples x Channels
-    #
-    # assignments. 
-    # Matrix. Clusters x Samples x 1-2 bytes. Need to "unset" when re-assigning
-    # Linked list. Samples x 6 bytes capacity
-    # realistically want to keep
-    # Samples << 1000 and clusters << 100. 200 kB matrix
-    # For color quantization maybe 100 samples, 16 clusters. 3.2 kB
-    # bi-map ?
-
-    # https://reasonabledeviations.com/2019/10/02/k-means-in-cpp/
-    # sums and numbers. 1x Clusters x 32 bit, 1xClusters x 16 bits
-
-    for i in range(max_iter):
-
-        # identify cluster assignments
-        # go over all samples
-        for v in range(len(values)//channels):
-            idx, _ argmin_euclidean3()
-            assignments
-
-        # find cluster mean
-        # per cluster in principle
-        # but we can do it by iterating samples, by tracking the C cluster means at same time
-        # sums + numbers
-
-
-        # check for convergence?
-
-        # TODO: make this into a generator? so other work can be done in between
-        
-
-def quantize_path(inp, outp):
-    # https://github.com/jacklinquan/micropython-microbmp
-    from microbmp import MicroBMP
-
-    loaded = MicroBMP().load(inp)
-    res = (loaded.DIB_w, loaded.DIB_h)
-    print('LOADED', res)
-
-    out = MicroBMP(res[0], res[1], 24)
-
-    # Learn a palette
-    samples = out.parray # make_image(*res)
-
-    start = time.ticks_us()
-    sample_pixels(loaded.parray, samples, n=50)
-    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
-    print('sample duration (ms)', dur)
-
-    # Apply palette
-    start = time.ticks_us()
-    #apply_palette(loaded.parray, out.parray, palette, rowstride=res[1])
-
-    dur = (time.ticks_diff(time.ticks_us(), start) / 1000.0)
-    print('apply palette duration (ms)', dur)
-
-    # Save output
-    out.save(outp)
-
-import machine
-machine.freq(240000000)
-
-inp = 'IMG_20240626_175314_MP_cifm.bmp'
-out = 'quant.bmp'
-
-quantize_path(inp, out)
+quantize_path(inp, out, palette)
 
 # TODO: implement dynamic palettes using k-means++
 
