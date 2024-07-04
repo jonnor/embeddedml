@@ -5,41 +5,12 @@ Color quantization
 
 import array
 import time
+import os
 
-@micropython.viper
-def argmin_euclidean3(vectors, v0, v1, v2):
-    """Find the closest"""
+#print('os', os.uname())
 
-    channels = 3
-    #assert len(vectors) % channels == 0, len(vectors)
-    elements = int(len(vectors)) // channels
-
-    #print('ee', elements)
-
-    min_idx = 0
-    min_value = int(3*(255**2)) # initialize to max
-    for i in range(elements):
-        c0 = vectors[(i*3)+0]
-        c1 = vectors[(i*3)+1]
-        c2 = vectors[(i*3)+2]
-
-        # perf testing only
-        #d = 0
-
-        # euclidean distance
-        #d = (v0 - c0)**2 + (v1 - c1)**2 + (v2 - c2)**2
-
-        # euclidean distance written out. Fastest
-        d = int(((v0 - c0)*(v0 - c0)) + ((v1 - c1)*(v1 - c1)) + ((v2 - c2)*(v2 - c2)))
-
-        # manhattan distance. Slower than Euclidean??
-        #d = int(abs(v0 - c0) + abs(v1 - c1) + abs(v2 - c2))
-
-        if d < min_value:
-            min_value = d
-            min_idx = i
-
-    return min_idx, min_value
+from distance import euclidean_argmin
+print('ff0', euclidean_argmin)
 
 def apply_palette(img, quant, palette, rowstride):
 
@@ -61,14 +32,13 @@ def apply_palette(img, quant, palette, rowstride):
     for row in range(rows):
         for col in range(rowstride):
             i = 3 * (row*rowstride + col)
-            #rgb = img[i:i+3]
-            r = img[i+0]
-            g = img[i+1]
-            b = img[i+2]
-            #continue
+            rgb = array.array('B', img[i:i+3])
 
             # find closest value in palette
-            palette_idx, distance = argmin_euclidean3(palette, r, g, b)
+            #print('p', palette)
+            #print('p', rgb)
+            assert len(rgb) == 3
+            palette_idx, distance = euclidean_argmin(palette, rgb)
 
             #palette_idx, distance = 0, 0
     
@@ -165,11 +135,12 @@ def kmeans_cluster(values, centroids, channels=3, max_iter=10, stop_changes=0):
         ## update sample assignments
         changes = 0
         for s in range(n_samples):
-            v0 = values[(s*channels)+0]
-            v1 = values[(s*channels)+1]
-            v2 = values[(s*channels)+2]
+            v = values[(s*channels)+0:(s*channels)+3]
+            #v0 = values[(s*channels)+0]
+            #v1 = values[(s*channels)+1]
+            #v2 = values[(s*channels)+2]
 
-            idx, dist = argmin_euclidean3(centroids, v0, v1, v2)
+            idx, dist = euclidean_argmin(centroids, v)
             #idx, dist = 0, 0
 
             if idx != assignments[s]:
