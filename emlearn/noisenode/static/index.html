@@ -3,22 +3,48 @@
   <head>
     <title>NodeNode</title>
     <meta charset="UTF-8">
-
-    <!-- <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark" />
     <script src="static/plotly-smaller.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="static/pico.min.css">
 
   </head>
-  <body>
-    <h1>Header</h1>
-    <div id="tester" style="width:600px;height:250px;"></div>
+  <body class="container">
 
-    <script>
-	    TESTER = document.getElementById('tester');
-	    Plotly.newPlot( TESTER, [{
-	    x: [1, 2, 3, 4, 5],
-	    y: [1, 2, 4, 8, 16] }], {
-	    margin: { t: 0 } } );
-    </script>
+  <header>
+    <nav>
+      <ul>
+        <li><strong>Acme Corp</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Products</a></li>
+      </ul>
+    </nav>
+  </header>
 
+  <main>
+
+    <section>
+      <h1>Header</h1>
+      <div id="tester" style="width:600px;height:250px;"></div>
+    </section>
+
+  </main>
+
+
+  <footer>
+  This is an example
+  </footer>
+
+
+  <script>
+    TESTER = document.getElementById('tester');
+    Plotly.newPlot( TESTER, [{
+    x: [1, 2, 3, 4, 5],
+    y: [1, 2, 4, 8, 16] }], {
+    margin: { t: 0 } } );
+  </script>
   </body>
 </html>

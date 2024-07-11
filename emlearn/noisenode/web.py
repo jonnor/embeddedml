@@ -15,6 +15,13 @@ async def static(request, path):
         return 'Not found', 404
     return send_file('static/' + path)
 
+# serve pre-compressed files
+@app.route('/gzstatic/<path:path>')
+async def static(request, path):
+    if '..' in path:
+        # directory traversal is not allowed
+        return 'Not found', 404
+    return send_file('gzstatic/' + path, compressed=True, file_extension='.gz')
 
 app.run(debug=True)
 
