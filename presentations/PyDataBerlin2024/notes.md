@@ -554,13 +554,5 @@ https://github.com/majianjia/nnom/blob/master/src/layers/nnom_gru_cell.c
 Open issue about Tensorflow lite micro
 https://github.com/tensorflow/tensorflow/issues/43380
 
-### DTW KNN
-
-Would enable on-device learning
-
-https://github.com/wannesm/dtaidistance/blob/master/dtaidistance/lib/DTAIDistanceC/DTAIDistanceC/dd_dtw.c
-Wearable Real-time Air-writing System Employing KNN and Constrained Dynamic Time Warping
-https://ieeexplore.ieee.org/document/10118944
-Constrained dynamic time warping (cDTW) algorithm for the distance measure and K-nearest neighbors (KNN) as the classifier
 
 
