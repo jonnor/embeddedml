@@ -1,5 +1,6 @@
 
 import machine
+from machine import Pin, I2C
 import ntptime
 import network
 import time
@@ -7,6 +8,9 @@ import time
 import requests
 
 from secrets import WIFI_SSID, WIFI_PASSWORD
+
+# https://github.com/tuupola/micropython-mpu6886/blob/master/mpu6886.py
+from mpu6886 import MPU6886, SF_G, SF_DEG_S
 
 def wifi_connect(timeout=5.0):
 
@@ -33,11 +37,14 @@ def wifi_connect(timeout=5.0):
     print('ntp-done')
 
 
-hold_pin = machine.Pin(4, machine.Pin.OUT)
-buzzer_pin = machine.Pin(2, machine.Pin.OUT)
-led_pin = machine.Pin(19, machine.Pin.OUT)
-
 def main():
+
+    hold_pin = machine.Pin(4, machine.Pin.OUT)
+    buzzer_pin = machine.Pin(2, machine.Pin.OUT)
+    led_pin = machine.Pin(19, machine.Pin.OUT)
+
+    i2c = I2C(scl=Pin(22), sda=Pin(21))
+    accelerometer = MPU6886(i2c, accel_sf=SF_G, gyro_sf=SF_DEG_S)
 
     # indicate that we have woken up
     buzzer_pin.value(1)
@@ -53,19 +60,32 @@ def main():
 
     print('start-time', time.localtime())
 
+    def data_chunks():
+        for i in range(10):
+            n_bytes = 2*3*50
+            data = bytearray(n_bytes)
+            yield data
+            #time.sleep_ms(1000)
+
     host = '192.168.87.93:5000'
     url = 'http://'+host+'/data'
-    data = 'fofo'
     while True:
 
+        acc = accelerometer.acceleration
+        print('orientation', acc)
+
+        # Tiny blink to show we are alive
         led_pin.value(1)
         time.sleep_ms(1)
         led_pin.value(0)
 
         start_time = time.ticks_ms()
-        response = requests.request("POST", url, data=data)
+        for i in range(6):
+            response = requests.request("POST", url, data=data_chunks())
+            print('response', response.status_code)
         duration = time.ticks_diff(time.ticks_ms(), start_time)
-        print('response', response.status_code, duration)
+        print('batch-send-done', duration)
+
         time.sleep(5.0)
 
 if __name__ == '__main__':
