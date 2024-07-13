@@ -1,4 +1,5 @@
 
+import math
 import os
 
 import pandas
@@ -13,14 +14,37 @@ def load_digits_dataset(path):
         digit, speaker, sample = os.path.splitext(name)[0].split('_')
 
         records.append({
-            'digit': int(digit),
+            'command': int(digit),
             'speaker': speaker,
             'sample': sample,
-            'file': name,
+            'file': os.path.join('recordings', name),
         })
     
     out = pandas.DataFrame.from_records(records)
     return out
+
+def load_mini_speech_commands(path):
+    
+    ignored = set(['README.md'])
+    records = []
+    classes = [ p for p in os.listdir(path) if not p in ignored ]
+    for c in classes:
+        for name in os.listdir(os.path.join(path, c)):
+            if not name.endswith('.wav'):
+                print('ignore', name)
+                continue
+            speaker, _, sample = os.path.splitext(name)[0].split('_')
+
+            records.append({
+                'command': c,
+                'speaker': speaker,
+                'sample': sample,
+                'file': os.path.join(c, name),
+            })
+
+    out = pandas.DataFrame.from_records(records)
+    return out
+
 
 def compute_features(filenames : pandas.Series, directory : str,
         mean_normalize=True, variance_normalization=True, drop_zero=True, lifter=0,
@@ -28,7 +52,7 @@ def compute_features(filenames : pandas.Series, directory : str,
 
     def compute_one(f):
         p = os.path.join(directory, f)
-        audio, sr = librosa.load(p, sr=None)
+        audio, sr = librosa.load(p, sr=8000)
         #print('duration', len(audio)/sr)
         assert sr == 8000
         hop_length = 256
@@ -51,7 +75,7 @@ def compute_features(filenames : pandas.Series, directory : str,
     
     return filenames.apply(compute_one)
     
-def plot_features(X, dataset, class_column='digit'):
+def plot_features(X, dataset, class_column='command'):
 
     n_samples = 10
 
@@ -137,24 +161,30 @@ def build_rnn(meta):
     return model
 
 def main():
-    
-    path = 'free-spoken-digit-dataset'
-    dataset = load_digits_dataset(path)
+
+    path = 'free-spoken-digit-dataset'   
+    path = 'mini_speech_commands'
+
+    if 'free' in path:
+        dataset = load_digits_dataset(path)
+    elif 'mini' in path:
+        dataset = load_mini_speech_commands(path)
 
     # XXX: scaling from 1k to 2k sample took time from 15 seconds per fold to 50 seconds per fold with KNN
-    #dataset = dataset.sample(n=1000, random_state=1).reset_index()
+    dataset = dataset.sample(n=1000, random_state=1).reset_index()
 
     print(dataset)
     print('groups', dataset.speaker.nunique())
 
-    print('classes', dataset.digit.value_counts().sort_index())
+    print('classes', dataset.command.value_counts().sort_index())
 
-    recordings_dir = os.path.join(path, 'recordings')
+    recordings_dir = path
+
     features = compute_features(dataset.file, recordings_dir,
         mean_normalize=True, variance_normalization=False, drop_zero=True, lifter=0,
     )
 
-    shapes = [ f.shape for f in features ]
+    shapes = [ f.shape[1] for f in features ]
     print('feature-dims',
         min(shapes), max(shapes), numpy.quantile(shapes, 0.10), numpy.quantile(shapes, 0.90)
     )
@@ -165,7 +195,7 @@ def main():
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GroupShuffleSplit
 
-    length = 15
+    length = math.ceil(numpy.quantile(shapes, 0.90))
     n_features = features.iloc[0].shape[0]
 
     # standardize sequences to a fixed length
@@ -195,9 +225,10 @@ def main():
     #clf = RandomForestClassifier(n_estimators=100)
 
 
+    """
     from scikeras.wrappers import KerasClassifier
     clf = KerasClassifier(
-        build_cnn,
+        build_rnn,
         loss="sparse_categorical_crossentropy",
         epochs=200,
         fit__validation_split=0.2,
@@ -206,10 +237,11 @@ def main():
         batch_size=64,
         #hidden_layer_dim=100,
     )
+    """
 
     splitter = GroupShuffleSplit(n_splits=3, test_size=0.2)
-    res = cross_validate(clf, X, dataset.digit,
-            cv=splitter, groups=dataset.speaker,
+    res = cross_validate(clf, X, dataset.command,
+            #cv=splitter, groups=dataset.speaker,
             verbose=2, return_train_score=True
     )
     res = pandas.DataFrame.from_records(res)
