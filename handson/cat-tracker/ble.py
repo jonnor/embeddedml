@@ -8,6 +8,7 @@ import asyncio
 import aioble
 import bluetooth
 
+import time
 import random
 import struct
 
@@ -31,6 +32,8 @@ async def send_data(data):
     )
     aioble.register_services(temp_service)
 
+    temp_characteristic.write(data, send_update=False)
+
     print('start advertise')
     try:
         async with await aioble.advertise(
@@ -38,16 +41,16 @@ async def send_data(data):
             name="mpy-temp",
             services=[_ENV_SENSE_UUID],
             appearance=_ADV_APPEARANCE_GENERIC_THERMOMETER,
-            timeout_ms=1000,
+            timeout_ms=5000,
         ) as connection:
             print("Connection from", connection.device)
 
             #await connection.disconnected(timeout_ms=None)
 
-            await asyncio.sleep_ms(100) # so data can be transmitted
-            temp_characteristic.write(data, send_update=True)
+            #await asyncio.sleep_ms(1000) # so data can be transmitted
+
             print('wrote data')
-            await asyncio.sleep_ms(500) # so data can be transmitted
+            await asyncio.sleep_ms(1000) # so data can be transmitted
 
     except asyncio.TimeoutError as e:
         print('connection-timeout', e)
@@ -72,7 +75,10 @@ async def main():
 
         aioble.stop()
         machine.lightsleep(1000)
+        #time.sleep_ms(1000)
 
+
+machine.freq(80000000)
 
 asyncio.run(main())
 

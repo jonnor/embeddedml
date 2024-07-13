@@ -19,10 +19,6 @@ from bleak.backends.characteristic import BleakGATTCharacteristic
 logger = logging.getLogger(__name__)
 
 
-def notification_handler(characteristic: BleakGATTCharacteristic, data: bytearray):
-    """Simple notification handler which prints the data received."""
-    logger.info("%s: %d %r %r", characteristic.description, len(data), data[0:4], data[-4:])
-
 
 async def main(args: argparse.Namespace):
     logger.info("starting scan...")
@@ -42,17 +38,31 @@ async def main(args: argparse.Namespace):
             logger.error("could not find device with name '%s'", args.name)
             return
 
-    logger.info("connecting to device...")
 
-    async with BleakClient(device) as client:
-        logger.info("Connected")
+    while True:
 
-        await client.start_notify(args.characteristic, notification_handler)
-        #await asyncio.sleep(5.0)
-        #await client.stop_notify(args.characteristic)
+        async with BleakClient(device) as client:
+            data = bytearray()
 
-        # run forever
-        await asyncio.Future()
+            print("Connected", len(data))
+
+            # HACK: we get a zero byte response on the first requests
+            while len(data) == 0:
+                print('try read')
+                try:
+                    data = await client.read_gatt_char(args.characteristic)
+                except Exception as e:
+                    print('read-exception', e)
+                    break
+
+            print('read', len(data), data[0:4], data[-4:])
+
+        #asyncio.
+
+
+
+    # run forever
+    await asyncio.Future()
 
 
 if __name__ == "__main__":
