@@ -146,12 +146,14 @@ def build_rnn(meta):
 
     from keras import layers, models
 
-    gru_units = 8
+    gru_units = 16
     dropout = 0.25
     model = models.Sequential([
         layers.Input(shape=input_shape),
         layers.TimeDistributed(layers.Dense(8)),
         layers.GRU(gru_units, return_sequences=False),
+        layers.Dense(32, activation='relu'),
+        layers.Dropout(dropout),
         layers.Dense(n_classes),
         layers.Activation("softmax"),
     ])
@@ -227,7 +229,7 @@ def main():
 
     from scikeras.wrappers import KerasClassifier
     clf = KerasClassifier(
-        build_cnn,
+        build_rnn,
         loss="sparse_categorical_crossentropy",
         epochs=200,
         fit__validation_split=0.2,
