@@ -12,9 +12,10 @@ from secrets import WIFI_SSID, WIFI_PASSWORD
 # https://github.com/tuupola/micropython-mpu6886/blob/master/mpu6886.py
 from mpu6886 import MPU6886, SF_G, SF_DEG_S
 
+wlan = network.WLAN(network.STA_IF)
+
 def wifi_connect(timeout=5.0):
 
-    wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
 
     if wlan.isconnected():
@@ -56,12 +57,10 @@ def main():
     # M5StickC we need to set HOLD pin to stay alive when on battery
     hold_pin.value(1)
 
-    wifi_connect(timeout=30.0)
-
     print('start-time', time.localtime())
 
     def data_chunks():
-        for i in range(10):
+        for i in range(20):
             n_bytes = 2*3*50
             data = bytearray(n_bytes)
             yield data
@@ -80,13 +79,23 @@ def main():
         led_pin.value(0)
 
         start_time = time.ticks_ms()
-        for i in range(6):
-            response = requests.request("POST", url, data=data_chunks())
-            print('response', response.status_code)
+
+        wifi_connect(timeout=30.0)
+
+        for i in range(3):
+            try:
+                response = requests.request("POST", url, data=data_chunks())
+                print('response', response.status_code)
+            except Exception as e:
+                print('request-error', e)
         duration = time.ticks_diff(time.ticks_ms(), start_time)
+
         print('batch-send-done', duration)
 
-        time.sleep(5.0)
+        #time.sleep(10.0)
+        wlan.active(False)
+        for i in range(10):
+            machine.lightsleep(1_000)
 
 if __name__ == '__main__':
     main()
