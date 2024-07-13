@@ -117,7 +117,7 @@ def build_cnn(meta):
 
     print('input', input_shape, meta["X_shape_"])
   
-    filters_start = 8
+    filters_start = 16
     dropout = 0.25
     model = models.Sequential([
         layers.Input(shape=input_shape),
@@ -171,7 +171,7 @@ def main():
         dataset = load_mini_speech_commands(path)
 
     # XXX: scaling from 1k to 2k sample took time from 15 seconds per fold to 50 seconds per fold with KNN
-    dataset = dataset.sample(n=1000, random_state=1).reset_index()
+    dataset = dataset.sample(n=len(dataset), random_state=1).reset_index()
 
     print(dataset)
     print('groups', dataset.speaker.nunique())
@@ -225,19 +225,18 @@ def main():
     #clf = RandomForestClassifier(n_estimators=100)
 
 
-    """
     from scikeras.wrappers import KerasClassifier
     clf = KerasClassifier(
-        build_rnn,
+        build_cnn,
         loss="sparse_categorical_crossentropy",
         epochs=200,
         fit__validation_split=0.2,
-        optimizer='rmsprop',
+        optimizer='adam',
         optimizer__learning_rate=0.001,
-        batch_size=64,
+        batch_size=128,
+        metrics=['accuracy'],
         #hidden_layer_dim=100,
     )
-    """
 
     splitter = GroupShuffleSplit(n_splits=3, test_size=0.2)
     res = cross_validate(clf, X, dataset.command,
