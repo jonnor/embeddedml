@@ -183,7 +183,7 @@ def main():
     recordings_dir = path
 
     features = compute_features(dataset.file, recordings_dir,
-        mean_normalize=True, variance_normalization=False, drop_zero=True, lifter=0,
+        mean_normalize=True, variance_normalization=True, drop_zero=True,
     )
 
     shapes = [ f.shape[1] for f in features ]
@@ -229,7 +229,7 @@ def main():
 
     from scikeras.wrappers import KerasClassifier
     clf = KerasClassifier(
-        build_rnn,
+        build_cnn,
         loss="sparse_categorical_crossentropy",
         epochs=200,
         fit__validation_split=0.2,
@@ -242,7 +242,7 @@ def main():
 
     splitter = GroupShuffleSplit(n_splits=3, test_size=0.2)
     res = cross_validate(clf, X, dataset.command,
-            #cv=splitter, groups=dataset.speaker,
+            cv=splitter, groups=dataset.speaker,
             verbose=2, return_train_score=True
     )
     res = pandas.DataFrame.from_records(res)
