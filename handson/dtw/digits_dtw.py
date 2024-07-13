@@ -126,6 +126,7 @@ def build_rnn(meta):
     dropout = 0.25
     model = models.Sequential([
         layers.Input(shape=input_shape),
+        layers.TimeDistributed(layers.Dense(8)),
         layers.GRU(gru_units, return_sequences=False),
         layers.Dense(n_classes),
         layers.Activation("softmax"),
@@ -141,7 +142,7 @@ def main():
     dataset = load_digits_dataset(path)
 
     # XXX: scaling from 1k to 2k sample took time from 15 seconds per fold to 50 seconds per fold with KNN
-    dataset = dataset.sample(n=1000, random_state=1).reset_index()
+    #dataset = dataset.sample(n=1000, random_state=1).reset_index()
 
     print(dataset)
     print('groups', dataset.speaker.nunique())
@@ -160,8 +161,6 @@ def main():
 
     from tslearn.neighbors import KNeighborsTimeSeriesClassifier
 
-    test_groups = dataset.speaker.sample(n=2, random_state=1)
-    train_groups = dataset.speaker
 
     from sklearn.model_selection import cross_validate
     from sklearn.model_selection import GroupShuffleSplit
@@ -195,17 +194,18 @@ def main():
     from sklearn.ensemble import RandomForestClassifier
     #clf = RandomForestClassifier(n_estimators=100)
 
-    """
+
     from scikeras.wrappers import KerasClassifier
     clf = KerasClassifier(
         build_cnn,
         loss="sparse_categorical_crossentropy",
-        epochs=60,
-        fit__validation_split=0.2, 
+        epochs=200,
+        fit__validation_split=0.2,
+        optimizer='rmsprop',
         optimizer__learning_rate=0.001,
+        batch_size=64,
         #hidden_layer_dim=100,
     )
-    """
 
     splitter = GroupShuffleSplit(n_splits=3, test_size=0.2)
     res = cross_validate(clf, X, dataset.digit,
