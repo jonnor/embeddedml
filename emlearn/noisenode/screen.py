@@ -99,9 +99,11 @@ mic_samples_mv = memoryview(mic_samples)
 
 soundlevel_db = 0.0
 
+MIC_DBFS=-26 # MSM261S4030H0R
+
 meter = SoundlevelMeter(buffer_size=chunk_samples,
     samplerate=AUDIO_SAMPLERATE,
-    mic_sensitivity=0,
+    mic_sensitivity=MIC_DBFS,
 )
 
 
@@ -109,12 +111,12 @@ def audio_ready_callback(arg):
     global soundlevel_db
     start_time = time.ticks_ms()
 
-    db = meter.process(samples)
+    db = meter.process(mic_samples)
     soundlevel_db = db
 
     duration = time.ticks_diff(time.ticks_ms(), start_time)
 
-    print('audio-ready', time.ticks_ms(), rms, duration)
+    #print('audio-ready', time.ticks_ms(), db, duration)
 
     # re-trigger audio
     num_read = audio_in.readinto(mic_samples_mv)
@@ -133,8 +135,8 @@ def main():
 
     while True:
         render_display(db=soundlevel_db)
-        print('main-loop-iter', soundlevel_db)
-        time.sleep_ms(100)
+        #print('main-loop-iter', soundlevel_db)
+        time.sleep_ms(200)
 
 if __name__ == '__main__':
     main()

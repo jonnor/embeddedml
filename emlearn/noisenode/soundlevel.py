@@ -8,33 +8,40 @@ def assert_array_typecode(arr, typecode):
     assert actual_typecode == typecode, (actual_typecode, typecode)
 
 
-@micropython.native
+#@micropython.native
 def rms_micropython_native(arr):
-    acc = 0
+    acc = 0.0
     for i in range(len(arr)):
         v = arr[i]
-        acc += (v * v)
+        p = (v * v)
+        acc += p
     mean = acc / len(arr)
     out = math.sqrt(mean)
     return out
 
-@micropython.native
-def time_integrate_native(arr, time_constant, initial):
+#@micropython.native
+def time_integrate_native(arr, initial, time_constant, samplerate):
     acc = initial
-    a = time_constant
+    dt = 1.0/samplerate
+    a = dt / (time_constant + dt)
+    #print('a', a)
+
     for i in range(len(arr)):
         v = arr[i]
         p = (v * v) # power is amplitude squared
-        acc = a*p + (1-a)*acc # exponential time weighting aka 1st order low-pass filter
-    mean = acc / len(arr)
-    out = math.sqrt(mean)
-    return (acc, out)
+        # exponential time weighting aka 1st order low-pass filter
+        #acc = (a*p) + ((1-a)*acc) 
+        acc = acc + a*(p - acc) # exponential time weighting aka 1st order low-pass filter
+        #acc += p
+
+    return acc
 
 class SoundlevelMeter():
 
     def __init__(self, buffer_size,
         samplerate,
         mic_sensitivity,
+        time_integration=0.125,
         ):
 
         self._buffer_size = buffer_size
@@ -45,23 +52,33 @@ class SoundlevelMeter():
 
         self._power_integrated_fast = 0.0
         self._samplerate = samplerate
+        self._time_integration = time_integration
 
     def process(self, samples):
         assert len(samples) == self._buffer_size
         assert_array_typecode(samples, 'h')
-        #rms = rms_micropython_native(samples)
 
-        a = 0.125#/self._samplerate
-        p, rms = time_integrate_native(samples, a, self._power_integrated_fast)
-        self._power_integrated_fast = p
+        # FIXME: implement A-weighting
 
-        #rms = rms_micropython_native(samples)
+        spl_max = 94 - self._sensitivity_dbfs
+        ref = 2**15
 
-        db = 20*math.log10(rms/1.0)
-        spl_max = 94 -- self._sensitivity_dbfs
-        db += (spl_max + 30) # XXX: fudge factor. what is the correct reference?
+        # no integration - "linear"
+        if self._time_integration is None:
+            rms = rms_micropython_native(samples)
+        else:
+            p = time_integrate_native(samples,
+                self._power_integrated_fast,
+                self._time_integration,
+                self._samplerate,
+            )
+            self._power_integrated_fast = p
+            rms = math.sqrt(p)
 
-        return db
+        level = 20*math.log10(rms/ref)
+        level += (spl_max)
+
+        return level
 
 def read_wave_header(wav_file):
     # based on https://github.com/miketeachman/micropython-i2s-examples/blob/master/examples/wavplayer.py
@@ -133,19 +150,20 @@ def read_wav(file, samplerate, frames):
 def test_soundlevel():
 
     SR = 16000
-    chunk_size = 256
-    meter = SoundlevelMeter(buffer_size=chunk_size, samplerate=SR, mic_sensitivity=-26)
+    chunk_size = 128
+    mic_dbfs = -25
+    fast_meter = SoundlevelMeter(chunk_size, SR, mic_dbfs, time_integration=0.125)
+    linear_meter = SoundlevelMeter(chunk_size, SR, mic_dbfs, time_integration=None)
 
     with open('out.csv', 'w') as out:
         with open('test_burst.wav', 'rb') as f:
             t = 0.0
             for chunk in read_wav(f, SR, frames=chunk_size):
                 #print(min(chunk), max(chunk))
-                rms = rms_micropython_native(chunk)
-                level = 20*math.log10(rms/1.0)
-                level += ((94 -- meter._sensitivity_dbfs) + 30) # XXX: fudge factor. what is the correct reference?
 
-                lf = meter.process(chunk)
+                lf = fast_meter.process(chunk)
+                level = linear_meter.process(chunk)
+
                 t += ( len(chunk)/SR )
 
                 line = '{0:.3f},{1:.1f},{2:.1f}'.format(t, level, lf)
