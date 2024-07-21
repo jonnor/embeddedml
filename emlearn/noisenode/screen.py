@@ -11,9 +11,9 @@ from machine import I2S
 from machine import I2C, Pin
 from machine import Pin, SoftI2C
 
-
 # Setups up the display
 from color_setup import ssd
+from soundlevel import SoundlevelMeter
 
 # On a monochrome display Writer is more efficient than CWriter.
 from gui.core.writer import Writer
@@ -25,25 +25,6 @@ from gui.widgets.label import Label
 import gui.fonts.courier20 as fixed
 import gui.fonts.font6 as small
 
-
-def rms_python(arr):
-    acc = 0.0
-    for i in range(len(arr)):
-        v = float(arr[i])
-        acc += (v * v)
-    mean = acc / len(arr)
-    out = math.sqrt(mean)
-    return out
-
-@micropython.native
-def rms_micropython_native(arr):
-    acc = 0
-    for i in range(len(arr)):
-        v = arr[i]
-        acc += (v * v)
-    mean = acc / len(arr)
-    out = math.sqrt(mean)
-    return out
 
 def render_display(db : float):
     start_time = time.ticks_ms()
@@ -118,21 +99,18 @@ mic_samples_mv = memoryview(mic_samples)
 
 soundlevel_db = 0.0
 
+meter = SoundlevelMeter(buffer_size=chunk_samples,
+    samplerate=AUDIO_SAMPLERATE,
+    mic_sensitivity=0,
+)
+
+
 def audio_ready_callback(arg):
     global soundlevel_db
     start_time = time.ticks_ms()
 
-    # TODO: apply A weighting filter
-    # Compute soundlevel
-    #rms = rms_python(mic_samples)
-    rms = rms_micropython_native(mic_samples)
-    #rms = 0.0
-    db = 20*math.log10(rms/1.0)
-
-    # TODO: apply mic sensitivity
+    db = meter.process(samples)
     soundlevel_db = db
-
-    # TODO: apply fast weighting
 
     duration = time.ticks_diff(time.ticks_ms(), start_time)
 
