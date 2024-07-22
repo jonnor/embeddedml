@@ -3,10 +3,13 @@ import math
 import struct
 import array
 
+from iir import IIRFilter
+
 def assert_array_typecode(arr, typecode):
     actual_typecode = str(arr)[7:8]
     assert actual_typecode == typecode, (actual_typecode, typecode)
 
+a_filter_16k = [1.0383002230320646, 0.0, 0.0, 1.0, -0.016647242439959593, 6.928267021369795e-05, 1.0, -2.0, 1.0, 1.0, -1.7070508390293027, 0.7174637059318595, 1.0, -2.0, 1.0, 1.0, -1.9838868447331497, 0.9839517531763131]
 
 #@micropython.native
 def rms_micropython_native(arr):
@@ -54,11 +57,23 @@ class SoundlevelMeter():
         self._samplerate = samplerate
         self._time_integration = time_integration
 
+        self.frequency_filter = IIRFilter(a_filter_16k)
+        self.float_array = array.array('f', (0 for _ in range(buffer_size)))
+
     def process(self, samples):
         assert len(samples) == self._buffer_size
         assert_array_typecode(samples, 'h')
 
-        # FIXME: implement A-weighting
+        # Apply frequency weighting
+        if True:
+            for i in range(len(samples)):
+                self.float_array[i] = samples[i]/32768.0
+            self.frequency_filter.process(self.float_array)
+            for i in range(len(samples)):
+                samples[i] = int(self.float_array[i]*32768)
+
+        #print(self.float_array)
+        #print(samples)
 
         spl_max = 94 - self._sensitivity_dbfs
         ref = 2**15
