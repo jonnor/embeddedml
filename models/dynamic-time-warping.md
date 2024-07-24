@@ -116,6 +116,15 @@ Wearable Real-time Air-writing System Employing KNN and Constrained Dynamic Time
 https://ieeexplore.ieee.org/document/10118944
 Constrained dynamic time warping (cDTW) algorithm for the distance measure and K-nearest neighbors (KNN) as the classifier
 
+tslearn implements DTW and KNN with DTW.
+Has a very pedagogical description of how it works.
+https://tslearn.readthedocs.io/en/stable/user_guide/dtw.html
+
+librosa implements DTW
+https://librosa.org/doc/latest/generated/librosa.sequence.dtw.html
+Supports Sakoe-Chiba constraints.
+Also backtracking?
+
 
 ### Practical hints
 

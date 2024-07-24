@@ -95,6 +95,15 @@ Uses a bitvector for the comparison operations.
 Split by sample. Only works for batch predictions.
 Split by tree. Works also for single sample. 
 
+##
+
+#### Bolt: Fast Inference for Random Forests
+
+Conceptually, Bolt maps every path in each tree to a lookup table which,
+if cache were large enough, would allow inference with just one memory access.
+
+Compared with Python Scikit-Learn, Ranger, and Forest Packing.
+olt can run 2–14X faster.
 
 ## Adaptive inference
 
@@ -219,6 +228,20 @@ trucks. Ram Bahadur Gurung. PhD thesis.
 
 Comparing Histogram Data Using a Mahalanobis–Wasserstein Distance.
 R. Verde, A. Irpino. 2008
+
+## Compression
+
+#### Lossless Compression of Random Forests
+https://jcst.ict.ac.cn/en/article/pdf/preview/10.1007/s11390-019-1921-0.pdf
+Amichai Painsky and Saharon Rosset
+2018.
+
+Shows compression rates of 40x for lossless. And 100x or more for lossy.
+Using a Zaks sequence for the tree structure.
+Models thresholds as per-feature probability distributions.
+Uses Huffman coding.
+Can predict from the compressed representation.
+Tested quantizing the leaf values for regression. Found 8-12 bits sufficient for maxing performance.
 
 ## Online learning
 
