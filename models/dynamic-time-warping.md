@@ -73,6 +73,12 @@ TACos: Learning Temporally Structured Embeddings for Few-Shot Keyword Spotting w
 HFCC-ENS. Perceptual audio features for unsupervised key-phrase detection. (Zeddelmann et al, 2010).
 Claims better than MFCC on key-phrase detection.
 
+### Advanced feature extraction with DTW
+
+WHEN: A Wavelet-DTW Hybrid Attention Network for Heterogeneous Time Series Analysis
+https://dl.acm.org/doi/abs/10.1145/3580305.3599549
+KDD 2023.
+
 
 ### Efficient implementations
 
@@ -124,6 +130,73 @@ librosa implements DTW
 https://librosa.org/doc/latest/generated/librosa.sequence.dtw.html
 Supports Sakoe-Chiba constraints.
 Also backtracking?
+
+### Variations
+
+#### Amerced Dynamic Time Warping (ADTW)
+
+https://arxiv.org/abs/2111.13314
+November 2021.
+
+https://www.sciencedirect.com/science/article/pii/S0031320323000341
+May 2023.
+
+> Introduction of a novel constraint, amercing — the application of a simple additive penalty every time an alignment is warped (i-j changes).
+> ...
+> This addresses the following problems:
+> - DTWFull can be too flexible in its alignments;
+> - DTW uses a crude step function — any flexibility is allowed within the window and none beyond it;
+> - WDTW applies a multiplicative weight, and hence promotes large degrees of warping if they lead to low cost alignments
+
+Implemented in Aeon: [Amercing Dynamic Time Warping](https://www.aeon-toolkit.org/en/stable/api_reference/distances.html#amerced-dynamic-time-warping-adtw)
+
+
+#### Time Series Alignment with Global Invariances (DTW GI)
+https://arxiv.org/abs/2002.03848
+Feb 2020
+
+https://rtavenar.github.io/hdr/parts/01/dtw/dtw_gi.html
+
+Considered for implementation in https://github.com/aeon-toolkit/aeon/issues/444
+
+
+#### ProximityForest
+
+https://arxiv.org/abs/1808.10594
+August 2018.
+
+> Whereas conventional decision trees branch on attribute values (and usually perform poorly on time series)
+> Proximity Trees branch on the proximity of time series to one exemplar time series or another;
+> allowing us to leverage the decades of work into developing relevant measures for time series.
+> ...
+> Our experiments demonstrate that Proximity Forest is highly competitive on the UCR archive:
+> it ranks among the most accurate classifiers while being significantly faster.
+
+Implementations
+
+- sktime. Implemented https://www.sktime.net/en/stable/api_reference/auto_generated/sktime.classification.distance_based.ProximityForest.html
+- aeon. Planned. https://github.com/aeon-toolkit/aeon/issues/159
+- https://github.com/moradabaz/ProximityForests-python - uses dtaidistances - unmaintained since 2020
+
+Splits based on the similarity of instances to chosen time series exemplars.
+Each splitter consists of a set of exemplar time series for each class and a parameterized similarity measure, both chosen randomly.
+
+!! should be much faster than KNN-DTW. And potentially more powerful
+Not as easy learn on-device though.
+
+#### ProximityForest 2.0
+Similarity-based classifier.
+Extends the original ProximityForest.
+Builds on Amerced Dynamic Time Warping (ADTW). Also uses constrained DTW for speedups.
+
+Predictive performance on UCR slightly better than ProximityForest 1.0.
+A little bit lower than MultiRocket, HIVE COTE and TS-CHIEF.
+Slightly faster than ProximityForest 1.0 for higher complexity tasks.
+
+https://github.com/monashts/proximityforest2.0
+Implemented in C++, with Python bindings.
+Looks primarily to reproduce their paper/benchmarks.
+Not much documentation for how to use for other things?
 
 
 ### Practical hints

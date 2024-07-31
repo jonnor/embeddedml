@@ -27,7 +27,7 @@ Working at Computer, Standing Up/Walking/Going up\down stairs, Standing, Walking
 * [PAMAP2 Physical Activity Monitoring Data Set](https://archive.ics.uci.edu/ml/datasets/PAMAP2+Physical+Activity+Monitoring).
 100 Hz, 3 IMUs: wrist,chest,ankle. Heartrate 9Hz. 18 physical activities, performed by 9 subjects 
 * [LingAcceleration](http://www.ccs.neu.edu/home/intille/data/BaoIntilleData04.html). 20 activities, 20 subjects
-* [UCI: Daily and Sports Activities](https://archive.ics.uci.edu/dataset/256/daily+and+sports+activities).
+* [UCI-DSADS: UCI Daily and Sports Activities](https://archive.ics.uci.edu/dataset/256/daily+and+sports+activities).
 19 daily and sports activities.
 8 subjects in their own style. 5 minutes per parcicipant.
 Five Xsens MTx units are used on the torso, arms, and legs.
@@ -62,7 +62,19 @@ Academic Use Licence 1.1. Non-commercial.
 Smartphone in trouser pocket.
 6 activities.
 24 data subjects.
-
+- [UCI-HAR. Human Activity Recognition Using Smartphones](https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones).
+30 volunteers within an age bracket of 19-48 years.
+Six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on the waist.
+3-axial linear acceleration and 3-axial angular velocity at a constant rate of 50Hz.
+Split into of 2.56 sec and 50% overlap (128 readings/window).
+Pre-computed features also available.
+NOTE: replaced by http://archive.ics.uci.edu/dataset/341/smartphone+based+recognition+of+human+activities+and+postural+transitions, which has original time-series.
+- [HARTH: A Human Activity Recognition Dataset for Machine Learning](https://www.mdpi.com/1424-8220/21/23/7853).
+Twenty-two participants. Recorded for 90 to 120 min during their regular working hours.
+Using two three-axial accelerometers, attached to the thigh and lower back.
+Sampling rate of 50 Hz.
+Paper published in MDPI Sensors.
+Hosted by NTNU on Github. Researchers from various universities in Norway.
 
 
 ## Existing work

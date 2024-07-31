@@ -269,3 +269,123 @@ Using multiple histograms that are summed up to make
 Could enable learning 
 
 
+## Interval-based models
+
+For time-series / sequence classification.
+Ideally suited for data like spectra, where a particular section (interval) of the sequence is discriminative.
+
+
+#### Bake off redux: a review and experimental evaluation of recent time series classification algorithms
+https://link.springer.com/article/10.1007/s10618-024-01022-1
+
+contains many interval-based tree-based methods, such as
+
+- Time Series Forest (TSF)
+- Random Interval Spectral Ensemble (RISE), from HIVE-COTE
+- Supervised Time Series Forest (STSF)
+- Randomised STSF (R-STSF)
+- Canonical Interval Forest (CIF)
+- Diverse Representation Canonical Interval Forest (DrCIF)
+- QUANT
+
+Paper shows predictive performance results on UCR UTSC dataset.
+All are much better than 1NN-DTW.
+QUANT, DrCIF and R-STSF are the best.
+
+CIF and DrCIF have multivariate capabilities.
+
+"QUANT as the best in class because it is significantly faster than DrCIF and RSTSF".
+
+Many of these are implemented in sktime, https://www.sktime.net/en/latest/examples/classification/interval_based_classification.html
+
+And also in aeon, https://www.aeon-toolkit.org/en/latest/examples/classification/interval_based.html
+
+TS-CHIEF comprises an ensemble of trees that embed distance, dictionary, and spectral base features.
+At each node, a number of splitting criteria from each of these representations are considered.
+The dictionary based splits are based on BOSS, distance splits based on EE and interval splits based on RISE.
+
+HIVE-COTE version 2. Ensemble, consisting of STC, TDE, DrCIF, Arsenal/ROCKET.
+Highest performing on 
+
+#### Time Series Forest
+
+> Time Series Forest (TSF)√(Deng et al. 2013) is the simplest interval based tree based ensemble.
+> For each tree, sqrt(m) (following the notation from Chapter 2, where m is the length of the series and d is the number of dimensions)
+> intervals are selected with a random position and length.
+> The same interval offsets are applied to all series. 
+> For each interval, three summary statistics (the mean, variance and slope) are extracted and concatenated into a feature vector.>
+
+#### QUANT
+https://arxiv.org/abs/2308.00928
+https://link.springer.com/article/10.1007/s10618-024-01036-9
+
+Code: https://github.com/angus924/quant
+
+QUANT (Dempster et al. 2023) employs a singular feature type, quantiles, to encapsulate the distribution of a given time series.
+The method combines four distinct representations:
+
+- raw time series
+- first-order differences
+- Fourier coefficients
+- second-order differences.
+
+The extraction process involves fixed, dyadic intervals derived from the time series.
+
+These disjoint intervals are constructed through a pyramid structure, where each level successively halves the interval length.
+At depths greater than one, an identical set of intervals, shifted by half the interval length, is also included.
+Each representation can have up to 120 intervals, resulting in a total of 480 intervals across all four representations.
+
+Computing m ∕ 4 quantiles per interval (where m is interval length),
+and subtracting the interval mean from every second quantile.
+
+Used Extratrees classifier, with 200 trees, and 10% max_features, 'entropy' as the splitting criterion.
+
+Two hyperparameters.
+
+- depth, which controls the number of intervals. Default depth=6, for 120 intervals per 4 transform = 420 total
+- proportion of quantiles per interval. Default=4. m/v quantiles per interval, where is interval length.
+Interval length is dependent on time-series length. So total number of features becomes proportional to time series length.
+
+
+> We find that it is also beneficial to use the second difference,
+> although the improvement in accuracy is marginal: see Sect. 4.2.2.
+> We find that it is beneficial to smooth the first difference by applying a simple moving average.
+> Again, the effect seems to be relatively small.
+
+> We find that it is beneficial, to subtract the interval mean (that is, the mean of all of the values in the interval) from every second quantile:
+> Subtracting the mean from every second quantile allows for capturing both the ‘raw’ distribution of values and the ‘shape’ of the distribution
+> (i.e., divorced from mean of the values in a given interval)
+> Note, however, that the effect of subtracting the mean from half of the quantiles versus not subtracting the mean is relatively small
+
+> With a sublinear number of candidate features per split,
+> as the size of the feature space grows, the probability of any given feature being considered decreases.
+> To this end, we find that it is beneficial to increase the number of candidate features per split to a linear proportion of the total number of features
+> in particular, 10% of the total number features
+
+> We leave the extension of the method to variable-length and multivariate time series to future work.
+
+Implementation in Python/Pytorch is just 100 lines of code.
+
+Considerably more powerful than catch22 or tsfresh.
+
+! Great candidate for embedded uses.
+Simple, computationally efficient, can be used in combination with standard emlearn trees.
+Well suited for integer based computation.
+Can be done in a reasonable amount of memory.
+? should be possible to extract only the features that are used.
+?? maybe possible to extract on-demand
+Would need to encode: interval (`<120` options typical), transform (4 options), quantile number (typical 4). Fits in 16 bits??
+Need to perform a sort - inside the interval.
+Might be able to pre-sort or share sorting for efficiency gains?
+
+Can probably drop the second derivative feature.
+Depth=4 gives nearly identical average performance as depth=6. Many fewer features.
+
+?? what about a convolutional (FIR) or IIR transform before the interval picking
+Alternatively some Wavelet.
+
+Author is also associated with Rocket.
+So odd that if a convolutional kernel has not been consided?
+
+
+
