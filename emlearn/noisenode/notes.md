@@ -52,3 +52,16 @@ https://picocss.com/docs/container
 
 Here is a small library that also supports MicroPython
 https://github.com/j4mie/hotmetal/
+
+
+## IoT platforms
+
+Especially to store IoT sensor data and device metrics, visualize in dashboards, and allow to retrieve.
+Focus on open source and affordable for small organizations and independent makers.
+Must support either HTTP or MQTT for data ingestion.
+
+- https://thingsboard.io/
+- https://thingspeak.com/
+- Home Assistant - with History add-on
+- OpenHAB - with panel
+
