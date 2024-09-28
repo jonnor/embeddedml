@@ -1,4 +1,5 @@
 
+# Planning
 
 #### Intended audience and expected background
 
@@ -25,9 +26,11 @@ An emphasis will be on techiques and practices that enable efficiency.
 
 #### Take-aways
 
+- Sensor processing applications cover a wide range of usecases.
 - Python is a productive environment on microcontrollers. Thanks to MicroPython
 - For under 20 USD you get a complete device that runs MicroPython. With WiFI+BLE and sensors. ESP32
 - It is easy to get started with MicroPython. Flash firmware, get a terminal. mpremote tool. mip install libraries. Thonny as a simple IDE
+
 - MicroPython has a range of tools for efficient code execution. ABC
 - Accelerometer/IMU data processing can be done entirely in Python.
 For gesture detection, activity detection, sleep tracking, et.c.
@@ -49,13 +52,14 @@ emlearn - Machine Learning and Digital Signal Processing modules for MicroPython
 https://github.com/emlearn/emlearn-micropython
 
 
-## Outline
+# Outline
 
 Maybe start with an end-to-end demo/usecase?
 Then discuss the various pieces.
 KEY: keep the efficient data processing as the core
 
 - Motivation. Sensor usecases. Measuring, logging, acting, regulating.
+
 - BRIEF. (Wireless) Sensor Network concept. 
 Wireless communication. Battery power.
 - BRIEF. Sensor node concept.
@@ -80,12 +84,103 @@ Internal FLASH. Memory card
 - BRIEF. Sending data
 MQTT, HTTP, BLE. LoRa ?
 
-## Demo
+## Example cases, by increasing levels of complexity
+
+#### Temperature sensor
+
+Phenomena is inherently slow. Values change seldom. Want 1 value that represents a long-ish time interval.
+Strategy: Sample, filter, transmit, sleep/repeat.
+Data rate in. Under 10 bytes per 1 minute
+Data rate out. Under 1 byte per 1 minute
+Aqucition. Reject outliers. N measurements with a bit of spacing. Blocking read often OK. Non-blocking also quite easy. Optional: Use async
+Other similar examples.
+- Waterflow/pressure in continious running pump system.
+- Electricity consumptions for continious running systems
+
+Trivially doable in pure Python.
+
+import machine
+
+N_SAMPLES = 10
+SAMPLE_INTERVAL = 1.0
+SLEEP_INTERVAL = 60.0
+
+analog_input = machine.ADC(machine.Pin(22))
+samples = array.array('H') # raw values from ADC, as uint16
+measurement_no = 0
+
+while True:
+
+    # collect data for measurement
+    for i in range(N_SAMPLES):
+        samples[i] = adc.read_u16()
+        time.sleep(SAMPLE_INTERVAL)
+
+    # aggregate samples, convert to temperature
+    raw = median(samples)
+    temperature = (raw * 0.323) - 50.0 # calculation depends on type of analog sensor
+
+    # Do something with the measurement
+    send_bluetooth_le(measurement_no, temperature)
+
+    # sleep until next time to collect new measurement
+    machine.lightsleep(int(SLEEP_INTERVAL*1000))
+    measurement_no += 1
+
+def median(data):
+    data = sorted(data)
+    n = len(data)
+    if n % 2 == 1:
+        return data[n//2]
+    else:
+        i = n//2
+        return (data[i - 1] + data[i])/2
+
+def send_bluetooth_le(sequence, temperature, advertisements=4, advertise_interval_ms=250, format=0xAA, version=0x01):
+    # ref https://github.com/jonnor/embeddedml/blob/master/handson/micropython-ble/ble_advertise_custom.py
+
+    # Start BLE
+    import bluetooth
+    ble = bluetooth.BLE()   
+    ble.active(True)
+
+    # Encode data as BLE advertisement. Max 29 bytes
+    data = bytearray()
+    data += struct.pack('B', format)
+    data += struct.pack('B', version)
+    data += struct.pack('>H', sequence)
+    data += struct.pack('>H', (temperature*100)) # centigrade signed integer
+
+    payload = manufacturer_specific_advertisement(data)
+    advertise_us = int(1000*advertise_interval_ms)
+    ble.gap_advertise(advertise_us, adv_data=payload, connectable=False)
+
+    time.sleep_ms(advertisements*advertise_interval_ms)
+
+    # Turn of BLE
+    ble.active(False)
 
 
-IoT sound sensor. 
+#### Human/Animal Activity Detection.
+Accelerometer
 
-Alternative. Accelerometer sensor. M5StickC
+Accelerometer processing doable in pure Python.
+ML classification can be a bit slow though.
+Better energy efficiency and more precise models by using C module from emlearn-micropython
+
+
+#### Noise sensor
+
+Sound Event Detection. Microphone
+
+
+
+#### Camera
+
+! SKIP mostly
+
+
+
 
 
 
