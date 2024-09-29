@@ -1,4 +1,18 @@
 
+# TODO
+
+- Join the Discord
+- Create all skeleton slides
+- Fill inn all code examples
+
+- Full rehearsal
+
+
+- Install Discord desktop app
+- Test video sharing in Discord app
+
+
+
 # Planning
 
 #### Intended audience and expected background
@@ -42,15 +56,23 @@ for Digital Signal Processing and Machine Learning algorithms.
 
 #### Resources
 
-Extending MicroPython in C
+Docs: Extending MicroPython in C
 https://docs.micropython.org/en/latest/develop/extendingmicropython.html
 
-Maximising MicroPython speed
+Docs: Maximising MicroPython speed
 https://docs.micropython.org/en/latest/reference/speed_python.html
+
+PyConAU 2018: Writing fast and efficient MicroPython (Damien George)
+https://www.youtube.com/watch?v=hHec4qL00x0
+
+PyConAU 2019: Extending MicroPython: Using C for good!" (Matt Trentini)
+https://www.youtube.com/watch?v=437CZBnK8vI
+
+PyConAU 2018: Asyncio in (Micro)Python (Matt Trentini)
+https://www.youtube.com/watch?v=tIgu7q38bUw&t=830s
 
 emlearn - Machine Learning and Digital Signal Processing modules for MicroPython
 https://github.com/emlearn/emlearn-micropython
-
 
 # Outline
 
@@ -86,19 +108,64 @@ MQTT, HTTP, BLE. LoRa ?
 
 ## Example cases, by increasing levels of complexity
 
+MISSING
+
+- Inline Assembler. Not supported on ESP32 / xtensawin
+https://docs.micropython.org/en/latest/pyboard/tutorial/assembler.html
+@micropython.asm_thumb
+
+Temperature sensor
+
+- Analog/digital read
+- Non-blocking wait? state-machine or asyncio
+- ? 
+
+Activity detection
+
+- Block readout with FIFO
+- .mpy dynamic native module. For emlearn RandomForest
+
+Noise sensor
+
+- Block readout with I2S peripheral
+- Compare emlearn with ulab. IIR ? For A weighting filter. 
+- FFT ? For spectrogram
+
+Image classification
+
+- C module. mp_camera for ESP32
+
+OpenMV. 
+https://docs.openmv.io/library/index.html
+Compact in-memory representation of images. RGB565
+Rescaling. Color conversions.
+Image encoding and decoding. JPEG/PNG.
+Camera drivers.
+
 #### Temperature sensor
 
-Phenomena is inherently slow. Values change seldom. Want 1 value that represents a long-ish time interval.
-Strategy: Sample, filter, transmit, sleep/repeat.
-Data rate in. Under 10 bytes per 1 minute
-Data rate out. Under 1 byte per 1 minute
-Aqucition. Reject outliers. N measurements with a bit of spacing. Blocking read often OK. Non-blocking also quite easy. Optional: Use async
+Phenomena is inherently slow.
+Values change seldom. Want 1 value that represents a long-ish time interval.
+
+- Strategy: Sample, filter, transmit, sleep/repeat.
+- Data rate in. Under 10 bytes per 1 minute
+- Data rate out. Under 1 byte per 1 minute
+- Data aqucition.
+N measurements with a bit of spacing. Blocking read often OK. Non-blocking also quite easy. Optional: Use async
+- Processing.
+Reject outliers. Median
+
 Other similar examples.
 - Waterflow/pressure in continious running pump system.
 - Electricity consumptions for continious running systems
 
 Trivially doable in pure Python.
 
+https://carbon.now.sh/?bg=rgba%28171%2C+184%2C+195%2C+1%29&t=one-light&wt=none&l=python&width=680&ds=false&dsyoff=20px&dsblur=68px&wc=false&wa=true&pv=0px&ph=0px&ln=false&fl=1&fm=Hack&fs=17.5px&lh=148%25&si=false&es=2x&wm=false&code=import%2520machine%250A%250AN_SAMPLES%2520%253D%252010%250ASAMPLE_INTERVAL%2520%253D%25201.0%250ASLEEP_INTERVAL%2520%253D%252060.0%250A%250Aanalog_input%2520%253D%2520machine.ADC%28machine.Pin%2822%29%29%250Asamples%2520%253D%2520array.array%28%27H%27%29%2520%2523%2520raw%2520values%2520from%2520ADC%252C%2520as%2520uint16%250Ameasurement_no%2520%253D%25200%250A%250Awhile%2520True%253A%250A%250A%2520%2520%2520%2520%2523%2520collect%2520data%2520for%2520measurement%250A%2520%2520%2520%2520for%2520i%2520in%2520range%28N_SAMPLES%29%253A%250A%2520%2520%2520%2520%2520%2520%2520%2520samples%255Bi%255D%2520%253D%2520adc.read_u16%28%29%250A%2520%2520%2520%2520%2520%2520%2520%2520time.sleep%28SAMPLE_INTERVAL%29%250A%250A%2520%2520%2520%2520%2523%2520aggregate%2520samples%252C%2520convert%2520to%2520temperature%250A%2520%2520%2520%2520raw%2520%253D%2520median%28samples%29%250A%2520%2520%2520%2520temperature%2520%253D%2520%28raw%2520*%25200.323%29%2520-%252050.0%2520%2523%2520calculation%2520depends%2520on%2520type%2520of%2520analog%2520sensor%250A%250A%2520%2520%2520%2520%2523%2520Do%2520something%2520with%2520the%2520measurement%250A%2520%2520%2520%2520send_bluetooth_le%28measurement_no%252C%2520temperature%29%250A%250A%2520%2520%2520%2520%2523%2520sleep%2520until%2520next%2520time%2520to%2520collect%2520new%2520measurement%250A%2520%2520%2520%2520machine.lightsleep%28int%28SLEEP_INTERVAL*1000%29%29%250A%2520%2520%2520%2520measurement_no%2520%252B%253D%25201%250A%250A
+
+
+
+```
 import machine
 
 N_SAMPLES = 10
@@ -127,6 +194,10 @@ while True:
     machine.lightsleep(int(SLEEP_INTERVAL*1000))
     measurement_no += 1
 
+```
+
+
+```
 def median(data):
     data = sorted(data)
     n = len(data)
@@ -159,17 +230,49 @@ def send_bluetooth_le(sequence, temperature, advertisements=4, advertise_interva
 
     # Turn of BLE
     ble.active(False)
+```
 
 
 #### Human/Animal Activity Detection.
 Accelerometer
 
-Accelerometer processing doable in pure Python.
+Accelerometer generally processing doable in pure Python.
 ML classification can be a bit slow though.
 Better energy efficiency and more precise models by using C module from emlearn-micropython
 
 
+- HW. MEMS accelerometer / IMU. I2C
+- Strategy: Start, filter, transmit, sleep/repeat.
+- Data rate in. Under 10 bytes per 1 minute
+- Data rate out. Under 1 byte per 1 minute
+- Data aqucition.
+Use the FIFO buffer in the MEMS sensor.
+Check regularly samples are ready.
+Sleep in-between.
+When enough samples, process it.
+
+- Processing.
+Feature extraction. Statistical / FFT.
+Simple Machine Learning model classify activity. RandomForest
+Possible to generate Python code for such a model.
+Using
+
+But considerably faster if using a native .mpy module
+
+
+At 50 Hz, 20 ms per sample. Can get away with polling every.
+But much better is to use the FIFO buffer in the MEMS sensor.
+
+
+
+
+
+
+
+
 #### Noise sensor
+
+
 
 Sound Event Detection. Microphone
 
