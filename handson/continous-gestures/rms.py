@@ -3,8 +3,11 @@ import time
 import array
 import math
 import micropython
-from ulab import numpy
-
+numpy = None
+try:
+    from ulab import numpy
+except ImportError:
+    print('Failed to import ulab')
 
 def rms_python(arr):
     acc = 0.0
@@ -28,15 +31,38 @@ def rms_micropython_native(arr):
 
 # object is used for "float"
 @micropython.viper
-def rms_micropython_viper(arr) -> object:
+def rms_micropython_viper_overflows(arr) -> object:
     buf = ptr16(arr)
-    acc = 0
+    acc : int = 0
     l = int(len(arr))
     for i in range(l):
         v = int(buf[i])
-        acc += (v * v)
+        m = (v * v)
+        acc += m
     mean = float(acc) / float(l)
     out = math.sqrt(mean)
+    return out
+
+# Using a limited-precision aware approach based on Cumulative Moving Average
+# https://www.codeproject.com/Articles/807195/Precise-and-safe-calculation-method-for-the-averag
+@micropython.viper
+def rms_micropython_viper(arr) -> object:
+    buf = ptr16(arr) # XXX: input MUST BE h/uint16 array
+    l = int(len(arr))
+    cumulated_average : int = 0
+    cumulated_remainder : int = 0
+    addendum : int = 0
+    n_values : int = 0
+    for i in range(l):
+        v = int(buf[i])
+        value = (v * v) # square it
+        n_values += 1
+        addendum = value - cumulated_average + cumulated_remainder
+        cumulated_average += addendum // n_values
+        cumulated_remainder = addendum % n_values
+
+    # sqrt it
+    out = math.sqrt(cumulated_average)
     return out
 
 
@@ -61,11 +87,11 @@ def main():
        20851, 21182, 21513, 21844, 22175, 22506, 22837, 23168, 23499,
        23830, 24161, 24492, 24823, 25154, 25485, 25816, 26147, 26478,
        26809, 27140, 27471, 27802, 28133, 28464, 28795, 29126, 29457,
-       29788, 30119, 30450, 30781, 31112, 31443, 31774, 32105, 32436,
-       32767] * 2
+       29788, 30119, 30450, 30781, 31112, 31443, 31774, 32105, 32436, 32767,
+    ] * 1
 
     print('length', len(inp))
-    repeats = 1000
+    repeats = 100
 
     #print(repr(inp))
     a = array.array('h', inp)
@@ -88,6 +114,8 @@ def main():
     t = time.ticks_diff(time.ticks_us(), start) / repeats
     print('viper', t, vp)
 
+    if numpy is None:
+        print('ulab', '', '') # skipped
     start = time.ticks_us()
     a = numpy.array(a)
     for r in range(repeats):
