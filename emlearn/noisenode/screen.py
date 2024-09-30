@@ -100,12 +100,15 @@ mic_samples = array.array('h', (0 for _ in range(chunk_samples))) # int16
 mic_samples_mv = memoryview(mic_samples)
 
 soundlevel_db = 0.0
+next_display_update = 0.0
 
 MIC_DBFS=-26 # MSM261S4030H0R
 
 meter = SoundlevelMeter(buffer_size=chunk_samples,
     samplerate=AUDIO_SAMPLERATE,
     mic_sensitivity=MIC_DBFS,
+    time_integration=None,
+    frequency_weighting=None,
 )
 
 
@@ -136,9 +139,13 @@ def main():
     print('audio-start', num_read)
 
     while True:
-        render_display(db=soundlevel_db)
-        #print('main-loop-iter', soundlevel_db)
-        time.sleep_ms(200)
+        if time.time() >= next_display_update:
+            render_display(db=soundlevel_db)
+            last_display_update = time.time() + 0.100
+
+        print('main-loop-iter', soundlevel_db)
+        time.sleep_ms(10)
+
 
 if __name__ == '__main__':
     main()

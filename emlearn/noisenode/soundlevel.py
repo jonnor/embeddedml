@@ -48,6 +48,7 @@ class SoundlevelMeter():
         samplerate,
         mic_sensitivity,
         time_integration=0.125,
+        frequency_weighting='A',
         ):
 
         self._buffer_size = buffer_size
@@ -60,15 +61,21 @@ class SoundlevelMeter():
         self._samplerate = samplerate
         self._time_integration = time_integration
 
-        self.frequency_filter = IIRFilter(a_filter_16k)
-        self.float_array = array.array('f', (0 for _ in range(buffer_size)))
+        if not frequency_weighting:
+            self.frequency_filter = None
+        elif frequency_weighting == 'A':
+            self.frequency_filter = IIRFilter(a_filter_16k)
+            self.float_array = array.array('f', (0 for _ in range(buffer_size)))
+        else:
+            raise ValueError('Unsupported frequency_weighting')
 
     def process(self, samples):
         assert len(samples) == self._buffer_size
         assert_array_typecode(samples, 'h')
 
         # Apply frequency weighting
-        if True:
+        if self.frequency_filter:
+            # FIXME: use eml_iir_q15 instead
             for i in range(len(samples)):
                 self.float_array[i] = samples[i]/32768.0
             self.frequency_filter.process(self.float_array)
