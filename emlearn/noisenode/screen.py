@@ -11,10 +11,12 @@ from machine import I2S
 from machine import I2C, Pin
 from machine import Pin, SoftI2C
 
-# Setups up the display
-from color_setup import ssd
 from soundlevel import SoundlevelMeter
 
+# mpremote mip install "github:peterhinch/micropython-nano-gui/drivers/ssd1306"
+from color_setup import ssd
+
+# mpremote mip install "github:peterhinch/micropython-nano-gui"
 # On a monochrome display Writer is more efficient than CWriter.
 from gui.core.writer import Writer
 from gui.core.nanogui import refresh
@@ -116,7 +118,7 @@ def audio_ready_callback(arg):
 
     duration = time.ticks_diff(time.ticks_ms(), start_time)
 
-    #print('audio-ready', time.ticks_ms(), db, duration)
+    print('audio-ready', time.ticks_ms(), db, duration)
 
     # re-trigger audio
     num_read = audio_in.readinto(mic_samples_mv)

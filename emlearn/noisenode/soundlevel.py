@@ -5,6 +5,9 @@ import array
 
 from iir import IIRFilter
 
+# A method for computing A weighting filters etc for any sample-rate
+# https://www.dsprelated.com/thread/10546/a-weighting-filter
+
 def assert_array_typecode(arr, typecode):
     actual_typecode = str(arr)[7:8]
     assert actual_typecode == typecode, (actual_typecode, typecode)
