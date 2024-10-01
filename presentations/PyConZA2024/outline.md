@@ -278,6 +278,35 @@ Sound Event Detection. Microphone
 
 
 
+A weighting
+IIR filter.
+Python with takes 
+
+Have 125 ms to handle each 16k sample buffer
+
+IIR filter
+RMS calculation
+Time integration
+
+
+IIR filter.
+    Floating point with @micropython.native. 1100 ms !!!
+    Just int16 -> float -> int16 conversion. 120 ms !! 
+
+            for i in range(len(samples)):
+                self.float_array[i] = samples[i]/32768.0
+            self.frequency_filter.process(self.float_array)
+            for i in range(len(samples)):
+                samples[i] = int(self.float_array[i]*32768)
+
+    eml_iir_q15. ??
+
+    Wrapper around 
+
+    micropython.viper with q15 ?
+
+
+
 #### Camera
 
 ! SKIP mostly
