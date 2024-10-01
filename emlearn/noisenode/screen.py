@@ -108,7 +108,7 @@ meter = SoundlevelMeter(buffer_size=chunk_samples,
     samplerate=AUDIO_SAMPLERATE,
     mic_sensitivity=MIC_DBFS,
     time_integration=None,
-    frequency_weighting=None,
+    frequency_weighting='A',
 )
 
 

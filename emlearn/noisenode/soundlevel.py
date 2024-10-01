@@ -3,7 +3,16 @@ import math
 import struct
 import array
 
-from iir import IIRFilter
+from iir_python import IIRFilter
+import emliir
+
+class IIRFilterEmlearn:
+
+    def __init__(self, coefficients):
+        c = array.array('f', coefficients)
+        self.iir = emliir.new(c)
+    def process(self, samples):
+        self.iir.run(samples)
 
 # A method for computing A weighting filters etc for any sample-rate
 # https://www.dsprelated.com/thread/10546/a-weighting-filter
@@ -12,7 +21,11 @@ def assert_array_typecode(arr, typecode):
     actual_typecode = str(arr)[7:8]
     assert actual_typecode == typecode, (actual_typecode, typecode)
 
-a_filter_16k = [1.0383002230320646, 0.0, 0.0, 1.0, -0.016647242439959593, 6.928267021369795e-05, 1.0, -2.0, 1.0, 1.0, -1.7070508390293027, 0.7174637059318595, 1.0, -2.0, 1.0, 1.0, -1.9838868447331497, 0.9839517531763131]
+a_filter_16k = [
+    1.0383002230320646, 0.0, 0.0, 1.0, -0.016647242439959593, 6.928267021369795e-05,
+    1.0, -2.0, 1.0, 1.0, -1.7070508390293027, 0.7174637059318595,
+    1.0, -2.0, 1.0, 1.0, -1.9838868447331497, 0.9839517531763131
+]
 
 #@micropython.native
 def rms_micropython_native(arr):
@@ -42,6 +55,17 @@ def time_integrate_native(arr, initial, time_constant, samplerate):
 
     return acc
 
+
+@micropython.native
+def float_to_int16(inp, out):
+    for i in range(len(inp)):
+        out[i] = int(inp[i]*32768)
+
+@micropython.native
+def int16_to_float(inp, out):
+    for i in range(len(inp)):
+        out[i] = inp[i]/32768.0
+
 class SoundlevelMeter():
 
     def __init__(self, buffer_size,
@@ -64,23 +88,24 @@ class SoundlevelMeter():
         if not frequency_weighting:
             self.frequency_filter = None
         elif frequency_weighting == 'A':
-            self.frequency_filter = IIRFilter(a_filter_16k)
+            #self.frequency_filter = IIRFilter(a_filter_16k)
+            self.frequency_filter = IIRFilterEmlearn(a_filter_16k)
+
             self.float_array = array.array('f', (0 for _ in range(buffer_size)))
         else:
             raise ValueError('Unsupported frequency_weighting')
 
     def process(self, samples):
+        assert len(self.float_array) == self._buffer_size
         assert len(samples) == self._buffer_size
         assert_array_typecode(samples, 'h')
 
         # Apply frequency weighting
         if self.frequency_filter:
             # FIXME: use eml_iir_q15 instead
-            for i in range(len(samples)):
-                self.float_array[i] = samples[i]/32768.0
+            int16_to_float(samples, self.float_array)
             self.frequency_filter.process(self.float_array)
-            for i in range(len(samples)):
-                samples[i] = int(self.float_array[i]*32768)
+            float_to_int16(samples, self.float_array)
 
         #print(self.float_array)
         #print(samples)
