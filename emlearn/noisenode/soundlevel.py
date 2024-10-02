@@ -5,6 +5,7 @@ import array
 
 from iir_python import IIRFilter
 import emliir
+import eml_iir_q15
 
 class IIRFilterEmlearn:
 
@@ -13,6 +14,15 @@ class IIRFilterEmlearn:
         self.iir = emliir.new(c)
     def process(self, samples):
         self.iir.run(samples)
+
+class IIRFilterEmlearnFixed:
+
+    def __init__(self, coefficients):
+        c = eml_iir_q15.convert_coefficients(coefficients)
+        self.iir = eml_iir_q15.new(c)
+    def process(self, samples):
+        self.iir.run(samples)
+
 
 # A method for computing A weighting filters etc for any sample-rate
 # https://www.dsprelated.com/thread/10546/a-weighting-filter
@@ -27,7 +37,7 @@ a_filter_16k = [
     1.0, -2.0, 1.0, 1.0, -1.9838868447331497, 0.9839517531763131
 ]
 
-#@micropython.native
+@micropython.native
 def rms_micropython_native(arr):
     acc = 0.0
     for i in range(len(arr)):
@@ -36,6 +46,28 @@ def rms_micropython_native(arr):
         acc += p
     mean = acc / len(arr)
     out = math.sqrt(mean)
+    return out
+
+# Using a limited-precision aware approach based on Cumulative Moving Average
+# https://www.codeproject.com/Articles/807195/Precise-and-safe-calculation-method-for-the-averag
+@micropython.viper
+def rms_micropython_viper(arr) -> object:
+    buf = ptr16(arr) # XXX: input MUST BE h/uint16 array
+    l = int(len(arr))
+    cumulated_average : int = 0
+    cumulated_remainder : int = 0
+    addendum : int = 0
+    n_values : int = 0
+    for i in range(l):
+        v = int(buf[i])
+        value = (v * v) # square it
+        n_values += 1
+        addendum = value - cumulated_average + cumulated_remainder
+        cumulated_average += addendum // n_values
+        cumulated_remainder = addendum % n_values
+
+    # sqrt it
+    out = math.sqrt(cumulated_average)
     return out
 
 #@micropython.native
@@ -90,6 +122,7 @@ class SoundlevelMeter():
         elif frequency_weighting == 'A':
             #self.frequency_filter = IIRFilter(a_filter_16k)
             self.frequency_filter = IIRFilterEmlearn(a_filter_16k)
+            #self.frequency_filter = IIRFilterEmlearnFixed(a_filter_16k)
 
             self.float_array = array.array('f', (0 for _ in range(buffer_size)))
         else:
@@ -102,10 +135,14 @@ class SoundlevelMeter():
 
         # Apply frequency weighting
         if self.frequency_filter:
-            # FIXME: use eml_iir_q15 instead
-            int16_to_float(samples, self.float_array)
+
+            # FIXME: move data conversion into C module
+            #int16_to_float(samples, self.float_array)
             self.frequency_filter.process(self.float_array)
-            float_to_int16(samples, self.float_array)
+            #float_to_int16(self.float_array, samples)
+
+            #self.frequency_filter.process(samples)
+
 
         #print(self.float_array)
         #print(samples)
@@ -116,6 +153,8 @@ class SoundlevelMeter():
         # no integration - "linear"
         if self._time_integration is None:
             rms = rms_micropython_native(samples)
+            # FIXME: causes math domain error
+            #rms = rms_micropython_viper(samples)
         else:
             p = time_integrate_native(samples,
                 self._power_integrated_fast,
