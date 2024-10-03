@@ -25,6 +25,7 @@ def median_viper(data):
         return (data[i - 1] + data[i])/2
 """
 
+
 @micropython.native
 def median_native(data):
     data = sorted(data)
@@ -43,10 +44,11 @@ def median_native(data):
 
 def test():
     length = 10
-    repetitions = 10000
+    repetitions = 100
 
     data = array.array('H', (0 for _ in range(length)))
-
+    #data = list(float(v) for v in data)
+    
     FUNCS = {
         'median_plain': median_plain,
         #'median_viper': median_viper,
