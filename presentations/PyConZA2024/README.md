@@ -4,8 +4,8 @@
 ## Sensor data processing on microcontrollers with MicroPython and emlearn
 
 Slides
-[PDF](PyConZA2024 - Sensor data processing on microcontrollers with MicroPython.pdf) | 
-[PowerPoint](PyConZA2024 - Sensor data processing on microcontrollers with MicroPython.pptx).
+[PDF](<PyConZA2024 - Sensor data processing on microcontrollers with MicroPython.pdf>) | 
+[PowerPoint](<PyConZA2024 - Sensor data processing on microcontrollers with MicroPython.pptx>).
 
 Video recording. Will be published to Youtube later, by the organizers.
 
