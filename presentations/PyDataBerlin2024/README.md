@@ -15,4 +15,9 @@ and [emlearn-micropython](https://github.com/emlearn/emlearn-micropython).
 - [Notes](./notes.md)
 
 #### Recording
-Is expected to be out around June 2024 on official PyCon.de channels.
+
+
+Video recording. [Youtube](https://www.youtube.com/watch?v=S3GjLr0ZIE0).
+
+[![Watch the video](cover_medium.png)](https://www.youtube.com/watch?v=S3GjLr0ZIE0)
+
