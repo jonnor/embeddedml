@@ -5,7 +5,7 @@ Date: 2024-04-26 08:00 EDT
 
 ## emlearn - Machine Learning for Tiny Embedded Systems
 
-Slides. [PDF](./emlearm-EmbeddedOnlineConference-2024.pdf) | [PowerPoint](./emlearm-EmbeddedOnlineConference-2024.pptx)
+Slides. [PDF](./emlearn-EmbeddedOnlineConference-2024.pdf) | [PowerPoint](./emlearn-EmbeddedOnlineConference-2024.pptx)
 
 Video recording. [Youtube](https://www.youtube.com/watch?v=qamVWmcBdmI).
 
