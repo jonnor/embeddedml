@@ -104,6 +104,21 @@ Ways of advancing, make contributions
 - Libraries or tools. Lower time to market, enable more developers
 
 
+# Own contributions
+
+Presentations
+
+- [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/) - October 2024
+- [6 years of open source TinyML with emlearn](./presentations/TinymlEMEA2024) - June 2024
+- [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024) - May 2024
+- [Machine Learning on microcontrollers using MicroPython and emlearn](./presentations/PyDataBerlin2024/). PyDataBerlin & PyCon DE - April 2024 
+
+Open source software projects
+
+- [emlearn](https://github.com/emlearn/emlearn). Machine Learning inference engine for Microcontrollers and Embedded devices.
+- [emlearn-micropython](https://github.com/emlearn/emlearn-micropython). Efficient Machine Learning engine for MicroPython.
+
+
 # Learning material
 
 Books
