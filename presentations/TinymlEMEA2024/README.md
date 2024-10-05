@@ -7,8 +7,8 @@
 Project: https://github.com/emlearn/emlearn
 
 Slides.
-[PDF](TinyML EMEA 2024 - Nordby - 6 years of emlearn - CameraReady v1.pdf)
-| [PPTX](TinyML EMEA 2024 - Nordby - 6 years of emlearn - CameraReady v1.pptx)
+[PDF](<TinyML EMEA 2024 - Nordby - 6 years of emlearn - CameraReady v1.pdf>)
+| [PPTX](<TinyML EMEA 2024 - Nordby - 6 years of emlearn - CameraReady v1.pptx>)
 
 Video. Will be published by TinyML Foundation. Later in 2024.
 
