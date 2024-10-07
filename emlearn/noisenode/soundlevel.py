@@ -70,7 +70,7 @@ def rms_micropython_viper(arr) -> object:
     out = math.sqrt(cumulated_average)
     return out
 
-#@micropython.native
+@micropython.native
 def time_integrate_native(arr, initial, time_constant, samplerate):
     acc = initial
     dt = 1.0/samplerate
@@ -87,16 +87,14 @@ def time_integrate_native(arr, initial, time_constant, samplerate):
 
     return acc
 
-
-@micropython.native
-def float_to_int16(inp, out):
-    for i in range(len(inp)):
-        out[i] = int(inp[i]*32768)
-
-@micropython.native
+# Use C module for data conversion
+# @micropython.native with a for loop is too slow
+from emlearn_arrayutils import linear_map
 def int16_to_float(inp, out):
-    for i in range(len(inp)):
-        out[i] = inp[i]/32768.0
+    return linear_map(inp, out, -2**15, 2**15, -1.0, 1.0)
+
+def float_to_int16(inp, out):
+    return linear_map(inp, out, -1.0, 1.0, -2**15, 2**15)
 
 class SoundlevelMeter():
 
@@ -135,11 +133,9 @@ class SoundlevelMeter():
 
         # Apply frequency weighting
         if self.frequency_filter:
-
-            # FIXME: move data conversion into C module
-            #int16_to_float(samples, self.float_array)
+            int16_to_float(samples, self.float_array)
             self.frequency_filter.process(self.float_array)
-            #float_to_int16(self.float_array, samples)
+            float_to_int16(self.float_array, samples)
 
             #self.frequency_filter.process(samples)
 

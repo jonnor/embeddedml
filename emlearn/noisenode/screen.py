@@ -107,7 +107,7 @@ MIC_DBFS=-26 # MSM261S4030H0R
 meter = SoundlevelMeter(buffer_size=chunk_samples,
     samplerate=AUDIO_SAMPLERATE,
     mic_sensitivity=MIC_DBFS,
-    time_integration=None,
+    time_integration=0.125,
     frequency_weighting='A',
 )
 
