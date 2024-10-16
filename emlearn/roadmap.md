@@ -12,7 +12,7 @@ classification, regression and outlier/anomaly detection.
 
 Examples
 
-- Add KNN to classifiers. Need to setup distance working buffer for _predict
+- Add KNN to classifiers example. Need to setup distance working buffer for _predict
 
 Demos
 
@@ -36,10 +36,6 @@ Examples
 - Example of custom feature transformation/extraction
 
 ## Benchmarking
-
-Tools
-
-- Size measurement support, via ELF
 
 Documentation
 
@@ -77,11 +73,9 @@ Demos
 
 Models
 
-- trees. Use int16_t features and integer-only math. Switch to 8 byte nodes (from 12).
-- preprocess. Float to int16 quantizer
-- trees. Switch to 4-byte nodes. Implicit left, 8 bit relative jump. Ref feedback from Martin
 - trees. Runable leaf-node quantization / de-duplication
-- bfloat16 support for regression?
+- trees. Switch to 4-byte nodes. Implicit left, 8 bit relative jump. Ref feedback from Martin
+- trees. bfloat16 or Q/int16 support for regression?
 
 Examples
 
@@ -112,8 +106,6 @@ https://www.informatica.vu.lt/journal/INFORMATICA/article/1281/text
 
 Platform support
 
-- Create a Zephyr module
-- Get Zephyr QEMU simulator to work
 - Use Zephyr QEMU to run tests in CI
 
 Demos
@@ -127,7 +119,7 @@ Preprocessing
 
 - Mel-spectrogram. Using SignalWindower? Or dedicated code
 - Maybe also MFCC/DCT
-- Sound Event Embedding vectors. Using pretrained convolutional 
+- Sound Event Embedding vectors. Using pretrained CNN. On AudioSet strong? CRNN pretrainer. 
 
 Models
 
