@@ -24,7 +24,12 @@ We will first show how to create a basic Internet-connected sensor node using si
 - Let us install Python on it! pip install esptool, download MicroPython, Flash
 - OK - how do I program it? Using ViperIDE
 - Lets make a sensor! Measure temperature, send to the cloud
-- 
+- Lets level up. Doing compute intensive tasks in MicroPython. Sound level meter example.
+- Lets go TinyML. Running a pre-trained ML model.
+
+Bonus
+
+- Building a custom ML model. Capturing data, labeling, running training, deploying to device
 
 ## Notes
 
