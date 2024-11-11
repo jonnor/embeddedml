@@ -1,7 +1,7 @@
 
 ## Accelerometers
 
-Silan SC7A20
+### Silan SC7A20
 `0.18 USD @ 1k` LCSC
 Supported in Linux Industrial IO driver
 Datasheet only in Chinese??
@@ -13,4 +13,11 @@ https://github.com/analogdevicesinc/pyadi-iio
 https://wiki.analog.com/university/labs/software/iio_intro_toolbox#pyadi-iio
 Shows AXL345 accelerometer on Raspberry PI as example
 
+### LIS2DH12TR
 
+0.24 USD @ 1k
+
+
+### LIS3DH
+
+0.30 USD @ 1k

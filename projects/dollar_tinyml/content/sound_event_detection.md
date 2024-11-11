@@ -26,6 +26,25 @@ https://www.youtube.com/watch?v=muZY1eCke40
 https://www.youtube.com/watch?v=JrhsFfCOL-s
 
 
+## Fun demo cases
+
+#### Keyword spotting: How to pronounce "emlearn".
+
+E-M-learn. Not mlearn. Not eml-earn.
+Ref "Linux".
+
+Could be on a business card. Or other promotional give-away for the project.
+
+#### Applause detection
+
+For use in conferences. Deployed on the wall / in the room?
+Probably should also have speech detection. Maybe also music.
+
+PoC data available online. But is via the recording system, not in room / on wall.
+Would want to record dataset in representative placement.
+At least for validation/test.
+
+
 ## Feature extraction: Mel spectrograms
 
 Standard.

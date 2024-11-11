@@ -87,7 +87,49 @@ With 24 Mhz. On Py32F003
 128 RFFT q15. 2 ms
 These numbers are great, very promising.
 
-FFT and audio enabled with under 20 kB FLASH.
+FFT and audio enabled, with a 32x32 spectrogram buffer (1 kB / 1 second).
+Takes under 20 kB FLASH, great.
+Takes 3.4 kB RAM, bit high, but maybe acceptable.
+
+Leaves 600 bytes RAM and 12 kB FLASH for ML model.
+On the low side for a CNN.
+
+Would need manual feature engineering for classic models on 1 second audio window.
+Complex for medium to high difficulty tasks.
+Would be better invested in an (C)RNN, with streaming support.
+
+But simpler tasks should be doable.
+Ex applause detection, on 1 second windows/features.
+Ex beer plop detection.
+
+
+### First testing audio quality
+
+16.06.2024
+
+Using Youtube app on phone.
+Playing back a video with speech.
+Setting phone volume to max.
+
+It is possible to make out speech, after normalizing the clip to bring up volume.
+However there are issues:
+
+- A lot of tonal noise. There most of the time. However did get one recording where it did not show up. External source?
+Tried disconnecting laptop charger, without improvement. Might still be switchmode supply in laptop USB power, or similar.
+- Lot of static. White noise in background. Also when playback is paused.
+Might just be that input voltage is too low for ADC. Making quantization noise significant.
+- Occational dropouts. Underruns? Need to investigate if device or host side.
+- Periodic noise in the low end. Can be seen in spectrogram, but not really noticable in audio.
+Happens exactly when blinking the LED. Removing the LED blink removed the issue.
+
+TODO:
+
+- Get system to run off a clean power source. Ie battery. With only the USB serial connected.
+- Use oscilloscope to measure voltage at the ADC input.
+- Use a higher quality soundcard to drive the input.
+- Use oscilloscope to find where tonal noise is injected.
+- Setup some standard test patterns, played back via soundcard.
+
 
 ## Mel filter implemetation
 
@@ -132,6 +174,22 @@ Gets stuck forever inside putchar implementation on line.
 With 921600 on 24 Mhz clock, can send data data
 Need to update
   LL_RCC_HSI_SetCalibFreq(LL_RCC_HSICALIBRATION_24MHz);
+
+
+## 128 long
+
+#0  HardFault_Handler () at User/py32f0xx_it.c:21
+#1  <signal handler called>
+#2  0x081107dc in ?? ()
+#3  0x08000e0e in audio_msg_queue_enqueue (p_new_item=0x20000ba8 <audio_queue+456>, p_queue=0x200009e0 <audio_queue>) at User/main.c:53
+#4  APP_TransferCompleteCallback () at User/main.c:445
+#5  0x08000e88 in DMA1_Channel1_IRQHandler () at User/py32f0xx_it.c:53
+#6  <signal handler called>
+#7  0x08001046 in __io_putchar (ch=54) at Libraries/PY32F0xx_LL_BSP/Src/py32f0xx_bsp_printf.c:107
+#8  0x0800107e in _write (file=<optimized out>, ptr=0x200001ec <__sf+176> "", ptr@entry=0x200001eb <__sf+175> "6", len=len@entry=1)
+    at Libraries/PY32F0xx_LL_BSP/Src/py32f0xx_bsp_printf.c:128
+#9  0x08000548 in _write_r (ptr=ptr@entry=0x200000d0 <_impure_data>, fd=<optimized out>, buf=buf@entry=0x200001eb <__sf+175>, cnt=cnt@entry=1)
+
 
 ## Serializing audio data
 

@@ -13,17 +13,18 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - JieLi Tech AC6329C4
 **BLE** microcontroller. 8 kB RAM / 256 kB FLASH.
 `0.30 USD @ 1k`.
-- WCH CH582F
-`0.68 USD @ 1k`.
-**BLE** microcontroller
-- CH32V203G6U6. 64 kB RAM / 256 kB. USB
-- CH32X035. 64 kB RAM / 256 kB. USB
+- WCH CH592F. `0.48 USD @ 1k`. BLE+USB
+- WCH CH571. `$0.40 @ 1k`. BLE+USB
+- WCH CH582F. `0.68 USD @ 1k`. BLE+USB
+- CH32V203. 64 kB RAM / 256 kB. USB. 0.35 USD @ 1k.
+- CH32X035. 64 kB RAM / 256 kB. USB. 0.28 USD @ 1k.
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.
 0.2 mA in LPRUN 2Mhz
 5 uA in STOP 1 no SRAM retention with RTC.
 `0.30 USD @ 1k`
+- WHC CH552. 8-bit. 1kB RAM. USB. `0.28 USD @ 1 k`.
 - WCH CH32V003. RISC-V
 16KB FLASH / 2KB RAM.  48MHz QFN-20
 `0.15 USD @ 1k`
