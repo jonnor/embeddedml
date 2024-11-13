@@ -32,7 +32,7 @@ You can use the Python that you already know!
 
 ## Outline
 
-Start from Pycon ZA 2024.
+Start from PyData Global 2024, or PyCon ZA 2024.
 Add in a practical bit? Demo/walkthrough. With ViperIDE.
 
 
@@ -54,10 +54,14 @@ as well as end-users of AI stacks to speak about their work and expertise.
 ## Format
 Single track, 10 - 20 minute technical session
 
+## Abstract
+
+
+
 ## Takeaways
 
 
-## 
+### Notes
 
 Quick introduction to the emlearn project
 TinyML. Very small models. High energy efficiency. Computational efficiency in terms of RAM.
@@ -93,14 +97,48 @@ At 1 GFLOP, up to 82% in 2020
 
 10x improvement in GFLOPS/watt
 
+
+
 ## Embedded devroom
 https://lists.fosdem.org/pipermail/fosdem/2024q4/003575.html
 
 ## Title
 MicroPython - Python for microcontrollers and Embedded Linux
 
+### Abstract
+
+MicroPython is a tiny implementation of Python,
+designed for very contrained environments such as microcontrollers and embedded devices.
+It can run on devices with a little as 64 kB of RAM and 256 kB of FLASH.
+Over the last 10 years, MicroPython has become a productive development environment and mature platform for firmware development.
+It has been used in a wide range of applications - and has been deployed on everything from smartwatches to medical devices and sattelites.
+
+In this talk will discuss some of the features of MicroPython and the surrounding ecosystem,
+with an emphasis on applications for Internet of Things (IoT) sensors.
+This includes the for example: writing efficient code using JIT compilation and C modules,
+using the built-in file systems, installing packages via package manager,
+communication over WiFi/Ethernet/BLE/USB/etc,
+interactive programming via REPL, automated testing on PC and device,
+and probably some more things.
+
 
 ### Outline
+
+
+### Key takeaways
+
+- Python can run on microcontrollers and embedded devices
+- Acts like a full computer system.
+REPL, file system, networking, package management, base drivers included
+- Python has a good testing story
+- Automated testing on host PC using Unix port
+- Automated testing on-device using mpremote
+- Combine C with Python. Not one or the other!
+- Faster development compared to (modern) C
+- Especially beneficial for teams who use Python for other things
+
+=> fun and productive environment for wide range of usecases
+
 Great for
 
 - Devices with 1+ MB RAM/FLASH
@@ -123,17 +161,6 @@ Benefits
 - Good connectivity. WiFi, BLE
 
 
-### Key takeaways
-
-- Python can run on microcontrollers and embedded devices
-- Acts like a full computer system.
-REPL, file system, networking, package management, base drivers included
-- Python has a good testing story
-- Combine C with Python. Not one or the other!
-- Faster development compared to (modern) C
-- Especially beneficial for teams who use Python for other things
-
-=> fun and productive environment for wide range of usecases
 
 ### Notes
 
@@ -177,6 +204,11 @@ ImportError: no module named 'tls'
 ## MicroPython on OpenWRT
 
 
+FROM openwrt/rootfs:latest
+RUN mkdir /var/lock/ && opkg update && opkg install micropython
+ENTRYPOINT ["micropython"]
+
+Can make HTTPS requests
 
 
 # Aside - YouTube video - TinyML zero to hero
