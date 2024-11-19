@@ -26,7 +26,7 @@ except NameError:
     here = os.getcwd()
 
 
-from quant import Quant
+from quant import Quant, IntervalModel
 
 from sonar import load_sonar_dataset, tidy_sonar_data
 
@@ -73,26 +73,28 @@ from emlearn.evaluate.trees import model_size_bytes, compute_cost_estimate
 
 from sklearn.feature_selection import SequentialFeatureSelector
 
-def evaluate_classifier(data, features=None, quant=True):
+def evaluate_classifier(data, n_features, transform, features=None, quant=True):
     spectrum_columns = [c for c in data.columns if c.startswith('b.')]
     
     if features is None:
         features = spectrum_columns
     
     est = RandomForestClassifier(n_estimators=10, n_jobs=1)
-    sfs = SequentialFeatureSelector(est, n_features_to_select=10, n_jobs=4)
+    sfs = SequentialFeatureSelector(est, n_features_to_select=n_features, n_jobs=4)
 
     # minimally prepare dataset        
     X = data[features]
     y = data['label']
 
     print(X.head())
-    if quant:
+    if transform == 'interval':
         import torch
         tensor = torch.from_numpy(X.values.reshape(len(X),1,len(X.columns)).astype(numpy.float32))
-        X = Quant().fit_transform(tensor, None).numpy()
-    else:
+        X = IntervalModel(input_length=len(X.columns)).fit_transform(tensor, None).numpy()
+    else if transform == 'none':
         X = X.values
+    else:
+        raise ValueError(f'Unknown transform: {transform}')
 
     print('XX', X.shape)
 
@@ -104,6 +106,7 @@ def evaluate_classifier(data, features=None, quant=True):
     # perform the search
     sfs.fit(X_train, y_train)
 
+    # FIXME: find feature names, return
     selected = sfs.get_support()
     print(selected)
 
@@ -117,11 +120,19 @@ def evaluate_classifier(data, features=None, quant=True):
     acc = accuracy_score(y_test, y_hat)
     print("Accuracy: %.3f" % acc)
 
+    return acc
 
 
 
+# FIXME: test this
+n_features = range(3, 6)
+transforms = [ 'none', 'interval' ]
+index = pandas.MultiIndex.from_product([n_features, transforms], names = ["features", "transforms"])
+experiments = pandas.DataFrame(index = index).reset_index()
+experiments['accuracy'] = experiments.apply(lamba r: evaluate_classifier(data, transform=r.transform, n_features=r.features))
+
+experiments.to_csv('experiments.csv')
 
 
-evaluate_classifier(data)
 
 
