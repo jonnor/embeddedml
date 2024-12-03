@@ -1,0 +1,15 @@
+{
+  "name": "temperature_sensor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "check.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^5.10.3",
+    "serve": "^14.2.4"
+  }
+}

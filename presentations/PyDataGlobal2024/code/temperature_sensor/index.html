@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Websocket MQTT</title>
+  <script src="https://unpkg.com/mqtt@5.10.3/dist/mqtt.min.js"></script>
+</head>
+<body>
+<h1>Example</h1>
+Temperature: <span id="temperature_field">X</span> &deg;C
+</body>
+<script>
+const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
+
+const host = 'wss://test.mosquitto.org:8081'
+
+const options = {
+  keepalive: 30,
+  clientId,
+  protocolId: 'MQTT',
+  protocolVersion: 4,
+  clean: true,
+  reconnectPeriod: 1000,
+  connectTimeout: 30 * 1000,
+  rejectUnauthorized: false
+}
+
+console.log('connecting mqtt client')
+const client = mqtt.connect(host, options)
+
+client.on('error', (err) => {
+  console.log(err)
+  client.end()
+})
+
+client.on('connect', () => {
+  console.log('client connected:' + clientId)
+
+  client.subscribe('pydataglobal2024/send', { qos: 0 })
+})
+
+client.on('message', (topic, message, packet) => {
+  console.log('received', topic, message.toString())
+
+  const temperature = Number(message.toString());
+
+  const e = document.getElementById('temperature_field');
+  e.innerHTML = temperature.toFixed(1);
+  console.log('temp', temperature);
+})
+
+client.on('close', () => {
+  console.log(clientId + ' disconnected')
+})
+
+</script>
