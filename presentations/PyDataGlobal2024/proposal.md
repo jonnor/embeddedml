@@ -17,20 +17,6 @@ that have less than 1 MB of RAM and program memory? Such devices can cost just a
 In this talk, we will demonstrate how to get started with MicroPython on a ESP32 microcontroller.
 We will first show how to create a basic Internet-connected sensor node using simple analog/digital sensors. And then we will show how to create advanced sensors that use Digital Signal Processing and Machine Learning to analyze microphone, accelerometer or camera data.
 
-
-## Outline
-
-- This is a microcontroller, these are its features
-- Let us install Python on it! pip install esptool, download MicroPython, Flash
-- OK - how do I program it? Using ViperIDE
-- Lets make a sensor! Measure temperature, send to the cloud
-- Lets level up. Doing compute intensive tasks in MicroPython. Sound level meter example.
-- Lets go TinyML. Running a pre-trained ML model.
-
-Bonus
-
-- Building a custom ML model. Capturing data, labeling, running training, deploying to device
-
 ## Notes
 
 I have recently given two talks on the same overall topic:
