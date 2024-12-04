@@ -30,28 +30,40 @@ Honorable mentions. Out-of-scope
 - Event recognition. Like counting exercises repetitions.
 
 
+## Take aways
+
+- Modern microcontrollers are very powerful and accessible
+- MicroPython is a productive and fun way to program them
+- Can use the mip package manager to install Python and C modules 
+- emlearn-micropython can be used for efficient DSP and ML
+- Can build devices that process and analyze sensor data,
+such as accelerometer, audio, image
+
 ## TODO
 
-- Write temperature example. For M5StickC PLUS 2? Using MPU6886 driver
-- Make a pretrained execise model for M5StickC PLUS 2 ?
-Record a basic dataset.
-Strap M5StickC to the arm
-Gestures need to be labeled precisely. Also needs post-processing.
-And RF is not really the best model for it.
-So excercies are better. Counting left as an |excercise| for the reader
-- Is gravity removal needed??
-- Test/fix sound example for T-Camera S3
+- Cut down some slides
+Only have 25 minutes total.
+Should be under 25 slides, ideally.
+- Make the recordings of ViperIDE
+- Tech check of animation playback using Google Docs
+- Tech check in AirMeet. Screen share and microphone, in Firefox
+
+- Do a pass with logos on each slide
+- Upload slides to Github
 
 Maybe
 
+- Update HAR README to include how to collect data, train model
+- Test/fix sound example for T-Camera S3
 - Test/fix camera examples on T-Camera S3
 - Write BLE advertisement example for M5StickC
 
 Skip
 
-- MQTT example. 
 - Write a example using BLE advertisements plus accelerometer reading and classification.
 Sends with N repeats. Maybe using asyncio. Sleeping as much as possible
+- HTTP example. 
+
 
 ## Microcontroller
 
@@ -77,6 +89,16 @@ RISC-V not as well supported yet. ESP32 C2/C3/C5/C6, ESP32 H2, ESP32 P4
 ## Example 1 - temperature sensor
 
 
+## 
+
+- Make a pretrained execise model for M5StickC PLUS 2 ?
+Record a basic dataset.
+Strap M5StickC to the arm
+Gestures need to be labeled precisely. Also needs post-processing.
+And RF is not really the best model for it.
+So excercies are better. Counting left as an |excercise| for the reader
+- Is gravity removal needed??
+
 
 # Aside - YouTube video - TinyML zero to hero
 From nothing to running a (premade) TinyML example.
@@ -92,3 +114,10 @@ Script.
 - Open browser, Chromium based. ViperIDE
 - Connect to device - MicroPython terminal. Make LED blink?
 - Open example. Ideally a ready-made inference thing
+- Test it out
+- Switch to data recording
+- Train the pipeline
+
+Maybe do one for Human Activity Recognition?
+
+
