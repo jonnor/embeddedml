@@ -3,7 +3,7 @@
 
 [Schedule](https://global2024.pydata.org/cfp/talk/EEFXBK/)
 
-Slides. [PDF]("PyDataGlobal 2024 - Microcontrollers + Machine Learning in 1-2-3.pdf")
+Slides. [PDF](<PyDataGlobal 2024 - Microcontrollers + Machine Learning in 1-2-3.pdf>)
 
 ## Title
 Microcontrollers + Machine Learning in 1-2-3
