@@ -14,7 +14,7 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 **BLE** microcontroller. 8 kB RAM / 256 kB FLASH.
 `0.30 USD @ 1k`.
 - WCH CH592F. `0.48 USD @ 1k`. BLE+USB
-- WCH CH571. `$0.40 @ 1k`. BLE+USB
+- WCH CH571. `0.40 USD @ 1k`. BLE+USB
 - WCH CH582F. `0.68 USD @ 1k`. BLE+USB
 - CH32V203. 64 kB RAM / 256 kB. USB. 0.35 USD @ 1k.
 - CH32X035. 64 kB RAM / 256 kB. USB. 0.28 USD @ 1k.

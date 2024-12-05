@@ -12,7 +12,7 @@
 
 ### Hardware
 
-See [./dml10/worklog.md](./dml10/worklog.md)
+See [./hardware/dml10/worklog.md](./hardware/dml10/worklog.md)
 
 # DONE
 

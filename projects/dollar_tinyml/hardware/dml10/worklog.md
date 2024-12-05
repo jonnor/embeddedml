@@ -38,6 +38,14 @@ MAYBE.
 
 - Other LEDs also wrong way around?
 
+## Next revision
+
+- Fix issues identified above
+- Update to 8kB RAM version?
+- Add a WS2812 LED or two
+- Add a user button?
+- Add connections for a battery. LIR1025 or LIR1220
+
 # References
 
 Nice experiments with I2C in a cable
