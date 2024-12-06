@@ -39,30 +39,13 @@ Honorable mentions. Out-of-scope
 - Can build devices that process and analyze sensor data,
 such as accelerometer, audio, image
 
-## TODO
-
-- Cut down some slides
-Only have 25 minutes total.
-Should be under 25 slides, ideally.
-- Make the recordings of ViperIDE
-- Tech check of animation playback using Google Docs
-- Tech check in AirMeet. Screen share and microphone, in Firefox
-
-- Do a pass with logos on each slide
-- Upload slides to Github
-
-Maybe
+## TODO follow-ups
 
 - Update HAR README to include how to collect data, train model
+- Write BLE advertisement example for HAR on M5StickC. Sleeping as much as possible
 - Test/fix sound example for T-Camera S3
 - Test/fix camera examples on T-Camera S3
-- Write BLE advertisement example for M5StickC
-
-Skip
-
-- Write a example using BLE advertisements plus accelerometer reading and classification.
-Sends with N repeats. Maybe using asyncio. Sleeping as much as possible
-- HTTP example. 
+- Make a YouTube video for HAR example.
 
 
 ## Microcontroller
