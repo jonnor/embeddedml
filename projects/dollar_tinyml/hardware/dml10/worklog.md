@@ -1,4 +1,9 @@
 
+## Next revision
+
+See [dml20m](../dml20m) for motion/accelerometer board.
+An audio board might follow after that.
+
 ## Subsystems to test
 
 - Charger/regulator
@@ -22,7 +27,7 @@ Firmware
 
 - Get I2C working generally
 - Get BLE module to send advertising data
-- Get accel reading at 100 hz
+- Get accel reading at 25/50/100 hz
 - Get ADC reading from mic at 8 kHz. Preferably with DMA 
 
 ## Found issues
@@ -38,13 +43,6 @@ MAYBE.
 
 - Other LEDs also wrong way around?
 
-## Next revision
-
-- Fix issues identified above
-- Update to 8kB RAM version?
-- Add a WS2812 LED or two
-- Add a user button?
-- Add connections for a battery. LIR1025 or LIR1220
 
 # References
 
