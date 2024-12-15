@@ -1,0 +1,130 @@
+(footprint "Battery_CR1220-Horizontal"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Panasonic CR-2032/HFN battery, https://industrial.panasonic.com/cdbs/www-data/pdf2/AAA4000/AAA4000D166.PDF")
+	(tags "battery CR-2032 coin cell")
+	(property "Reference" "REF**"
+		(at 0.5 -11 0)
+		(layer "F.SilkS")
+		(uuid "ebb33d89-c3e6-46fb-82ad-53ebb46ec1f0")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Battery_CR1220-Horizontal"
+		(at 0 11 0)
+		(layer "F.Fab")
+		(uuid "e3d592b3-103e-490d-a401-1c1e5f382f34")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at -10.5 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "837f5ac5-563f-478e-bd20-175c23b0890b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at -10.5 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "351149f1-89bf-4364-af28-53874f1c3d8e")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at -10.5 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "02d8b722-8728-46c0-b4b2-f277736a58c2")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_circle
+		(center 0 0)
+		(end 8 0)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.Fab")
+		(uuid "c82c004c-3a6b-4ba9-8be7-03ac86c73209")
+	)
+	(fp_text user "+"
+		(at -6 2 0)
+		(layer "F.SilkS")
+		(uuid "9d3bd025-e10a-46d3-b683-4e6f27d415ed")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "690d4f9e-3cfa-4f42-9ac0-5a3f46d3fb73")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at -6 0)
+		(size 1.6 2)
+		(drill 0.85)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2a9d24f8-6fdc-4d62-99e6-b9392298e06f")
+	)
+	(pad "2" thru_hole oval
+		(at 6 0)
+		(size 1.6 2)
+		(drill 0.85)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "a3e5cac8-ee76-4db4-8b37-708ea64635d6")
+	)
+	(model "${KICAD8_3DMODEL_DIR}/Battery.3dshapes/Battery_Panasonic_CR2032-HFN_Horizontal.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
