@@ -79,7 +79,7 @@
 		(uuid "c82c004c-3a6b-4ba9-8be7-03ac86c73209")
 	)
 	(fp_text user "+"
-		(at -6 2 0)
+		(at 4.5 -0.5 0)
 		(layer "F.SilkS")
 		(uuid "9d3bd025-e10a-46d3-b683-4e6f27d415ed")
 		(effects
@@ -96,6 +96,17 @@
 		(effects
 			(font
 				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user "+"
+		(at 4.5 -0.5 0)
+		(layer "F.Fab")
+		(uuid "6c2acc71-096a-428c-a8e4-cabc6e6262b4")
+		(effects
+			(font
+				(size 1.5 1.5)
 				(thickness 0.15)
 			)
 		)
