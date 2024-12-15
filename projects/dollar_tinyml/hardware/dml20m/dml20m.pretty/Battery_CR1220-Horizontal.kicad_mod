@@ -100,21 +100,21 @@
 			)
 		)
 	)
-	(pad "1" thru_hole rect
-		(at -6 0)
-		(size 1.6 2)
-		(drill 0.85)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "2a9d24f8-6fdc-4d62-99e6-b9392298e06f")
-	)
-	(pad "2" thru_hole oval
+	(pad "1" thru_hole oval
 		(at 6 0)
 		(size 1.6 2)
 		(drill 0.85)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(uuid "a3e5cac8-ee76-4db4-8b37-708ea64635d6")
+	)
+	(pad "2" thru_hole rect
+		(at -6 0)
+		(size 1.6 2)
+		(drill 0.85)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2a9d24f8-6fdc-4d62-99e6-b9392298e06f")
 	)
 	(model "${KICAD8_3DMODEL_DIR}/Battery.3dshapes/Battery_Panasonic_CR2032-HFN_Horizontal.wrl"
 		(offset
