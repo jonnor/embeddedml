@@ -41,12 +41,62 @@ Just 1 hour or so on battery?
 
 But if one can put it in a USB socket somewhere, can do continious monitoring.
 
+
+### Activity tracker
+
+Requirements
+
+- Way to indicate activity. Couple of buttons?
+- Way to give user feedback on activity detected and. RGB controllable LEDs
+- Way to measure motion. Accelerometer. LIS2DH12
+- Possible to charge. Charger. USB Type PCB connector?
+- Battery powered for some hours. LIR1220 or LIR1025
+- Small size. Easy to place. Maximum 40x45 mm? Prefer 20x35mm
+- Microcontroller. Puya PY32 is familiar. PY32F003F18U6TR 8kB SRAM, QFN-20.
+- Optional connectivity to phone. BLE, Holtek BM7161? Maybe put on back
+
+Micro. 15 cents
+Accel. 25 cents
+BLE. 20 cents
+Battery. 25 cents
+= 85 cents
+
 ## Weight measurement
 
 Strain gauge BF350-3AA, 0.30 USD @ 100 pcs
 Need a Weatstone bridge and opamp for signal conditioning.
 Plus needs to be attached to an elastic bar that experiences strain.
-Can probably be FR4 PCB structure.
+
+Strain gauge can probably be done as PCB structure on FR4.
+https://github.com/vapetrov/PCB_strain_gauge?tab=readme-ov-file
+Got very good results.
+Using traces on a 20x100 mm PCB.
+4-element sensing bridge.
+! note, had to use a high current. Nearly 100 mA
+
+Used 2512 SMD resistors on PCB to measure force.
+Used as an end-stop / height measuring for 3d printer.
+https://github.com/IvDm/Z-probe-on-smd-resistors-2512
+
+Tested first a classic cantilevered rectangle.
+Then designed a custom mount for the hotend.
+
+> One way to possibly get additional sensitivity from this design would be to rout a thin slot in the PCB directly underneath each resistor.
+> The slots would slightly weaken that area of the PCB, concentrating the flexing there instead of distributing it across the entire arm.
+https://hackaday.com/2019/01/27/quartet-of-smd-resistors-used-to-sense-z-axis-height/
+
+HX711 25 cents in 1k volumes.
+
+Could be used for a kitchen scale?
+At least giving out empty to full rating. In say 10 increments? Or percentage.
+May need temperature compensation.
+May need linearity compensaton.
+Should have a tare for empty, 0%.
+And a "tare" for full, 100%.
+
+Good article on mounting strain gauges
+https://www.iqsdirectory.com/articles/load-cell/strain-gauge.html
+Bending half bridge seems most relevant
 
 #### IoT sensor
 BLE beacon

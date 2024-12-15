@@ -17,7 +17,7 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - WCH CH571. `0.40 USD @ 1k`. BLE+USB
 - WCH CH582F. `0.68 USD @ 1k`. BLE+USB
 - CH32V203. 64 kB RAM / 256 kB. USB. 0.35 USD @ 1k.
-- CH32X035. 64 kB RAM / 256 kB. USB. 0.28 USD @ 1k.
+- CH32X035. 64 kB RAM / 256 kB. USB. OPA/PGA. 0.28 USD @ 1k.
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.
@@ -28,6 +28,9 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - WCH CH32V003. RISC-V
 16KB FLASH / 2KB RAM.  48MHz QFN-20
 `0.15 USD @ 1k`
+- PY32F003. Cortex M0+
+`0.15 USD @ 1k`
+64 Kb FLASH / 8 kB RAM. 24 Mhz. DMA
 - PY32F002. Cortex M0+
 `0.10 USD @ 1k`
 20 Kb FLASH / 3 kB RAM. 24 Mhz
