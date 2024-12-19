@@ -1,0 +1,23 @@
+---
+title: Toothbrush timer
+config:
+  layout: dagre
+---
+stateDiagram-v2
+    %direction LR
+    classDef success fill:#0f0,font-weight:bold,stroke-width:2px,stroke:green
+    classDef fail fill:#f00,font-weight:bold,stroke-width:2px,stroke:red
+
+    [*] --> Sleep
+    Sleep --> Idle : Motion = any
+
+    %% Failed:::fail --> Idle
+    Idle --> Failed:::fail : IdleTime > MaxIdle
+    Failed --> Sleep
+
+    Done:::success --> Sleep : DoneWaitTime
+
+    Idle --> Brushing : Motion = Brushing
+    Brushing --> Idle : Motion != Brushing
+    Brushing --> Done : BrushingTime >= Target
+
