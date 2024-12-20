@@ -144,10 +144,19 @@ class Effects():
 
         pass
 
-    # DONE. green LED. buzzer happy sound?
-    # SLEEP. reduce wakeup time
-    # IDLE. yellow LED??
-    # BRUSHING. Nothing??
+    # DONE.
+        # green LED.
+        # buzzer happy tones
+    # FAIL
+        # buzzer sad tones
+        # red LED
+    # IDLE. 
+        # no sound
+        # no LED
+    # BRUSHING. 
+        # arpeggiated notes. Ascending on progress. Or even a little song ??
+
+    # SLEEP. reduce wakeup time?
 
 def run_scenario(sm, trace, default_dt = 0.1):
 

@@ -2,19 +2,24 @@
 
 # TODO
 
-Proof of Concept
+PoC, dummy ML
 
-- Print first model
-- Buy some toothbrushes for testing
-- Design a tooth attachment method. V bed and. Screw on?
-- Record some data, using har_trees example in emlearn-micropython
-- Copy MicroPython firmware from har_trees
-- Create logic for tracking "brushing" state.
-Entering/leaving after X seconds of detecthing brushing/not.
+- Setup accelerometer reading. Copy har_trees
+- Play sounds effects and turn on LEDs
+- Design a toothbrush attachment method. Zipties for brush. Costmetic cover?
+- Add dummy sensor analysis.
+Compute orientation vector (mean), and changes/energy (RMS?)
+motion 1.0 if changes more than T
+brushing 1.0 if toothbrush is not vertical orientation
+- Test on device
 
-Integrating
+PoC with ML
 
-- Order dml20m board, and do board bringup
+- Record some data
+- Train model, based on har_trees
+- Investigate the on the other dataset?
+- Test on device
+
 
 # Data
 
