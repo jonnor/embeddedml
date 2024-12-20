@@ -10,6 +10,7 @@ import math
 import struct
 import array
 
+from sketch import StateMachine
 
 #import timebased
 #import emlearn_trees    
@@ -73,7 +74,8 @@ def compute_features(xs, ys, zs):
 
     up_direction = [ 0, 1.0, 0.0 ] # the expected gravity vector, when toothbrush is upright (not in use)
     max_distance_from_up = 0.80
-    max_motion_energy = 2000
+    max_motion_energy = 3000
+    brushing_energy = 20000
 
     # find orientation
     orientation_start = time.ticks_ms()
@@ -88,13 +90,24 @@ def compute_features(xs, ys, zs):
     motion = clamp(energy / max_motion_energy, 0.0, 1.0)
 
     # dummy brushing classifier
-    # assume brushing if not perfectly upright (stationary in holder)
+    # assume brushing if
+    # a) not perfectly upright (stationary in holder)
+    # AND b) relatively high energy
     # TODO: replace with trained ML classifier
-    brushing = clamp(distance_from_up / max_distance_from_up, 0.0, 1.0)
+    not_upright = clamp(distance_from_up / max_distance_from_up, 0.0, 1.0)
+    high_energy = clamp(energy / brushing_energy, 0.0, 1.0)
+
+    brushing = clamp((not_upright*2) * (high_energy*1.5), 0.0, 1.0)
 
     orientation_duration = time.ticks_ms() - orientation_start
 
     return norm_orientation, distance_from_up, brushing, energy, motion
+
+
+def test_effects():
+
+    
+
 
 def main():
 
@@ -116,8 +129,16 @@ def main():
     #n_features = timebased.N_FEATURES
     #features = array.array(features_typecode, (0 for _ in range(n_features)))
 
+    # On M5StickC we need to set HOLD pin to stay alive when on battery
+    hold_pin = machine.Pin(4, machine.Pin.OUT)
+    hold_pin.value(1)
+
+    # Internal LED on M5StickC PLUS2
+    led_pin = machine.Pin(19, machine.Pin.OUT)
 
     print('main-start')
+
+    sm = StateMachine(time=time.time())
 
     while True:
 
@@ -135,8 +156,14 @@ def main():
             f = compute_features(x_values, y_values, z_values)
             features_duration = time.ticks_ms() - features_start
     
-            print('inputs', f)
+            norm_orientation, distance_from_up, brushing, energy, motion = f
 
+            print('inputs', energy, brushing, motion)
+            t = time.time()
+
+            sm.next(t, motion, brushing)
+
+            led_pin.value(brushing > 0.5)
 
             # TODO: run brushing classifier
             # compute features

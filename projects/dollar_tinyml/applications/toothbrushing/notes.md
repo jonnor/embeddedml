@@ -4,13 +4,8 @@
 
 PoC, dummy ML
 
-- Setup accelerometer reading. Copy har_trees
-- Play sounds effects and turn on LEDs
+- Integrate state machine and effects
 - Design a toothbrush attachment method. Zipties for brush. Costmetic cover?
-- Add dummy sensor analysis.
-Compute orientation vector (mean), and changes/energy (RMS?)
-motion 1.0 if changes more than T
-brushing 1.0 if toothbrush is not vertical orientation
 - Test on device
 
 PoC with ML
@@ -18,6 +13,7 @@ PoC with ML
 - Record some data
 - Train model, based on har_trees
 - Investigate the on the other dataset?
+- Support rotating the motion vector, based on gravity + accelerometer orientation (ref toothbrush orientation)
 - Test on device
 
 
