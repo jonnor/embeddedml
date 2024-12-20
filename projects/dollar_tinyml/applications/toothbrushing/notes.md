@@ -15,6 +15,11 @@ PoC with ML
 - Support rotating the motion vector, based on gravity + accelerometer orientation (ref toothbrush orientation)
 - Test on device
 
+# Sound design
+
+https://onlinesequencer.net
+
+Online Sequencer:923227:0 C5 1 43;2 D#5 1 43;1 D5 1 43;4 F5 1 43;5 F#5 1 43;6 G5 1 43;8 A5 1 43;9 B5 1 43;10 C6 1 43;12 D6 1 43;13 D#6 1 43;14 F6 1 43;17 C6 1 43;18 G5 1 43;19 E5 1 43;21 C5 4 43;:
 
 # Data
 
