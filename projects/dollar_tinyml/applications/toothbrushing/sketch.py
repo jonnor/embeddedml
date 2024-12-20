@@ -9,11 +9,14 @@ def median(values):
     ordered = sorted(values)
     is_odd = (L % 2) == 1
     if is_odd:
-        return ordered[L//2]
+        out = ordered[L//2]
     else:
         l = ordered[(L//2)-1]
         h = ordered[(L//2)-0]
-        return (l+h)/2
+        out = (l+h)/2
+
+    #print('median', out, values)
+    return out 
 
 def buffer_push_end(values : list, new, length):
     assert len(values) <= length
@@ -22,6 +25,7 @@ def buffer_push_end(values : list, new, length):
         values = values[1:]
     values.append(new)
     assert len(values) <= length
+    return values
 
 
 class StateMachine:
@@ -34,15 +38,8 @@ class StateMachine:
 
     def __init__(self,
             time=0.0,
+            prediction_filter_length=5,
         ):
-
-        # state
-        self.state = self.SLEEP
-        self.state_enter_time = time
-        self.last_time = time
-        self.motion_prediction_history = []
-        self.brushing_prediction_history = []
-        self.brushing_time = 0.0 # how long active
 
         # config
         self.brushing_target_time = 120.0
@@ -51,7 +48,15 @@ class StateMachine:
         self.brushing_threshold = 0.6
         self.not_brushing_threshold = 0.4
         self.motion_threshold = 0.3
-        self.prediction_filter_length = 5
+        self.prediction_filter_length = prediction_filter_length
+
+        # state
+        self.state = self.SLEEP
+        self.state_enter_time = time
+        self.last_time = time
+        self.motion_history = [0.0] * self.prediction_filter_length
+        self.brushing_history = [0.0] * self.prediction_filter_length
+        self.brushing_time = 0.0 # how long active
 
         self._state_functions = {
             self.SLEEP: self.sleep_next,
@@ -63,15 +68,15 @@ class StateMachine:
 
     def _get_predictions(self):
         # return filtered predictions
-        m = median(self.motion_prediction_history)
-        b = median(self.brushing_prediction_history)
+        m = median(self.motion_history)
+        b = median(self.brushing_history)
         return m, b
 
     def _update_predictions(self, motion, brushing):
         # update filter states
         l = self.prediction_filter_length
-        buffer_push_end(self.motion_prediction_history, motion, l)
-        buffer_push_end(self.brushing_prediction_history, brushing, l)
+        self.motion_history = buffer_push_end(self.motion_history, motion, l)
+        self.brushing_history = buffer_push_end(self.brushing_history, brushing, l)
         # return filter outputs
         return self._get_predictions()
 
@@ -93,15 +98,20 @@ class StateMachine:
         # reset accumulated time
         self.brushing_time = 0.0
 
+        print('sleep-next', motion)
+
         if motion > self.motion_threshold:
             return self.IDLE
 
     def idle_next(self, time, brushing, **kwargs):
         is_brushing = brushing > self.brushing_threshold
+        since_enter = time - self.state_enter_time
+
+        print('idle-next', is_brushing, since_enter)
+
         if is_brushing:
             return self.BRUSHING
 
-        since_enter = time - self.state_enter_time
         if since_enter > self.idle_time_max:
             return self.FAILED
 
@@ -114,12 +124,12 @@ class StateMachine:
             # still brushing
             since_last = time - self.last_time
             self.brushing_time += since_last
-            if self.brushing_time > self.brushing_time_target:
+            if self.brushing_time > self.brushing_target_time:
                 return self.DONE
 
     def done_next(self, time, **kwargs):
         since_enter = time - self.state_enter_time
-        if since_last >= self.done_wait_time:
+        if since_enter >= self.done_wait_time:
             return self.SLEEP
 
     def failed_next(self, time, **kwargs):
@@ -167,16 +177,17 @@ def check_expectations(row, outputs):
     assert state == expect_state, (state, expect_state)
 
     expect_brushing_time = row.pop('bt', None)
-    brushing_time = outputs['brushing_time']
+    brushing_time = round(outputs['brushing_time'], 3)
     if expect_brushing_time is not None:
-        assert brushing_time == expect_brushing_time, (brushing_time, expect_brushing_time)
+        e = round(expect_brushing_time, 3)
+        assert brushing_time == e, (brushing_time, e)
 
 
 def test_states_basic_happy():
     # check that we can reach the DONE/success state
 
-    sm = StateMachine()
-    sm.prediction_filter_length = 3 # make effect of median filter present but short
+    # make effect of median filter present but short
+    sm = StateMachine(prediction_filter_length=3)
     sm.brushing_target_time = 2.0 # make it quick to hit target
     sm.done_wait_time = 1.0
 
@@ -189,47 +200,48 @@ def test_states_basic_happy():
     # expected outputs (s: sm.state), and inputs (everything else)
     trace = [
         dict(mp=LOW, bp=LOW, s=sm.SLEEP),
+        dict(mp=LOW, bp=LOW, s=sm.SLEEP),
         # medial filter should reject short states
         dict(mp=HIGH, bp=LOW, s=sm.SLEEP),
         dict(mp=LOW, bp=LOW, s=sm.SLEEP),
         # longer case should transition
-        dict(mp=X, bp=LOW, s=sm.SLEEP),
-        dict(mp=X, bp=LOW, s=sm.IDLE),
+        #dict(mp=HIGH, bp=LOW, s=sm.SLEEP),
+        dict(mp=HIGH, bp=LOW, s=sm.IDLE),
         # if not brushing, should stay idle
         dict(mp=X, bp=LOW, s=sm.IDLE),
         dict(mp=X, bp=LOW, s=sm.IDLE),
         dict(mp=X, bp=LOW, s=sm.IDLE),
         # if starting brushing, should count the time spent
         dict(mp=X, bp=HIGH, s=sm.IDLE),
-        dict(mp=X, bp=HIGH, s=sm.BRUSHING),
+        dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.0),
+        dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.1),
         dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.2),
-        dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.3),
         # if not brushing, should go to idle
-        dict(mp=X, bp=LOW, s=sm.BRUSHING),
+        dict(mp=X, bp=LOW, s=sm.BRUSHING, bt=0.3),
         dict(mp=X, bp=LOW, s=sm.IDLE, bt=0.3),
         dict(mp=X, bp=LOW, s=sm.IDLE, bt=0.3),
         # if starting brushing again, should continue counting
         dict(mp=X, bp=HIGH, s=sm.IDLE),
+        dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.3),
         dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.4),
-        dict(mp=X, bp=HIGH, s=sm.BRUSHING, bt=0.5),
         # if brushing for long enough, will eventually get done
-        dict(mp=X, bp=HIGH, s=sm.BRUSHING, dt=1.0, bt=1.5),
-        dict(mp=X, bp=HIGH, s=sm.DONE, dt=1.0, bt=2.5),
+        dict(mp=X, bp=HIGH, s=sm.BRUSHING, dt=1.0, bt=1.4),
+        dict(mp=X, bp=HIGH, s=sm.DONE, dt=1.0, bt=2.4),
         # done will automatically transition to sleep
-        dict(mp=X, bp=HIGH, s=sm.BRUSHING, dt=0.5),
-        dict(mp=X, bp=HIGH, s=sm.DONE, dt=0.6),
+        dict(mp=X, bp=HIGH, s=sm.DONE, dt=0.5),
+        dict(mp=X, bp=HIGH, s=sm.SLEEP, dt=0.6),
     ]
 
     gen = run_scenario(sm, trace)
     for row, inputs, outputs in gen:
-        print('next-ran', inputs, outputs)
+        print('next-ran', inputs, outputs, row)
         check_expectations(row, outputs)
 
 def test_states_basic_sad():
     # check that we can reach FAIL state
 
-    sm = StateMachine()
-    sm.prediction_filter_length = 3 # make effect of median filter present but short
+    # make effect of median filter present but short
+    sm = StateMachine(prediction_filter_length=3)
     sm.brushing_target_time = 2.0 # make it quick to hit target
     sm.done_wait_time = 1.0
 
