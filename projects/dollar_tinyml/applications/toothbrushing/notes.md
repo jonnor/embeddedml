@@ -4,9 +4,8 @@
 
 PoC, dummy ML
 
-- Integrate state machine and effects
 - Design a toothbrush attachment method. Zipties for brush. Costmetic cover?
-- Test on device
+- Full PoC test
 
 PoC with ML
 

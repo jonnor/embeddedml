@@ -104,9 +104,72 @@ def compute_features(xs, ys, zs):
     return norm_orientation, distance_from_up, brushing, energy, motion
 
 
-def test_effects():
+from buzzer_music import music
 
-    pass
+# Copy/paste from 
+success_song = """0 D5 2 43;2 E5 2 43;4 G5 4 43;8 C6 6 43;14 G5 2 43;16 E5 4 43;20 C5 4 43"""
+
+fail_song = """3 D4 4 43;0 C5 2 43"""
+
+class OutputManager():
+
+    def __init__(self, led_pin, buzzer_pin):
+
+        self.buzzer_pin = buzzer_pin
+        self.led_pin = led_pin
+
+        self.last_state = None
+
+    def _play_song(self, notes):
+        song = music(notes, pins=[self.buzzer_pin], looping=False)
+        while True:
+            running = song.tick()
+            if not running:
+                break
+            time.sleep_ms(30)    
+
+    def run(self, state):
+
+        if state == self.last_state:
+            return
+
+        led_on = state == 'brushing'
+        self.led_pin.value(led_on)
+
+        if state == 'sleep':
+            pass
+        elif state == 'idle':
+            pass
+        elif state == 'brushing':
+            pass
+
+        elif state == 'done':
+            # XXX: blocking
+            self._play_song(success_song)
+
+        elif state == 'failed':
+            self._play_song(fail_song)
+
+        else:
+            raise ValueError(f"Unsupported state {state}")
+    
+        self.last_state = state
+
+
+def test_outputs():
+
+    buzzer_pin = machine.Pin(2, machine.Pin.OUT)
+    led_pin = machine.Pin(19, machine.Pin.OUT)
+
+
+    sm = StateMachine()
+    states = sm._state_functions.keys()
+    out = OutputManager(buzzer_pin=buzzer_pin, led_pin=led_pin)
+
+    for state in states:
+        print('test-output-state', state)
+        out.run(state)
+        time.sleep(1.0)
 
 
 def main():
@@ -135,6 +198,13 @@ def main():
 
     # Internal LED on M5StickC PLUS2
     led_pin = machine.Pin(19, machine.Pin.OUT)
+
+    # Buzzer
+    buzzer_pin = machine.Pin(2)
+
+    out = OutputManager(buzzer_pin=buzzer_pin, led_pin=led_pin)
+
+
 
     print('main-start')
 
@@ -168,7 +238,8 @@ def main():
 
             print('inputs', t, energy, brushing, motion, sm.state)
 
-            led_pin.value(brushing > 0.5)
+            # Update outputs
+            out.run(sm.state)
 
             # TODO: run brushing classifier
             # compute features
@@ -187,4 +258,7 @@ def main():
 
 
 if __name__ == '__main__':
+
+    #test_outputs()
+
     main()
