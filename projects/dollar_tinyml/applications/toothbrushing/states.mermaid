@@ -11,9 +11,9 @@ stateDiagram-v2
     [*] --> Sleep
     Sleep --> Idle : Motion = any
 
-    %% Failed:::fail --> Idle
-    Idle --> Failed:::fail : IdleTime > MaxIdle
-    Failed --> Sleep
+    Idle --> Sleep : IdleTime > MaxIdle && BrushingTime < Started
+    Idle --> Failed:::fail : IdleTime > MaxIdle && BrushingTime > Started
+    Failed --> Sleep : FailWaitTime
 
     Done:::success --> Sleep : DoneWaitTime
 

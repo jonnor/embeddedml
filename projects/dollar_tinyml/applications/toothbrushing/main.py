@@ -106,7 +106,7 @@ def compute_features(xs, ys, zs):
 
 def test_effects():
 
-    
+    pass
 
 
 def main():
@@ -140,6 +140,10 @@ def main():
 
     sm = StateMachine(time=time.time())
 
+    # TEST config
+    sm.brushing_target_time = 5.0
+
+
     while True:
 
         count = mpu.get_fifo_count()
@@ -158,10 +162,11 @@ def main():
     
             norm_orientation, distance_from_up, brushing, energy, motion = f
 
-            print('inputs', energy, brushing, motion)
             t = time.time()
 
             sm.next(t, motion, brushing)
+
+            print('inputs', t, energy, brushing, motion, sm.state)
 
             led_pin.value(brushing > 0.5)
 

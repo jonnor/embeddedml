@@ -44,6 +44,7 @@ class StateMachine:
         # config
         self.brushing_target_time = 120.0
         self.done_wait_time = 1.0
+        self.fail_wait_time = 1.0
         self.idle_time_max = 5.0
         self.brushing_threshold = 0.6
         self.not_brushing_threshold = 0.4
@@ -113,7 +114,11 @@ class StateMachine:
             return self.BRUSHING
 
         if since_enter > self.idle_time_max:
-            return self.FAILED
+            if self.brushing_time > 10.0:
+                return self.FAILED
+            else:
+                # no-one actually started brushing
+                return self.SLEEP
 
     def brushing_next(self, time, brushing, **kwargs):
         is_idle = brushing < self.not_brushing_threshold
