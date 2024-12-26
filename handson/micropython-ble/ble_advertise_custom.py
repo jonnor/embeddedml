@@ -5,20 +5,17 @@ import bluetooth
 import machine
 import time
 
-# Advertising payloads are repeated packets of the following form:
-#   1 byte data length (N + 1)
-#   1 byte type (see constants below)
-#   N bytes type-specific data
+def manufacturer_specific_advertisement(data : bytearray, manufacturer=[0xca, 0xab], limited_disc=False, br_edr=False):
+    _ADV_TYPE_FLAGS = const(0x01)
+    _ADV_TYPE_CUSTOMDATA = const(0xff)
+    _ADV_MAX_PAYLOAD = const(31)
 
-_ADV_TYPE_FLAGS = const(0x01)
-_ADV_TYPE_CUSTOMDATA = const(0xff)
-
-_ADV_MAX_PAYLOAD = const(31)
-
-
-def manufacturer_specific_advertisement(data : bytearray, limited_disc=False, br_edr=False):
     payload = bytearray()
 
+    # Advertising payloads are repeated packets of the following form:
+    #   1 byte data length (N + 1)
+    #   1 byte type (see constants below)
+    #   N bytes type-specific data
     def _append(adv_type, value):
         nonlocal payload
         payload += struct.pack("BB", len(value) + 1, adv_type) + value
@@ -30,11 +27,8 @@ def manufacturer_specific_advertisement(data : bytearray, limited_disc=False, br
     )
 
     # Specify manufacturer-specific data
-    manufacturer_id = bytearray([0x02, 0xE5])
-    _append(_ADV_TYPE_CUSTOMDATA, manufacturer_id)
-
-    # Add the data
-    payload += data
+    manufacturer_id = bytearray(manufacturer)
+    _append(_ADV_TYPE_CUSTOMDATA, (manufacturer_id + data))
 
     if len(payload) > _ADV_MAX_PAYLOAD:
         raise ValueError("advertising payload too large")
@@ -58,32 +52,32 @@ def main():
 
     sequence_no = 0
 
+
     while True:
 
         print('start', sequence_no)
-        
+
         ble = bluetooth.BLE()
-        #ble.active(False)
-        
+        ble.active(False)
+        time.sleep_ms(100)
         # XXX: this sometimes times out if device has been reconnected
         ble.active(True)
 
         mac = ble.config('mac')
-        print('mac', mac[1])
+        print('mac', mac)
 
         d = serialize_data(sequence_no)
         payload = manufacturer_specific_advertisement(d)
 
         print(payload)
 
-
         ble.gap_advertise(int(1000*advertise_interval_ms), adv_data=payload, connectable=False)
-
         time.sleep_ms(1000)
 
         print('sleep', sequence_no)
         sequence_no += 1
-        machine.lightsleep(sleep_ms)
+        time.sleep_ms(sleep_ms)
+        #machine.lightsleep(sleep_ms)
 
 if __name__ == "__main__":
     main()
