@@ -2,18 +2,17 @@
 
 # TODO
 
-PoC, dummy ML
-
-- Design a toothbrush attachment method. Zipties for brush. Costmetic cover?
-- Full PoC test
-
 PoC with ML
 
+- Investigate exiting dataset
+- Implement orientation/motion separation using gravity subtraction
 - Record some data
 - Train model, based on har_trees
-- Investigate the on the other dataset?
-- Support rotating the motion vector, based on gravity + accelerometer orientation (ref toothbrush orientation)
 - Test on device
+
+Misc
+
+- Design a costmetic cover?
 
 # Sound design
 
@@ -26,6 +25,7 @@ Online Sequencer:923227:0 C5 1 43;2 D#5 1 43;1 D5 1 43;4 F5 1 43;5 F#5 1 43;6 G5
 #### Dataset for toothbrushing activity using brush-attached and wearable sensors
 https://www.sciencedirect.com/science/article/pii/S2352340921005321
 https://data.mendeley.com/datasets/hx5kkkbr3j/1
+https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/hx5kkkbr3j-1.zip
 
 Toothbrushing data for 120 sessions performed by 22 participants (11 males, 11 females).
 The data was collected using two IMU devices from Mbientlab Inc.
@@ -50,6 +50,36 @@ Then the `dml20m` hardware would be used to actually demonstrate the 1 USD TinyM
 https://pmc.ncbi.nlm.nih.gov/articles/PMC10728532/
 
 A mobile phone app to help users ensure appropriate toothbrushing time and learn about the beneficial characteristics of toothbrushes
+
+#### Separating Movement and Gravity Components in an Acceleration Signal and Implications for the Assessment of Human Daily Physical Activity
+
+We aimed to evaluate five different methods (metrics) of processing
+acceleration signals on their ability to remove the gravitational component of acceleration during standardised mechanical
+movements and the implications for human daily physical activity assessment.
+
+Euclidian norm minus one (ENMO),
+Euclidian norm of the high-pass filtered signals (HFEN),
+HFEN plus Euclidean norm of low-pass filtered signals minus 1 g (HFEN+)
+
+
+#### Gravity subtraction
+
+Should establish the initial gravity vector for calibration.
+When standing in holder.
+
+To leave out the gravity vector from the accelerometer value, you need to rotate the accelerometer vector to the earth frame using a rotation matrix or quaternion which can be calculated from accelerometer, gyroscope, and magnetometer.
+After you rotate the vector to the earth frame you can subtract the (0, 0, g)^T vector to take out the gravity.
+You can rotate the resulted vector to the body frame again by multiplying the inverse matrix of the rotation matrix that you have used before
+
+https://math.stackexchange.com/a/1746199/1519080 
+Python/numpy code
+
+https://howtomechatronics.com/tutorials/arduino/how-to-track-orientation-with-arduino-and-adxl345-accelerometer/
+https://www.allaboutcircuits.com/technical-articles/how-to-interpret-IMU-sensor-data-dead-reckoning-rotation-matrix-creation/
+
+Freescale AN3461: Tilt Sensing Using a Three-Axis Accelerometer
+
+https://josejuansanchez.org/android-sensors-overview/gravity_and_linear_acceleration/README.html
 
 
 ## Existing products
