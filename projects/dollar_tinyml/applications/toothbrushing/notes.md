@@ -80,7 +80,7 @@ https://www.allaboutcircuits.com/technical-articles/how-to-interpret-IMU-sensor-
 Freescale AN3461: Tilt Sensing Using a Three-Axis Accelerometer
 
 https://josejuansanchez.org/android-sensors-overview/gravity_and_linear_acceleration/README.html
-
+Simple java code using 
 
 ## Existing products
 

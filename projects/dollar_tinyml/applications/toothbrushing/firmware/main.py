@@ -39,7 +39,7 @@ def euclidean(a, b):
 
     return math.sqrt(s)
 
-def clamp(value, lower, upper) -> float:
+    def clamp(value, lower, upper) -> float:
     v = value
     v = min(v, upper)
     v = max(v, lower)
