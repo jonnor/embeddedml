@@ -4,10 +4,10 @@
 
 PoC with ML
 
-- Investigate exiting dataset
-- Implement orientation/motion separation using gravity subtraction
-- Record some data
+- Label exiting dataset. Use 1-5Hz energy and orientation as indicators
+- Output .parquet file for har_trees
 - Train model, based on har_trees
+- Record some data
 - Test on device
 
 Misc
