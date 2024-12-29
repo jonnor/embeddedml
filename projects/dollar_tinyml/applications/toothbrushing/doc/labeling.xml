@@ -1,0 +1,15 @@
+<!-- Configuration for Label Studio -->
+<View>
+    <TimeSeries name="ts" valueType="url" value="$timeseriesUrl" sep="," timeColumn="elapsed" overviewWidth="30s" >
+        <!-- Data is expected to be in range -2G to +2G, each file up to 5 minutes long -->
+      <Channel column="brushing_energy" displayFormat=",.1f" strokeColor="#ff0000" legend="Y" dataRange="-0.0,+1.0"/>
+      <Channel column="brush_orientation" displayFormat=",.1f" strokeColor="#0000ff" legend="X" dataRange="-1.0,+1.0"/>
+    </TimeSeries>
+  
+    <Header value="Classes:"/>
+  
+  	<TimeSeriesLabels name="label" toName="ts">
+      <Label value="docked"/>
+      <Label value="brushing"/>
+	</TimeSeriesLabels>
+</View>

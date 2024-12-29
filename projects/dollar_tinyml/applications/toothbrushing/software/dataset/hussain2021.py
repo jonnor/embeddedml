@@ -117,6 +117,26 @@ def load_meta(data):
     
     return meta
 
+def extract_relevant(data, meta):
+    # only accelerometer data
+    acc = data.dropna(subset=['acc_x', 'acc_y', 'acc_z']).drop(columns=['mag_x', 'mag_y', 'mag_z', 'gyro_x', 'gyro_y', 'gyro_z'])
+    acc = acc.reset_index()
+    acc = pandas.merge(acc, meta, left_on='filename', right_on='filename')
+    # Setting 2 has more specific protocol
+    # Pause for a few seconds in between different regions and bring the brush to a reference point
+    acc = acc[acc.setting == 'S2'] 
+    # Choose location mounted on brush
+    acc = acc[acc.sensor_location == 'A']
+    # Choose only manual brushing, not electric
+    acc = acc[acc.brush == 'M']
+    acc = acc.drop(columns=['index'])
+    return acc
+
+def resample(df, freq='1min', func='mean', group='filename', time='time', numeric_only=True):
+    grouped = df.reset_index().set_index(time).groupby(group, observed=True).resample(freq)
+    out = grouped.agg(func, numeric_only=numeric_only).reset_index().set_index([group, time])
+    return out
+
 
 def download(out_dir):
 
@@ -149,6 +169,7 @@ def download(out_dir):
 
 def main():
 
+    samplerate = 50
     out_dir = './data2'
     dataset_path = download(out_dir)
 
@@ -157,6 +178,16 @@ def main():
 
     meta = load_meta(data)
     print(meta.head())
+
+    # Preprocess
+    acc = extract_relevant(data, meta)
+
+    # Resample to our samplerate
+    freq = pandas.Timedelta(1/samplerate, unit='s')
+    acc_re = resample(acc, freq=freq).reset_index().drop(columns=['session'])
+    acc_re = pandas.merge(acc_re, meta, left_on='filename', right_index=True).drop(columns=['index']).set_index(['filename', 'time'])
+
+    acc_re.to_parquet('./data2/hussain2021_accelerometer_brush_manual.parquet')
 
 if __name__ == '__main__':
     main()
