@@ -4,11 +4,12 @@
 
 PoC with ML
 
-- Label exiting dataset. Use 1-5Hz energy and orientation as indicators
-- Output .parquet file for har_trees
-- Train model, based on har_trees
-- Record some data
+- Verify model predictions
+- Integrate model into firmware
+- Record some data on device
+- Compare device data with Hussain dataset
 - Test on device
+- Move project to its own repository. Under jonnor?
 
 Misc
 
