@@ -10,133 +10,13 @@ import math
 import struct
 import array
 
-from sketch import StateMachine
-
-import timebased
-import emlearn_trees    
+from core import StateMachine
+from process import DataProcessor, empty_array, clamp
+from buzzer_music import music  
 
 # Free memory used by imports
 gc.collect()
 
-
-def empty_array(typecode, length, value=0):
-    return array.array(typecode, (value for _ in range(length)))
-
-def mean(arr):
-    m = sum(arr) / float(len(arr))
-    return m
-
-def magnitude_3d(x, y, z):
-    r2 = x**2 + y**2 + z**2
-    r = math.sqrt(r2)
-    return r
-
-def euclidean(a, b):
-    s = 0.0
-    assert len(a) == len(b)
-    for av, bv in zip(a, b):
-        s += (av-bv)**2
-
-    return math.sqrt(s)
-
-def clamp(value, lower, upper) -> float:
-    v = value
-    v = min(v, upper)
-    v = max(v, lower)
-    return v
-
-def energy_xyz(xs, ys, zs, orientation):
-    assert len(xs) == len(ys)
-    assert len(ys) == len(zs)
-
-    xo, yo, zo = orientation
-    
-    # compute RMS of magnitude, after having removed orientation
-    s = 0.0
-    for i in range(len(xs)):
-        m = magnitude_3d(xs[i]-xo, ys[i]-yo, zs[i]-zo)
-        s += m**2
-
-    rms = math.sqrt(s)
-    return rms
-
-class DataProcessor():
-
-    def __init__(self):
-        model_path = 'models/brushing_trees.csv'
-        self.brushing_model = self.load_model(model_path)
-
-        features_typecode = timebased.DATA_TYPECODE
-        n_features = timebased.N_FEATURES
-        self.features = array.array(features_typecode, (0 for _ in range(n_features)))
-    
-        self.brushing_outputs = array.array('f', (0 for _ in range(2)))
-
-    def load_model(self, model_path):
-
-        # Load a CSV file with the model
-        model = emlearn_trees.new(10, 1000, 10)
-        with open(model_path, 'r') as f:
-            emlearn_trees.load_model(model, f)
-
-        return model
-
-    def process(self, xs, ys, zs):
-        """
-        Analyze the accelerometers sensor data, to determine what is happening
-        """
-
-        up_direction = [ 0, 1.0, 0.0 ] # the expected gravity vector, when toothbrush is upright (not in use)
-        max_distance_from_up = 0.80
-        max_motion_energy = 3000
-        brushing_energy = 20000
-
-        # find orientation
-        orientation_start = time.ticks_ms()
-        orientation_xyz = mean(xs), mean(ys), mean(zs)
-        mag = magnitude_3d(*orientation_xyz)
-        norm_orientation = [ c/mag for c in orientation_xyz ]
-
-        distance_from_up = euclidean(norm_orientation, up_direction)
-        energy = energy_xyz(xs, ys, zs, orientation_xyz)    
-
-        # dummy motion classifier
-        motion = clamp(energy / max_motion_energy, 0.0, 1.0)
-
-        # dummy brushing classifier
-        # assume brushing if
-        # a) not perfectly upright (stationary in holder)
-        # AND b) relatively high energy
-        # TODO: replace with trained ML classifier
-        not_upright = clamp(distance_from_up / max_distance_from_up, 0.0, 1.0)
-        high_energy = clamp(energy / brushing_energy, 0.0, 1.0)
-
-        dummy_brushing = clamp((not_upright*2) * (high_energy*1.5), 0.0, 1.0)
-    
-        orientation_duration = time.ticks_ms() - orientation_start
-
-        #norm_orientation, distance_from_up
-
-        # compute features
-        features_start = time.ticks_ms()
-        ff = timebased.calculate_features_xyz((xs, ys, zs))
-        for i, f in enumerate(ff):
-            self.features[i] = int(f)
-        features_duration = time.ticks_ms() - features_start
-
-        # run model
-        predict_start = time.ticks_ms()
-        self.brushing_model.predict(self.features, self.brushing_outputs)
-        brushing = self.brushing_outputs[1]
-        predict_duration = time.ticks_ms() - predict_start
-
-        print('comp', features_duration, predict_duration)
-
-        return motion, brushing
-
-
-
-from buzzer_music import music
 
 # Copy/paste from 
 progress_1 = """0 C5 1 43;2 D#5 1 43;1 D5 1 43"""
