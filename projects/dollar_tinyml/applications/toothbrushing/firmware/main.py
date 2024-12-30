@@ -12,8 +12,8 @@ import array
 
 from sketch import StateMachine
 
-#import timebased
-#import emlearn_trees    
+import timebased
+import emlearn_trees    
 
 # Free memory used by imports
 gc.collect()
@@ -39,7 +39,7 @@ def euclidean(a, b):
 
     return math.sqrt(s)
 
-    def clamp(value, lower, upper) -> float:
+def clamp(value, lower, upper) -> float:
     v = value
     v = min(v, upper)
     v = max(v, lower)
@@ -60,48 +60,80 @@ def energy_xyz(xs, ys, zs, orientation):
     rms = math.sqrt(s)
     return rms
 
-def load_model():
+class DataProcessor():
 
-    model_path = f'{dataset}_trees.csv'
-    class_index_to_name = { v: k for k, v in classname_index.items() }
+    def __init__(self):
+        model_path = 'models/brushing_trees.csv'
+        self.brushing_model = self.load_model(model_path)
 
-    # Load a CSV file with the model
-    model = emlearn_trees.new(10, 1000, 10)
-    with open(model_path, 'r') as f:
-        emlearn_trees.load_model(model, f)
+        features_typecode = timebased.DATA_TYPECODE
+        n_features = timebased.N_FEATURES
+        self.features = array.array(features_typecode, (0 for _ in range(n_features)))
+    
+        self.brushing_outputs = array.array('f', (0 for _ in range(2)))
 
-def compute_features(xs, ys, zs):
+    def load_model(self, model_path):
 
-    up_direction = [ 0, 1.0, 0.0 ] # the expected gravity vector, when toothbrush is upright (not in use)
-    max_distance_from_up = 0.80
-    max_motion_energy = 3000
-    brushing_energy = 20000
+        # Load a CSV file with the model
+        model = emlearn_trees.new(10, 1000, 10)
+        with open(model_path, 'r') as f:
+            emlearn_trees.load_model(model, f)
 
-    # find orientation
-    orientation_start = time.ticks_ms()
-    orientation_xyz = mean(xs), mean(ys), mean(zs)
-    mag = magnitude_3d(*orientation_xyz)
-    norm_orientation = [ c/mag for c in orientation_xyz ]
+        return model
 
-    distance_from_up = euclidean(norm_orientation, up_direction)
-    energy = energy_xyz(xs, ys, zs, orientation_xyz)    
+    def process(self, xs, ys, zs):
+        """
+        Analyze the accelerometers sensor data, to determine what is happening
+        """
 
-    # dummy motion classifier
-    motion = clamp(energy / max_motion_energy, 0.0, 1.0)
+        up_direction = [ 0, 1.0, 0.0 ] # the expected gravity vector, when toothbrush is upright (not in use)
+        max_distance_from_up = 0.80
+        max_motion_energy = 3000
+        brushing_energy = 20000
 
-    # dummy brushing classifier
-    # assume brushing if
-    # a) not perfectly upright (stationary in holder)
-    # AND b) relatively high energy
-    # TODO: replace with trained ML classifier
-    not_upright = clamp(distance_from_up / max_distance_from_up, 0.0, 1.0)
-    high_energy = clamp(energy / brushing_energy, 0.0, 1.0)
+        # find orientation
+        orientation_start = time.ticks_ms()
+        orientation_xyz = mean(xs), mean(ys), mean(zs)
+        mag = magnitude_3d(*orientation_xyz)
+        norm_orientation = [ c/mag for c in orientation_xyz ]
 
-    brushing = clamp((not_upright*2) * (high_energy*1.5), 0.0, 1.0)
+        distance_from_up = euclidean(norm_orientation, up_direction)
+        energy = energy_xyz(xs, ys, zs, orientation_xyz)    
 
-    orientation_duration = time.ticks_ms() - orientation_start
+        # dummy motion classifier
+        motion = clamp(energy / max_motion_energy, 0.0, 1.0)
 
-    return norm_orientation, distance_from_up, brushing, energy, motion
+        # dummy brushing classifier
+        # assume brushing if
+        # a) not perfectly upright (stationary in holder)
+        # AND b) relatively high energy
+        # TODO: replace with trained ML classifier
+        not_upright = clamp(distance_from_up / max_distance_from_up, 0.0, 1.0)
+        high_energy = clamp(energy / brushing_energy, 0.0, 1.0)
+
+        dummy_brushing = clamp((not_upright*2) * (high_energy*1.5), 0.0, 1.0)
+    
+        orientation_duration = time.ticks_ms() - orientation_start
+
+        #norm_orientation, distance_from_up
+
+        # compute features
+        features_start = time.ticks_ms()
+        ff = timebased.calculate_features_xyz((xs, ys, zs))
+        for i, f in enumerate(ff):
+            self.features[i] = int(f)
+        features_duration = time.ticks_ms() - features_start
+
+        # run model
+        predict_start = time.ticks_ms()
+        self.brushing_model.predict(self.features, self.brushing_outputs)
+        brushing = self.brushing_outputs[1]
+        predict_duration = time.ticks_ms() - predict_start
+
+        print('comp', features_duration, predict_duration)
+
+        return motion, brushing
+
 
 
 from buzzer_music import music
@@ -189,7 +221,8 @@ def main():
 
     # Enable FIFO at a fixed samplerate
     mpu.fifo_enable(True)
-    mpu.set_odr(100)
+    samplerate = 50
+    mpu.set_odr(samplerate)
 
     hop_length = 25
     window_length = hop_length
@@ -198,10 +231,6 @@ def main():
     x_values = empty_array('h', hop_length)
     y_values = empty_array('h', hop_length)
     z_values = empty_array('h', hop_length)
-
-    #features_typecode = timebased.DATA_TYPECODE
-    #n_features = timebased.N_FEATURES
-    #features = array.array(features_typecode, (0 for _ in range(n_features)))
 
     # On M5StickC we need to set HOLD pin to stay alive when on battery
     hold_pin = machine.Pin(4, machine.Pin.OUT)
@@ -217,6 +246,7 @@ def main():
 
     print('main-start')
 
+    processor = DataProcessor()
     sm = StateMachine(time=time.time())
 
     # TEST config
@@ -234,17 +264,14 @@ def main():
             mpu.deinterleave_samples(chunk, x_values, y_values, z_values)
             read_duration = time.ticks_ms() - read_start
 
-            features_start = time.ticks_ms()
-            f = compute_features(x_values, y_values, z_values)
-            features_duration = time.ticks_ms() - features_start
+            process_start = time.ticks_ms()
+            motion, brushing = processor.process(x_values, y_values, z_values)
+            process_duration = time.ticks_ms() - process_start
     
-            norm_orientation, distance_from_up, brushing, energy, motion = f
-
             t = time.time()
-
             sm.next(t, motion, brushing)
 
-            print('inputs', t, energy, brushing, motion, sm.state)
+            print('inputs', t, brushing, motion, sm.state)
 
             # TODO: put this into state machine
             brushing_progress_states = 4
@@ -256,17 +283,8 @@ def main():
             # Update outputs
             out.run(sm.state, brushing_progress_state)
 
-            # TODO: run brushing classifier
-            # compute features
-            #ff = timebased.calculate_features_xyz((x_values, y_values, z_values))
-            #for i, f in enumerate(ff):
-            #    features[i] = int(f)
-            #print(features)
-            #result = model.predict(features)
-            #activity = class_index_to_name[result]
-
             d = time.ticks_diff(time.ticks_ms(), start)
-            print('process', d, read_duration, features_duration)
+            print('process', d, read_duration, process_duration)
 
         time.sleep_ms(100)
         #machine.lightsleep(100)
