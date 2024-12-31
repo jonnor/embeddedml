@@ -4,16 +4,35 @@
 
 PoC with ML
 
-- Verify model predictions
-- Integrate model into firmware
-- Record some data on device
-- Compare device data with Hussain dataset
+- Export dataset videos to Label Studio
+- Label the videos. Use a marker for the 5 taps
+- Align labels in time with sensor data
+- Run through har_train.py pipeline
+
+- Setup evaluation of time tracking.
+Cut out random selections of time-sections.
+- Create diagnostics timeline plots
+Plot tracking/counting over time. Labeled versus detected.
+Activity state over time.
+Cumulative time. Labeled versus detected.
 - Test on device
 - Move project to its own repository. Under jonnor?
 
 Misc
 
 - Design a costmetic cover?
+Use zipties. Need holes for the ziptie attach to not stick out
+Add emlearn logo
+Make top flat. Near flush with M5StickC
+- Design a basic dock. With magnetic connector
+https://www.kjell.com/no/produkter/kabler-og-kontakter/usb-kabler/plexgear-magnetisk-usb-c-adapter-p44923
+- Add battery voltage/power/percent tracking
+- Enable sleeping, test battery life
+
+Later
+
+- Send prediction data over BLE. To phone
+- Send sensor data over BLE. For data collection
 
 # Installing
 
@@ -28,6 +47,7 @@ mpremote mip install https://github.com/emlearn/emlearn-micropython/raw/refs/hea
 mpremote mip install https://raw.githubusercontent.com/emlearn/emlearn-micropython/refs/heads/master/examples/har_trees/color_setup.py
 mpremote mip install "github:peterhinch/micropython-nano-gui/drivers/st7789"
 mpremote mip install "github:peterhinch/micropython-nano-gui"
+mpremote mip install "github:peterhinch/micropython-async/v3/primitives"
 ```
 
 # Sound design
@@ -37,6 +57,85 @@ https://onlinesequencer.net
 Online Sequencer:923227:0 C5 1 43;2 D#5 1 43;1 D5 1 43;4 F5 1 43;5 F#5 1 43;6 G5 1 43;8 A5 1 43;9 B5 1 43;10 C6 1 43;12 D6 1 43;13 D#6 1 43;14 F6 1 43;17 C6 1 43;18 G5 1 43;19 E5 1 43;21 C5 4 43;:
 
 # Data
+
+### Custom dataset
+
+Data collection protocol.
+
+Using har_record.py from har_trees emlearn-micropython example.
+
+Configure the RTC.
+
+Brushing.
+
+Session should be 3 minutes long.
+Start with toothbrush standing.
+Brush like normal.
+Take a number of pauses of 5-10 seconds duration. Around 5-10 pauses per session.
+
+- Swap toothbrush between hands.
+- Hold toothbrush completely still in mouth
+- Take toothbrush out of mouth to talk
+- Put toothbrush down on surface, pick up again
+- Swing arms down
+- Walk around with toothbrush in hand
+- Stretch with arms overhead
+- Drop the toothbrush in the sink
+- Rinse the toothbrush
+- Put more toothpaste on toothbrush
+- Other (subject decides)
+- Check something on the face in the mirror
+- Talk to someone
+- Drink water from tap
+- Turn tap off/on
+- Inspect/poke at teeth
+
+
+Other
+
+- Walking around indoor, toothbrush in hand
+- Walking in stairs, toothbrush in hand
+- Playing swords with toothbrush
+- Sitting down/up, toothbrush in hand
+- Dropping toothbrush onto surface
+- Throwing toothbrush onto surface
+- Toothbrush lying on surface
+- Throwing toothbrush into the air, flipping
+- Tapping on toothbrush
+- Inspecting toothbrush
+- Walking with toothbrush in backpack
+- Driving with X in backpack
+- Biking with X in backpack
+
+Ideally record video. Using phone.
+Time syncronization.
+Tap the brush 5 times to surface at start and end.
+
+N sessions. Want something like 10+.
+N subjects. 
+Between sessions.
+
+Labeling precision target.
+Better than 1 second. Not needed as good as 100 ms.
+
+First target. 5 sessions, 1 subject.
+
+ffmpeg -i input.avi -c:a copy -vf "scale=-2:720" -c:v libx264 -pix_fmt yuv420p -crf 23 output.mkv
+
+ffmpeg -ss 00:03:00 -i input.mkv -c copy output.mp4
+
+Download links in Google Drive
+
+https://drive.google.com/uc?export=download&id=FILEID
+
+Video files for Label Studio import
+
+https://drive.google.com/uc?export=download&id=1ZXXXHchyxcGobjLIijU4ONue1Md7UXY_
+https://drive.google.com/uc?export=download&id=1U7Bvx_OZpnpy88tx42hbUpaT5NBeCAgM
+https://drive.google.com/uc?export=download&id=1j6srphrD9ivL1r5UbcNsJqLz6WaAufKk
+https://drive.google.com/uc?export=download&id=1KR02iRh9_X7n-zDS2v6AkDSjxmaNporh
+
+
 
 #### Dataset for toothbrushing activity using brush-attached and wearable sensors
 https://www.sciencedirect.com/science/article/pii/S2352340921005321
