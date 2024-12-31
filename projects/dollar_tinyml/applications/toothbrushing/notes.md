@@ -15,6 +15,21 @@ Misc
 
 - Design a costmetic cover?
 
+# Installing
+
+```
+mpremote mip install https://emlearn.github.io/emlearn-micropython/builds/master/xtensawin_6.3/emlearn_trees.mpy
+mpremote mip install github:jonnor/micropython-npyfile
+mpremote mip install github:jonnor/micropython-mpu6886
+
+mpremote mip install https://github.com/emlearn/emlearn-micropython/raw/refs/heads/master/examples/har_trees/recorder.py
+mpremote mip install https://github.com/emlearn/emlearn-micropython/raw/refs/heads/master/examples/har_trees/timebased.py
+
+mpremote mip install https://raw.githubusercontent.com/emlearn/emlearn-micropython/refs/heads/master/examples/har_trees/color_setup.py
+mpremote mip install "github:peterhinch/micropython-nano-gui/drivers/st7789"
+mpremote mip install "github:peterhinch/micropython-nano-gui"
+```
+
 # Sound design
 
 https://onlinesequencer.net
