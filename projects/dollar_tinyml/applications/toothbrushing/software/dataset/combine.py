@@ -103,15 +103,15 @@ def read_labels(path):
 def apply_labels(data, labels,
                  label_column='class',
                  time='time',
+                 start='start',
+                 end='end',
                  groupby='filename'):
 
-    labels = labels.set_index(groupby)
-    labels['start'] = pandas.to_timedelta(labels['start'], unit='s')
-    labels['end'] = pandas.to_timedelta(labels['end'], unit='s')
+    labels = labels.reset_index().set_index(groupby)
 
     def apply_labels_one(df):
         group = df.name
-        df = df.set_index(time)
+        df = df.set_index(time).sort_index()
         
         # Find relevant labels
         try:
@@ -126,22 +126,22 @@ def apply_labels(data, labels,
         # Apply the labels
         dup = df[df.index.duplicated()]
         assert len(dup) == 0, dup
-        
+
         df[label_column] = None
-        
-        #print(df.head())
         for idx, l in ll.iterrows():
-            s = l['start']
-            e = l['end']
-            #print(s, e)
-            df.loc[s:e, label_column] = l['class']
+            s = l[start]
+            e = l[end]
+            try:
+                df.loc[s:e, label_column] = l[label_column]
+            except KeyError as err:
+                print(f'No matches for {s}:{e}')
 
         #print(ll)
         #df = df.reset_index()
 
         return df
     
-    out = data.groupby(groupby).apply(apply_labels_one)
+    out = data.groupby(groupby, as_index=False).apply(apply_labels_one)
     return out
 
 
