@@ -16,22 +16,23 @@ Cumulative time. Labeled versus detected.
 - Test on device
 - Record more data. Get up to 8 or 10 sessions total.
 - Move project to its own repository. Under jonnor?
-
-Misc
-
 - Design a costmetic cover?
 Use zipties. Need holes for the ziptie attach to not stick out
 Add emlearn logo
 Make top flat. Near flush with M5StickC
+- Record a demo video
+
+Misc
+
 - Design a basic dock. With magnetic connector
 https://www.kjell.com/no/produkter/kabler-og-kontakter/usb-kabler/plexgear-magnetisk-usb-c-adapter-p44923
 - Add battery voltage/power/percent tracking
-- Enable sleeping, test battery life
 
 Later
 
 - Send prediction data over BLE. To phone
 - Send sensor data over BLE. For data collection
+- Enable sleeping, test battery life
 
 # Installing
 
@@ -126,14 +127,6 @@ ffmpeg -ss 00:03:00 -i input.mkv -c copy output.mp4
 Download links in Google Drive
 
 https://drive.google.com/uc?export=download&id=FILEID
-
-Video files for Label Studio import
-
-https://drive.google.com/uc?export=download&id=1ZXXXHchyxcGobjLIijU4ONue1Md7UXY_
-https://drive.google.com/uc?export=download&id=1U7Bvx_OZpnpy88tx42hbUpaT5NBeCAgM
-https://drive.google.com/uc?export=download&id=1j6srphrD9ivL1r5UbcNsJqLz6WaAufKk
-https://drive.google.com/uc?export=download&id=1KR02iRh9_X7n-zDS2v6AkDSjxmaNporh
-
 
 
 #### Dataset for toothbrushing activity using brush-attached and wearable sensors
