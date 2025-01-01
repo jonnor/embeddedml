@@ -19,7 +19,7 @@ def extract_filename(url):
 
     return filename
 
-def read_timeseries_labels(path):
+def read_timeseries_labels(path, label_column='label', label_key='timeserieslabel'):
     """
     Read .CSV export with TimeSeriesLabels tags
     Ref: https://labelstud.io/templates/time_series
@@ -30,6 +30,7 @@ def read_timeseries_labels(path):
 
     df = df.rename(columns={
         'timeseriesUrl': 'data_url',
+        'video_url': 'data_url',
     }, errors='ignore')
 
     # Extract data identifier, used for correlating with data
@@ -37,19 +38,17 @@ def read_timeseries_labels(path):
 
     labels = []
     for idx, row in df.iterrows():
-        data = json.loads(row['label'])
+        data = json.loads(row[label_column])
         
         for label in data:
-            #print(label)
-
             # Extract the actual label
-            label_value = label['timeserieslabels']
+            label_value = label[label_key]
             assert len(label_value) == 1, label_value
-            del label['timeserieslabels']
+            del label[label_key]
             label['class'] = label_value[0]
 
             # Merge metadata from file level
-            row_keys = set(row.keys()) - set(['label'])
+            row_keys = set(row.keys()) - set([label_key])
             for k in row_keys:
                 label[k] = row[k]
             

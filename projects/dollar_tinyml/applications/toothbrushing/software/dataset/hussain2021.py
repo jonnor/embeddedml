@@ -12,6 +12,7 @@ import zipfile
 
 import pandas
 from ..utils.downloadutils import download_file, checksum_file
+from software.features.featureutils import resample
 
 
 dataset_url = 'https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/hx5kkkbr3j-1.zip'
@@ -131,11 +132,6 @@ def extract_relevant(data, meta):
     acc = acc[acc.brush == 'M']
     acc = acc.drop(columns=['index'])
     return acc
-
-def resample(df, freq='1min', func='mean', group='filename', time='time', numeric_only=True):
-    grouped = df.reset_index().set_index(time).groupby(group, observed=True).resample(freq)
-    out = grouped.agg(func, numeric_only=numeric_only).reset_index().set_index([group, time])
-    return out
 
 
 def download(out_dir):

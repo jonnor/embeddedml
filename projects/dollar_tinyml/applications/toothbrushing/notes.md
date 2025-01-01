@@ -4,8 +4,6 @@
 
 PoC with ML
 
-- Export dataset videos to Label Studio
-- Label the videos. Use a marker for the 5 taps
 - Align labels in time with sensor data
 - Run through har_train.py pipeline
 
@@ -16,6 +14,7 @@ Plot tracking/counting over time. Labeled versus detected.
 Activity state over time.
 Cumulative time. Labeled versus detected.
 - Test on device
+- Record more data. Get up to 8 or 10 sessions total.
 - Move project to its own repository. Under jonnor?
 
 Misc
