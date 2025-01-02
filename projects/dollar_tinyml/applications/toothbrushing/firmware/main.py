@@ -104,7 +104,7 @@ def main():
     samplerate = 50
     mpu.set_odr(samplerate)
 
-    hop_length = 25
+    hop_length = 50
     window_length = hop_length
     chunk = bytearray(mpu.bytes_per_sample*hop_length)
 

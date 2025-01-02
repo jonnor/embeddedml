@@ -187,7 +187,7 @@ def read_data_file(path,
 def process_file(path):
 
     samplerate = 50
-    hop_length = 25
+    hop_length = 50
     window_length = hop_length
 
     x_values = empty_array('h', hop_length)
