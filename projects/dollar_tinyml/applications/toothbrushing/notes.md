@@ -4,19 +4,16 @@
 
 PoC with ML
 
-- Setup evaluation of time tracking.
-Cut out random selections of time-sections.
-- Create diagnostics timeline plots
-Plot tracking/counting over time. Labeled versus detected.
-Activity state over time.
-Cumulative time. Labeled versus detected.
 - Test on device
 - Record more data. Get up to 8 or 10 sessions total.
 - Move project to its own repository. Under jonnor?
 - Record a demo video
+Maybe plot the state/counters as overlay?
 
 Misc
 
+- Setup quantitative evaluation of time tracking.
+Cut out random selections of time-sections.
 - Design a basic dock. With magnetic connector
 https://www.kjell.com/no/produkter/kabler-og-kontakter/usb-kabler/plexgear-magnetisk-usb-c-adapter-p44923
 - Add battery voltage/power/percent tracking
