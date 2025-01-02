@@ -149,7 +149,9 @@ class DataProcessor():
         predict_duration = time.ticks_ms() - predict_start
 
         #print('comp', features_duration, predict_duration)
-
+        # Only maintain a sane level of decimals for probabilities
+        motion = round(motion, 2)
+        brushing = round(brushing, 2)
         return motion, brushing
 
 
@@ -234,13 +236,34 @@ def main():
     total_brushing_time = 0.0
 
     data_path = sys.argv[1]
-    for out in process_file(data_path):
-        t, motion, brushing, state, brushing_time = out
-        print('toothbrush-state-out', out)
+    out_path = sys.argv[2]
+    out_columns = ['time', 'motion', 'brushing', 'state', 'brushing_time']
+    endline = '\n'
+    delim = ','
 
-        total_brushing_time = max(brushing_time, total_brushing_time)
+    with open(out_path, 'w') as out:
 
-    print('toothbrush-done', total_brushing_time)
+        # Write header
+        for i, c in enumerate(out_columns):
+            out.write(c)
+            if i != len(out_columns)-1:
+                out.write(delim)
+        out.write(endline)
+
+        for res in process_file(data_path):
+            t, motion, brushing, state, brushing_time = res
+            print('toothbrush-state-out', res)
+
+            assert len(res) == len(out_columns)
+            for i, v in enumerate(res):
+                out.write(str(v))
+                if i != len(res)-1:
+                    out.write(delim)
+            out.write(endline)
+
+            total_brushing_time = max(brushing_time, total_brushing_time)
+
+        print('toothbrush-done', total_brushing_time)
 
 if __name__ == '__main__':
     main()

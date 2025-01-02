@@ -39,13 +39,14 @@ class StateMachine:
     def __init__(self,
             time=0.0,
             prediction_filter_length=5,
+            idle_time_max=30.0,
         ):
 
         # config
         self.brushing_target_time = 120.0
         self.done_wait_time = 1.0
         self.fail_wait_time = 1.0
-        self.idle_time_max = 5.0
+        self.idle_time_max = idle_time_max
         self.brushing_threshold = 0.6
         self.not_brushing_threshold = 0.4
         self.motion_threshold = 0.3
