@@ -8,6 +8,7 @@ import npyfile
 import emlearn_trees
 
 import timebased
+from core import StateMachine
 
 class GravitySplitter():
 
@@ -77,7 +78,10 @@ def energy_xyz(xs, ys, zs, orientation):
 class DataProcessor():
 
     def __init__(self):
-        model_path = 'models/brushing_trees.csv'
+        # FIXME: proper lookup
+        here = __file__
+        model_path = './firmware/models/brushing.csv'
+        print('load', model_path)
         self.brushing_model = self.load_model(model_path)
 
         features_typecode = timebased.DATA_TYPECODE
@@ -144,7 +148,7 @@ class DataProcessor():
         brushing = self.brushing_outputs[1]
         predict_duration = time.ticks_ms() - predict_start
 
-        print('comp', features_duration, predict_duration)
+        #print('comp', features_duration, predict_duration)
 
         return motion, brushing
 
@@ -155,14 +159,14 @@ def read_data_file(path,
         skip_samples=0,
         limit_samples=None):
 
-    with npyfile.Reader(path) as reader:
+    with npyfile.Reader(path) as data:
 
         # Check that data is expected format: files x timesteps x features, int16
         shape = data.shape
-        assert len(shape) == 3, shape
-        assert shape[2] == n_features, shape
-        assert data.itemsize == 2
-        assert data.typecode == 'h'
+        assert len(shape) == 2, shape
+        assert shape[1] == n_features, shape
+        assert data.itemsize == 2, data.itemsize
+        assert data.typecode == 'h', data.typecode
 
         # Read one chunk at a time
         sample_count = 0
@@ -193,9 +197,8 @@ def process_file(path):
 
     n_axes = 3
     sample_no = 0
-    for xyz in read_data_file(data_path, chunk_length=hop_length):
+    for xyz in read_data_file(path, chunk_length=hop_length):
         t = (1.0/samplerate) * sample_no
-        print(len(xyz))
         n_samples = len(xyz) // n_axes
         for i in range(n_samples):
             x_values[i] = xyz[(i*3)+0]
@@ -204,10 +207,9 @@ def process_file(path):
 
         motion, brushing = p.process(x_values, y_values, z_values)
         sm.next(t, motion, brushing)
-
         sample_no += n_samples
 
-        yield t, motion, brushing, sm.state, brushing_time
+        yield t, motion, brushing, sm.state, sm.brushing_time
 
 
 def test_process_happy():
@@ -227,12 +229,18 @@ def test_process_happy():
 
 def main():
 
-    data_path = f'toothbrush.testdata.npy'
-    for out in process_file(data_path):
-        t, motion, brushing, sm.state, brushing_time = out
-        print(out)
+    import sys
 
-        # TODO: check the variable. brushing_time ?
+    total_brushing_time = 0.0
+
+    data_path = sys.argv[1]
+    for out in process_file(data_path):
+        t, motion, brushing, state, brushing_time = out
+        print('toothbrush-state-out', out)
+
+        total_brushing_time = max(brushing_time, total_brushing_time)
+
+    print('toothbrush-done', total_brushing_time)
 
 if __name__ == '__main__':
     main()

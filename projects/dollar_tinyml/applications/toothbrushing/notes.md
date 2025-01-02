@@ -13,10 +13,6 @@ Cumulative time. Labeled versus detected.
 - Test on device
 - Record more data. Get up to 8 or 10 sessions total.
 - Move project to its own repository. Under jonnor?
-- Design a costmetic cover?
-Use zipties. Need holes for the ziptie attach to not stick out
-Add emlearn logo
-Make top flat. Near flush with M5StickC
 - Record a demo video
 
 Misc
