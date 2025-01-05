@@ -5319,16 +5319,6 @@
 		)
 		(uuid "19e4fef9-2d2c-4358-8731-6e772c9daf57")
 	)
-	(text "FIXME: verify transistor and buzzer pinout"
-		(exclude_from_sim no)
-		(at 233.934 151.384 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "1ce11d57-66c0-4c80-abc1-24149939b163")
-	)
 	(text "Microcontroller"
 		(exclude_from_sim no)
 		(at 100.33 76.835 0)
@@ -5374,7 +5364,18 @@
 	)
 	(text "LiIon/LiPo battery\n3.7V nominal, 4.2v max"
 		(exclude_from_sim no)
-		(at 92.71 27.305 0)
+		(at 55.372 59.944 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "536ac549-9370-477f-bcd6-ff25f64b6ee8")
+	)
+	(text "LiIon/LiPo battery\n3.7V nominal, 4.2v max"
+		(exclude_from_sim no)
+		(at 96.52 33.274 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5415,16 +5416,6 @@
 			(justify left bottom)
 		)
 		(uuid "96f40155-fae1-4509-9399-d4b179f5836a")
-	)
-	(text "FIXME: verify microcontroller and accelerometer pinout\n"
-		(exclude_from_sim no)
-		(at 57.404 117.094 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "9bd60158-0db7-4e14-b525-81f47b15af13")
 	)
 	(text "Headers"
 		(exclude_from_sim no)
@@ -6517,7 +6508,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100R"
+		(property "Value" "120R"
 			(at 249.809 144.526 90)
 			(effects
 				(font
@@ -6795,7 +6786,7 @@
 				)
 			)
 		)
-		(property "Value" "XC6206PxxxMR"
+		(property "Value" "XC6206P332MR"
 			(at 133.35 34.29 0)
 			(effects
 				(font
@@ -6823,6 +6814,24 @@
 			)
 		)
 		(property "Description" "Positive 60-250mA Low Dropout Regulator, Fixed Output, SOT-23"
+			(at 133.35 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "XC6206P332MR"
+			(at 133.35 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "Torex"
 			(at 133.35 38.1 0)
 			(effects
 				(font
@@ -7331,9 +7340,9 @@
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "329a5293-a214-488f-a0b4-a17fc0d1aad3")
 		(property "Reference" "J3"
 			(at 135.636 138.176 0)
@@ -7671,6 +7680,24 @@
 			)
 		)
 		(property "Description" "3-Axis Accelerometer, 2/4/8g range, I2C/SPI interface"
+			(at 50.8 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "ST Microelectronics"
+			(at 50.8 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "LIS2DH12TR"
 			(at 50.8 166.37 0)
 			(effects
 				(font
@@ -8408,7 +8435,7 @@
 		(at 262.89 133.35 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -9497,7 +9524,7 @@
 				)
 			)
 		)
-		(property "Value" "LP4054HB5F"
+		(property "Value" "Li charger 4054"
 			(at 73.025 29.21 0)
 			(effects
 				(font
@@ -9532,7 +9559,16 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C517187"
+		(property "Manufacturer" "LOWPOWER"
+			(at 83.82 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "LP4054HB5F"
 			(at 83.82 38.1 0)
 			(effects
 				(font
@@ -9921,7 +9957,7 @@
 				)
 			)
 		)
-		(property "Value" "LED_RGB"
+		(property "Value" "LED 5050-6P-GRB"
 			(at 240.03 81.28 0)
 			(effects
 				(font
@@ -9948,6 +9984,24 @@
 			)
 		)
 		(property "Description" "RGB LED, 6 pin package"
+			(at 240.03 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" "TCWIN"
+			(at 240.03 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "TC5050RGBF08-3CJH-AF53A"
 			(at 240.03 92.71 0)
 			(effects
 				(font
@@ -10001,7 +10055,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "PTS647SM50SMTR2LFS"
 			(at 204.47 138.4299 90)
 			(effects
 				(font
@@ -10030,6 +10084,24 @@
 		)
 		(property "Description" "Push button switch, generic, two pins"
 			(at 203.2 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" " C&K"
+			(at 203.2 137.16 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "PTS647SM50SMTR2LFS"
+			(at 203.2 137.16 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10210,7 +10282,7 @@
 		(exclude_from_sim no)
 		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "e6a1ec27-8a53-4c6f-bbe0-eb77610ca160")
 		(property "Reference" "U5"
@@ -10290,9 +10362,9 @@
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "ed6cd241-be4a-489a-9555-0c054441d1ca")
 		(property "Reference" "J4"
 			(at 135.636 158.496 0)
@@ -10396,7 +10468,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://datasheet.lcsc.com/lcsc/2302231730_WCH-Jiangsu-Qin-Heng-CH32V003F4U6_C5299908.pdf"
+		(property "Datasheet" ""
 			(at 116.84 74.93 0)
 			(effects
 				(font
@@ -10414,7 +10486,16 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C3018713"
+		(property "Manufacturer" "PUYA)"
+			(at 116.84 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MPN" "PY32F003F18U6TR"
 			(at 116.84 107.95 0)
 			(effects
 				(font
@@ -10502,7 +10583,7 @@
 		(exclude_from_sim no)
 		(in_bom no)
 		(on_board yes)
-		(dnp no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "f13f8a6c-0524-453f-ba11-1c1aa36770fe")
 		(property "Reference" "BT1"
@@ -10514,7 +10595,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Battery_Cell"
+		(property "Value" "LIR1225"
 			(at 113.03 44.5135 0)
 			(effects
 				(font
