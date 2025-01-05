@@ -47,7 +47,7 @@ But if one can put it in a USB socket somewhere, can do continious monitoring.
 Requirements
 
 - Way to indicate activity. Couple of buttons?
-- Way to give user feedback on activity detected and. RGB controllable LEDs
+- Way to give user feedback on activity detected and. RGB controllable LEDs. Maybe buzzer?
 - Way to measure motion. Accelerometer. LIS2DH12
 - Possible to charge. Charger. USB Type PCB connector?
 - Battery powered for some hours. LIR1220 or LIR1025
@@ -60,6 +60,14 @@ Accel. 25 cents
 BLE. 20 cents
 Battery. 25 cents
 = 85 cents
+
+Buzzer
+
+8.5 x 8.5 mm package quite common 
+- PUI SMT-0827-S-HT-R
+- FUET-8530-05
+- JIANGSU HUANENG MLT-8530
+- XINGHUA HUAYU HYG-8503A-5027
 
 ## Weight measurement
 
