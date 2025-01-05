@@ -1622,7 +1622,7 @@
 				)
 			)
 		)
-		(symbol "Device:Q_NPN_BCE"
+		(symbol "Device:Q_NPN_EBC"
 			(pin_names
 				(offset 0) hide)
 			(exclude_from_sim no)
@@ -1637,7 +1637,7 @@
 					(justify left)
 				)
 			)
-			(property "Value" "Q_NPN_BCE"
+			(property "Value" "Q_NPN_EBC"
 				(at 5.08 -1.27 0)
 				(effects
 					(font
@@ -1664,7 +1664,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "NPN transistor, base/collector/emitter"
+			(property "Description" "NPN transistor, emitter/base/collector"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1682,7 +1682,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "Q_NPN_BCE_0_1"
+			(symbol "Q_NPN_EBC_0_1"
 				(polyline
 					(pts
 						(xy 0.635 0.635) (xy 2.54 2.54)
@@ -1743,11 +1743,11 @@
 					)
 				)
 			)
-			(symbol "Q_NPN_BCE_1_1"
-				(pin input line
-					(at -5.08 0 0)
-					(length 5.715)
-					(name "B"
+			(symbol "Q_NPN_EBC_1_1"
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "E"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1763,9 +1763,9 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "C"
+					(at -5.08 0 0)
+					(length 5.715)
+					(name "B"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1781,9 +1781,9 @@
 					)
 				)
 				(pin passive line
-					(at 2.54 -5.08 90)
+					(at 2.54 5.08 270)
 					(length 2.54)
-					(name "E"
+					(name "C"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5437,7 +5437,7 @@
 		)
 		(uuid "9fc943f6-5739-4c2a-b390-9f39d2ea9c3b")
 	)
-	(text "LEDs"
+	(text "LED"
 		(exclude_from_sim no)
 		(at 217.424 77.724 0)
 		(effects
@@ -5643,6 +5643,17 @@
 			(justify left bottom)
 		)
 		(uuid "1b84936d-87c6-4068-b7e2-677a15129e49")
+	)
+	(label "BUZZER+"
+		(at 259.08 130.81 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1d464e5b-7074-4fb8-a496-776a9f749840")
 	)
 	(label "BATT+"
 		(at 109.22 38.1 0)
@@ -5875,6 +5886,17 @@
 		)
 		(uuid "a1829066-cf75-42f7-8c15-c81a083cc6b9")
 	)
+	(label "BATT_PROG"
+		(at 71.12 40.64 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a518b1b0-4575-4d94-97fd-55852347709b")
+	)
 	(label "SCL"
 		(at 101.6 101.6 180)
 		(fields_autoplaced yes)
@@ -5918,6 +5940,17 @@
 			(justify right bottom)
 		)
 		(uuid "b5816e61-1ac0-43ab-b618-cf811d62f64d")
+	)
+	(label "BUZZER-"
+		(at 259.08 138.43 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b69bed4e-1f3e-4060-b15f-b64fb6f8d299")
 	)
 	(label "LED_BLUE_P"
 		(at 101.6 116.84 180)
@@ -6606,7 +6639,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NPN_BCE")
+		(lib_id "Device:Q_NPN_EBC")
 		(at 256.54 147.32 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6651,7 +6684,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "NPN transistor, base/collector/emitter"
+		(property "Description" "NPN transistor, emitter/base/collector"
 			(at 256.54 147.32 0)
 			(effects
 				(font
@@ -7162,7 +7195,7 @@
 		(fields_autoplaced yes)
 		(uuid "29de6f74-34a3-4469-a4a7-f8abb9f6ce5e")
 		(property "Reference" "JP1"
-			(at 171.45 96.52 0)
+			(at 171.45 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7175,6 +7208,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Footprint" "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm"
