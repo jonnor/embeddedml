@@ -1,3 +1,0 @@
-mpflash
-esptool
-mpremote
