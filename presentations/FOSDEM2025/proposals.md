@@ -75,6 +75,17 @@ and we believe that these perspectives and experiences may be useful also to oth
 
 ## Takeaways
 
+#### Main communication goals
+
+ML is not only huge, complex, expensive systems. TinyML is an alternative
+Physical systems, not just abstract. Devices that you can interact with.
+Can make useful solutions for niche/personal applications.
+Do not need huge amounts of data. Can collect it oneself.
+Off the shelf hardware is available. Accessible without eletronics expertize
+Low cost enables large scale in diversity of applications, and in number-of-units
+
+#### Smaller points
+
 - TinyML is about deploying ML inference for small microcontroller systems, usually combined with physical sensors
 - Wide range of applications across all industries
 - Typical TinyML systems are under under 1 watt, under 1 MB of RAM and FLASH, under 10 USD bill-of-materials
