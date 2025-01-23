@@ -166,6 +166,14 @@ test_xor_single_tree() {
     // FIXME: set up and copy nodes
     n_nodes = 
 
+    hwtrees_node = {
+        // is_leaf, feature, threshold, child/leaf
+        { 0, 0, 127, 3 },   // if f[0] > 127, jump=3 - else jump=1
+        { 0, 1, 127, 1 },   // if f[0] > 127, jump=2 - else jump=1
+        { 1, 0, 0, 0 },     // class=0
+        { 1, 0, 0, 1 },     // class=1
+    }
+
     hwtrees_register reg = {
         input_addr, 2,
         output_addr, 1,
