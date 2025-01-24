@@ -69,7 +69,18 @@
 	(attr through_hole)
 	(fp_circle
 		(center 0 0)
-		(end 8 0)
+		(end 5.8 0)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "09c39e2d-1adb-4b49-affa-849c18db5e39")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 6 0)
 		(stroke
 			(width 0.1)
 			(type default)

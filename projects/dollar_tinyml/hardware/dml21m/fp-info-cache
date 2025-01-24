@@ -1,4 +1,4 @@
-23684981974635443
+23686723213519514
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -96313,6 +96313,13 @@ Varistor VF
 2
 2
 dml20m
+Battery_CR1220-Horizontal
+Panasonic CR-2032/HFN battery, https://industrial.panasonic.com/cdbs/www-data/pdf2/AAA4000/AAA4000D166.PDF
+battery CR-2032 coin cell
+0
+2
+2
+dml21m
 Battery_CR1220-Horizontal
 Panasonic CR-2032/HFN battery, https://industrial.panasonic.com/cdbs/www-data/pdf2/AAA4000/AAA4000D166.PDF
 battery CR-2032 coin cell
