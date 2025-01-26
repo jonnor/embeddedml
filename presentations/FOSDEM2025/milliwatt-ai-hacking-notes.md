@@ -14,7 +14,7 @@ downstream projects building on top of these (for example,  ollama, ramalama and
 as well as end-users of AI stacks to speak about their work and expertise.
 
 ## Format
-Single track, 10 - 20 minute technical session
+20 minute technical session
 
 ## Abstract
 
@@ -39,36 +39,100 @@ and we believe that these perspectives and experiences may be useful also to oth
 
 #### Main communication goals
 
-ML is not only huge, complex, expensive systems. TinyML is an alternative
-Physical systems, not just abstract. Devices that you can interact with.
-Can make useful solutions for niche/personal applications.
-Do not need huge amounts of data. Can collect it oneself.
-Off the shelf hardware is available. Accessible without eletronics expertize
-Low cost enables large scale in diversity of applications, and in number-of-units
+- ML is not only huge, complex, expensive systems. TinyML is an alternative
+- Focus on physical systems, not just abstract. Devices that you can interact with.
+- Can make useful solutions for niche/personal applications.
+- Do not need huge amounts of data. Can collect it oneself.
+- Off the shelf hardware is available. Accessible without eletronics expertice
+- Low cost enables large scale in diversity of applications, and in number-of-units deployed
 
 #### Smaller points
 
 - TinyML is about deploying ML inference for small microcontroller systems, usually combined with physical sensors
 - Wide range of applications across all industries
-- Typical TinyML systems are under under 1 watt, under 1 MB of RAM and FLASH, under 10 USD bill-of-materials
+- Large TinyML systems are under 1 watt, under 1 MB of RAM and FLASH, under 10 USD bill-of-materials
+- Battery powered applications often target under 1 milli-watt.
+- Some practical application possible under 10 kB RAM and 100 kB FLASH, down to 1 USD BOM.
 - Massive scale. Hundreds of millions of devices shipped anually
 - emlearn is a project providing ML implementations for microcontrollers
 - emlearn also has a MicroPython API. Enables usage from Python on microcontrollers
-- computational efficiency has been improved 10-100x before,
-it is possible also for large language models.
+
+#### Asides
+
+Computational efficiency of ML systems has been improved 10-100x before.
+Well demonstrated for computer vision tasks.
+It is possible also for large language models.
+
+## Call to action
+
+Interested in using ML for sensors/IoT/electronics and deploying to a microcontroller?
+Try out the emlearn library.
+Either using C, or using MicroPython.
 
 
-### Notes
 
-Quick introduction to the emlearn project
-TinyML. Very small models. High energy efficiency. Computational efficiency in terms of RAM.
-Massive scale in terms of number.
-Measurig and analzying the world continiously.
+### Outline
 
-We believe there are collaboration opportunities
+- What is TinyML? 
+Measuring and analzying the world continiously.
+High energy efficiency. Low-cost hardware. Very small models, RAM/ROM/CPU. 
+Often massive scale in terms of number of devices.
+- Quick introduction to the emlearn project
 
-Over 30 billion microcontrollers are shipped annually
 
+
+### Energy requirements for battery powered
+
+- ER14505 (AA sized). 2400 mAh. For 1 year, 0.9 mW.
+- CR2032 coincell. 235 mAh. Over 3 years, 0.025 mW
+- LIR1025 rechargable. 6 mAh. 1 month. 0.025 mW. 8 uA average.
+
+
+### Toothbrush power consumption optimized
+
+PY003F power consumption
+
+- STOP. 6 uA 
+- LSI SLEEP. 96-170 uA, 32 kHz
+- HSI SLEEP. 0.35-1.0 mA, 4-24 Mhz. ! Almost identical to RUN
+- HSI RUN. 0.35mA-1.5 mA, 4-24 Mhz 
+- HSI RUN at default 8 Mhz, 0.70 mA
+
+LPTIM can be used to create a tick that wakes up from STOP.
+For example at 1 kHz, 100, or 10 Hz.
+Wakeup time is 6us.
+
+LIS2DH12.
+- 20 uA at 100 Hz.
+- 6 uA at 25 Hz.
+
+Assuming 1% CPU utilization for feature plus classification.
+1 ms every 100 ms.
+RUN. (0.7 * 1/100) * 1000 = 7 uA
+
+Buzzer.
+10 seconds active per 2 min session.
+3 sessions per day.
+10 mA active.
+((10*30)/(24*3600))*1000
+3.5 uA
+
+Total budget, 40 uA average 
+
+- Accelerometer 10 uA
+- uC stop 10 uA
+- uC run 10 uA
+- Buzzer/LED. 10 uA
+
+Over 6 days runtime for LIR1025.
+
+
+### Massive scale
+
+- Over 30 billion microcontrollers are shipped annually
+- Over 1 billion cows in the world.
+- Over 1 billion sheep.
+- Over 5 million Air Conditioning systems shipped anually, in USA alone.
 
 TinyML market will grow from 15.2 million shipments in 2020 to 2.5 billion in 2030. 
 https://www.abiresearch.com/press/tinyml-device-shipments-grow-25-billion-2030-15-million-2020/
@@ -76,20 +140,33 @@ https://www.abiresearch.com/press/tinyml-device-shipments-grow-25-billion-2030-1
 TinyML device installs will increase from nearly 2 billion in 2022 to over 11 billion in 2027
 https://www.abiresearch.com/press/11-billion-tinyml-device-installs-481-million-5g-advanced-devices-in-2027-and-35-other-transformative-technology-stats-you-need-to-know/
 
-Keyword spotting.
-Wearable devices.
-Sleep quality tracking.
+
+### Common applications
+
+In consumer electronics
+
+- Keyword spotting.
+- Wearable devices.
+- Sleep quality tracking.
 
 <1 USD microcontroller
 <1 USD MEMS sensor
 
-emlearn since 2018
+### Efficiency changes of deep learning models
 
-
-Efficiency has improved a lot
+Efficiency has improved a lot over the last 10 years.
 https://www.sciencedirect.com/science/article/pii/S2210537923000124
-2012 -> 2022. 1.0 to 1000.0 GFLOPS
-56% to 90% top1 accuracy
-At 1 GFLOP, up to 82% in 2020
 
-10x improvement in GFLOPS/watt
+Reviewes data from 2012 -> 2022.
+
+Top perf requires more compute
+
+- 1.0 to 1000.0 GFLOPS for biggest models
+- 56% to 90% top1 accuracy overall
+
+But near-top perf requires much less
+
+- At 1 GFLOP, from 60% in 2012 to 82% in 2020
+- Also a 10x improvement in GFLOPS/watt, from 20 GFLOPS/watt to 200 GFLOPS/watt
+
+
