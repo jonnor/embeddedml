@@ -70,11 +70,10 @@ Try out the emlearn library.
 Either using C, or using MicroPython.
 
 
-
 ### Outline
 
 - What is TinyML? 
-Measuring and analzying the world continiously.
+Measuring and analyzing the world continiously.
 High energy efficiency. Low-cost hardware. Very small models, RAM/ROM/CPU. 
 Often massive scale in terms of number of devices.
 - Quick introduction to the emlearn project
