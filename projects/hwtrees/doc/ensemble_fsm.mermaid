@@ -1,0 +1,16 @@
+---
+title: FSM Decision Tree Ensemble Accelerator
+---
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> FETCH_ROOT : start
+    FETCH_ROOT --> FETCH_NODE : read_done
+    FETCH_NODE --> CHECK_LEAF : read_done
+    CHECK_LEAF --> WRITE_OUTPUT : is_leaf
+    CHECK_LEAF --> FETCH_INPUT : not a leaf
+    FETCH_INPUT --> EVALUATE_NODE : read_done
+    EVALUATE_NODE --> FETCH_NODE : node = (feature < threshold) ? node+1 or left_child
+    WRITE_OUTPUT --> NEXT_TREE : write_done
+    NEXT_TREE --> FETCH_ROOT : more trees, tree+=1
+    NEXT_TREE --> DONE : last tree, done=HIGH
+    DONE --> [*]

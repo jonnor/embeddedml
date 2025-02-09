@@ -71,20 +71,46 @@ Leaf handling and aggregation done on CPU side.
 Important to allow others to write/read from SRAM.
 
 
-## Register map
+## Peripheral control register
 
 - Status. 1 byte?
 - Output address. 3 bytes
 - Input address. 3 bytes
 - Roots address. 3 bytes
 - Nodes address. 3 bytes
+- Number of nodes. 2 bytes
+- Number of inputs/features. 1 byte
+- Number of trees/roots. 1 byte
 
-QUESTION:
-Do we need lengths???
-Or is host responsible for verifying?
-And nodes encode how much is used?
-Should the length be a fixed number of bytes at specified address?
-Or the peripheral itself.
+## Address of peripheral control register
+
+Decided by input pins.
+
+
+## RAM requirements
+
+Example design constraints
+
+- 8 bit features
+- 10 trees.
+- 64 features
+- 1000 decison nodes total
+- 256 leaf max
+
+RAM requirements minimum
+
+- Status: 1-8 bytes?
+- Out (leaf indices): 1 per tree. 10 bytes
+- Input. 1 per feature. 64 bytes
+- Nodes. 7 bits feature, 1 bit leaf, 8 bits threshold, 8 bits next - 3 bytes.
+Could be smaller, but then not byte aligned anymore. 3000 bytes for 1k nodes.
+
+Space is sominated by decision nodes.
+Can do quite a lot with 4 kB!
+Even 512bytes-2kB could be used. But also as large as 32kB, for 10k nodes.
+
+The external RAM options are 64 kB (SPI RAM emulated on RP2040), or 8 MB (QSPI PSRAM).
+Way larger than this. Good!
 
 
 ## TODO 
@@ -111,15 +137,6 @@ Ordering
 
 Ref proto.c
 
-Accessing external PSRAM
-
-- Standard SPI commands should work? At least for not-so-fast clocks, and single SPI?
-- QSPI require using PIO.
-- https://github.com/MichaelBell/tinyQV/blob/main/pico_ice/micropython/run_tinyqv.py has a qspi_read - but no qspi_write...
-- tjaekel implemented QSPI with PIO. MicroPython code at https://forums.raspberrypi.com/viewtopic.php?t=376964
-- 4 bit sdcard SDIO with PIO. Should be adaptable to QSPI, in theory.
-https://github.com/raspberrypi/pico-extras/blob/master/src/rp2_common/pico_sd_card/sd_card.pio
-- SPI only, but high frequency. https://github.com/polpo/rp2040-psram
 
 
 #### Implementing in FPGA
@@ -159,7 +176,21 @@ Application demo
 - Do something fun with the output
 
 
+# Implementation
+
+## Memory controller
+
+Two main options. SPI with RP2040. Or QSPI, with dedicated PMOD
+
+## Decision tree evaluator
+
+Probably using a Finite State Machine.
+Needs to handle read and writes from external RAM.
+Do the evaluation logic.
+
+
 # Background
+
 
 ## Interoperating with CPUs from TinyTapeout
 
@@ -178,15 +209,11 @@ By Mike Bell.
 https://github.com/MichaelBell/tinyQV/
 https://github.com/MichaelBell/tt06-tinyQV/
 
-Uses this PMOD, https://github.com/mole99/qspi-pmod
-with SPI Flash and two PSRAMs.
-8MB of PSRAM.
-Seems to have 23 bits for the RAM?
+Uses a PMOD with SPI Flash and two PSRAMs.
+https://github.com/mole99/qspi-pmod
+Seems to have 23 bits addresses for the RAM?
 
 ! use this pinout and PMOD for the RAM?
-
-Is in TinyTapeout store.
-https://store.tinytapeout.com/products/QSPI-Pmod-p716541602
 
 tinyQV Has documented address map
 
@@ -253,39 +280,55 @@ Defines an address map. PSRAM mapped at 0x8000000
 16 MiB of external SPI flash memory, 8 MiB of external PSRAM
 
 
-## RAM requirements
+## RAM options
 
-Example design constraints
+### SPI RAM
 
-- 8 bit features
-- 10 trees.
-- 64 features
-- 1000 decison nodes total
-- 256 leaf max
+SPI RAM externally is provided on the standard TinyTapeout test setup.
+By RPi Pico RP2040, with emulated SPI RAM.
+https://tinytapeout.com/specs/memory/
+64 kB maximum.
 
-RAM requirements minimum
 
-- Status: 1-8 bytes?
-- Out (leaf indices): 1 per tree. 10 bytes
-- Input. 1 per feature. 64 bytes
-- Nodes. 7 bits feature, 1 bit leaf, 8 bits threshold, 8 bits next - 3 bytes.
-Could be smaller, but then not byte aligned anymore. 3000 bytes for 1k nodes.
+> RP2040 emulated RAM is currently limited to 1-bit, single data rate SPI at a max of about 20MHz 
+RebelMike 11/7/24, 7:16 PM
 
-Space is sominated by decision nodes.
-Can do quite a lot with 4 kB!
-Even 512bytes-2kB could be used. But also as large as 32kB, for 10k nodes.
+https://github.com/MichaelBell/spi-ram-controller
+Verilog code for an SPI controller.
+Tested with the RP2040 SPI RAM emulator. 
+
+Accessing SPI RAM from RP2040.
+Should be easy, using the standard SPI peripheral of RP2040.
+
+
+### QSPI PSRAM
+
+8 MB PSRAM PMOD. Used by several RISC-V CPUs on TinyTapeout.
+https://github.com/mole99/qspi-pmod
+Provides SPI Flash and two PSRAMs.
+Is in TinyTapeout store.
+https://store.tinytapeout.com/products/QSPI-Pmod-p716541602
+
+Accessing external PSRAM from RP2040
+
+- Standard SPI commands should work? At least for not-so-fast clocks, and single SPI?
+- QSPI require using PIO.
+- https://github.com/MichaelBell/tinyQV/blob/main/pico_ice/micropython/run_tinyqv.py has a qspi_read - but no qspi_write...
+- tjaekel implemented QSPI with PIO. MicroPython code at https://forums.raspberrypi.com/viewtopic.php?t=376964
+- 4 bit sdcard SDIO with PIO. Should be adaptable to QSPI, in theory.
+https://github.com/raspberrypi/pico-extras/blob/master/src/rp2_common/pico_sd_card/sd_card.pio
+- SPI only, but high frequency. https://github.com/polpo/rp2040-psram
+
+
+### On-chip RAM for FPGA
 
 FPGA chips often provides SRAM blocks.
 ICE40 ERB has 4Kbit/512byte, between 8 and 32 of them, depending on device.
 And Ultraplus has 256Kbit/8kB blocks, 4x of them.
 
-External RAM is available.
-For example 8 MB PSRAM PMOD used by RISC-V CPUs.
+### On-chip RAM for TinyTapeout
 
-SPI RAM externally is provided on the standard test setup.
-By RPi Pico, with emulated SPI RAM.
-https://tinytapeout.com/specs/memory/
-64 kB maximum
+Generally limited to very small amounts.
 
 
 # Findings
@@ -339,6 +382,14 @@ Since each memory access needs SPI.
 But is it a problem to practical uses?
 Can one match microcontroller speed? Or improve on it?
 
+Cases with higher computational intensity (relative to I/O) would do better.
+Like a multi-stage IIR/biquad, if the coefficients can be put into internal RAM/registers. 
+
+https://github.com/Durkhai/biquad_mpw7
+12 bit data with 16 bit coefficients
+based on
+https://opencores.org/projects/biquad
+
 ## Open questions
 
 
@@ -369,4 +420,161 @@ Input pins that specify the start address?
 If 64 kB range, allows specifying down to 256 byte location.
 Would probably want to block off the memory region used in firmware program, say using a linker script.
 
+
+## References
+
+### Related works
+
+#### FPGA Accelerator for Gradient Boosting Decision Trees
+https://www.mdpi.com/2079-9292/10/3/314
+
+> Compared to a high-performance processor running optimized software, on average our design is twice as fast and consumes 72 times less energy.
+> Compared to an embedded processor, it is 30 times faster and consumes 23 times less energy.
+
+Using 32 bits per node.
+Uses different data representations for leaf and non-leaf nodes. Ref Figure 3.
+
+Decision node: 8 bits feature index. 16 bit threshold. 7 bit relative jump for right, 1 bit is_leaf.
+
+Leaf node: 16 bit leaf value. 14 bits next tree + 1 bit is_last_tree
+
+Pointer to next tree is alternative to storing roots? Disadvantage: forces serial execution.
+But that is inherent in Gradient Boosted Trees, since leaf values are added.
+
+Discusses pipelined execution, both single thread and multi-thread.
+Provides a class diagram of the accelerator. Ref Figure 5.
+
+#### Scalable inference of decision tree ensembles: Flexible design for CPU-FPGA platforms
+https://ieeexplore.ieee.org/document/8056784
+https://readingxtra.github.io/docs/ml-fpga/scalable-inference-fpga.pdf
+
+> Different trees in an ensemble can be processed in parallel during tree inference, making them a suitable use case for FPGAs.
+> Large tree ensembles, however, require careful mapping of trees to on-chip memory and management of memory accesses
+> As a result, existing FPGA solutions suffer from the inability to scale beyond tens of trees and lack the flexibility to support different tree ensembles
+> In this paper we present an FPGA tree ensemble classifier together with a software driver to efficiently manage the FPGA's memory resources.
+> The classifier architecture efficiently utilizes the FPGA's resources to fit half a million tree nodes in on-chip memory,
+> delivering up to 20× speedup over a 10-threaded CPU implementation when fully processing the tree ensemble on the FPGA.
+
+#### Decision Tree Ensemble Hardware Accelerators for Embedded Applications
+Rastislav Struharik
+2015
+
+? no PDF available =//
+
+https://www.researchgate.net/publication/283910062_Decision_Tree_Ensemble_Hardware_Accelerators_for_Embedded_Applications
+
+https://www.semanticscholar.org/paper/Decision-tree-ensemble-hardware-accelerators-for-Struharik/db90e2c322d648ce3468e51bdea05db408c5c549?sort=relevance&page=2
+has the figures
+
+Follow up to 2011 paper?
+
+#### Implementing Decision Trees in Hardware
+J.R. Struharik
+2011
+
+- Single Module per Level (SMpL) Architecture
+- Universal Node (UN) Architecture.
+
+References two existing implementations.
+
+Tested on Xilinx 2. Compared execution speed of MicroBlaze soft CPU with the proposed hardware FPGA implementations.
+Report speedups betweem 9x and 900x.
+Pipelining was critical to the high execution speeds.
+Number of "slices" used ranged from 100 to 10k.
+
+
+#### conifer
+https://github.com/thesps/conifer
+
+Conifer translates trained Boosted Decision Trees to FPGA firmware for extreme low latency inference.
+
+Has conversion code from scikit-learn etc.
+
+
+#### hls4ml
+
+hls4ml is a Python package for machine learning inference in FPGAs
+https://fastmachinelearning.org/hls4ml/
+
+
+#### Efficient Majority Voting in Digital Hardware
+Stefan Baumgartner, Mario Huemer, Michael Lunglmayr
+
+2021
+
+https://arxiv.org/abs/2108.03979
+https://arxiv.org/pdf/2108.03979
+
+#### Fast and Energy-Efficient Oblique Decision Tree Implementation with Potential Error Detection
+
+https://www.mdpi.com/2079-9292/13/2/410
+
+! Good description of baseline DT architecture.
+Figure 1 has simple diagram of base Decision Tree.
+
+a control module (CTL), a node memory, an input memory, and a computation module (COMP)
+
+
+> The proposed approach begins by identifying an input vector that might be classified differently by a fixed-point decision tree than by a floating-point decision tree.
+> Upon identification, an error flag is activated, signaling a potential misclassification.
+> This flag serves to bypass or disable the subsequent classification procedures for the identified input vector, thereby conserving energy and reducing classification latency. 
+> Subsequently, the input vector is alternatively classified based on class probabilities gathered during the training phase.
+> In comparison with traditional fixed-point implementations, our proposed approach is proven to be 23.9% faster in terms of classification speed,
+> consuming 11.5% less energy without compromising classification accuracy.
+
+
+#### Co-Processor for evolutionary full decision tree induction
+https://www.sciencedirect.com/science/article/abs/pii/S0141933116300497
+
+Implemented using FPGA.
+
+> Substantial DT induction time speedups for the selected benchmark datasets
+> from the standard UCI machine learning repository database.
+
+#### Efficient traversal of decision tree ensembles with FPGAs
+https://www.sciencedirect.com/science/article/abs/pii/S0743731521000915
+https://arts.units.it/bitstream/11368/3034418/5/1-s2.0-S0743731521000915-main-Post_print.pdf
+
+> Present three SoC architecture designs for speeding-up inference tasks based on machine learned ensembles of decision trees. 
+> QuickScorer, the state-of-the-art algorithm for the efficient traversal of tree ensembles
+
+Paper has nice diagram of the data layout.
+
+#### TreeLUT: An Efficient Alternative to Deep Neural Networks for Inference Acceleration Using Gradient Boosted Decision Trees
+https://arxiv.org/html/2501.01511v1
+
+> Perfect Fit for FPGAs: GBDTs mostly consists of decision trees, which resemble binary decision diagrams (BDDs).
+> These BDD-like structures nicely map to LUTs, as FPGA design flows are highly optimized to implement such structures efficiently
+> Moreover, these models perform simple operations during inference, which makes their hardware implementations more efficient.
+
+
+> For the hardware architecture, it uses a fully unrolled 3-layer architecture, making it modular, scalable, and efficient in terms of hardware costs
+> Finally, it inserts pipelining stages in the architecture to achieve lower latency and higher throughput, 
+
+References many previous works.
+POLYBiNN, PolyLUT-Add, NeuraLUT, FINN, hls4ml, LogicNets
+
+
+#### Implementing Hardware Decision Tree Prediction: A Scalable Approach
+Barbareschi, 2016
+https://www.researchgate.net/publication/303393383_Implementing_Hardware_Decision_Tree_Prediction_A_Scalable_Approach
+
+Synthesis of specific decision trees into FPGA.
+Not an accelerator where trees are provided as data.
+
+
+## Unrelated
+
+#### Approximate decision tree-based multiple classifier systems
+M Barbareschi
+2017.
+https://link.springer.com/chapter/10.1007/978-3-319-67308-0_5
+https://www.researchgate.net/profile/Mario-Barbareschi/publication/320861700_Approximate_Decision_Tree-Based_Multiple_Classifier_Systems/links/5b28f8e9a6fdcc72dbeda261/Approximate-Decision-Tree-Based-Multiple-Classifier-Systems.pdf
+
+> we adopt the bit-width reduction technique on a multiple classifier system based on the Random Forest approach
+> A case study demonstrates the feasibility of the methodology, showing an area reduction ranging between 8.3 and 72.3%.
+
+Dividing the features into 2, 4, 6 and 8 groups.
+
+More about reducing the complexity. Using synthesized trees.
 
