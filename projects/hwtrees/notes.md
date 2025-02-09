@@ -1,20 +1,13 @@
 
-# Motivation
-
-Running Machine Learning inference directly on (MEMS) sensors is attractive
-for TinyML applications to reducing the amount of data that needs to be transported,
-which typically has power efficiency benefits.
-
-We would like to research how one could implement hardware-acceleration blocks,
-as using a general-purpose CPU might not be as power efficient.
-
-Specifically we are focusing on decision tree ensembles,
-as these are quite powerful, computationally efficient,
-and may be suited for a compact implementation in hardware.
-
-Looking to deploy into silicon using the [TinyTapeout project](https://tinytapeout.com/).
-
 # Design
+
+## Decision tree ensembles
+
+![](./doc/decision-tree-ensemble.png)
+
+## System architecture
+
+![System diagram](./doc/hwtrees_system.png)
 
 ## Operating principle
 
@@ -31,31 +24,33 @@ Puts in data in RAM, triggers the RF engine, waits for completion, reads out res
 The accelerator also has a CLOCK pin, and a RESET pin.
 Possibly also a RUN pin, and a INT pin for signalling.
 
-## Scope
-Random Forest multi-class classification.
+# Scope
+For version 1. Random Forest multi-class classification.
 
-- Addresses of all data specified via RAM
 - Support multiple trees, executing all in one run.
-- Specific root node address/offset? 
-- Support multiple tree outputs.
-- Can be used with SPI RAM emulated by RP2040. 64 kB
+- Outputs the predictions of all trees separately (leaf indices). Aggregation done on CPU side
+- Can be used with SPI RAM connected to board
 - Works with a standard microcontroller, like RP2040
+- Addresses of all data specified via control register in RAM
+- Sequential execution. No pipelining or parallell execution
+- Blocking reads from RAM. No caches etc
 
 #### Not sure
 
 - Can be used with QSPI RAM provided by PMOD. 8 MB ?
-Maybe QSPI should actually be later... Just plain SPI, 16 bit for now?
+Maybe QSPI should actually be later...
+Just plain SPI, 16 bit addresses for now?
 
 #### Stretch
 
-- Match performance of just-doing-it-in-CPU-instructions
+- Match or exceed performance of CPU-based decision tree evaluation. At least that of a TinyTapeout CPU.
 - Works with a TinyTape microcontroller. Like tt06 tinyQV
-- Output aggregated prediction of entire forest. Argmax or proba.
-Fallback. Output prediction from each tree separately.
-Leaf handling and aggregation done on CPU side.
 
 #### Non goals / out of scope
+At least for version 1.
 
+- Output aggregated prediction of entire forest. Argmax or proba.
+- Pipelining or other perf tricks to reduce impact of slow I/O
 - Parallel execution of trees
 
 ## Requirements
