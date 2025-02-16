@@ -189,13 +189,67 @@ Do the evaluation logic.
 
 ## Interoperating with CPUs from TinyTapeout
 
+Several available that use external SPI/QSPI memory, and have basic GPIO.
+That hopefully one could write a program on the CPU
+which uses the accelerator here to run the decision tree ensemble.
+So far the RISC-V cpus seem most relevant.
+Mostly because they have a standard C programming toolchain.
 
-### FazyRV-ExoTiny
+
+### tt09 ITS-RISCV
+
+https://tinytapeout.com/runs/tt09/tt_um_underserved
+https://github.com/BambangTW/tt09-ITS-RISCV
+
+
+
+### tt07 underserved
+
+https://github.com/olofk/underserved
+Underserved only implements 4 GPR registers
+RISC-V SoC that fits into two TinyTapeout.
+Based on SERV, and a GPIO controller, and XIP memory controller using external SPI memory.
+
+### tt08 HACK CPU
+
+https://tinytapeout.com/runs/tt08/tt_um_hack_cpu
+
+16-bit CPU based on the HACK architecture.
+Uses SPI external memory.
+Said to work with the RP2040 emulated memory.
+
+https://en.wikipedia.org/wiki/Hack_computer
+
+### tt06 FazyRV-ExoTiny
 
 https://github.com/meiniKi/FazyRV-ExoTiny
 https://github.com/meiniKi/fazyrv
 
-Uses external
+Implements a RISC-V CPU.
+
+Uses external memory over QSPI (RAM and ROM).
+
+### tt07 LISA
+
+https://tinytapeout.com/runs/tt07/tt_um_lisa
+
+https://github.com/kdp1965/tt07-um-lisa-ttlc
+8 bit microcontroller.
+Custom ISA.
+
+External memory via (Q)SPI. Switchable mode.
+Uses a custom PMOD for QSPI?
+
+Has a 1 kbit data cache, using a DFFRAM macro.
+
+Takes a total of 2x6 tiles on TinyTapeout.
+
+#### tt05 
+
+https://github.com/cpldcpu/tinytapeout_mcpu5
+
+Total cell count after synthesis is 489.
+Fits into 1 tile, and 100x100 um.
 
 ### tt06 tinyQV
 
@@ -314,7 +368,6 @@ Accessing external PSRAM from RP2040
 https://github.com/raspberrypi/pico-extras/blob/master/src/rp2_common/pico_sd_card/sd_card.pio
 - SPI only, but high frequency. https://github.com/polpo/rp2040-psram
 
-
 ### On-chip RAM for FPGA
 
 FPGA chips often provides SRAM blocks.
@@ -323,7 +376,66 @@ And Ultraplus has 256Kbit/8kB blocks, 4x of them.
 
 ### On-chip RAM for TinyTapeout
 
-Generally limited to very small amounts.
+Ref https://tinytapeout.com/specs/memory/
+Generally limited to quite small amounts.
+Can fit around 320 DFFs (40 bytes of memory) in a single tile.
+
+Some existing designs.
+
+- [urish tt06-256-bits-dff-mem](https://github.com/TinyTapeout/tt06-256-bits-dff-mem).
+264 DFFs (32 bytes of memory + 8 bits for the output register), and utilizes 70% of the tile area
+- [MichaelBell/tt06-memory/](https://github.com/MichaelBell/tt06-memory/).
+64 byte RAM implemented using 512 latches.
+Uses 88% of a single tile area.
+- RAM32 macro.
+128 bytes arranged as 32x32 bits (32 words of 32 bits each) with a single read/write port (1RW).
+Uses an area of 401 x 136 um, which fits in 3x2 tiles and uses about 54% of the area.
+
+
+## Performance considerations
+
+Arithmetic intensity is a key metric to consider when designing hardware accelerators.
+The number of arithmetic operations with relation to the number of memory operations.
+
+Decision trees have a very low arithmetic intensity.
+This means that the expected speedup over a standard microcontroller is generally expected to be low.
+Furthermore, when using an external memory (which is slow), the performance can be expected to be rather bad,
+as it will be dominated by I/O time.
+
+For each decision node to evaluate, there is only 1 arithmetic operation (a comparison).
+Assuming 32 bits per node, and 8 bit per feature.
+We need to do at least 1 32 bit fetch and 1 8 bit fetch.
+Potentially 4x8 bit fetches if our memory bus is 8-bit.
+Arithmetic intensity of 0.5 (per fetch) to 0.20 (per byte).
+
+The input data is one piece of memory that is continiously accessed.
+Having that in an on-chip memory would be advantageous.
+And it may be acceptable to limit the size to an amount which is practically realizable in TinyTapeout.
+Dedicating 1 tile to memory might give between 32-64 bytes,
+which still makes for a practical.
+
+There is some locality in the node.
+So having prefetching of the (potential) next node(s) should be advantageous.
+
+Increasing the arithmetic intensity by integrating more computation into each decision node could be another strategy.
+This would be a non-standard decision tree, and likely also require R&D on which transformations to support,
+as well as a learning algorithm that can build such trees.
+There is some prior art in this area. Including Bonsai by Kumar et al.
+
+Is it possible to arithmetic intensity somewhat by
+having N-deep subtrees as the primary operator (instead of single binary decision nodes)?
+The input and output data needs are conceptually the same (feature indices, feature thresholds, leaf indices),
+so it does not immediately seem so?
+But doing larger fetches with larger values might be somewhat beneficial?
+But this might as well be a cache prefetch mechanism only.
+
+Gradient Boosted Trees frequently use shallow trees only.
+Typically 3-8 levels.
+If the potential output _values_ would be restricted to a small set.
+Might only work well for binary or few-class classification.
+Seems that reducing the number inputs (features) and outputs,
+is the only way to really reduce the size of the nodes.
+By setting fixed sizes for these, might be able to. At cost of flexibility.
 
 
 # Findings
@@ -331,7 +443,7 @@ Generally limited to very small amounts.
 ChatGPT **seems** to be decently at generating example Verilog code?
 
 
-## Implementation
+# Implementation
 
 #### Pinouts
 
@@ -369,21 +481,8 @@ Would like to try to build this out incrementally.
 Create more and more accelerated blocks.
 Reduce how much is done by CPU.
 
-Could one do a medium complexity algorithm?
-Like FFT on 8 bit values?
-Or IIR filter?
-Of course it will be rather slow...
-Since each memory access needs SPI.
-But is it a problem to practical uses?
-Can one match microcontroller speed? Or improve on it?
+For that would want to move [feature extraction to an accelerator](./feature_extraction.md).
 
-Cases with higher computational intensity (relative to I/O) would do better.
-Like a multi-stage IIR/biquad, if the coefficients can be put into internal RAM/registers. 
-
-https://github.com/Durkhai/biquad_mpw7
-12 bit data with 16 bit coefficients
-based on
-https://opencores.org/projects/biquad
 
 ## Open questions
 
