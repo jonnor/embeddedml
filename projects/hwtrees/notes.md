@@ -557,8 +557,64 @@ https://www.researchgate.net/publication/303393383_Implementing_Hardware_Decisio
 Synthesis of specific decision trees into FPGA.
 Not an accelerator where trees are provided as data.
 
+## Hardware accelerators more generally
+
+Two Numbers You Should Know Before Designing a Hardware Accelerator
+https://www.youtube.com/watch?v=RMe2rq3UDcc
+
+For *energy* (efficiency) specifically.
+A) DRAM energy usage. For getting data in and out.
+B) Integer arithmetic on CPU. Because it forms the baseline. And this is what our accelerator can improve upon.
+Shows reference numbers for GPUs.
+I am unusure how microcontroller/ASICs compares.
+Rough numbers. DRAM load: 10 pJ/bit.
+Integer arithmetic. 100 pJ/bit.
+For energy costs of the two aspects to be equal.
+With 32 bit integer words, would need 3 instructions per word. Arithmetic intensity.
+
+## Accelerating Random Forest Classification on GPU and FPGA
+https://www.youtube.com/watch?v=00ac4x3WswE
+
+Presentation from  ICPP'22.
+
+Discusses challenges with tree-based models.
+
+- Irregular memory accesses
+- Parallel traversal of the same tree can easily be divergent within a warp
+- Tree model size can be big
+
+Tree layouts
+
+- Compressed Sparse Row (CSR). 3 arrays. Can represent any tree size?
+- "Small and Complete Trees". Fit entire trees into memory. Adressing can be done with arithmetic.
+Memory grows very fast with deeper trees.
+- Hierarchical Tree Format. Using sub-trees with complete trees. And then CSR indexing.
+
+Testing tree different traversal algorithms for Hiearchical Tree Format.
+Discusses how to map this to FPGA.
+
+
+## Analysis of ECG Data by Energy Efficient Decision Trees on a Reconfigurable ASIC
+https://www.youtube.com/watch?v=M0nJuWp8sr8
+
+ECG data. Simple preprocessing.
+Want to detect R-R intervals.
+Triangle template matching.
+Using highpass, template matching, low pass, moving average.
+
+Did a multi objective optimization with predictive performance metrics (recall and precision) in combination with energy costs.
+Assigned a high cost to solutions which failed performance metric thresholds.
+Adding it to total costs. 0 additional costs for the area with are in the feasible region.
+Optimized with hyperopt.
+
+Used gradient boosting trees.
+Used an algorithm that iterates over thresholds for a given feature.
+Gets out a rank, that determines where it ended up.
+Have a patent pending on this.
+
 
 ## Unrelated
+
 
 #### Approximate decision tree-based multiple classifier systems
 M Barbareschi
