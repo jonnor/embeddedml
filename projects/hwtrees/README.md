@@ -36,3 +36,4 @@ and potentially Sound Event Detection using microphone.
 ## More
 
 See [notes.md](./notes.md) for the work-in-progress
+Also see notes on [feature extraction](./feature_extraction.md).
