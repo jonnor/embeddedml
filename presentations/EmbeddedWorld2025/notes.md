@@ -12,16 +12,28 @@ key features and development tools that the library provides
 demonstrate how one can perform common Machine Learning tasks - classification, regression and anomaly detection
 - Use emlearn with Zephyr
 
+## TODO
 
-## Story arc
+- Double check disposition
+- Set up all existing slides
+- Create placeholders for missing slides
+- Fill in missing slides
 
-Bridging the TinyML language gap with MicroPython and emlearn
+## Disposition
 
-- TinyML system requires combining embedded systems with Machine Learning.
-- Two specialization with their own established languages:
-C on the embedded device (for the firmware), and Python on the PC (for Machine Learning / Data Science).
-- Cause challenges in a project in quality assurance, execution speed and staffing.
-- One strategy to reduce this friction, is utilize Python also on the embedded device.
+2 min
+- intro/TinyML
+
+8 min
+- emlearn (C lib)
+- emlearn with Zephyr (new)
+
+8 min
+- The TinyML language gap (new)
+- emlearn-micropython
+
+2 min
+- outro
 
 
 ## Call to Action
@@ -30,6 +42,12 @@ C on the embedded device (for the firmware), and Python on the PC (for Machine L
 - Try out MicroPython!
 - Try out emlearn-micropython
 
+## Cross-linking
+
+- Zephyr
+- Continious Integration for fw/embedded.
+Host-based testing
+- Other Edge AI
 
 ## Take aways
 
@@ -55,6 +73,16 @@ C on the embedded device (for the firmware), and Python on the PC (for Machine L
 - Cover
 - 
 
+
+### Bridging the TinyML language gap
+
+Overall story-arc
+
+- TinyML system requires combining embedded systems with Machine Learning.
+- Two specialization with their own established languages:
+C on the embedded device (for the firmware), and Python on the PC (for Machine Learning / Data Science).
+- Cause challenges in a project in quality assurance, execution speed and staffing.
+- One strategy to reduce this friction, is utilize Python also on the embedded device.
 
 
 ## The TinyML gap - device versus host, train versus predict time
