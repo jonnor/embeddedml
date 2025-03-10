@@ -1,158 +1,4 @@
 
-
-## Format
-
-30 minute slot.
-Full 25-30 minutes can be used.
-QA will be done together at end of session, 15 minutes.
-
-
-## Abstract
-
-- emlearn
-key features and development tools that the library provides
-demonstrate how one can perform common Machine Learning tasks - classification, regression and anomaly detection
-- Use emlearn with Zephyr
-
-## TODO
-
-- Double check disposition
-- Set up all existing slides
-- Create placeholders for missing slides
-- Fill in missing slides
-
-## Disposition
-
-2 min
-- intro/TinyML
-
-8 min
-- emlearn (C lib)
-- emlearn with Zephyr (new)
-
-8 min
-- The TinyML language gap (new)
-- emlearn-micropython
-
-2 min
-- outro
-
-
-## Call to Action
-
-- Check out the emlearn C library
-- Try out MicroPython!
-- Try out emlearn-micropython
-
-## Cross-linking
-
-- Zephyr
-- Continious Integration for fw/embedded.
-Host-based testing
-- Other Edge AI
-
-## Take aways
-
-- Re
-- It is feasible to run (MicroPython) on device
-- MicroPython with C modules enables a portable and efficient ML pipeline
-- Running the same pipeline on host
-
-- Is possible to build TinyML applications using just Python. By leaning on existing bindings
-
-## Talking points
-
-- emlearn project, C library
-- Runs anywhere C does. Zephyr, Arduino etc
-- OpenMV
-- ulab
-- emlearn-micropython
-- MicroPython, runs on microcontrollers. Also Zephyr support
-- Excellent support for C modules. Allows combining C with Python, as needed
-
-## Slides outline
-
-- Cover
-- 
-
-
-### Bridging the TinyML language gap
-
-Overall story-arc
-
-- TinyML system requires combining embedded systems with Machine Learning.
-- Two specialization with their own established languages:
-C on the embedded device (for the firmware), and Python on the PC (for Machine Learning / Data Science).
-- Cause challenges in a project in quality assurance, execution speed and staffing.
-- One strategy to reduce this friction, is utilize Python also on the embedded device.
-
-
-## The TinyML gap - device versus host, train versus predict time
-
-Key chalenge: Maintaining compatibility across
-
-Approaches
-
-- Have two separate implementations of pipeline steps
-- Implement everything in (portable / embedded-friendly) C
-- Implement everything in (portable / embedded-friendly) Python
-- Mix C and MicroPython. C for computationally intensive, Python
-- (Reuse standard components where possible)
-
-Simplified pipeline
-
-- Pre-processing
-- ML model
-- Post-processing.
-
-Pre-processing can include
-
-- Format conversions
-- Data normalization
-- Feature extraction
-
-Post-processing
-
-- Aggregation of predictions
-- Filtering
-- Decision logic
-
-
-## MicroPython Data Science ecosystem
-
-Need 
-
-- Filesystem - super useful. Data transfer etc
-- File format support. Depends
-- Numeric computing.
-- Machine Learning
-- Feature pre-processing
-
-For practical sensors,
-
-- Sensor drivers
-- Connectivity
-- Low power support
-
-
-
-Are we Data Science yet?
-Have some notes on this in emlearn-micropython.
-
-
-## emlearn module for Zephyr
-
-TODO: describe how to use emlearn
-
-https://emlearn.readthedocs.io/en/latest/getting_started_zephyr.html
-
-## Zephyr sensor readout.
-
-- Audio input. Digital mic (dmic), or I2S codec
-- Camera. Video API
-- IMU/accelerometer/gyro. Sensor API
-- Other. Sensor API, or custom
-
 ### Zephyr IMU readout
 
 Zephyr has a unified API for sensor data access.
@@ -239,17 +85,39 @@ In main loop, check and process the buffer.
 Can have one of them be a struct.
 
 
+Design criteria
+
+- Consumer can get data from a message queue. Using a low-priority queue
+- Parameters fixed at compile time (not runtime changable): samplerate/hop/window/channels etc
+- Rather easy to set up. By default hide internal aspects
+- Allow static allocated memory
+- Support multiple instances. With different parameters.
+Means the output buffer sizes can differ. So messages have to pass pointers/copies?
+Might imply limiting queue length to 1 initially?
+- Work with fetch & get sensors
+- (later) Support decode API sensors
+- Work with 3-axis accelerometer
+- (later) Support 3-axis magnetometer, 6-axis, 9 axis IMU
+
 Open questions:
 
 - Can setup be done outside the thread?
-- Can we support either get-fetch API or decode API with same implementation?
-- Can we support other kinds of sensors also
+- Can we provide a macro that does all the neccesary setup, like what thread etc
 
 
 ```C
 
 struct {
+    int window_length;
+    int hop_length;
     int samplerate;
+
+    sensor_value *read_samples;
+    int read_samples_index;
+
+    sensor_value *output_buffer;
+    int output_buffer_index;
+
     int n_channels;
     enum sensor_channel *channels;
 
@@ -258,6 +126,11 @@ struct {
     struct k_thread *thread;
 
 } sensor_chunk_reader;
+
+struct sensor_chunk_msg {
+    int sample_no;
+    sensor_value *output_buffer; // n_channels * window_length
+}
 
 
 sensor_chunk_reader_start(sensor_chunk_reader *self) 
@@ -272,21 +145,53 @@ sensor_chunk_reader_start(sensor_chunk_reader *self)
 
 }
 
+
+#define SENSOR_CHUNK_READER_MAX_CHANNELS 9
+
 // Designed to be called in a new thread
 sensor_chunk_reader_task(sensor_chunk_reader *self)
 {
     // verify that sensor is setup. Check ready?
 
+    struct sensor_value values[SENSOR_CHUNK_READER_MAX_CHANNELS];
+
     // MAYBE: support a way of exiting loop gracefully?
     while (1) {
 
-	    int put = k_msgq_put (struct k_msgq *msgq, const void *data, K_NO_WAIT);
+        // Read data
+        // TODO: count failures intead of printing here
+	    const int fetch_ret = sensor_sample_fetch(dev);
+	    if (fetch_ret < 0) {
+		    printk("%s: sensor_sample_fetch() failed: %d\n", dev->name, ret);
+		    return ret;
+	    }
+
+	    for (size_t i = 0; i < self->n_channels; i++) {
+		    const int get_ret = sensor_channel_get(dev, self->channels[i], &values[i]);
+		    if (get_ret < 0) {
+			    printk("%s: sensor_channel_get(%c) failed: %d\n", dev->name, 'X' + i, ret);
+			    return ret;
+		    }
+	    }
+
+        // Buffer received data
+        const int read_offset = (self->read_samples_index*self->n_channels);
+        memcpy(read_samples+read_offset)
+        
+        if (self->read_samples_index == ) {
+            // Push onto output buffer
+
+            // Check if output buffer is full
+            if () {
+                // Send as message
+	            int put = k_msgq_put(struct k_msgq *msgq, self->output_buffer, K_NO_WAIT);
+
+            }
+        }
 
         // FIXME: calculate from sampling rate
-        const k_timeout_t wait_timeout;
-
-        k_sleep(wait_timeout);
-
+        const int wait_timeout_us = 1000000/self->samplerate;
+        k_usleep(wait_timeout_us);
     }
 }
 ```
@@ -294,19 +199,86 @@ sensor_chunk_reader_task(sensor_chunk_reader *self)
 
 ```
 
+
+#define SAMPLERATE 100
+#define WINDOW_LENGTH 100
+#define HOP_LENGTH 25
+
+// Configuration
+#define N_CHANNELS = 3;
+enum sensor_channel sensor_reader_channels[N_CHANNELS] = {
+	SENSOR_CHAN_ACCEL_X,
+	SENSOR_CHAN_ACCEL_Y,
+	SENSOR_CHAN_ACCEL_Z,
+};
+
+
+// Reader internals
+sensor_value sensor_reader_output_buffer[WINDOW_LENGTH*N_CHANNELS];
+sensor_value sensor_reader_new_buffer[HOP_LENGTH*N_CHANNELS];
+
 K_THREAD_STACK_DEFINE(sensor_reader_stack, MY_STACK_SIZE);
 struct k_thread sensor_reader_thread;
 
-// Configuration
-const int n_channels = 3;
-enum sensor_channel channels[n_channels] = {
-    
-};
+K_MSGQ_DEFINE(sensor_reader_queue, sizeof(struct data_item_type), 1, 1);
+
 
 struct sensor_chunk_reader {
-    .samplerate= 
+    .samplerate=SAMPLERATE,
+    .thread=&sensor_reader_thread,
+
+
+    .read_samples=sensor_reader_new_buffer,
+    .read_samples_index=0,
+
+    .output_buffer=sensor_reader_output_buffer,
+    .output_buffer_index=0,
+
+    .n_channels=N_CHANNELS,
+    .channels=sensor_reader_channels,
+
+    .dev=sensor,
+    .queue=&sensor_reader_queue,
     .thread=&sensor_reader_thread,
 }
 
-```
 
+static int set_sampling_freq(const struct device *dev, int samplerate)
+{
+	int ret;
+	struct sensor_value odr;
+	odr.val1 = samplerate;
+	odr.val2 = 0;
+	ret = sensor_attr_set(dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_SAMPLING_FREQUENCY, &odr);
+
+	return 0;
+}
+
+
+int main(void)
+{
+	int ret;
+
+    struct sensor_chunk_msg chunk;
+
+	if (!device_is_ready(sensor) }
+			printk("sensor: device %s not ready.\n", sensors[i]->name);
+			return 0;
+		}
+		set_sampling_freq(sensor, SAMPLINGRATE);
+	}
+
+    sensor_chunk_reader_start(&sensor_reader);
+
+	while (1) {
+
+        // check for new data
+        int get_status = k_msgq_get(reader->queue, &chunk, K_NO_WAIT);
+
+
+		k_msleep(100);
+	}
+	return 0;
+}
+
+```
