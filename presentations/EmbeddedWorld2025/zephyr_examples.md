@@ -18,20 +18,11 @@ Rolling overlapped windows.
 
 Theoretical strategy:
 If you need to use a driver with Fetch and Get, write an adapter that gives async.
-Using a queue etc.
-
-Accel polling example in Zephyr supports either
-https://docs.zephyrproject.org/latest/samples/sensor/accel_polling/README.html
-https://github.com/zephyrproject-rtos/zephyr/blob/main/samples/sensor/accel_polling/src/main.c
 
 
 XIAO NRF52840 sense has a on-board LSM6DSL.
 People have resported various problems, but also gotten it to work eventually.
 https://devzone.nordicsemi.com/f/nordic-q-a/109732/running-the-lsm6dls-imu-zephyr-example-with-nrf52840-based-xiao-ble-sense
-
-https://github.com/zephyrproject-rtos/zephyr/tree/main/samples/modules/tflite-micro/magic_wand
-example of polling combined with a machine learning model.
-! seems to not read continiously. But instead reads a burst, then processes it, then continues reading.
 
 
 ## Zephyr IMU read with Read and Decode
@@ -67,27 +58,32 @@ Might have breakout boards with adxl345, at the office?
 Magic wand example also uses adxl345.
 
 
-### Zephyr sensor readout example case
+# Zephyr sensor readout example case
 
-Polling.
-Should be in a dedicated thread.
-Push onto buffer. When sufficient data,
-push an output buffer in a message queue.
-
-Message queue can either get a copy of the data.
-Simple, good-enough.
-Or a message with a pointer.
-In which case, double buffering would be needed by the thread?
-
-In main loop, check and process the buffer.
-
-3 arguments can be passed to thread entry point.
-Can have one of them be a struct.
+### Existing practice
 
 
-Design criteria
+Accel polling example in Zephyr
+https://docs.zephyrproject.org/latest/samples/sensor/accel_polling/README.html
+https://github.com/zephyrproject-rtos/zephyr/blob/main/samples/sensor/accel_polling/src/main.c
+Supports both API styles
+Does polling in the main function
+
+Nordic NCS sensor manager
+Support LIS2DH
+https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/libraries/caf/sensor_manager.html#caf-sensor-manager
+? how does application get the data
+focused on sensor sleeping on triggers
+
+https://github.com/zephyrproject-rtos/zephyr/tree/main/samples/modules/tflite-micro/magic_wand
+example of polling combined with a machine learning model.
+! seems to not read continiously. But instead reads a burst, then processes it, then continues reading.
+
+
+### Design criteria
 
 - Consumer can get data from a message queue. Using a low-priority queue
+- Dedicated thread (higher priority) used internally to sample the data
 - Parameters fixed at compile time (not runtime changable): samplerate/hop/window/channels etc
 - Rather easy to set up. By default hide internal aspects
 - Allow static allocated memory
@@ -99,10 +95,25 @@ Might imply limiting queue length to 1 initially?
 - Work with 3-axis accelerometer
 - (later) Support 3-axis magnetometer, 6-axis, 9 axis IMU
 
-Open questions:
+## Open questions:
 
 - Can setup be done outside the thread?
 - Can we provide a macro that does all the neccesary setup, like what thread etc
+
+- Can we have a unified API for decoded and fetch cases?
+Would have to be sensor_value based - fetch does not support raw values
+
+- What would we pass on?
+I guess it would be sensor_value for now...
+- Raw data only feasible with new decode API
+Could be a separate implementation?
+Following same conventions?
+
+- How does this relate to Digital Mic and Video cases?
+
+- How does this relate to ADC cases?
+ADC also seems to be quite low-level
+Primarily single-sample oriented
 
 
 ```C
