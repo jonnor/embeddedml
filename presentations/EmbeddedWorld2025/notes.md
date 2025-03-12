@@ -16,9 +16,44 @@ demonstrate how one can perform common Machine Learning tasks - classification, 
 
 ## TODO
 
-- Create placeholders for missing slides
-- Fill in missing slides
-- Add some recommended talks at Zephyr conf?
+- Record the presentation. Release as video on Youtube
+
+## Future development
+
+#### Code reuse in ML pipeline using C in subprocesses
+
+A practical mechanism for running the device C code also on host, for testing / quality assurance.
+
+Need to use files for input/output.
+And command-line arguments for options.
+
+Multiple "modes" of usage that are relevant
+
+- Pre-processing. Feature extraction, normalization etc
+- Post-processing. 
+- Full pipeline on single example. Validation in Python
+- Full pipeline on a dataset. Validation in C
+
+Could provide better tooling for this in emlearn
+
+- .npy implementation in C for easy and efficient input/output.
+- A scikit-learn transformer, for typical pre-processing / feature engineering case
+- Maybe. A more general, low-level, Python module for running such a step or pipeline. Or could be examle code.
+- Example code for common cases.
+
+Candidate examples:
+
+- Feature extraction for accelerometer/HAR.
+- Spectrogram transformation for audio (.wav input).
+- Post-processing example. Going from predictions to decisions.
+- Full pipeline? Including both pre and post-processing.
+
+#### Embedding MicroPython for data processing
+
+Would need to run C modules in "embed" port.
+
+Should test it out and create a complete example.
+
 
 ## Disposition
 

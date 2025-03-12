@@ -109,4 +109,66 @@ Usually we need to collect a set of samples, and then pass that into the ML mode
 And we do this continiously.
 
 
+## Bridging the TinyML language gap
+
+Data Scientists know Python.
+Firmware people know C.
+
+So often these pipelines are quite disjoint, both technically and socially.
+
+There are multiple ways of achieving code re-use and improved collaboration.
+
+Here I will discuss one of the options - using MicroPython as a common "platform",
+which allows running the same code both on device and on PC.
+Enable the Data Scientists to work directly on the pipeline that runs on device.
+
+
+## About MicroPython
+
+Good platform support.
+Via Zephyr can run on a very wide range of devices.
+
+MicroPython has excellent support for C modules
+
+Can also be used in "embedding" mode.
+I have not tested it.
+Should potentially allow running a data pipeline on any device.
+
+
+## MicroPython C modules
+
+Just a few lines of code to expose C code as a Python function.
+
+
+## MicroPython Data Science ecosystem
+
+In CPython one has arguably the best data science ecosystem out there.
+For MicroPython there are now re-implementation of several of core libraries.
+For example we have.
+
+* ulab - implements numpy arrays and operators. Also a subset of scipy.
+* OpenMV. Computer vision. Also has Tensorflow Lite for microcontrollers
+* emlearn-micropython. Implements a selection of ML models from scikit-learn and Keras/Tensorflow
+
+Data formats. Not covered here.
+There is support for common multi-media formats, though it could be improved.
+Awesome MicroPython has an overview.
+
+## emlearn-micropython overview
+
+Implements ML models from scikit-learn and Keras
+
+Also implements common Digital Signal Processing algorithms that are often used in feature extraction.
+
+Infinite Impulse Response Filters
+Fast Fourier Transform
+
+
+## emlearn-micropython. More examples
+
+Found in the Github repository
+
+These run both on PC (Unix port) and on device (ESP32).
+To demonstrate the ability to develop and verify across PC and device.
+
 
