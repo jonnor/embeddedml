@@ -74,11 +74,6 @@ Host-based testing
 - MicroPython, runs on microcontrollers. Also Zephyr support
 - Excellent support for C modules. Allows combining C with Python, as needed
 
-## Slides outline
-
-- Cover
-- 
-
 
 ### Bridging the TinyML language gap
 
@@ -139,10 +134,8 @@ For practical sensors,
 - Low power support
 
 
-
 Are we Data Science yet?
 Have some notes on this in emlearn-micropython.
-
 
 ## emlearn module for Zephyr
 

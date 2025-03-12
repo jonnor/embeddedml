@@ -266,30 +266,34 @@ static int set_sampling_freq(const struct device *dev, int samplerate)
 }
 
 
-int main(void)
-{
-	int ret;
+int main(void) {
 
     struct sensor_chunk_msg chunk;
 
-	if (!device_is_ready(sensor) }
-			printk("sensor: device %s not ready.\n", sensors[i]->name);
-			return 0;
-		}
-		set_sampling_freq(sensor, SAMPLINGRATE);
-	}
+    if (!device_is_ready(sensor) {
+        printk("sensor: device %s not ready.\n", sensors[i]->name);
+        return 0;
+    }
 
+    // Setup sensor
+    set_sampling_freq(sensor, SAMPLINGRATE);
+
+    // Start high-priority thread for collecting data
     sensor_chunk_reader_start(&sensor_reader);
 
-	while (1) {
+    while (1) {
 
         // check for new data
-        int get_status = k_msgq_get(reader->queue, &chunk, K_NO_WAIT);
+        const int get_status = k_msgq_get(sensor_reader.queue, &chunk, K_NO_WAIT);
+        if (get_status != 0) {
 
+            process(chunk.buffer, chunk.length);
+        }
 
-		k_msleep(100);
-	}
-	return 0;
+	    k_msleep(100);
+    }
+
+    return 0;
 }
 
 ```
