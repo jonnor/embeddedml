@@ -125,3 +125,61 @@ References
 * [Survey of Nearest Neighbor Condensing Techniques](https://www.thesai.org/Downloads/Volume2No11/Paper%2010-%20Survey%20of%20Nearest%20Neighbor%20Condensing%20Techniques.pdf)
 * [Fast Classification with Binary Prototypes](http://users.ices.utexas.edu/~zhongkai/bnc.pdf)
 
+
+## Attribute weighting / feature weighting for KNN
+
+
+
+A feature weighted K-nearest neighbor algorithm based on association rules
+https://link.springer.com/article/10.1007/s12652-024-04793-z
+2024.
+! not available
+Researchers propose different feature weightings, such as correlation-based feature selection, mutual information, and chi-square feature selection.
+This paper presents a new feature weighting technique based on association rules and information gain.
+
+The Utility of Feature Weighting in Nearest-Neighbor Algorithms
+Ron Kohavi, 1997
+Proposed DIET. 
+Found that either using 0 or 1 as feature weight was difficult to outperform.
+
+A Feature-Weighted Rule for the K-Nearest Neighbor
+Mladenova, 2021
+! not available
+https://www.researchgate.net/publication/356401933_A_Feature-Weighted_Rule_for_the_K-Nearest_Neighbor
+
+
+Feature importance K-nearest neighbors (FIKNN)
+2025
+https://www.sciencedirect.com/science/article/pii/S2307410824001494
+Uses random forest algorithm to derive importance weights for features
+The importance calculated for each feature is normalized such that the sum of all importance scores equals one.
+
+Hybrid dynamic k-nearest-neighbour and distance and attribute weighted method for classiﬁcation
+Wu, Cai, 2012
+Describes dynamic k-nearest- neighbour with distance and attribute weighted, simply DKNDAW
+Refers to existing papers for computing feature/attribute weights.
+gain ratio (GR) (Zhang and Sheng, 2005),
+correlation-based feature selection (CFS) attribute selection algorithm (Hall, 2000),
+mutual information (Jiang and Zhang, 2006)
+Hall (2007) the degree to which they depended on the values of other attributes
+
+
+Dynamic K-Nearest-Neighbor with Distance and attribute weighted for classification
+Jia Wu; Zhihua Cai; Zhechao Gao, 2010
+! not available
+ In DKNDAW, we mixed dynamic selected, distance weighted and attribute weighted methods.
+Tested on the whole 36 standard UCI data sets which are downloaded from Weka
+
+Dynamic Feature Scaling for K-Nearest Neighbor Algorithm
+https://arxiv.org/abs/1811.05062
+Chandrasekaran Anirudh Bhardwaj1, Megha Mishra 1, Kalyani Desikan 2018
+Proposes to assign weights to individual feature with the
+help of out of bag errors obtained from constructing multiple decision tree models.
+Assigning feature weights based on the feature importance obtained while training a Random Forest Model.
+Constructing different models on different subsets of dimensions leads to an easy calculation of
+out-of-bag error for each particular dimension, which can further be used as a metric for feature
+importance.
+Feature Importance based Dynamic Scaling method (henceforth abbreviated as FIDS),
+
+
+
