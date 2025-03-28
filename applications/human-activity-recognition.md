@@ -44,6 +44,8 @@ Raw set 6 features, 1M instances, 6 classes.
 Preprocessed set 46 fetures, 5k instances.
 * [WISDM: Actitracer](www.cis.fordham.edu/wisdm/dataset.php#actitracker), real world data. 0.5% labeled data, rest unlabeled.
 500 users. Available both as raw motion and preprocessed. Preprocessed data has 5k labeled classes. 6 basic classes.
+* [HAR-CNN-Keras-STM32](https://github.com/ausilianapoli/HAR-CNN-Keras-STM32).
+Subset of WISDM classes, collected on a SensorTile.
 * [Exercise Recognition from Wearable Sensors dataset](https://github.com/microsoft/Exercise-Recognition-from-Wearable-Sensors).
 Arm-worn inertial sensor. Triaxial accelerometer plus gyro.
 13 exercises. 114 participants over 146 sessions.
@@ -75,7 +77,18 @@ Using two three-axial accelerometers, attached to the thigh and lower back.
 Sampling rate of 50 Hz.
 Paper published in MDPI Sensors.
 Hosted by NTNU on Github. Researchers from various universities in Norway.
-
+- [w-HAR: An Activity Recognition Dataset and Framework Using Low-Power Wearable Devices](https://www.mdpi.com/1424-8220/20/18/5356).
+22 user subjects.
+IMU (accelerometer and gyroscope) and stretch sensor data.
+Performed activities in the classes: jump, lie down, sit, stand, stairs down, stairs up, walk.
+- [DU-MD: An Open-Source Human Action Dataset for Ubiquitous Wearable Sensors](https://www.researchgate.net/publication/324970742_DU-MD_An_Open-Source_Human_Action_Dataset_for_Ubiquitous_Wearable_Sensors).
+Single wrist-mounted wearable sensor.
+25 subjects.
+10 Activities of Daily Life, 7 basic ADL and 3 falls.
+2500 segments total.
+[Download](https://ahadvisionlab.com/mobility.html).
+- [USC-HAD: A Daily Activity Dataset for Ubiquitous Activity Recognition Using Wearable Sensors](https://www.researchgate.net/publication/262291666_USC-HAD_a_daily_activity_dataset_for_ubiquitous_activity_recognition_using_wearable_sensors).
+[Download](https://sipi.usc.edu/had/)
 
 ## Existing work
 

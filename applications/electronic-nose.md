@@ -7,7 +7,7 @@ Using a array of sensor that can detect various gases.
 Can be used for quality control, estimating perceptual qualities.
 For food, beverages, perfumes, air quality, et.c.
 
-The gas sensors used are often of Metal Oxide semiconductor (MOX) type.
+The gas sensors used are often of Metal Oxide Semiconductor (MOS) type.
 
 ## Keywords
 
@@ -21,9 +21,9 @@ Modules for purchase
 - https://wiki.dfrobot.com/What_is_a_Gas_Sensor
 - https://www.adafruit.com/category/897
 
-
-
 #### Temperature dependence
+
+Temperature dependence may be used as a feature.
 
 Metal Oxide Sensors for Electronic Noses and Their Application to Food Analysis
 2010, Berna
@@ -36,7 +36,6 @@ https://www.mdpi.com/1424-8220/25/4/1205
 ## Related
 
 [Air quality](./air-quality.md)
-
 
 
 ## Datasets
@@ -56,19 +55,11 @@ In each sensor, There is alcohol classification of five types,
 1-octanol, 1-propanol, 2-butanol, 2-propanol, 1-isobutanol
 
 
-A Review on Electronic Nose: Coherent Taxonomy, Classification, Motivations, Challenges, Recommendations and Datasets
-https://www.researchgate.net/publication/352817168_A_Review_on_Electronic_Nose_Coherent_Taxonomy_Classification_Motivations_Challenges_Recommendations_and_Datasets
-
-A Low Cost Electronic Nose System for Classification of Gayo Arabica Coffee Roasting Levels Using Stepwise Linear Discriminant and K-Nearest Neighbor
-https://www.iieta.org/journals/mmep/paper/10.18280/mmep.090514
-
-
 https://www.kaggle.com/datasets/aryashah2k/multimodal-gas-detection-and-classification
 https://data.mendeley.com/datasets/zkwgkjkjn9/2
 No Gas, Perfume, Smoke and Mixture of Perfume and Smoke.
 The dataset is collected using the seven different metal oxide gas sensors
 MQ2, MQ3, MQ5, MQ6, MQ7, MQ8, MQ135
-
 
 
 MQ-3: Alcohol, MQ-7: Carbon monoxide (CO), MQ-8: Hydrogen
@@ -141,12 +132,45 @@ https://www.kaggle.com/datasets/muhammadrizwan111/enose-sensor-dataset-for-predi
 Dataset for non-infused aroma-based quality identification of Gambung green tea using electronic nose
 https://dataverse.telkomuniversity.ac.id/dataset.xhtml?persistentId=doi:10.34820/FK2/NNAL9K
 
-Papers
+
+Food freshness
+https://www.kaggle.com/datasets/mehrabmahdian/food-freshness-electronic-nose-data
+
+### Review papers
+
+A Review on Electronic Nose: Coherent Taxonomy, Classification, Motivations, Challenges, Recommendations and Datasets.
+https://www.researchgate.net/publication/352817168_A_Review_on_Electronic_Nose_Coherent_Taxonomy_Classification_Motivations_Challenges_Recommendations_and_Datasets
+
+Metal Oxide Sensors for Electronic Noses and Their Application to Food Analysis.
+2010, Berna.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3274253/
+
+
+### Papers
+
 Differentiating interstitial lung diseases from other respiratory diseases using electronic nose technology
 https://springernature.figshare.com/collections/Differentiating_interstitial_lung_diseases_from_other_respiratory_diseases_using_electronic_nose_technology/6917316
 
-
+A Low Cost Electronic Nose System for Classification of Gayo Arabica Coffee Roasting Levels Using Stepwise Linear Discriminant and K-Nearest Neighbor
+https://www.iieta.org/journals/mmep/paper/10.18280/mmep.090514
 
 ## Practical projects
 
 - https://community.dfrobot.com/makelog-313440.html
+
+
+
+## Challenges
+
+- Sensors are not standardized. Many variants. Cannot assume equivalent response between different sensors for "same" gas.
+- Sensors may not be calibrated. Might have considerable per-unit variation, even for same sensor type.
+- Sensors may drift over time
+- Sensor response may be airflow dependent
+- Sensor response may be placement dependent (relative to sample)
+- Sensor response is likely to be temperature dependent. May or may not have internal compensation.
+- Sensor response may be influenced permanently or semi-permanently by what is sensed. Especially if high concentrations 
+- Often quite small datasets
+- Samples may have high within-class variation
+- May need to take time-development into account
+
+

@@ -5,8 +5,8 @@ Using IMUs (triaxial accelerometer plus gyro).
 
 ## Datasets
 
-* [martWatch Gestures Dataset](https://tev.fbk.eu/technologies/smartwatch-gestures-dataset)
-8 users, 20 repetitions of 20 different gestures. 3-axis accelerometer
+* [SmartWatch Gestures Dataset](https://tev.fbk.eu/resources/smartwatch).
+8 users, 20 repetitions of 20 different gestures. 3-axis accelerometer. Smartwatch on right wrist.
 * [Australian Sign Language signs Data Set](https://archive.ics.uci.edu/ml/datasets/Australian+Sign+Language+signs).
 95 signs were collected from five signers. Noisy. XYZ, roll, plus finger bend.
 * [A Survey of Datasets for Human Gesture Recognition](https://diuf.unifr.ch/people/lalanned/Articles/RuffieuxHCII2014.pdf)
@@ -28,6 +28,12 @@ Haar Wavelet Transform. Supervised Local Distance Learning.
 5% increase in accuracy with transfer compared to without.
 * [High Five: Improving Gesture Recognition by Embracing Uncertainty](https://arxiv.org/pdf/1710.09441.pdf).
 Builds a model of the errors of gestures, and uses it to improve HMM-based classifier.
+* [A $3 Gesture Recognizer – Simple Gesture Recognition for Devices Equipped with 3D Acceleration Sensors](https://www.medien.ifi.lmu.de/pubdb/publications/pub/kratz2010threedollar/kratz2010threedollar.pdf).
+Template based approach, using Euclidean distance and nearest neighbours type classification.
+Extension of [$1 Unistroke Recognizer](http://depts.washington.edu/acelab/proj/dollar/index.html).
+Used differencing to compute a "tracte" from the acceleration data itself. Can be plotted in 3d/2d.
+Re-sampling to a fixed number of samples, to match those in the template library.
+Supports up to 10 different samples. Designed for rapid prototyping of gesture-based interfaces.
 
 ## Feature processing
 

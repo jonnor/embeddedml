@@ -10,17 +10,28 @@ and that this documented well, and the utility is well demonstrated.
 Support for the standard tasks,
 classification, regression and outlier/anomaly detection.
 
-Examples
-
-- Add KNN to classifiers example. Need to setup distance working buffer for _predict
-
 Demos
 
-- Color detector. In C/Arduino
-- Color detector online learning. In MicroPython ?
+- Complete IMU classification example in C
+Including pre-processing / feature extraction, training pipeline, on-device checks from dataset
+HAR in emlearn-micropython is a good starting point
+Walking detection, ref https://www.nature.com/articles/s41746-022-00745-z ?
+
+Data loading
+
+- Support Numpy .npy files
+- Support .csv files
+
+Classifiers
+
+- Output an enum with the class information, and a const char array
+- Switch to only output one inference method at a time.
+- Add a wrapper function also in the loadable case, for uniform C API
 
 
 ## Preprocessing improvement
+
+
 
 Preprocessing
 
@@ -41,6 +52,10 @@ Documentation
 
 - Benchmark common targets.
 Illustrate model size "boundaries", for different microcontrollers
+
+Examples
+
+- Add KNN to classifiers example. Need to setup distance working buffer for _predict
 
 
 ## Event Detection
@@ -73,27 +88,23 @@ Demos
 
 Models
 
-- trees. Runable leaf-node quantization / de-duplication
-- trees. Switch to 4-byte nodes. Implicit left, 8 bit relative jump. Ref feedback from Martin
-- trees. bfloat16 or Q/int16 support for regression?
+- trees. Support adjustable leaf-node quantization
+- trees. Switch to 4-byte nodes? From 8 bytes now (incl padding)
+Implicit left, 8 bit relative jump. Ref feedback from Martin
 
-Examples
-
-- Inline vs loadable codegen for trees. Mention in documentation
 
 Benchmarking
 
 - Comparison of emlearn 0.15.x trees vs NEW trees. Size and inference time
 - Comparison with m2cgen and micromlgen
-- Tool for measuring RAM and FLASH memory
 
 Documentation
 
-- Make a paper to go on Arxiv. Consider submitting to conferences/journals
+- Make a paper on the leaf-compression schemes
 
 Marketing
 
-- Write a blogpost Medium 
+- Write a blogpost 
 - Make a 2 minute video summary
 
 Outreach
@@ -106,6 +117,7 @@ https://www.informatica.vu.lt/journal/INFORMATICA/article/1281/text
 
 Platform support
 
+- Sensor API readout example, buffering into fixed-length windows
 - Use Zephyr QEMU to run tests in CI
 
 Demos
@@ -178,7 +190,63 @@ Someone looking for PCA
 https://stackoverflow.com/questions/70251197/how-do-i-store-a-fitted-pca-so-that-i-may-transpose-unseen-testing-dataset-i-do
 
 
-### Softmx
+
+# emlearn-micropython roadmaps 
+
+### Audio TinyML
+
+Levels
+
+- SoundLevelMeter. DONE
+- SpectrumAnalyzer
+- Speech Commands. CNN. Google dataset
+- Voice Activity Detection. CNN/RNN/CRNN
+- Applause Detection
+- Sound Event Detection. CRNN. ? Which stock task/dataset
+- Generic AudioClassifier. AudioSet
+
+Hardware enablement
+
+- PDM ESP32 microphone support
+- Unix microphone support
+
+Tooling
+
+- Read/write .wav files. A wavfile module
+- Data recording. .wav files on disk, .wav send to server
+- Data labeling. LabelStudio integration?
+
+Preprocessing
+
+- FFT. DONE
+- Soundlevel. DONE
+- Spectrogram
+
+Collaboration
+
+- ?
+
+
+## IMU TinyML
+
+Levels
+
+- Human Activity Detection
+- Gesture Detection
+
+Preprocessing
+
+- Spectral. Using FFT
+- Interval trees? quant etc
+- Gravity removal. Low-pass
+
+Collaboration possibilities
+
+- Smartwatch projects? https://github.com/wasp-os/wasp-os
+
+
+
+### Softmax
 
 CMSIS-NN uses a softmax with base 2 instead of base e
 Has q15 and q7 versions available
@@ -223,7 +291,7 @@ Demos
 ## Later
 
 - Streaming stats/summaries
-- DTW / Gesture detection
+- DTW / on-device gesture detection etc
 
 
 

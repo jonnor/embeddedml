@@ -16,6 +16,9 @@ ProMove-mini tags from Inertia Technology.
 Sensors placed on the collar and the harness of a dog.
 Recorded while the dog is given tasks: galloping, lying on chest, sitting, sniffing, standing, trotting, and walking.
 The movement sensors used are: ActiGraph GT9X Link, include 3D accelerometer and 3D gyroscope. 100 Hz sample rate.
+45 middle to large sized dogs participated in the study.
+Kaggle: [1](https://www.kaggle.com/datasets/benjamingray44/inertial-data-for-dog-behaviour-classification)
+[2](https://www.kaggle.com/datasets/arashnic/animal-behavior-analysis).
 - [Inertial sensor dataset for Dog Posture Recognition ](https://data.mendeley.com/datasets/mpph6bmn7g/1).
 Inertial data collected from 42 healthy apprentice dogs.
 Five postures (Standing, Sitting, Lying down, Walking, and Body shake) were annotated.
@@ -26,6 +29,7 @@ Sensors ued ActiGraph GT9X Links, with three-axial accelerometer, gyroscope and 
 Movement data was collected at a riding stable over the course of 7 days.
 The dataset comprises data from 18 individual horses with more than 1.2 million 2-second data samples, of which 93303 samples are labeled.
 Data from 11 subjects was labeled but for 6 subjects the data was labeled more extensively for 6 activities.
+
 
 ## Works
 

@@ -68,6 +68,11 @@ Should be done with deep neural networks instead.
 - Low-rate analog sensors. Connecting via ADC. Temp/gas.
 - Digital sensors. I2C is easiest. Accelerometer, temp/humidity, light. 
 
+# What others are interested in
+
+Sound recognition
+https://www.reddit.com/r/raspberrypipico/comments/1fvt441/compare_pcm_data_aka_sound_recognition_on/
+https://www.reddit.com/r/raspberrypipico/comments/1fcrxd4/understanding_microphone_i2s_data/
 
 # Fun projects
 

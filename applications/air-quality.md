@@ -6,7 +6,6 @@ such as PM2.5, NO2, CO, CO2, SO2, O3.
 Low-cost sensors are subject to cross-sensitivities, and environmental factors.
 Correcting for this is usually called "calibration".
 
-This.
 Common methods are
 
 - Multiple Linear Regression
@@ -15,6 +14,10 @@ Common methods are
 - Multi layer Perceptron neural network
 
 The gas sensors used are often of Metal Oxide semiconductor (MOX) type.
+
+## Related
+
+[Electronic nose](./electronic-nose.md)
 
 ## Datasets
 
@@ -107,14 +110,5 @@ Pearson r versus the reference monitors exceeded 0.8 for most units
 ### Non-linear Machine Learning with Active Sampling for MOX Drift Compensation
 
 Evaluated on UCI’s HT detectors. Banana/wine/background
-
-
-## Electronic nose
-https://ieee-dataport.org/keywords/electronic-nose
-
-
-https://ieee-dataport.org/documents/mixed-explosives-dataset
-https://ieee-dataport.org/documents/dataset-electronic-nose-various-beef-cuts
-https://ieee-dataport.org/documents/dataset-pork-adulteration-electronic-nose-system
 
 
