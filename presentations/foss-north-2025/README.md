@@ -5,7 +5,8 @@ Talk at [FOSS North 2025](https://foss-north.se/2025/speakers-and-talks.html#jon
 
 ## Slides
 
-COMING
+- [PDF](<FOSS-North 2025 - Microcontrollers and Machine Learning with MicroPython and emlearn.pdf>)
+- [PowerPoint (PPTX)](<FOSS-North 2025 - Microcontrollers and Machine Learning with MicroPython and emlearn.pptx>)
 
 ## Abstract
 
