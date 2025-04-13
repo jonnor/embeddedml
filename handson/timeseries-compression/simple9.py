@@ -1,10 +1,17 @@
 
 import numpy as np
 
+"""
+Simple9 was proposed in
+Inverted Index Compression Using Word-Aligned Binary Codes
+VO NGOC ANH, ALISTAIR MOFFAT (2004)
+"""
+
+
 def compress(data):
     """Compress 16-bit integer time series using delta + zig-zag + Simple-9"""
     # Step 1: Delta encoding
-    delta = np.diff(data, prepend=0)
+    delta = diff_with_prepend(data)
     delta = delta[1:]  # Remove the first element which is just the first value
     
     # Step 2: Zig-zag encoding to make negative numbers positive
@@ -33,6 +40,20 @@ def decompress(compressed):
     for d in delta:
         current += d
         result.append(current)
+    
+    return result
+
+def diff_with_prepend(data, prepend_value=0):
+    # Convert to list to ensure we can index it
+    data_list = list(data)
+    
+    # Create a new list with prepended value
+    extended_data = [prepend_value] + data_list
+    
+    # Calculate differences between consecutive elements
+    result = []
+    for i in range(1, len(extended_data)):
+        result.append(extended_data[i] - extended_data[i-1])
     
     return result
 
