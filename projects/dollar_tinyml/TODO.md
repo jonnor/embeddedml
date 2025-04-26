@@ -4,14 +4,17 @@
 Motion dollarML
 
 - Board bringup of dml20m
-- Port toothbrush application to C/dml20m. LIS2DH driver, buzzer PWM, statistical features computation.
+- Port toothbrush application to C/dml20m.
+LIS2DH driver, buzzer PWM, statistical features computation.
 https://github.com/jonnor/toothbrush/ 
-- dml2Xm. Switch to USB-C connector, on-board 5050 SMD buzzer?
+- dml2Xm. Switch to USB-C connector. Debug behind USB conn?
+On-board 5050 SMD buzzer (optional)?
 Move BM7161 module to back, optional? Maybe capacitive touch?
 
 Audio dollarML
 
-- Design a dml2Xa board. Only with microphone. Keep USB Type-A edge connector
+- Design a dml2Xa board. Only with microphone.
+Maybe switch to USB-C. Maybe make Holtek optional.
 - Prototype/test audio preprocessing. Mel spectrogram (CMSIS+emlearn) and IIR filterbank (libvfad).
 - Finish post on audio preprocessing.
 - Create post on Sound Event Detection with Recurrent Neural Networks
