@@ -223,9 +223,11 @@ RAM and FLASH
 /usr/bin/time -v micropython -X heapsize=10M test_trees.py 
 1000000
 
+	Maximum resident set size (kbytes): 6552
+
+
 100 trees, 4k nodes per tree (max_depth=12)
 
-	Maximum resident set size (kbytes): 6552
 
 ### Good fit for devices with limited RAM
 

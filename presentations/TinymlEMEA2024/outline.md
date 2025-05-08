@@ -487,6 +487,15 @@ https://arxiv.org/abs/2206.07652
 
 save up to 67.7% energy
 
+## A Hybrid Approach for Human Activity Recognition with Support Vector Machine and 1D Convolutional Neural Network
+https://ieeexplore.ieee.org/abstract/document/9425332
+October 2020.
+
+We present a two-stage learning process to recognize human activity recorded using a waist-mounted accelerometer and gyroscope sensor.
+In the first step, we classify activity into static and moving, using a Random Forest (RF) binary classifier.
+In the second step, we adopt a Support Vector Machine (SVM) to identify individual static activity
+and 1D Convolutional Neural Network (CNN)-based deep learning model for individual moving activity recognition.
+We achieved 97.71% overall accuracy on six activity classes of widely accepted benchmark UCI-HAR dataset.
 
 ## Dynamic Decision Tree Ensembles for Energy-Efficient Inference on IoT Edge Nodes
 2023

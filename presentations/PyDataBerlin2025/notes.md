@@ -1,14 +1,7 @@
 
-# Status
+## Status
 
-Not submitted. It was too late :((
-
-https://cfp.pydata.org/berlin2025/cfp
-
-# Talk
-
-
-
+Submitted
 
 ## Title
 
@@ -97,7 +90,6 @@ make it 100x smaller to run on a microcontroller grade device (with emlearn).
 Ideally related to sensor data, relevant to run on embedded device.
 Maybe like ? 
 - Task idea
-Water quality estimation? Kaggle dataset.
 Human Activity Recognition?
 Air quality estimation?
 https://archive.ics.uci.edu/dataset/360/air+quality

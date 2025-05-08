@@ -1,4 +1,11 @@
 
+
+## Practical examples for emlearn on Zephyr
+
+Issue: https://github.com/emlearn/emlearn/issues/108
+
+Some rough notes below.
+
 ### Zephyr IMU readout
 
 Zephyr has a unified API for sensor data access.
@@ -51,8 +58,8 @@ drivers/sensor/st/lsm6dsv16x/lsm6dsv16x.c:      .get_decoder = lsm6dsv16x_get_de
 drivers/sensor/tdk/icm42688/icm42688.c: .get_decoder = icm42688_get_decoder,
 ```
 
-Pinetime has BMA421
-T-Watch S3 has BMA423.
+Pinetime has BMA421. https://docs.zephyrproject.org/latest/boards/pine64/pinetime_devkit0/doc/index.html
+T-Watch S3 has BMA423. https://docs.zephyrproject.org/latest/boards/lilygo/twatch_s3/doc/index.html
 Might have breakout boards with adxl345, at the office?
 
 Magic wand example also uses adxl345.
@@ -209,8 +216,6 @@ sensor_chunk_reader_task(sensor_chunk_reader *self)
 
 
 ```
-
-
 #define SAMPLERATE 100
 #define WINDOW_LENGTH 100
 #define HOP_LENGTH 25

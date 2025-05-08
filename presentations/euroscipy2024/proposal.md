@@ -47,7 +47,7 @@ many sensor nodes are battery-powered and use wireless connectivity.
 And they are often deployed together as part of larger Wireless Sensor Networks.
 
 ### About MicroPython
-MicroPython is an implementation of Python that runs on practically all microcontrollers with 16kB+ RAM.
+MicroPython is an implementation of Python that runs on practically all microcontrollers with 64kB+ RAM.
 It provides access to the microcontroller hardware, functions for interacting with sensors and external pheripherals,
 as well as connectivity options such as WiFi, Ethernet, Bluetooth Low Energy, etc.
 
@@ -119,7 +119,7 @@ https://docs.micropython.org/en/latest/develop/extendingmicropython.html
 Maximising MicroPython speed
 https://docs.micropython.org/en/latest/reference/speed_python.html
 
-emlearn - Machine Learning and Digital Signal Processing modules for MicroPython
+emlearn-micropython - Machine Learning and Digital Signal Processing modules for MicroPython
 https://github.com/emlearn/emlearn-micropython
 
 
@@ -161,6 +161,12 @@ Change of talk format possible given a notice ahead of time.
 At least into 15 minutes + QA.
 
 Planning a separate submission for a poster.
+
+What grew into the emlearn project was first presented at EuroScipy 2018,
+in the talk Machine Learning for microcontrollers with Python and C (Jon Nordby). 
+https://www.euroscipy.org/2018/descriptions/Machine%20Learning%20for%20microcontrollers%20with%20Python%20and%20C.html
+Since then the tool has been used in a range of projects and cited in dozens of scientific papers.
+MicroPython bindings for the library is a new addition, added in 2023.
 
 ## Formats
 Maintainer track. 45 minutes

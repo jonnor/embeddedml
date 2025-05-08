@@ -1,11 +1,14 @@
 
 ### About Soundsensing
 
-I work for a company called Soundsensing.
+I work for Soundsensing.
 We provide predictive maintenance solutions for HVAC systems in buildings.
 Using vibration and sound-based monitoring.
 
-For us, Edge AI // TinyML is a way to do extract relevant information directly on sensors.
+We are used by many of the largest building operators in Norway,
+and are currently exploring expansion to Europe.
+
+For us, Edge AI // TinyML is a way to do extract relevant information directly on our sensors.
 Which can then be further processed using time-series machine learning in the cloud.
 
 ## Outline

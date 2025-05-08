@@ -3,6 +3,9 @@
 
 Not submitted. It was too late :((
 
+https://cfp.pydata.org/london2025/cfp
+https://cfp.pydata.org/berlin2025/cfp
+
 # Talk
 
 ### Computationally efficient tree-based ensemble models
