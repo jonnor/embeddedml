@@ -64,8 +64,8 @@ Models. Focus on a single one? Ex. RandomForest / DecisionTree.
 At a couple of different sizes / problems?
 Trained in the same way. Just conversion different
 
-Arduino sketch/environment as the base?
-But write everything in C99, for portability.
+Zephyr is a good base for portability.
+But write everything in C99.
 Put into emlearn project - maybe as a separate repo
 
 ## Medium posts
@@ -86,13 +86,6 @@ Put it into a usage context
 
 Make post in Sound of AI about microvad
 Maybe once there is a video
-
-LinkedIn post about MicroPython support
-
-LinkedIn post about getting started documentation
-
-Write intro in Seed Studio discord
-Maybe blurb in edge ai discord?
 
 Make a little post in Arduino project-sharing discord.
 Color Detector demo?

@@ -166,6 +166,15 @@ https://github.com/Durkhai/biquad_mpw7
 based on
 https://opencores.org/projects/biquad
 
+#### Multiply Add
+
+FMAC in STM32.
+Can be used both for IIR and FIR filters.
+Quite memory layout and configuration
+https://notblackmagic.com/bitsnpieces/dsp-accelerators/
+Was only slightly faster than ARM CPU though?
+
+
 #### Temporal Convolutional Network
 
 Compact output. n_channels

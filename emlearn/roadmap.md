@@ -31,8 +31,6 @@ Classifiers
 
 ## Preprocessing improvement
 
-
-
 Preprocessing
 
 - Feature scaling. StandardScaler/MinMax/RobustScaler
@@ -51,7 +49,8 @@ Examples
 Documentation
 
 - Benchmark common targets.
-Illustrate model size "boundaries", for different microcontrollers
+Illustrate model size "boundaries", for different microcontrollers.
+Measure execution time for trees. Compare with the compute size estimates
 
 Examples
 
@@ -68,10 +67,6 @@ Models
 Preprocessing
 
 - SignalWindower
-
-Documentation
-
-- Small reference for each model family.
 
 Examples
 
@@ -294,4 +289,45 @@ Demos
 - DTW / on-device gesture detection etc
 
 
+# numpy .npy support
+
+### .npy file support in C
+
+https://github.com/onai/npio
+MIT licensed
+Has proper Python dict parser, and dtype parser
+Uses file descriptor ints as interface
+Allocates internally
+
+https://github.com/oysteijo/npy_array
+Seems to work without seek
+Quite simple header parsing
+Uses FILE API
+Supports npz via libzip
+Supports mmap for read
+Simple usage examples
+Provides variadic macros for constructing shape and array info
+No support for streaming write?
+
+https://github.com/elgw/npio
+MIT
+Allocates internally
+Uses FILE interface
+No support for streaming?
+
+
+micropython-ulab
+Implements numpy .npy files in io_load and io_save
+Designed for microcontrollers
+https://github.com/v923z/micropython-ulab/blob/825ec2b143ebd8d3d3707bac2af0fe1ae6cb401a/code/numpy/io/io.c#L53
+Uses memcpy to build up the header, not string formatting
+Has a minimal sprintf for size_t
+Also implements number parsing manually
+Reads a fixed 128 bytes for header. Then seeks to data start
+
+C++
+https://github.com/fengwang/cnpypp
+https://github.com/cdcseacave/TinyNPY
+https://github.com/rogersce/cnpy
+https://github.com/llohse/libnpy
 

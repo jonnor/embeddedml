@@ -17,8 +17,6 @@ Disadvantages
 
 Improvements
 
-- TODO: Publish an Arduino package, that can be installed.
-Avoids having to manually copy emlearn files into Arduino "libraries" 
 - TODO: Automate creation of Arduino package as part of CI/CD
 
 ## PlatformIO Core
@@ -36,7 +34,7 @@ Disadvantages
 
 - Zephyr OS support stuck at 2.x.
 Not supporting NRF53 etc?
-https://github.com/platformio/platform-nordicnrf52/issues/141
+2https://github.com/platformio/platform-nordicnrf52/issues/141
 
 Can hook in custom build steps
 
@@ -47,7 +45,7 @@ Could be natural place to integrate the emlearn Python scripts that generate C c
 
 Improvements
 
-- TODO: Publish emlearn as installable package PlatformIO package.
+- Documentation on how to use it, https://github.com/emlearn/emlearn/issues/101
 
 ## Zephyr RTOS
 
@@ -65,5 +63,5 @@ Disadvantages
 
 Improvements
 
-- TODO: document/example how to use emlearn with Zephyr
+- Practical examples. https://github.com/emlearn/emlearn/issues/108
 
