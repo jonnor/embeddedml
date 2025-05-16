@@ -30,6 +30,10 @@ IR spectrocopy uses longer, lower-energy wavelength range.
 Typically 4,000 to 400 cm-1 (2,500 to 25,000 nm),
 but this can extend to 7,000 to 350 cm-1 (1,400 to 28,000 nm).
 
+Building a Nanodrop Style UV/Vis Spectrometer (2016)
+https://www.youtube.com/watch?v=pIk8I10ZmYY
+Explains absorbance and usage for determining fluid concentration,
+and how fluoresence can be used to quantify DNA.
 
 ## Project 1, oil quality
 
@@ -176,6 +180,115 @@ https://www.sparkfun.com/sparkfun-led-driver-breakout-lp55231.html
 
 I2C LED driver chips
 https://www.digikey.no/en/products/filter/power-management-pmic/led-drivers/745?s=N4IgjCBcpgbFoDGUBmBDANgZwKYBoQB7KAbRACZYB2AFjAFYQDyBOGl8gDiYrY5Z6t6ABlgRmLemGE1Bk6fAn0AzGHG8VHOfSmyCIuDWE9lMliyonh9GlWMFT9MeR60at1%2B5rcCbzvZB3ZSpORRBaWh9w23YeTipYLQJ4xL0QFJYw%2BLs0%2BJZlAWSqNnU89zjimiz-ZTCOenIXAgtlTnULKqjpULA07sTGAm6qXp5uznJB8GFOCa6ZznKhhbaxleU12ZZ1br5NzIgAXQIABwAXKBAAZTOAJwBLADsAcxAAXyHaxmgQZEh0bD4IikdLCchgqb%2BcGUExObZRCawWB0VwsNr%2BVGcZSqVwNOhNcINVSyY4gc6XG4PF7vAgAWhcPz%2BdwArkDiJAyIxDh8QLSBIyoCy2SCjm8ed9QCcoGBTlLIJMefAfvcACaXWnSdTkyAgHgARzOAE9LtIAkaTjhLmgsMgxUA
+
+## Linear CCD array
+
+Toshiba TCD1304AP
+
+Some, but limited selection at electronics component suppliers,
+
+- DigiKey, https://www.digikey.no/en/products/filter/optical-sensors/image-sensors-camera/532?s=N4IgjCBcpgHAzFUBjKAzAhgGwM4FMAaEAeygG0R4AmAdhoBYA2EAXSIAcAXKEAZU4BOASwB2AcxABfIgFoqSEKkiCAroRLkQAVlaTpIZtBBCAJjxlgADBA7dIIEEQCOnAJ48rjkG-Z4eGHFQ9IA
+- Mouser, https://eu.mouser.com/c/?type=CCD%20Linear%20Image%20Sensor&sort=pricing
+
+- TCD1103GFG(8Z,AA2), 1.5k lines, 15 EUR
+- TCD1209DG(8Z,K), 2k lines, 35 EUR
+- TCD1304DG(8Z,K), 3k lines, 30 EUR
+- EPC901-CSP32-033, 1k
+
+TCD1304DG etc. Shows spectral response only from 400 nm. 20% point at 900 nm.
+
+Some low resolution options, with serial readout.
+Obsolete, but available?
+
+- TSL1402R. 256 pixels. 
+- TSL1410R. 1280 pixels. Obsolete, but available
+- TSL1401CCS. 128 pixels Obsolete
+- TSL1401. 128 pixels
+Taken over by  
+
+TSL1401. OBSOLETE, but available
+https://www.digikey.no/en/products/detail/rochester-electronics-llc/TSL1401/12124933
+320-1000 nm at 20%+ response. 128 pixels. 5 nm per pixel. Probably sufficient
+DIP8. Serial readout.
+5 USD.
+
+#### Linear CCD module
+https://hackaday.io/project/9829-linear-ccd-module
+https://tcd1304.wordpress.com/
+
+TCD1304-based linear CCD module driven by a Nucleo F401RE, an STM32F401 black pill or an STM32F103 blue pill
+MCU can either be interfaced through SPI, UART or USB.
+
+https://ottervis.wordpress.com/
+OtterVIS LGL spectrophotometer.
+The spectrometer’s sensor is a TCD1304 linear CCD.
+Spectral range: 380-760nm
+Resolution: ~2nm.
+Framerate: 1hz.
+
+
+#### TCD1304 USB Spectrograph Board
+https://davidallmon.com/projects/adc0820-spectrograph
+
+3694 pixel frame takes approximately 250mS to read, and download via USB
+
+https://hackaday.com/tag/linear-ccd/
+
+ESPROS epc901 CCD sensor.
+1024 monochrome pixels.
+Easy to interface with. Cost $24 USD.
+2×16 0.5 mm pitch BGA
+Open breakout boards - https://github.com/astuder/epc901 
+
+
+
+## Scanning Monochromator Spectrometers
+
+Use a single photodiode, a diffraction grating (or monochromator),
+and a mechanical actuator (like a stepper motor) to scan the spectrum sequentially.
+
+Photodiodes have a wider range of wavelengths compared to color CMOS camera sensors,
+and also higher dynamic range.
+Downside is of course the increased complecity of having moving parts.
+
+IR-cut filter and use RGB Bayer filters limits cameras to ~400–700 nm.
+Silicon photodiode might have as much as 190 - 1100 nm.
+InGaAs photodiodes can cover 800 to 2600 nm.
+https://www.learnabout-electronics.org/Semiconductors/diodes_27.php
+
+Measurement diodes. Marktech MT03-023, 15 USD. 250nm - 1100 nm.
+
+Generic. Wurth 1540051EA3590. OSRAM SFH 229. 400-1100 nm. 0.5 USD. 
+
+#### TSP #38 - Teardown, Upgrade and Experiments with a Verity Visible Wavelength Monochromator
+https://hackaday.com/2014/11/22/creating-a-scanning-monochromator/
+https://www.youtube.com/watch?v=veETVeEsaNM
+Shahriar upgrades a Verity visible wavelength monochromator model EP200Mmd,
+to be able to perform automatic scans.
+The instrument is retrofitted with a stepper motor and a microcontroller which performs wavelength scanning
+between 225nm to 875nm.
+The grating mirror is on a pivot, and the angle is changed using a linear actuator.
+
+
+#### The Spinning Spectrometer
+A different take on the good 'ol spectrometer: spinning the grating to get visible light spectra.
+https://hackaday.io/project/8104-the-spinning-spectrometer
+Using s single detector to record the wavelength.
+
+
+Uses a slight curve on the diffraction grating.
+To reduce blurring of spectral lines due to beam will diverge after diffraction.
+Without uing a focussing lens or focussing mirror.
+Got around 10nm resolution.
+
+## Diffraction grating
+
+Visible range most common.
+300-700 nm.
+For example 500 or 1000 lines per mm.
+
+Can get in 2x2 inch sliding cards.
+Or as a big roll.
 
 #### TODO
 
