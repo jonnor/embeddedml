@@ -15,9 +15,9 @@ Now
 - Advertise the event on LinkedIn
 - Test the various tooling options.
 Local-first with Thonny
-Web-first with Colab + Viper IDE
 - Test micropython binary on Windows with WSL. Incl emlearn-micropython modules
-- Test micropython binary on common Linux, like Ubuntu 22.04 / 24.04 / 25.04. Incl emlearn-micropython modules
+- Test micropython binary on common Linux, like Ubuntu 22.04 / 24.04 / 25.04
+- Test micropython binary on common Mac OS
 - Finalize workshop design
 
 
@@ -26,7 +26,11 @@ Prep before event
 - HAR. Fix bugs found by mastensg
 - HAR. Support dataset definitions as a file
 - HAR. Add frequency/FFT features
+- HAR. Add mpremote to dependencies
 - HAR. Lock dependencies ?
+- HAR. Add automated test on Github
+- HAR. Maybe load dataset info from .json file ?
+- HAR. Add automatic download of PC micropython
 - Send out instructions for setup
 - Do a trial run of workshop at Bitraf
 - Test instructions on Windows/Mac/Linux
@@ -59,6 +63,7 @@ Must
 
 - Have setup a functioning emlearn and MicroPython development environment on computer
 - Have deployed a model onto device. M5StickC
+- Understand the "Activity Recognition" usecase(s)
 - Understand how continious classification works.
 Pipeline (pre, model, post).
 Prediction form. Window splitting. Relation/Difference to event detection, sequence modelling.
@@ -71,7 +76,8 @@ Maybe
 
 - Adapted the example code to do something different with prediction outputs
 - Have collected their own data, trained and deploying a model
-- Understand key elements of data collection and curation
+- Understand key elements of data collection and curation. Factors, out-of-distribution, labeling, cleaning
+- Have an overview of the parts and process to making a production-grade model?
 
 Bonus
 
@@ -91,179 +97,262 @@ CPython on host
 MicroPython on PC
 MicroPython on device
 
+## Learning goals wrt real-world-models
+Wrt activity detection as the example task.
 
-## Python runtime options
+System maturity ladder
 
-- Google Colab
-! no solution for mpremote for file access, need alternative for file transfers
-- Python on local machine.
-Thonny, distro, official download, conda
-!shell might differ. Windows can use WSL2
-!Python version might differ. Specify Python 3.10 / 3.11 / 3.12
-!OS differs. I am not interested in debugging Windows/Mac OS
-Thonny comes with Python 3.10 bundle on all platforms
+- A PoC shows how a model could work
+- Prototype 1 works in the happy path. Anything outside ignored.
+- Prototype 2 works in typical cases. Edge cases ignored.
+- Production 1. Common edge cases also work well.
+- Production 2. Vast majority of edge cases work well. Also handles intentional misuse/abuse
 
-Things we need
+In workshop mostly talking about the first levels.
 
-- git. For getting example code. Github download ZIP can be used as backup
-- mpremote. For transferring files. Thonny or Viper IDE alternative
-- micropython. For running the preprocessing on PC
-With emlearn-micropython modules.
-Solution: Download prebuilt binary with extmod from emlearn-micropython
-! Mac OS native modules seem not-supported. Must use extmod
-! not yet tested on Windows/WSL or Mac OS.
-- Learning materials. har_trees from emlearn-micropython, incl Python packages
+## Challenges of real-world sensor data
 
-- C compiler. Used for building the package. Or programs when using C bindings
-! might not be preinstalled on peoples computer. Large downloads
-... could be deferred by simplifying
-
-Questions
-
-- How does Thonny work with virtual envs?
-Seems to have built-in support.
-NOTE: need to create empty directory manually
+- Multi-modal. Often many ways of doing "the same thing"
+- Person-dependent.
+Different people do things slightly (or completely) different.
+Same action may have different data.
+Same data might come from different action. Ie what constitutes "running" vs "jogging", for someone young vs old
+- Context-dependent. Showing for demonstration vs doing it for real
+- Ambigious. Might be hard to deliminate
 
 
 
-## Testing Thonny
+## Learning areas
+
+- Evaluation
+- Data collection
+- Data labeling
+- Data curation/cleaning
+
+- Tune RF model size
+- Identify potentially useful features. Explainable
+- Select suitable time-resolution
+- Select effective features
+- Identifying/handling out-of-distribution data
+- Pre label data
+- Label activity data from video using Label Studio
+- Post-processing techniques
+
+What are sources of variation?
+
+- Diff orientation
+- Diff frequency
+- Diff intensity
+
+Which aspects of the are characteristic of the action?
+Which are fundamental? Which are informative but not fundamental?
+Which are irrelevant? 
 
 
-### emlearn fails to install with bundled Python
+Explainable features for activity recognition
 
-Trying to install requirements.txt from har_trees
-Fails when installing emlearn
-
-I/home/jon/projects/embeddedml/presentations/TinyMLDays2025/emlearn_venv/include -I/home/thonny/pythonny310/include/python3.10 -c bindings/eml_audio.cpp -o build/temp.linux-x86_64-cpython-310/bindings/eml_audio.o -DVERSION_INFO=\"0.21.2\" -std=c++14 -fvisibility=hidden
-      In file included from /home/jon/projects/embeddedml/presentations/TinyMLDays2025/emlearn_venv/lib/python3.10/site-packages/pybind11/include/pybind11/attr.h:13,
-                       from /home/jon/projects/embeddedml/presentations/TinyMLDays2025/emlearn_venv/lib/python3.10/site-packages/pybind11/include/pybind11/detail/class.h:12,
-                       from /home/jon/projects/embeddedml/presentations/TinyMLDays2025/emlearn_venv/lib/python3.10/site-packages/pybind11/include/pybind11/pybind11.h:12,
-                       from bindings/eml_audio.cpp:5:
-      /home/jon/projects/embeddedml/presentations/TinyMLDays2025/emlearn_venv/lib/python3.10/site-packages/pybind11/include/pybind11/detail/common.h:274:10: fatal error: Python.h: No such file or directory
-        274 | #include <Python.h>
-
-!! directory does not exist
-/home/thonny/pythonny310/include/python3.10
-
-!! people might not have a C compiler
+- Is motion primarily in 1, 2 or 3 dimensions?
+- Which direction is motion, relative to orientation? Relative to gravity?
 
 
-### Thonny support for micropython
+## Accelerometers / Inertial Motion Units
 
-Seems possible to add an "interpreter", by pointing to the binary
-Not so relevant for us, we will use it as a subprocess, in ML pipeline
+- Low cost. 0.30 USD @ 1k
+- Low power. 1-100 uA typical
+- Data rates. 1 Hz - 1000 Hz
 
-But nothing that helps to actually install a MicroPython binary.
+Wearable devices. Fitness watch, smartwatch, smartphone,
+Battery operated.
 
-## Getting micropython installed for PC
+- 100+ millions units shipped anually
 
-Want micropython on PC to run preprocessing.
-Especially to use emlearn-micropython .mpy files
-If not for emlearn-micropython extensions, could just use CPython, assume/check values are compatible
-
-Would be great to have a MicroPython that can just be downloaded and executed.
-Ideally installable pip, like the other tools
-
-Need to cover at least
-
-- Linux, using something like manylinux
-- Windows via WSL, using Linux build
-- Mac OS
-
-! also need to build the C natmods for all the relevant platforms
-For that reason, would need to have similar kind of build setup also in emlearn-micropython, and use for natmods.
-Might be easier to prototype a generic micropython build there also, then move out to dedicated repo later (or ideally - micropython repo itself).
+* 3-Axis MEMS Accelerometer
+* 6-Axis MEMS IMU (3-Axis Gyro + 3-Axis Accelerometer)
+* 9-Axis MEMS IMU (3-Axis Gyro + 3-Axis Accelerometer + 3-Axis Compass):
+* 10-axis MEMS IMU, includes barometer
 
 
-## Just do everything in/with Docker ?
+## Data considerations
 
-Everyone has the same OS inside. Including me
-Can be tested in advance, highly reproducible.
-Familiar Linux environment.
+- Time-series. Multi-variate, 3d
+- Sampling rate needs to be selected wrt phenomena of interest
+- 
 
-#### USB access from Docker quite manual
+## Challenges with accelerometer-only
 
-? how to transfer files back and forth
-USB device access from Docker
-?? mpbuild has some code for this. Unsure if compatible with all operating systems
+- Gravity and motion are coupled - accelerometer values are a mix
+- Orientation of device changes gravity vector - dominates the accelerometer values
+- Would need gyro (or magnetometer) to separate properly
 
-December 2024
-https://blog.golioth.io/usb-docker-windows-macos/
-Requires manual setup of USB/IP
-
-https://docs.docker.com/desktop/features/usbip/
-
-#### Use a full VM
-VirtualBox etc.
-
-Vagrant etc is nice for building an image
-
-### Using networked communication instead of USB
-
-WebREPL is supported with Tonny
-https://bhave.sh/micropython-webrepl-thonny/
-
-WebREPL is supported within Viper IDE
-
-WebREPL improvement RFC
-https://github.com/micropython/micropython/issues/13540
-
-## Testing on Mac OS
-
-Scaleway, AWS, MacinCloud offers Mac Mini for daily rental
-
-https://github.com/sickcodes/Docker-OSX
-
-### Building emlearn-micropython native modules on Mac OS
-
-Might not be supported/working ?
-
-    python3 /Users/runner/work/emlearn-micropython/emlearn-micropython/micropython/tools/mpy_ld.py '-vvv' --arch x64 --qstrs build/emlearn_trees.config.h  -o build/emlearn_trees.native.mpy build/trees.o
-    qstr vals: __del__, addleaf, addnode, addroot, emlearn_trees_c, emltrees, new, outputs, predict, setdata
-    Traceback (most recent call last):
-      File "/Users/runner/work/emlearn-micropython/emlearn-micropython/micropython/tools/mpy_ld.py", line 1516, in <module>
-        main()
-      File "/Users/runner/work/emlearn-micropython/emlearn-micropython/micropython/tools/mpy_ld.py", line 1512, in main
-        do_link(args)
-      File "/Users/runner/work/emlearn-micropython/emlearn-micropython/micropython/tools/mpy_ld.py", line 1462, in do_link
-        load_object_file(env, f, fn)
-      File "/Users/runner/work/emlearn-micropython/emlearn-micropython/micropython/tools/mpy_ld.py", line 1084, in load_object_file
-        elf = elffile.ELFFile(f)
-      File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/elftools/elf/elffile.py", line 73, in __init__
-        self._identify_file()
-      File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/elftools/elf/elffile.py", line 631, in _identify_file
-        elf_assert(magic == b'\x7fELF', 'Magic number does not match')
-      File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/elftools/common/utils.py", line 80, in elf_assert
-        _assert_with_exception(cond, msg, ELFError)
-      File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/site-packages/elftools/common/utils.py", line 143, in _assert_with_exception
-        raise exception_type(msg)
-    elftools.common.exceptions.ELFError: Magic number does not match
-
-### Running Linux built x64 modules on Mac OS
-
- 
-
-## Serial device drivers
-
-!! Need to check what drivers are needed on Windows, Mac OS for the
+- Assuming only 3-axis accelerometer.
+Making assumption that gravitation is constant, orientation changes slowly or not-so-much, motion changes (relatively) quickly
 
 
-## Testing Colab + Viper
+Orientation assumptions. Might be violated, for example wrist-mounted when running
 
-https://mybinder.org/ is an alternative
 
-- Download trained model, changed preprocessing etc
-- Upload new data files, etc
+## Separating gravity
 
-## Process
+Low-pass filter to estimate gravity vector
+? parameters - order and 
+
+## Orientation-independent
+
+Can rotate by the (estimated) gravity vector, to get earth-referenced acceleration
+
+- Vertical
+- Horizontal
+
+Note: accelerometer cannot give orientation of the horizontal plane
+
+
+
+Smartphone-based activity recognition independent of device orientation and placement (2015)
+https://dl.acm.org/doi/10.1002/dac.3010
+
+> The technique is validated using activity recognition experiments with four different orientations of a single tri-axial accelerometer
+> placed on the waist of 13 subjects performing a sub-class of activities of daily living.
+> A high subject-independent accuracy of 90.42% has been achieved,
+> reflecting a significant improvement of 11.74% and 16.58%,
+> compared with classification without input transformation and classification with orientation-specific models
+
+
+Device Orientation Independent Human Activity Recognition Model for Patient Monitoring Based on Triaxial Acceleration (2023)
+
+> highlight the impact of changes in device orientation on a HAR algorithm and the potential of simple wearable sensor data augmentation for tackling this challenge.
+> When applying small rotations (<20 degrees), the error of the baseline non-augmented model steeply increased.
+> On the contrary, even when considering rotations ranging from 0 to 180 along the frontal axis, our model reached a f1-score of 0.85±0.11 against a baseline model f1-score equal to 0.49±0.12.
+
+## Window stacking
+
+- Concatenate features from consequtive windows 
+- Delta and delta-delta (acceleration) features
+
+
+2021
+> Low computational complexity and calculation simplicity make hand-crafted features still a good practice for activity recognition.
+
+## TCN
+
+Temporal Approaches for Human Activity Recognition using Inertial Sensors (2019)
+https://ieeexplore.ieee.org/document/9018465
+
+PAMAP2 and OPPORTUNITY.
+! not clear if subject independent evaluation
+deepConvTCN roughly matched LSTM-FCN and deepConvLSTM
+
+
+Human Activity Recognition Using Temporal Convolutional Network
+On UCI HAR.
+Dilated TCN, 93.80 and Encoder-Decoder TCN, 94.60
+
+
+An Architecture for Human Activity Recognition Using TCN-Bi-LSTM HAR based on Wearable Sensor (2025)
+> Propose a Temporal Convolutional Network (TCN) combined with a Bidirectional Long Short-Term Memory (Bi-LSTM) architecture to address the issues of insufficient time-varying feature extraction and gradient explosion caused by too many network layers.
+> ..
+> UCI-HAR, PAMAP2, and WISDM, achieving significant accuracies of 99.1%, 94.8%, and 98.3%, respectively, outperforming other state-of-the-art architectures.
+
+
+MSTCN: A multiscale temporal convolutional network for user independent human activity recognition
+
+> Results: The performance of MSTCN is evaluated on UCI and WISDM datasets using a subject independent protocol with no overlapping subjects between the training and testing sets. MSTCN achieves accuracies of 97.42 on UCI and 96.09 on WISDM.
+
+!! Has very large amount of results for UCI-HAR, in Table 6.
+Statistical features plus CNN generally did very well
+
+
+## Features
+
+#### Significant Features for Human Activity Recognition Using Tri-Axial Accelerometers
+2022
+https://www.mdpi.com/1424-8220/22/19/7482?utm_source=chatgpt.com
+References some 
+
+Used 4 datasets
+
+- Wireless Sensor Data Mining Dataset (WISDM)
+- Heterogeneity Activity Recognition Dataset (HARDS)
+- Smartphone-Based Recognition of Human Activities and Postural Transitions Dataset
+- Physical Activity Monitoring for Aging People (PAMAP2)
+
+FFT, Root Mean Square (RMS), mean, autocorrelation and wavelet were among the most significant features for human activity recognition for these two datasets.
+
+On the other hand, when the sampling frequency is raised, features related to signal repeatability, regularity and level of chaos (RQA, Permutation Entropy, Lyapunov exponent), and WPD were shown among the most significant.
+This has been shown in the results from the PAMAP2 and HARDS datasets. 
+
+
+#### Separating Movement and Gravity Components in an Acceleration Signal and Implications for the Assessment of Human Daily Physical Activity
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0061691
+
+Compared
+
+- Euclidian norm (EN)
+- Euclidian norm minus one (ENMO)
+- Euclidian norm of the high-pass filtered signals (HFEN)
+- HFEN plus Euclidean norm of low-pass filtered signals minus 1 g (HFEN+)
+
+In the human experiments, metrics HFEN and ENMO on hip were most discrepant.
+Within- and between-individual explained variance of 0.90 and 0.46, respectively.
+ENMO, HFEN and HFEN+ explained 34%, 30% and 36% of the variance in daily PAEE, respectively, compared to 26% for a metric which did not attempt to remove the gravitational component (metric EN).
+
+Gravity Components
+
+If one has a gyro (and/or a compass), sensor fusion is better.
+
+MEMS based IMU for tilting measurement: Comparison of complementary and kalman filter based data fusion
+https://www.researchgate.net/profile/Pengfei_Gui/publication/308850497_MEMS_based_IMU_for_tilting_measurement_Comparison_of_complementary_and_kalman_filter_based_data_fusion/links/5a7832450f7e9b41dbd26dfe/MEMS-based-IMU-for-tilting-measurement-Comparison-of-complementary-and-kalman-filter-based-data-fusion.pdf
+Gyro+accelerometer
+
+## Activity Recognition using Inertial Motion Units
+
+
+Many applications.
+
+A large amount of them are relevant for TinyML cases.
+
+
+- Human Activity Recognition
+https://github.com/jonnor/embeddedml/blob/master/applications/human-activity-recognition.md
+- Fall Detection
+https://github.com/jonnor/embeddedml/blob/master/applications/fall-detection.md
+
+- Animal Activity Recognition.
+Pets, livestock, wild animals
+https://github.com/jonnor/embeddedml/blob/master/applications/animal-activity-recognition.md
+
+Other IMU TinyML tasks
+
+- Gesture Recognition
+https://github.com/jonnor/embeddedml/blob/master/applications/gesture-recognition.md
+- Condition Monitoring of Machinery
+https://github.com/jonnor/condition-monitoring
+
+Other applications of accelerometers, TinyML potential
+
+- Equipment Usage Monitoring – Track heavy machinery operation for maintenance prediction.
+- Structural Health Monitoring – Detect vibrations in buildings or bridges for early signs of damage.
+- Vibration-Based Fault Detection – Identify faults in motors or rotating machinery.
+
+- Machine Health Monitoring. Predict failures or maintenance needs in CNC machines, conveyors, or robots based on vibration trends.
+- Tool Wear Detection. Monitor cutting or drilling tools by detecting subtle changes in vibration that indicate wear or breakage.
+- Process Consistency Validation. Ensure processes like stamping, welding, or packaging are running consistently by detecting irregular motion profiles.
+
+
+- Package Handling Monitoring – Detect drops, shocks, or mishandling during shipping.
+- Appliance Usage Recognition – Classify usage patterns of household devices (e.g., washing machine, refrigerator).
+
+
+
+# Ideas
 
 Preparations
 
 - ? Install Thonny. With Python 3.10. Check that it runs
 - Download materials for workshop. emlearn-micropython with har_trees
 - Open har_trees in Thonny
-- Create virtualenv
-- Install har_trees requirements
+- Create virtualenv. Create directory in browser, then use Thonny
+- Install har_trees requirements. Using Thonny
+Alt: Use pip install -r requirements.txt inside
 ?? which shell
 
 
