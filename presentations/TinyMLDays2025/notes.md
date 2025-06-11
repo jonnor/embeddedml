@@ -196,6 +196,27 @@ Orientation assumptions. Might be violated, for example wrist-mounted when runni
 Low-pass filter to estimate gravity vector
 ? parameters - order and 
 
+Anguita et al (2013)
+
+> The gravitational force is assumed to have only low frequency components,
+> found from the experiments that 0.3 Hz was an optimal corner frequency for a constant gravity signal.
+
+? also 3rd order 
+
+https://www.nature.com/articles/s41597-024-03951-4
+Uses 3rd order
+
+## Sampling rate
+
+Anguita et al (2013)
+
+> These signals were pre-processed for noise reduction
+> with a median filter and a 3rd order low-pass Butterworth
+> with 20 Hz cutoff frequency
+> sufficient for body motion since 99% of its energy is contained below 15Hz
+
+
+
 ## Orientation-independent
 
 Can rotate by the (estimated) gravity vector, to get earth-referenced acceleration
@@ -232,36 +253,33 @@ Device Orientation Independent Human Activity Recognition Model for Patient Moni
 2021
 > Low computational complexity and calculation simplicity make hand-crafted features still a good practice for activity recognition.
 
-## TCN
 
-Temporal Approaches for Human Activity Recognition using Inertial Sensors (2019)
-https://ieeexplore.ieee.org/document/9018465
-
-PAMAP2 and OPPORTUNITY.
-! not clear if subject independent evaluation
-deepConvTCN roughly matched LSTM-FCN and deepConvLSTM
-
-
-Human Activity Recognition Using Temporal Convolutional Network
-On UCI HAR.
-Dilated TCN, 93.80 and Encoder-Decoder TCN, 94.60
-
-
-An Architecture for Human Activity Recognition Using TCN-Bi-LSTM HAR based on Wearable Sensor (2025)
-> Propose a Temporal Convolutional Network (TCN) combined with a Bidirectional Long Short-Term Memory (Bi-LSTM) architecture to address the issues of insufficient time-varying feature extraction and gradient explosion caused by too many network layers.
-> ..
-> UCI-HAR, PAMAP2, and WISDM, achieving significant accuracies of 99.1%, 94.8%, and 98.3%, respectively, outperforming other state-of-the-art architectures.
-
-
-MSTCN: A multiscale temporal convolutional network for user independent human activity recognition
-
-> Results: The performance of MSTCN is evaluated on UCI and WISDM datasets using a subject independent protocol with no overlapping subjects between the training and testing sets. MSTCN achieves accuracies of 97.42 on UCI and 96.09 on WISDM.
-
-!! Has very large amount of results for UCI-HAR, in Table 6.
-Statistical features plus CNN generally did very well
 
 
 ## Features
+
+
+#### A benchmark for domain adaptation and generalization in smartphone-based human activity recognition
+https://www.nature.com/articles/s41597-024-03951-4
+November 2024
+
+> AGHAR benchmark, a curated collection of datasets for domain adaptation and generalization studies in smartphone-based HAR
+
+> We standardized six datasets in terms of accelerometer units, sampling rate, gravity component, activity labels, user partitioning, and time window size, removing trivial biases while preserving intrinsic differences
+
+Dataset: https://zenodo.org/records/11992126
+Ku-HAR, MotionSense, RealWorld, UCI-HAR, WISDM
+https://github.com/H-IAAC/DAGHAR
+
+Table 5 Performance of models using baseline view.
+!! no feature extraction is done
+
+Random Forest using frequency data just a few percentage points behind deep learning models
+
+! KNN in frequency domains did very good (but bad in time)
+
+60 time-steps at 20 hz, 3 second windows (non-overlapping)
+
 
 #### Significant Features for Human Activity Recognition Using Tri-Axial Accelerometers
 2022
@@ -383,5 +401,53 @@ MQTT? BLE?
 - Pre-labeling vs post-labeling
 
 
+# Make it go wrooom
 
+Higher prediction accuracy.
+
+## CNN
+
+FFT spectrogram -> 2D CNN
+Can be implemented with emlearn_cnn
+
+Convolutional Neural Networks for human activity recognition using mobile sensors (2014)
+
+1D CNN can also work OK
+https://machinelearningmastery.com/cnn-models-for-human-activity-recognition-time-series-classification/
+Got 90.x% - though SVM got 89%
+
+
+## RNN/LSTM/GRU
+
+Can work OK
+https://machinelearningmastery.com/how-to-develop-rnn-models-for-human-activity-recognition-time-series-classification/
+Got 90.x% - though SVM got 89%
+
+## TCN
+
+Temporal Approaches for Human Activity Recognition using Inertial Sensors (2019)
+https://ieeexplore.ieee.org/document/9018465
+
+PAMAP2 and OPPORTUNITY.
+! not clear if subject independent evaluation
+deepConvTCN roughly matched LSTM-FCN and deepConvLSTM
+
+
+Human Activity Recognition Using Temporal Convolutional Network
+On UCI HAR.
+Dilated TCN, 93.80 and Encoder-Decoder TCN, 94.60
+
+
+An Architecture for Human Activity Recognition Using TCN-Bi-LSTM HAR based on Wearable Sensor (2025)
+> Propose a Temporal Convolutional Network (TCN) combined with a Bidirectional Long Short-Term Memory (Bi-LSTM) architecture to address the issues of insufficient time-varying feature extraction and gradient explosion caused by too many network layers.
+> ..
+> UCI-HAR, PAMAP2, and WISDM, achieving significant accuracies of 99.1%, 94.8%, and 98.3%, respectively, outperforming other state-of-the-art architectures.
+
+
+MSTCN: A multiscale temporal convolutional network for user independent human activity recognition
+
+> Results: The performance of MSTCN is evaluated on UCI and WISDM datasets using a subject independent protocol with no overlapping subjects between the training and testing sets. MSTCN achieves accuracies of 97.42 on UCI and 96.09 on WISDM.
+
+!! Has very large amount of results for UCI-HAR, in Table 6.
+Statistical features plus CNN generally did very well
 
