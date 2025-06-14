@@ -7,53 +7,102 @@ https://events.au.dk/tinymldays/conference
 
 ## Format
 
+## Exercises
+
+- Train on existing dataset
+- Deploy and run this model on device. Check that it behaves as expected in basic cases
+- Can you trick this model? What weaknesses have you identified?
+- Collecting data to make a better model. Train, deploy, test.
+- Make a model for your own usecase
+- Bonus. Do something different with the model predictions?
+
 ## TODO
 
-Now
+Must
 
-- Advertise the event on Discord. EDGE AI, 
-- Advertise the event on LinkedIn
-- Test the various tooling options.
-Local-first with Thonny
-- Test micropython binary on Windows with WSL. Incl emlearn-micropython modules
-- Test micropython binary on common Linux, like Ubuntu 22.04 / 24.04 / 25.04
-- Test micropython binary on common Mac OS
-- Finalize workshop design
+- !!! Test flow of recording data, and training
+- Try switch to the exercise dataset, for live
+- Try make a new dataset. Continious gestures?
+https://docs.edgeimpulse.com/nordic/pre-built-datasets/continuous-gestures
+
+### Code
 
 
-Prep before event
-
-- HAR. Fix bugs found by mastensg
-- HAR. Support dataset definitions as a file
-- HAR. Add frequency/FFT features
-- HAR. Add mpremote to dependencies
-- HAR. Lock dependencies ?
-- HAR. Add automated test on Github
-- HAR. Maybe load dataset info from .json file ?
-- HAR. Add automatic download of PC micropython
-- Send out instructions for setup
-- Do a trial run of workshop at Bitraf
-- Test instructions on Windows/Mac/Linux
-- Create slides for things to be explained
+- HAR. Support dataset definitions as a YAML file
+- Make script for flashing. Combine the erase, write steps, and an verify step with mpremote?
+- Do a complete fresh test walkthrough. New virtual env, new device, all steps
 
 Maybe
 
-- Make emlearn install not require a C/C++ compiler.
-Drop the C++ modules at package time.
-So that we do not need it for emlearn-micropython.
-Enable IIR and melspec via subprocess communication, npy files
+- HAR. Maybe load dataset info from .json file ?
+- HAR. Add some prints of key features?
+- HAR. Add some visualizations for the classes, from train
+- HAR. Automatic download of npyfile.py instead of checking into repo
+- HAR. Fix program not starting when not plugged into USB
+- HAR. Add frequency/FFT features
+- HAR. Lock dependencies ?
+- HAR. Add automated test on Github
+
+
+#### Slides
+
+- Create slides for all exercises
+- Create slides for all things to be explained
+
+
+- ! how to reset / power on/off device
+https://docs.m5stack.com/en/core/M5StickC%20PLUS2
+
+- ! WiFi info
+
+- ! how to exit in mpremote. c X c C
+
+Bonus
+
+- Windows, PowerShell, ExecutionPolicy
+- WSL USB forwarding, incl GUI
+
+
 
 Future
 
+- HAR. Add automatic download of PC micropython
 - MicroPython (Unix) installable via pip, using manylinux wheels
 - Use MTP or similar to get USB drive type functions for sharing code without special tools
 
-Key
+Done
 
-- emlearn-micropython not built for, or tested, on Windows or Mac
-Linux binary should work on WSL 2.
-Try building micropython extmod for Mac OS
-? Do not support Mac OS in the workshop ?
+- Make emlearn install not require a C/C++ compiler.
+- Test flashing with mpflash
+FAILED https://github.com/Josverl/mpflash/issues/28
+
+
+## Wierd after power
+
+(venv) [jon@jon-thinkpad har_trees]$ mpremote reset && mpremote run har_live.py 
+b"s Ju<\x80\x00\x00\x00R\xd5\xb1\x812\x01:\x00\xa6\x12\x19\x16\xc4{\x82>\x18\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00Y\xd7dt\xf3`ts\xe0`ts \xca@ts Ju\xfc\x00\xd7\x81Jul 29 20\x00'\x93SH\xa8HH\xcd\xd1\xe90x\xaa\xca\xea%UM\x15Q\xa5,bo\x0fB\x9aA%}\x19\x05MQ}\x191\x05\r\xa5\r\nconfigsip: \x02\xa2\x92b\x02\x9aA%]A\xe90xe\x05drv:0x00,q_drv:}\x91\xc9\xd9\xe90x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00\r\nmode:DIO, clock div:2\r\nload:0x3fff0030,len:4892\r\nho 0 tail 12 room 4\r\nload:0x40078000,len:14896\r\nload:0x40080400,len:4\r\nload:0x40080404,len:3372\r\nentry 0x400805b0\r\nM5Stack StickC Plus2 Shake Detector\r\nShake the device to flash the LED!\r\nIMU initialized successfully\r\nTesting LED...\r\nReady! Shake the device...\r\nShake detected! Flashing LED...\r\nShake detected! Flashing LED...\r\n"
+Traceback (most recent call last):
+
+### Installing deps
+
+mpremote mip install \
+    https://emlearn.github.io/emlearn-micropython/builds/master/xtensawin_6.3/emlearn_trees.mpy \
+    github:jonnor/micropython-npyfile \
+	github:jonnor/micropython-zipfile \
+    github:jonnor/micropython-mpu6886 \
+    github:peterhinch/micropython-nano-gui/drivers/st7789 \
+	github:peterhinch/micropython-nano-gui \
+	github:peterhinch/micropython-async/v3/primitives
+
+
+## Toothbrush timer
+
+https://www.youtube.com/shorts/U8TeewQ9t-k
+
+
+https://www.youtube.com/watch?v=KkrfKPlnoZQ
+
+
 
 ## Goals
 
@@ -255,8 +304,38 @@ Device Orientation Independent Human Activity Recognition Model for Patient Moni
 
 
 
+## Follow-up content/presentations
+
+- Human Activity Recoginition
+- Explainable features for HAR
+- Feature selection for tiny HAR
+- Building ML datasets (for HAR)
+- Error analysis / dataset vs model diagnostics
+- Annotating HAR data using video groundthruth (Label Studio)
+- Handling unseen sensor data in ML classification
+
+- Annotation helpers for HAR
+Segmentation using Matrix Profile
+
 
 ## Features
+
+These should have examples in emlearn
+
+- Magnitude vector pre-processing
+- Gravity separation using IIR filter. Use filterdesign lib?
+- Spectral data, using FFT
+- Pitch/Roll. Possibly with approximations
+
+- Signal Magnitude Area (SMA). Time-domain features for distinguishing static vs. dynamic activities
+- Spectral entropy
+
+
+Fig. 2. Power spectral density (PSD) and median frequency for the Z-axis data for walking and running
+median frequency was calculated from power spectral density (PSD) of Z-axis
+
+Elliptical IIR High Pass filter (HPF) of seventh order with 0.5 Hz cutoff frequency
+was used to separate the bodily accelerations from the gravity accelerations.
 
 
 #### A benchmark for domain adaptation and generalization in smartphone-based human activity recognition
@@ -372,6 +451,15 @@ Preparations
 - Install har_trees requirements. Using Thonny
 Alt: Use pip install -r requirements.txt inside
 ?? which shell
+
+
+## Flashing
+
+https://micropython.org/download/ESP32_GENERIC/
+
+esptool.py --chip esp32 --port /dev/ttyACM0 erase_flash
+
+esptool.py --chip esp32 --port /dev/ttyACM0 --baud 460800 write_flash -z 0x1000 /home/jon/Downloads/ESP32_GENERIC-SPIRAM-20250415-v1.25.0.bin
 
 
 ## Things to do with model outputs predictions 
