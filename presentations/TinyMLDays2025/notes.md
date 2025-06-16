@@ -20,35 +20,24 @@ https://events.au.dk/tinymldays/conference
 
 Must
 
-- !!! Test flow of recording data, and training
-- Try switch to the exercise dataset, for live
-- Try make a new dataset. Continious gestures?
-https://docs.edgeimpulse.com/nordic/pre-built-datasets/continuous-gestures
-
-### Code
-
-
-- HAR. Support dataset definitions as a YAML file
-- Make script for flashing. Combine the erase, write steps, and an verify step with mpremote?
+- Flash at least 40 devices
 - Do a complete fresh test walkthrough. New virtual env, new device, all steps
+
 
 Maybe
 
-- HAR. Maybe load dataset info from .json file ?
-- HAR. Add some prints of key features?
-- HAR. Add some visualizations for the classes, from train
-- HAR. Automatic download of npyfile.py instead of checking into repo
-- HAR. Fix program not starting when not plugged into USB
-- HAR. Add frequency/FFT features
-- HAR. Lock dependencies ?
-- HAR. Add automated test on Github
+- HAR. Add a record time counter to har_record.py. Maybe also a file counter
+- ??HAR. Fix program not starting when not plugged into USB
 
 
 #### Slides
 
-- Create slides for all exercises
-- Create slides for all things to be explained
+- ?? Create slides for all things to be explained
 
+- Send out to all participants
+- Organization / structure
+Work together in pairs
+Who here has which OS?
 
 - ! how to reset / power on/off device
 https://docs.m5stack.com/en/core/M5StickC%20PLUS2
@@ -59,19 +48,27 @@ https://docs.m5stack.com/en/core/M5StickC%20PLUS2
 
 Bonus
 
+- Links to MicroPython examples for own work
 - Windows, PowerShell, ExecutionPolicy
 - WSL USB forwarding, incl GUI
 
 
+## Future
 
-Future
-
+- HAR. Add some prints of key features?
+- HAR. Add some visualizations for the classes, from train
+- HAR. Lock dependencies ?
+- HAR. Add automated test on Github
+- HAR. Automatic download of npyfile.py instead of checking into repo
+- HAR. Add frequency/FFT features
 - HAR. Add automatic download of PC micropython
 - MicroPython (Unix) installable via pip, using manylinux wheels
 - Use MTP or similar to get USB drive type functions for sharing code without special tools
 
-Done
+## Done
 
+- HAR. Support dataset definitions as a YAML file
+- HAR. Maybe load dataset info from .json file ?
 - Make emlearn install not require a C/C++ compiler.
 - Test flashing with mpflash
 FAILED https://github.com/Josverl/mpflash/issues/28
@@ -103,6 +100,10 @@ https://www.youtube.com/shorts/U8TeewQ9t-k
 https://www.youtube.com/watch?v=KkrfKPlnoZQ
 
 
+## Custom data exercise
+
+(venv) [jon@jon-thinkpad har_trees]$ mpremote cp cgestures.trees.csv cgestures.meta.json :
+
 
 ## Goals
 
@@ -125,8 +126,8 @@ Maybe
 
 - Adapted the example code to do something different with prediction outputs
 - Have collected their own data, trained and deploying a model
-- Understand key elements of data collection and curation. Factors, out-of-distribution, labeling, cleaning
-- Have an overview of the parts and process to making a production-grade model?
+- Understand key elements of data collection and curation.
+Factors, out-of-distribution, labeling, cleaning
 
 Bonus
 
@@ -137,7 +138,7 @@ Out-of-scope
 - Other sensor modalities. Audio/image.
 Participants can follow examples on their own.
 Link to emlearn-micropython code examples
-
+- Have an overview of the parts and process to making a production-grade model?
 
 Possibly confusing things
 
@@ -196,12 +197,6 @@ What are sources of variation?
 Which aspects of the are characteristic of the action?
 Which are fundamental? Which are informative but not fundamental?
 Which are irrelevant? 
-
-
-Explainable features for activity recognition
-
-- Is motion primarily in 1, 2 or 3 dimensions?
-- Which direction is motion, relative to orientation? Relative to gravity?
 
 
 ## Accelerometers / Inertial Motion Units
@@ -303,6 +298,12 @@ Device Orientation Independent Human Activity Recognition Model for Patient Moni
 > Low computational complexity and calculation simplicity make hand-crafted features still a good practice for activity recognition.
 
 
+## Deleting data
+
+from recorder import Recorder; r = Recorder(100, 1.0, directory='har_data'); r.delete()
+
+
+mpremote exec 'from recorder import Recorder; r = Recorder(100, 1.0, directory="har_data"); r.delete()'
 
 ## Follow-up content/presentations
 
@@ -322,13 +323,19 @@ Segmentation using Matrix Profile
 
 These should have examples in emlearn
 
-- Magnitude vector pre-processing
-- Gravity separation using IIR filter. Use filterdesign lib?
+- Gravity separation using IIR filter
 - Spectral data, using FFT
-- Pitch/Roll. Possibly with approximations
-
-- Signal Magnitude Area (SMA). Time-domain features for distinguishing static vs. dynamic activities
+- Signal Magnitude Area (SMA).
 - Spectral entropy
+- Spectrogram using FFT, for deep learning models
+
+
+ Time-domain features for distinguishing static vs. dynamic activities
+
+Explainable features for activity recognition
+
+- Is motion primarily in 1, 2 or 3 dimensions?
+- Which direction is motion, relative to orientation? Relative to gravity?
 
 
 Fig. 2. Power spectral density (PSD) and median frequency for the Z-axis data for walking and running
@@ -417,7 +424,7 @@ https://github.com/jonnor/embeddedml/blob/master/applications/fall-detection.md
 Pets, livestock, wild animals
 https://github.com/jonnor/embeddedml/blob/master/applications/animal-activity-recognition.md
 
-Other IMU TinyML tasks
+Other TinyML tasks related to motion / IMUs
 
 - Gesture Recognition
 https://github.com/jonnor/embeddedml/blob/master/applications/gesture-recognition.md
