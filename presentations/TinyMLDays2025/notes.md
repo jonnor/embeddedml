@@ -3,7 +3,7 @@
 
 https://events.au.dk/tinymldays/conference
 
-10.30 - 12.30: Workshop 1:  EM Learn - Jon Nordby, SoundSensing
+10.00 - 12.30: Workshop 1:  EM Learn - Jon Nordby, SoundSensing
 
 ## Format
 
@@ -16,54 +16,74 @@ https://events.au.dk/tinymldays/conference
 - Make a model for your own usecase
 - Bonus. Do something different with the model predictions?
 
-## TODO
+### Post-mortem
 
-Must
+Everyone had programmed some Python before.
+Few had experience with Machine Learning.
 
-- Flash at least 40 devices
-- Do a complete fresh test walkthrough. New virtual env, new device, all steps
+Took over 2 hours to get everyone up and running.
+Limited the amount of time to teach/learn.
 
+Good that little time was spent on talking.
+Had around 4-5 minor bugs in setup. 3 fixed in the workshop.
+Had around 3-4 minor issues in exercise documentation. Fixed in workshop.
+Critical to be able to live update slides.
+Several had trouble, due to not following instructions correctly. Missing commands. Not copying correctly.
+
+Had 2 people have issue without workarounds, locked down Windows machines. Firewall blocked USB forwarding for WSL.
+Had around 2 devices with seemingly hardware issues.
+Have 2 persons have USB connection issues / semi unreliable.
+
+Learnings
+
+- ARM Macs. Must use a newer Python than system/default. Otherwise fail to install wheels
+- Windows. How to activate virtualenv on Powershell / cmd.exe
+- Windows. Must tick "add to PATH" when installing new Python
+
+Positive findings
+
+- USB serial drivers were not needed, it seems
+
+
+## Follow-ups
+
+Fixes
+
+- HAR. Fix sampling of testdata. Must handle under n=10 samples for a class. Warn instead
+- HAR. Gives an obscure exception if only 1 class. Fail with nicer
+- Exercises. Add virtualenv activation for cmd.exe/Powershell
+- Exercises. Show mpflash command on flashing page
 
 Maybe
 
-- HAR. Add a record time counter to har_record.py. Maybe also a file counter
+- HAR. Add a record time counter to har_record.py
+- HAR. Add free/used filesystem counter? If fast enough
 - ??HAR. Fix program not starting when not plugged into USB
-
-
-#### Slides
-
-- ?? Create slides for all things to be explained
-
-- Send out to all participants
-- Organization / structure
-Work together in pairs
-Who here has which OS?
-
-- ! how to reset / power on/off device
-https://docs.m5stack.com/en/core/M5StickC%20PLUS2
-
-- ! WiFi info
-
-- ! how to exit in mpremote. c X c C
 
 Bonus
 
-- Links to MicroPython examples for own work
-- Windows, PowerShell, ExecutionPolicy
-- WSL USB forwarding, incl GUI
+- Links to MicroPython examples for own exercise
 
+Future
 
-## Future
-
-- HAR. Add some prints of key features?
 - HAR. Add some visualizations for the classes, from train
 - HAR. Lock dependencies ?
 - HAR. Add automated test on Github
 - HAR. Automatic download of npyfile.py instead of checking into repo
 - HAR. Add frequency/FFT features
+- HAR. Allow switching Python version used for precompute
 - HAR. Add automatic download of PC micropython
-- MicroPython (Unix) installable via pip, using manylinux wheels
-- Use MTP or similar to get USB drive type functions for sharing code without special tools
+- MicroPython (Unix) installable via pip, using manylinux wheels. Maybe RFC
+
+
+#### Slides
+
+- Organization / structure
+Work together in pairs
+Who here has which OS?
+
+- ! how to reset / power on/off device
+- ! how to exit in mpremote. c X c C
 
 ## Done
 
@@ -171,7 +191,6 @@ Same data might come from different action. Ie what constitutes "running" vs "jo
 - Ambigious. Might be hard to deliminate
 
 
-
 ## Learning areas
 
 - Evaluation
@@ -231,7 +250,6 @@ Battery operated.
 - Assuming only 3-axis accelerometer.
 Making assumption that gravitation is constant, orientation changes slowly or not-so-much, motion changes (relatively) quickly
 
-
 Orientation assumptions. Might be violated, for example wrist-mounted when running
 
 
@@ -260,7 +278,6 @@ Anguita et al (2013)
 > sufficient for body motion since 99% of its energy is contained below 15Hz
 
 
-
 ## Orientation-independent
 
 Can rotate by the (estimated) gravity vector, to get earth-referenced acceleration
@@ -269,8 +286,6 @@ Can rotate by the (estimated) gravity vector, to get earth-referenced accelerati
 - Horizontal
 
 Note: accelerometer cannot give orientation of the horizontal plane
-
-
 
 Smartphone-based activity recognition independent of device orientation and placement (2015)
 https://dl.acm.org/doi/10.1002/dac.3010
@@ -298,13 +313,6 @@ Device Orientation Independent Human Activity Recognition Model for Patient Moni
 > Low computational complexity and calculation simplicity make hand-crafted features still a good practice for activity recognition.
 
 
-## Deleting data
-
-from recorder import Recorder; r = Recorder(100, 1.0, directory='har_data'); r.delete()
-
-
-mpremote exec 'from recorder import Recorder; r = Recorder(100, 1.0, directory="har_data"); r.delete()'
-
 ## Follow-up content/presentations
 
 - Human Activity Recoginition
@@ -314,6 +322,8 @@ mpremote exec 'from recorder import Recorder; r = Recorder(100, 1.0, directory="
 - Error analysis / dataset vs model diagnostics
 - Annotating HAR data using video groundthruth (Label Studio)
 - Handling unseen sensor data in ML classification
+
+Tooling
 
 - Annotation helpers for HAR
 Segmentation using Matrix Profile
@@ -329,8 +339,7 @@ These should have examples in emlearn
 - Spectral entropy
 - Spectrogram using FFT, for deep learning models
 
-
- Time-domain features for distinguishing static vs. dynamic activities
+Time-domain features for distinguishing static vs. dynamic activities
 
 Explainable features for activity recognition
 
@@ -409,27 +418,19 @@ Gyro+accelerometer
 
 ## Activity Recognition using Inertial Motion Units
 
-
 Many applications.
 
 A large amount of them are relevant for TinyML cases.
 
+Human Activity Recognition https://github.com/jonnor/embeddedml/blob/master/applications/human-activity-recognition.md
+Fall Detection https://github.com/jonnor/embeddedml/blob/master/applications/fall-detection.md
 
-- Human Activity Recognition
-https://github.com/jonnor/embeddedml/blob/master/applications/human-activity-recognition.md
-- Fall Detection
-https://github.com/jonnor/embeddedml/blob/master/applications/fall-detection.md
-
-- Animal Activity Recognition.
-Pets, livestock, wild animals
-https://github.com/jonnor/embeddedml/blob/master/applications/animal-activity-recognition.md
+Animal Activity Recognition. Pets, livestock, wild animals https://github.com/jonnor/embeddedml/blob/master/applications/animal-activity-recognition.md
 
 Other TinyML tasks related to motion / IMUs
 
-- Gesture Recognition
-https://github.com/jonnor/embeddedml/blob/master/applications/gesture-recognition.md
-- Condition Monitoring of Machinery
-https://github.com/jonnor/condition-monitoring
+- Gesture Recognition https://github.com/jonnor/embeddedml/blob/master/applications/gesture-recognition.md
+- Condition Monitoring of Machinery https://github.com/jonnor/condition-monitoring
 
 Other applications of accelerometers, TinyML potential
 
@@ -440,24 +441,9 @@ Other applications of accelerometers, TinyML potential
 - Machine Health Monitoring. Predict failures or maintenance needs in CNC machines, conveyors, or robots based on vibration trends.
 - Tool Wear Detection. Monitor cutting or drilling tools by detecting subtle changes in vibration that indicate wear or breakage.
 - Process Consistency Validation. Ensure processes like stamping, welding, or packaging are running consistently by detecting irregular motion profiles.
-
-
 - Package Handling Monitoring – Detect drops, shocks, or mishandling during shipping.
 - Appliance Usage Recognition – Classify usage patterns of household devices (e.g., washing machine, refrigerator).
 
-
-
-# Ideas
-
-Preparations
-
-- ? Install Thonny. With Python 3.10. Check that it runs
-- Download materials for workshop. emlearn-micropython with har_trees
-- Open har_trees in Thonny
-- Create virtualenv. Create directory in browser, then use Thonny
-- Install har_trees requirements. Using Thonny
-Alt: Use pip install -r requirements.txt inside
-?? which shell
 
 
 ## Flashing
