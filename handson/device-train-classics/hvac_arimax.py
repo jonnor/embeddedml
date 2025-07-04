@@ -426,81 +426,85 @@ def generate_hvac_data(n_points=1000):
     
     return data, anomaly_indices
 
-# Generate example data
-print("Generating synthetic HVAC data...")
-data, true_anomalies = generate_hvac_data(1000)
+def example():
 
-# Prepare data
-y = data['indoor_temp']
-X = data[['outdoor_temp', 'occupancy']]
-timestamps = data.index
+    # Generate example data
+    print("Generating synthetic HVAC data...")
+    data, true_anomalies = generate_hvac_data(1000)
 
-# Split into train/test
-train_size = int(0.8 * len(data))
-y_train = y[:train_size]
-X_train = X[:train_size]
-timestamps_train = timestamps[:train_size]
+    # Prepare data
+    y = data['indoor_temp']
+    X = data[['outdoor_temp', 'occupancy']]
+    timestamps = data.index
 
-y_test = y[train_size:]
-X_test = X[train_size:]
-timestamps_test = timestamps[train_size:]
+    # Split into train/test
+    train_size = int(0.8 * len(data))
+    y_train = y[:train_size]
+    X_train = X[:train_size]
+    timestamps_train = timestamps[:train_size]
 
-print(f"Training data: {len(y_train)} points")
-print(f"Testing data: {len(y_test)} points")
+    y_test = y[train_size:]
+    X_test = X[train_size:]
+    timestamps_test = timestamps[train_size:]
 
-# Create and fit ARIMAX model
-print("\nFitting ARIMAX model...")
-arimax_detector = ARIMAXAnomalyDetector(
-    ar_order=2,           # Use 2 autoregressive terms
-    ma_order=2,           # Use 2 moving average terms
-    diff_order=1,         # First differencing
-    seasonal_ar=1,        # 1 seasonal AR term
-    seasonal_ma=0,        # No seasonal MA terms
-    seasonal_period=24,   # 24-hour seasonality
-    anomaly_threshold=2.5 # 2.5 standard deviations
-)
+    print(f"Training data: {len(y_train)} points")
+    print(f"Testing data: {len(y_test)} points")
 
-arimax_detector.fit(y_train, X_train, timestamps_train)
+    # Create and fit ARIMAX model
+    print("\nFitting ARIMAX model...")
+    arimax_detector = ARIMAXAnomalyDetector(
+        ar_order=2,           # Use 2 autoregressive terms
+        ma_order=2,           # Use 2 moving average terms
+        diff_order=1,         # First differencing
+        seasonal_ar=1,        # 1 seasonal AR term
+        seasonal_ma=0,        # No seasonal MA terms
+        seasonal_period=24,   # 24-hour seasonality
+        anomaly_threshold=2.5 # 2.5 standard deviations
+    )
 
-# Detect anomalies on test data
-print("Detecting anomalies...")
-anomaly_scores, anomalies, predictions = arimax_detector.detect_anomalies(
-    y_test, X_test, timestamps_test
-)
+    arimax_detector.fit(y_train, X_train, timestamps_train)
 
-# Print results
-n_anomalies = anomalies.sum()
-print(f"\nDetected {n_anomalies} anomalies out of {len(y_test)} points")
-print(f"Anomaly rate: {n_anomalies/len(y_test)*100:.2f}%")
+    # Detect anomalies on test data
+    print("Detecting anomalies...")
+    anomaly_scores, anomalies, predictions = arimax_detector.detect_anomalies(
+        y_test, X_test, timestamps_test
+    )
 
-# Print feature importance (coefficients)
-print("\nModel coefficients:")
-for i, coef in enumerate(arimax_detector.model.coef_):
-    if i < len(arimax_detector.feature_names_):
-        print(f"{arimax_detector.feature_names_[i]}: {coef:.4f}")
+    # Print results
+    n_anomalies = anomalies.sum()
+    print(f"\nDetected {n_anomalies} anomalies out of {len(y_test)} points")
+    print(f"Anomaly rate: {n_anomalies/len(y_test)*100:.2f}%")
 
-# Calculate performance metrics on aligned data
-valid_mask = ~(y_test.isna() | predictions.isna())
-y_test_aligned = y_test[valid_mask]
-predictions_aligned = predictions[valid_mask]
+    # Print feature importance (coefficients)
+    print("\nModel coefficients:")
+    for i, coef in enumerate(arimax_detector.model.coef_):
+        if i < len(arimax_detector.feature_names_):
+            print(f"{arimax_detector.feature_names_[i]}: {coef:.4f}")
 
-if len(y_test_aligned) > 0:
-    test_mse = mean_squared_error(y_test_aligned, predictions_aligned)
-    test_mae = mean_absolute_error(y_test_aligned, predictions_aligned)
-    print(f"\nTest MSE: {test_mse:.4f}")
-    print(f"Test MAE: {test_mae:.4f}")
-    print(f"Evaluated on {len(y_test_aligned)} valid points")
-else:
-    print("\nNo valid predictions to evaluate")
+    # Calculate performance metrics on aligned data
+    valid_mask = ~(y_test.isna() | predictions.isna())
+    y_test_aligned = y_test[valid_mask]
+    predictions_aligned = predictions[valid_mask]
 
-# Plot results
-arimax_detector.plot_results(y_test, anomaly_scores, anomalies, predictions)
+    if len(y_test_aligned) > 0:
+        test_mse = mean_squared_error(y_test_aligned, predictions_aligned)
+        test_mae = mean_absolute_error(y_test_aligned, predictions_aligned)
+        print(f"\nTest MSE: {test_mse:.4f}")
+        print(f"Test MAE: {test_mae:.4f}")
+        print(f"Evaluated on {len(y_test_aligned)} valid points")
+    else:
+        print("\nNo valid predictions to evaluate")
 
-print("\nKey features of this ARIMAX implementation:")
-print("1. AR terms: Lagged values of the target variable")
-print("2. MA terms: Lagged residuals from previous predictions")
-print("3. I (Integration): Differencing to achieve stationarity")
-print("4. X (Exogenous): External variables (outdoor temp, occupancy)")
-print("5. Seasonal terms: Handle daily/weekly patterns")
-print("6. Time features: Hour, day of week, month patterns")
-print("7. Anomaly detection: Based on standardized residuals")
+    # Plot results
+    arimax_detector.plot_results(y_test, anomaly_scores, anomalies, predictions)
+
+    print("\nKey features of this ARIMAX implementation:")
+    print("1. AR terms: Lagged values of the target variable")
+    print("2. MA terms: Lagged residuals from previous predictions")
+    print("3. I (Integration): Differencing to achieve stationarity")
+    print("4. X (Exogenous): External variables (outdoor temp, occupancy)")
+    print("5. Seasonal terms: Handle daily/weekly patterns")
+    print("6. Time features: Hour, day of week, month patterns")
+    print("7. Anomaly detection: Based on standardized residuals")
+
+
