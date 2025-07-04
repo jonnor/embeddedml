@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 // Elastic Net Multi-class Logistic Regression for embedded systems
@@ -109,6 +110,37 @@ static void class_to_onehot(uint8_t class_label, float* onehot, uint16_t n_class
     }
 }
 
+
+// Predict class probabilities
+void elastic_net_multiclass_predict_proba(const elastic_net_multiclass_model_t* model,
+                                         const float* features,
+                                         float* probabilities,
+                                         float* temp_logits) {
+    calculate_logits(model, features, temp_logits);
+    softmax(temp_logits, probabilities, model->n_classes);
+}
+
+// Predict class
+uint8_t elastic_net_multiclass_predict(const elastic_net_multiclass_model_t* model,
+                                      const float* features,
+                                      float* temp_logits,
+                                      float* temp_probs) {
+    elastic_net_multiclass_predict_proba(model, features, temp_probs, temp_logits);
+    
+    // Find class with highest probability
+    uint8_t best_class = 0;
+    float best_prob = temp_probs[0];
+    
+    for (uint16_t c = 1; c < model->n_classes; c++) {
+        if (temp_probs[c] > best_prob) {
+            best_prob = temp_probs[c];
+            best_class = c;
+        }
+    }
+    
+    return best_class;
+}
+
 // Simplified gradient descent update (more stable than coordinate descent for multiclass)
 void elastic_net_multiclass_iterate(elastic_net_multiclass_model_t* model,
                                    const float* X,
@@ -199,78 +231,6 @@ static float calculate_cross_entropy_loss(const elastic_net_multiclass_model_t* 
     return total_loss / n_samples;
 }
 
-// Train model using gradient descent
-void elastic_net_multiclass_train(elastic_net_multiclass_model_t* model,
-                                 const float* X,
-                                 const uint8_t* y,
-                                 uint16_t n_samples,
-                                 uint16_t max_iterations,
-                                 float learning_rate,
-                                 float tolerance,
-                                 float* temp_logits,        // n_classes
-                                 float* temp_probs,         // n_classes
-                                 float* temp_onehot) {      // n_classes
-    
-    float prev_loss = 1e10f;
-    
-    for (uint16_t iter = 0; iter < max_iterations; iter++) {
-        elastic_net_multiclass_iterate(model, X, y, n_samples, learning_rate,
-                                     temp_logits, temp_probs, temp_onehot);
-        
-        // Check convergence every 10 iterations
-        if (iter % 10 == 0) {
-            float loss = calculate_cross_entropy_loss(model, X, y, n_samples,
-                                                    temp_logits, temp_probs);
-            
-            // Check for convergence
-            if (fabsf(prev_loss - loss) < tolerance) {
-                break;
-            }
-            
-            // Check for divergence
-            if (loss > prev_loss * 2.0f || !isfinite(loss)) {
-                // Reduce learning rate and continue
-                learning_rate *= 0.5f;
-                if (learning_rate < 1e-6f) {
-                    break;  // Learning rate too small
-                }
-            }
-            
-            prev_loss = loss;
-        }
-    }
-}
-
-// Predict class probabilities
-void elastic_net_multiclass_predict_proba(const elastic_net_multiclass_model_t* model,
-                                         const float* features,
-                                         float* probabilities,
-                                         float* temp_logits) {
-    calculate_logits(model, features, temp_logits);
-    softmax(temp_logits, probabilities, model->n_classes);
-}
-
-// Predict class
-uint8_t elastic_net_multiclass_predict(const elastic_net_multiclass_model_t* model,
-                                      const float* features,
-                                      float* temp_logits,
-                                      float* temp_probs) {
-    elastic_net_multiclass_predict_proba(model, features, temp_probs, temp_logits);
-    
-    // Find class with highest probability
-    uint8_t best_class = 0;
-    float best_prob = temp_probs[0];
-    
-    for (uint16_t c = 1; c < model->n_classes; c++) {
-        if (temp_probs[c] > best_prob) {
-            best_prob = temp_probs[c];
-            best_class = c;
-        }
-    }
-    
-    return best_class;
-}
-
 // Calculate accuracy
 float elastic_net_multiclass_accuracy(const elastic_net_multiclass_model_t* model,
                                      const float* X,
@@ -289,6 +249,66 @@ float elastic_net_multiclass_accuracy(const elastic_net_multiclass_model_t* mode
     }
     return (float)correct / n_samples;
 }
+
+// Train model using gradient descent
+void elastic_net_multiclass_train(elastic_net_multiclass_model_t* model,
+                                 const float* X,
+                                 const uint8_t* y,
+                                 uint16_t n_samples,
+                                 uint16_t max_iterations,
+                                 float learning_rate,
+                                 float tolerance,
+                                 float* temp_logits,        // n_classes
+                                 float* temp_probs,         // n_classes
+                                 float* temp_onehot) {      // n_classes
+    
+    float prev_loss = 1e10f;
+    
+    printf("Starting training with learning rate: %.4f\n", learning_rate);
+    printf("Iter     Loss      Accuracy   LR\n");
+    printf("----     ----      --------   --\n");
+    
+    for (uint16_t iter = 0; iter < max_iterations; iter++) {
+        elastic_net_multiclass_iterate(model, X, y, n_samples, learning_rate,
+                                     temp_logits, temp_probs, temp_onehot);
+        
+        // Check convergence every 10 iterations
+        if (iter % 10 == 0) {
+            float loss = calculate_cross_entropy_loss(model, X, y, n_samples,
+                                                    temp_logits, temp_probs);
+            float accuracy = elastic_net_multiclass_accuracy(model, X, y, n_samples,
+                                                           temp_logits, temp_probs);
+            
+            printf("%4d     %.4f    %.4f     %.6f\n", iter, loss, accuracy, learning_rate);
+            
+            // Check for convergence
+            if (fabsf(prev_loss - loss) < tolerance) {
+                printf("Converged at iteration %d (loss change: %.6f)\n", 
+                       iter, fabsf(prev_loss - loss));
+                break;
+            }
+            
+            // Check for divergence
+            if (loss > prev_loss * 2.0f || !isfinite(loss)) {
+                // Reduce learning rate and continue
+                learning_rate *= 0.5f;
+                printf("Reducing learning rate to %.6f (loss: %.4f)\n", learning_rate, loss);
+                
+                if (learning_rate < 1e-6f) {
+                    printf("Learning rate too small, stopping training\n");
+                    break;  // Learning rate too small
+                }
+            }
+            
+            prev_loss = loss;
+        }
+    }
+    
+    printf("Training completed.\n\n");
+}
+
+
+
 
 // Calculate cross-entropy loss on dataset
 float elastic_net_multiclass_loss(const elastic_net_multiclass_model_t* model,
@@ -338,6 +358,21 @@ void example_usage() {
     
     uint8_t labels[] = {0, 1, 2, 1, 0};    // Multi-class labels
     
+    printf("=== Elastic Net Multi-class Logistic Regression ===\n\n");
+    
+    // Print training data
+    printf("Training Data:\n");
+    for (uint16_t i = 0; i < 5; i++) {
+        printf("Sample %d: [%5.2f, %5.2f, %5.2f, %5.2f] -> Class %d\n", 
+               i + 1,
+               training_data[i * 4 + 0],
+               training_data[i * 4 + 1], 
+               training_data[i * 4 + 2],
+               training_data[i * 4 + 3],
+               labels[i]);
+    }
+    printf("\n");
+    
     // Copy to static arrays
     memcpy(X_train, training_data, sizeof(training_data));
     memcpy(y_train, labels, sizeof(labels));
@@ -346,25 +381,104 @@ void example_usage() {
     elastic_net_multiclass_model_t model;
     elastic_net_multiclass_init(&model, weights, bias, 4, 3, 0.01f, 0.5f);
     
+    printf("Model Configuration:\n");
+    printf("Features: %d, Classes: %d\n", model.n_features, model.n_classes);
+    printf("Alpha: %.4f, L1 Ratio: %.2f\n", model.alpha, model.l1_ratio);
+    printf("Regularization: %.0f%% L1 + %.0f%% L2\n\n", 
+           model.l1_ratio * 100, (1.0f - model.l1_ratio) * 100);
+    
     // Train model with appropriate learning rate
     elastic_net_multiclass_train(&model, X_train, y_train, 5, 1000, 0.1f, 1e-6f,
                                 temp_logits, temp_probs, temp_onehot);
     
-    // Evaluate
+    // Evaluate final performance
     float accuracy = elastic_net_multiclass_accuracy(&model, X_train, y_train, 5,
                                                    temp_logits, temp_probs);
     float loss = elastic_net_multiclass_loss(&model, X_train, y_train, 5,
                                             temp_logits, temp_probs);
     uint16_t nonzero_weights = elastic_net_multiclass_count_nonzero(&model, 1e-6f);
     
-    // Make predictions
-    float test_sample[] = {0.5f, 0.5f, 1.5f, 1.5f};
-    uint8_t predicted_class = elastic_net_multiclass_predict(&model, test_sample,
-                                                           temp_logits, temp_probs);
+    printf("Final Results:\n");
+    printf("Training Accuracy: %.4f (%.1f%%)\n", accuracy, accuracy * 100);
+    printf("Training Loss: %.4f\n", loss);
+    printf("Non-zero weights: %d / %d\n", nonzero_weights, model.n_classes * model.n_features);
+    printf("Sparsity: %.1f%%\n", (1.0f - (float)nonzero_weights / (model.n_classes * model.n_features)) * 100);
+    printf("\n");
     
-    // Get class probabilities
-    float class_probabilities[3];
-    elastic_net_multiclass_predict_proba(&model, test_sample, class_probabilities, temp_logits);
+    // Print learned weights
+    printf("Learned Model Parameters:\n");
+    printf("Biases: [");
+    for (uint16_t c = 0; c < model.n_classes; c++) {
+        printf("%7.4f", model.bias[c]);
+        if (c < model.n_classes - 1) printf(", ");
+    }
+    printf("]\n");
+    
+    printf("Weights:\n");
+    for (uint16_t c = 0; c < model.n_classes; c++) {
+        printf("Class %d: [", c);
+        for (uint16_t f = 0; f < model.n_features; f++) {
+            printf("%7.4f", model.weights[c * model.n_features + f]);
+            if (f < model.n_features - 1) printf(", ");
+        }
+        printf("]\n");
+    }
+    printf("\n");
+    
+    // Test predictions on training data
+    printf("Predictions on Training Data:\n");
+    printf("Sample   True    Pred    Prob[0]   Prob[1]   Prob[2]   Correct\n");
+    printf("------   ----    ----    -------   -------   -------   -------\n");
+    
+    for (uint16_t i = 0; i < 5; i++) {
+        uint8_t predicted_class = elastic_net_multiclass_predict(&model, &X_train[i * 4],
+                                                               temp_logits, temp_probs);
+        
+        // Get class probabilities
+        float class_probabilities[3];
+        elastic_net_multiclass_predict_proba(&model, &X_train[i * 4], class_probabilities, temp_logits);
+        
+        printf("  %d        %d       %d       %.4f    %.4f    %.4f      %s\n",
+               i + 1,
+               y_train[i],
+               predicted_class,
+               class_probabilities[0],
+               class_probabilities[1], 
+               class_probabilities[2],
+               (predicted_class == y_train[i]) ? "✓" : "✗");
+    }
+    printf("\n");
+    
+    // Test on new samples
+    printf("Predictions on Test Samples:\n");
+    printf("Sample                              Pred    Prob[0]   Prob[1]   Prob[2]\n");
+    printf("------                              ----    -------   -------   -------\n");
+    
+    float test_samples[][4] = {
+        {0.5f, 0.5f, 1.5f, 1.5f},      // Should be class 1 or 2
+        {-2.0f, -2.0f, -1.0f, -1.0f},  // Should be class 0
+        {2.0f, 2.0f, 3.0f, 3.0f},      // Should be class 2
+        {0.0f, 0.0f, 0.0f, 0.0f}       // Boundary case
+    };
+    
+    for (uint16_t i = 0; i < 4; i++) {
+        uint8_t predicted_class = elastic_net_multiclass_predict(&model, test_samples[i],
+                                                               temp_logits, temp_probs);
+        
+        float class_probabilities[3];
+        elastic_net_multiclass_predict_proba(&model, test_samples[i], class_probabilities, temp_logits);
+        
+        printf("[%5.2f, %5.2f, %5.2f, %5.2f]     %d       %.4f    %.4f    %.4f\n",
+               test_samples[i][0],
+               test_samples[i][1],
+               test_samples[i][2], 
+               test_samples[i][3],
+               predicted_class,
+               class_probabilities[0],
+               class_probabilities[1],
+               class_probabilities[2]);
+    }
+    printf("\n");
 }
 
 
