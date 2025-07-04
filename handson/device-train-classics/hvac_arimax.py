@@ -289,35 +289,41 @@ class ARIMAXAnomalyDetector:
         # Prepare features
         features, y_diff = self.prepare_features(y, X, timestamps)
         
-        # Add MA terms (using training residuals initially)
+        # Initialize residuals for MA terms
         residuals = pd.Series(0, index=y.index)
-        if hasattr(self, 'residuals_'):
-            # Use training residuals for initial MA terms
-            residuals.loc[self.residuals_.index] = self.residuals_
         
-        if self.ma_order > 0:
-            ma_features = self._create_ma_terms(residuals, self.ma_order)
-            ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
-            features_with_ma = pd.concat([features, ma_features], axis=1)
-        else:
-            features_with_ma = features
-        
-        # Get valid indices
-        valid_idx = features_with_ma.dropna().index
-        X_clean = features_with_ma.loc[valid_idx]
-        y_clean = y_diff.loc[valid_idx]
-        
-        # Scale features
-        X_scaled = self.scaler.transform(X_clean)
-        
-        # Make predictions
-        predictions = self.model.predict(X_scaled)
-        
-        # Calculate residuals
-        residuals_clean = y_clean - predictions
+        # Iterative process to estimate MA terms for new data
+        for iteration in range(2):  # Fewer iterations for inference
+            if self.ma_order > 0:
+                ma_features = self._create_ma_terms(residuals, self.ma_order)
+                ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
+                features_with_ma = pd.concat([features, ma_features], axis=1)
+            else:
+                features_with_ma = features
+            
+            # Get valid indices
+            valid_idx = features_with_ma.dropna().index
+            if len(valid_idx) == 0:
+                # If no valid data, return empty results
+                empty_series = pd.Series(np.nan, index=y.index)
+                empty_bool = pd.Series(False, index=y.index)
+                return empty_series, empty_bool, empty_series
+            
+            X_clean = features_with_ma.loc[valid_idx]
+            y_clean = y_diff.loc[valid_idx]
+            
+            # Scale features
+            X_scaled = self.scaler.transform(X_clean)
+            
+            # Make predictions
+            predictions = self.model.predict(X_scaled)
+            
+            # Update residuals for next iteration
+            residuals.loc[valid_idx] = y_clean - predictions
         
         # Calculate anomaly scores (standardized residuals)
-        anomaly_scores = (residuals_clean - self.error_mean_) / self.error_std_
+        final_residuals = y_clean - predictions
+        anomaly_scores = (final_residuals - self.error_mean_) / self.error_std_
         
         # Detect anomalies
         anomalies = np.abs(anomaly_scores) > self.anomaly_threshold
@@ -473,11 +479,19 @@ for i, coef in enumerate(arimax_detector.model.coef_):
     if i < len(arimax_detector.feature_names_):
         print(f"{arimax_detector.feature_names_[i]}: {coef:.4f}")
 
-# Calculate performance metrics
-test_mse = mean_squared_error(y_test.dropna(), predictions.dropna())
-test_mae = mean_absolute_error(y_test.dropna(), predictions.dropna())
-print(f"\nTest MSE: {test_mse:.4f}")
-print(f"Test MAE: {test_mae:.4f}")
+# Calculate performance metrics on aligned data
+valid_mask = ~(y_test.isna() | predictions.isna())
+y_test_aligned = y_test[valid_mask]
+predictions_aligned = predictions[valid_mask]
+
+if len(y_test_aligned) > 0:
+    test_mse = mean_squared_error(y_test_aligned, predictions_aligned)
+    test_mae = mean_absolute_error(y_test_aligned, predictions_aligned)
+    print(f"\nTest MSE: {test_mse:.4f}")
+    print(f"Test MAE: {test_mae:.4f}")
+    print(f"Evaluated on {len(y_test_aligned)} valid points")
+else:
+    print("\nNo valid predictions to evaluate")
 
 # Plot results
 arimax_detector.plot_results(y_test, anomaly_scores, anomalies, predictions)
