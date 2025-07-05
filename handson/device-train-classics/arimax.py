@@ -20,6 +20,8 @@ class ARIMAXAnomalyDetector:
     
     def __init__(self, ar_order=2, ma_order=2, diff_order=1, 
                  seasonal_ar=0, seasonal_ma=0, seasonal_period=24,
+                 time_features=['hour', 'weekday', 'weekend', 'month'],
+                 regression_model=None,
                  anomaly_threshold=3.0):
         """
         Initialize ARIMAX anomaly detector.
@@ -40,8 +42,13 @@ class ARIMAXAnomalyDetector:
         self.seasonal_ma = seasonal_ma
         self.seasonal_period = seasonal_period
         self.anomaly_threshold = anomaly_threshold
+        self.time_features = set(time_features)
         
-        self.model = LinearRegression()
+        if regression_model is None:
+            self.model = LinearRegression()
+        else:
+            self.model = regression_model
+
         self.scaler = StandardScaler()
         self.is_fitted = False
         
@@ -96,23 +103,27 @@ class ARIMAXAnomalyDetector:
         """Create time-based features."""
         time_features = pd.DataFrame(index=timestamps)
         
-        # Hour of day
-        time_features['hour'] = timestamps.hour
-        time_features['hour_sin'] = np.sin(2 * np.pi * timestamps.hour / 24)
-        time_features['hour_cos'] = np.cos(2 * np.pi * timestamps.hour / 24)
-        
-        # Day of week
-        time_features['dow'] = timestamps.dayofweek
-        time_features['dow_sin'] = np.sin(2 * np.pi * timestamps.dayofweek / 7)
-        time_features['dow_cos'] = np.cos(2 * np.pi * timestamps.dayofweek / 7)
+        if 'hour' in self.time_features:
+            # Hour of day
+            time_features['hour'] = timestamps.hour
+            time_features['hour_sin'] = np.sin(2 * np.pi * timestamps.hour / 24)
+            time_features['hour_cos'] = np.cos(2 * np.pi * timestamps.hour / 24)
+
+        if 'weekday' in self.time_features:
+            # Day of week
+            time_features['dow'] = timestamps.dayofweek
+            time_features['dow_sin'] = np.sin(2 * np.pi * timestamps.dayofweek / 7)
+            time_features['dow_cos'] = np.cos(2 * np.pi * timestamps.dayofweek / 7)
         
         # Month
-        time_features['month'] = timestamps.month
-        time_features['month_sin'] = np.sin(2 * np.pi * timestamps.month / 12)
-        time_features['month_cos'] = np.cos(2 * np.pi * timestamps.month / 12)
+        if 'month' in self.time_features:
+            time_features['month'] = timestamps.month
+            time_features['month_sin'] = np.sin(2 * np.pi * timestamps.month / 12)
+            time_features['month_cos'] = np.cos(2 * np.pi * timestamps.month / 12)
         
         # Is weekend
-        time_features['is_weekend'] = (timestamps.dayofweek >= 5).astype(int)
+        if 'weekend' in self.time_features:
+            time_features['is_weekend'] = (timestamps.dayofweek >= 5).astype(int)
         
         return time_features
     
@@ -194,8 +205,8 @@ class ARIMAXAnomalyDetector:
             
             # Remove rows with NaN values
             valid_idx = features_with_ma.dropna().index
-            X_clean = features_with_ma.loc[valid_idx]
-            y_clean = y_diff.loc[valid_idx]
+            X_clean = np.ascontiguousarray(features_with_ma.loc[valid_idx].values)
+            y_clean = np.ascontiguousarray(y_diff.loc[valid_idx].values)
             
             # Scale features
             X_scaled = self.scaler.fit_transform(X_clean)
@@ -260,7 +271,7 @@ class ARIMAXAnomalyDetector:
                 last_features = pd.concat([last_features, ma_features.iloc[-1:]], axis=1)
             
             # Scale and predict
-            X_scaled = self.scaler.transform(last_features)
+            X_scaled = np.ascontiguousarray(self.scaler.transform(last_features))
             pred = self.model.predict(X_scaled)[0]
             predictions.append(pred)
         
@@ -313,7 +324,7 @@ class ARIMAXAnomalyDetector:
             y_clean = y_diff.loc[valid_idx]
             
             # Scale features
-            X_scaled = self.scaler.transform(X_clean)
+            X_scaled = np.ascontiguousarray(self.scaler.transform(X_clean))
             
             # Make predictions on differenced data
             predictions_diff = self.model.predict(X_scaled)
