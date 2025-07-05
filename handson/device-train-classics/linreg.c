@@ -9,11 +9,13 @@
 // Using gradient descent instead of coordinate descent for reliability
 
 typedef struct {
-    float* weights;     // Pointer to externally allocated weights
+    float* weights;           // Pointer to externally allocated weights
+    float* weight_gradients;  // Pointer to externally allocated gradient buffer
     float bias;
     uint16_t n_features;
-    float l1_ratio;     // Mix of L1 vs L2: 0=Ridge, 1=LASSO
-    float alpha;        // Overall regularization strength
+    float l1_ratio;           // Mix of L1 vs L2: 0=Ridge, 1=LASSO
+    float alpha;              // Overall regularization strength
+    float learning_rate;      // Learning rate for gradient descent
 } elastic_net_model_t;
 
 // Soft thresholding function for L1 penalty
@@ -30,13 +32,17 @@ static float soft_threshold(float x, float threshold) {
 // Initialize model with external memory
 void elastic_net_init(elastic_net_model_t* model,
                      float* weights_buffer,
+                     float* gradients_buffer,
                      uint16_t n_features,
                      float alpha,
-                     float l1_ratio) {
+                     float l1_ratio,
+                     float learning_rate) {
     model->weights = weights_buffer;
+    model->weight_gradients = gradients_buffer;
     model->n_features = n_features;
     model->alpha = alpha;
     model->l1_ratio = l1_ratio;
+    model->learning_rate = learning_rate;
     model->bias = 0.0f;
     
     // Initialize weights to zero
@@ -56,14 +62,10 @@ static float predict_sample(const elastic_net_model_t* model, const float* featu
 void elastic_net_iterate(elastic_net_model_t* model,
                         const float* X,
                         const float* y,
-                        uint16_t n_samples,
-                        float* weight_gradients_buffer) {
-    
-    // Learning rate (adaptive based on regularization)
-    float learning_rate = 0.01f / (1.0f + model->alpha);
+                        uint16_t n_samples) {
     
     // Initialize gradients buffer to zero
-    memset(weight_gradients_buffer, 0, model->n_features * sizeof(float));
+    memset(model->weight_gradients, 0, model->n_features * sizeof(float));
     float bias_gradient = 0.0f;
     
     // Forward pass and gradient calculation
@@ -77,14 +79,14 @@ void elastic_net_iterate(elastic_net_model_t* model,
         // Accumulate gradients
         bias_gradient += error;
         for (uint16_t j = 0; j < model->n_features; j++) {
-            weight_gradients_buffer[j] += error * X[i * model->n_features + j];
+            model->weight_gradients[j] += error * X[i * model->n_features + j];
         }
     }
     
     // Average gradients
     bias_gradient /= n_samples;
     for (uint16_t j = 0; j < model->n_features; j++) {
-        weight_gradients_buffer[j] /= n_samples;
+        model->weight_gradients[j] /= n_samples;
     }
     
     // Update weights with regularization
@@ -93,15 +95,15 @@ void elastic_net_iterate(elastic_net_model_t* model,
         float l2_penalty = model->alpha * (1.0f - model->l1_ratio) * model->weights[j];
         
         // Update weight
-        float new_weight = model->weights[j] - learning_rate * (weight_gradients_buffer[j] + l2_penalty);
+        float new_weight = model->weights[j] - model->learning_rate * (model->weight_gradients[j] + l2_penalty);
         
         // Apply L1 penalty via soft thresholding
-        float l1_penalty = model->alpha * model->l1_ratio * learning_rate;
+        float l1_penalty = model->alpha * model->l1_ratio * model->learning_rate;
         model->weights[j] = soft_threshold(new_weight, l1_penalty);
     }
     
     // Update bias (no regularization on bias)
-    model->bias -= learning_rate * bias_gradient;
+    model->bias -= model->learning_rate * bias_gradient;
 }
 
 // Calculate mean squared error
@@ -127,22 +129,23 @@ void elastic_net_train(elastic_net_model_t* model,
                       uint16_t max_iterations,
                       float tolerance,
                       int verbose,
-                      float* weight_gradients_buffer) {
+                      uint16_t check_interval,
+                      float divergence_factor) {
     
     float prev_mse = 1e10f;
     
     if (verbose) {
-        printf("Starting training with alpha=%.4f, l1_ratio=%.2f (Gradient Descent)\n", 
-               model->alpha, model->l1_ratio);
+        printf("Starting training with alpha=%.4f, l1_ratio=%.2f, lr=%.4f\n", 
+               model->alpha, model->l1_ratio, model->learning_rate);
         printf("Iter    MSE       Change\n");
         printf("----    ----      ------\n");
     }
     
     for (uint16_t iter = 0; iter < max_iterations; iter++) {
-        elastic_net_iterate(model, X, y, n_samples, weight_gradients_buffer);
+        elastic_net_iterate(model, X, y, n_samples);
         
-        // Check convergence every 10 iterations
-        if (iter % 10 == 0) {
+        // Check convergence at specified intervals
+        if (iter % check_interval == 0) {
             float mse = elastic_net_mse(model, X, y, n_samples);
             float change = fabsf(prev_mse - mse);
             
@@ -151,7 +154,7 @@ void elastic_net_train(elastic_net_model_t* model,
             }
             
             // Check for convergence
-            if (change < tolerance && iter > 50) {  // Don't converge too early
+            if (change < tolerance && iter > check_interval * 2) {  // Need at least 2 check intervals
                 if (verbose) {
                     printf("Converged at iteration %d\n", iter);
                 }
@@ -159,9 +162,10 @@ void elastic_net_train(elastic_net_model_t* model,
             }
             
             // Check for divergence
-            if (mse > prev_mse * 10.0f || !isfinite(mse)) {
+            if (mse > prev_mse * divergence_factor || !isfinite(mse)) {
                 if (verbose) {
-                    printf("Diverged at iteration %d, stopping\n", iter);
+                    printf("Diverged at iteration %d (MSE: %.6f > %.6f), stopping\n", 
+                           iter, mse, prev_mse * divergence_factor);
                 }
                 break;
             }
@@ -224,9 +228,9 @@ void example_usage() {
     
     // Test no regularization
     elastic_net_model_t model;
-    elastic_net_init(&model, weights, 4, 0.0f, 0.0f);
+    elastic_net_init(&model, weights, weight_gradients, 4, 0.0f, 0.0f, 0.01f);
     
-    elastic_net_train(&model, X_train, y_train, 5, 2000, 1e-8f, 1, weight_gradients);
+    elastic_net_train(&model, X_train, y_train, 5, 2000, 1e-8f, 1, 10, 10.0f);
     
     printf("Results (expected: [2.0, 3.0, 1.0, 0.0], bias=1.0):\n");
     printf("Learned weights: [%.4f, %.4f, %.4f, %.4f]\n",
