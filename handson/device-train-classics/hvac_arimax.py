@@ -315,14 +315,25 @@ class ARIMAXAnomalyDetector:
             # Scale features
             X_scaled = self.scaler.transform(X_clean)
             
-            # Make predictions
-            predictions = self.model.predict(X_scaled)
+            # Make predictions on differenced data
+            predictions_diff = self.model.predict(X_scaled)
             
             # Update residuals for next iteration
-            residuals.loc[valid_idx] = y_clean - predictions
+            residuals.loc[valid_idx] = y_clean - predictions_diff
         
-        # Calculate anomaly scores (standardized residuals)
-        final_residuals = y_clean - predictions
+        # Convert predictions back to original scale
+        predictions_original = predictions_diff.copy()
+        if self.diff_order > 0:
+            # Simple inverse differencing approximation
+            predictions_original = pd.Series(predictions_diff, index=valid_idx)
+            
+            # Add back the last known value to approximate inverse differencing
+            if len(valid_idx) > 0:
+                start_val = y.loc[valid_idx[0]] if valid_idx[0] in y.index else y.iloc[0]
+                predictions_original = start_val + predictions_original.cumsum()
+        
+        # Calculate residuals on original scale for anomaly detection
+        final_residuals = y.loc[valid_idx] - predictions_original
         anomaly_scores = (final_residuals - self.error_mean_) / self.error_std_
         
         # Detect anomalies
@@ -336,7 +347,7 @@ class ARIMAXAnomalyDetector:
         full_anomalies.loc[valid_idx] = anomalies
         
         full_predictions = pd.Series(np.nan, index=y.index)
-        full_predictions.loc[valid_idx] = predictions
+        full_predictions.loc[valid_idx] = predictions_original
         
         return full_anomaly_scores, full_anomalies, full_predictions
     
@@ -384,127 +395,5 @@ class ARIMAXAnomalyDetector:
         
         plt.tight_layout()
         plt.show()
-
-
-# Example usage with synthetic HVAC data
-def generate_hvac_data(n_points=1000):
-    """Generate synthetic HVAC data with anomalies."""
-    np.random.seed(42)
-    
-    # Create datetime index
-    timestamps = pd.date_range('2023-01-01', periods=n_points, freq='H')
-    
-    # Base temperature pattern with daily and weekly cycles
-    hours = np.arange(n_points)
-    base_temp = (20 + 5 * np.sin(2 * np.pi * hours / 24) +  # Daily cycle
-                 3 * np.sin(2 * np.pi * hours / (24 * 7)) +  # Weekly cycle
-                 2 * np.sin(2 * np.pi * hours / (24 * 365)))  # Yearly cycle
-    
-    # Add some noise
-    noise = np.random.normal(0, 0.5, n_points)
-    
-    # Create exogenous variables (outdoor temperature, occupancy)
-    outdoor_temp = base_temp + np.random.normal(0, 2, n_points)
-    occupancy = np.random.poisson(10, n_points)  # People count
-    
-    # Target variable (indoor temperature) influenced by outdoor temp and occupancy
-    indoor_temp = (base_temp + 
-                   0.3 * outdoor_temp + 
-                   0.1 * occupancy + 
-                   noise)
-    
-    # Inject anomalies
-    anomaly_indices = np.random.choice(n_points, size=20, replace=False)
-    indoor_temp[anomaly_indices] += np.random.normal(0, 5, 20)  # Temperature spikes
-    
-    # Create DataFrame
-    data = pd.DataFrame({
-        'indoor_temp': indoor_temp,
-        'outdoor_temp': outdoor_temp,
-        'occupancy': occupancy
-    }, index=timestamps)
-    
-    return data, anomaly_indices
-
-def example():
-
-    # Generate example data
-    print("Generating synthetic HVAC data...")
-    data, true_anomalies = generate_hvac_data(1000)
-
-    # Prepare data
-    y = data['indoor_temp']
-    X = data[['outdoor_temp', 'occupancy']]
-    timestamps = data.index
-
-    # Split into train/test
-    train_size = int(0.8 * len(data))
-    y_train = y[:train_size]
-    X_train = X[:train_size]
-    timestamps_train = timestamps[:train_size]
-
-    y_test = y[train_size:]
-    X_test = X[train_size:]
-    timestamps_test = timestamps[train_size:]
-
-    print(f"Training data: {len(y_train)} points")
-    print(f"Testing data: {len(y_test)} points")
-
-    # Create and fit ARIMAX model
-    print("\nFitting ARIMAX model...")
-    arimax_detector = ARIMAXAnomalyDetector(
-        ar_order=2,           # Use 2 autoregressive terms
-        ma_order=2,           # Use 2 moving average terms
-        diff_order=1,         # First differencing
-        seasonal_ar=1,        # 1 seasonal AR term
-        seasonal_ma=0,        # No seasonal MA terms
-        seasonal_period=24,   # 24-hour seasonality
-        anomaly_threshold=2.5 # 2.5 standard deviations
-    )
-
-    arimax_detector.fit(y_train, X_train, timestamps_train)
-
-    # Detect anomalies on test data
-    print("Detecting anomalies...")
-    anomaly_scores, anomalies, predictions = arimax_detector.detect_anomalies(
-        y_test, X_test, timestamps_test
-    )
-
-    # Print results
-    n_anomalies = anomalies.sum()
-    print(f"\nDetected {n_anomalies} anomalies out of {len(y_test)} points")
-    print(f"Anomaly rate: {n_anomalies/len(y_test)*100:.2f}%")
-
-    # Print feature importance (coefficients)
-    print("\nModel coefficients:")
-    for i, coef in enumerate(arimax_detector.model.coef_):
-        if i < len(arimax_detector.feature_names_):
-            print(f"{arimax_detector.feature_names_[i]}: {coef:.4f}")
-
-    # Calculate performance metrics on aligned data
-    valid_mask = ~(y_test.isna() | predictions.isna())
-    y_test_aligned = y_test[valid_mask]
-    predictions_aligned = predictions[valid_mask]
-
-    if len(y_test_aligned) > 0:
-        test_mse = mean_squared_error(y_test_aligned, predictions_aligned)
-        test_mae = mean_absolute_error(y_test_aligned, predictions_aligned)
-        print(f"\nTest MSE: {test_mse:.4f}")
-        print(f"Test MAE: {test_mae:.4f}")
-        print(f"Evaluated on {len(y_test_aligned)} valid points")
-    else:
-        print("\nNo valid predictions to evaluate")
-
-    # Plot results
-    arimax_detector.plot_results(y_test, anomaly_scores, anomalies, predictions)
-
-    print("\nKey features of this ARIMAX implementation:")
-    print("1. AR terms: Lagged values of the target variable")
-    print("2. MA terms: Lagged residuals from previous predictions")
-    print("3. I (Integration): Differencing to achieve stationarity")
-    print("4. X (Exogenous): External variables (outdoor temp, occupancy)")
-    print("5. Seasonal terms: Handle daily/weekly patterns")
-    print("6. Time features: Hour, day of week, month patterns")
-    print("7. Anomaly detection: Based on standardized residuals")
 
 
