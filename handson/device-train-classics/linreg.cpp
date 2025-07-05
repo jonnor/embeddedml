@@ -22,6 +22,7 @@ class ElasticNetRegression {
 private:
     elastic_net_model_t model;
     std::vector<float> weights_buffer;
+    std::vector<float> gradients_buffer;  // Working memory for gradients
     bool is_fitted;
 
 public:
@@ -52,8 +53,9 @@ public:
         // Initialize model
         model.n_features = n_features;
         
-        // Allocate memory for weights
+        // Allocate memory for weights and gradients
         weights_buffer.resize(n_features);
+        gradients_buffer.resize(n_features);  // Working memory for gradients
         
         // Initialize model
         elastic_net_init(&model, weights_buffer.data(), n_features, 
@@ -80,7 +82,7 @@ public:
         // Train model
         elastic_net_train(&model, X_ptr, y_ptr, n_samples, 
                          max_iterations, static_cast<float>(tolerance), 
-                         verbose ? 1 : 0);
+                         verbose ? 1 : 0, gradients_buffer.data());
         
         is_fitted = true;
     }

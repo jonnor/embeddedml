@@ -56,16 +56,15 @@ static float predict_sample(const elastic_net_model_t* model, const float* featu
 void elastic_net_iterate(elastic_net_model_t* model,
                         const float* X,
                         const float* y,
-                        uint16_t n_samples) {
+                        uint16_t n_samples,
+                        float* weight_gradients_buffer) {
     
     // Learning rate (adaptive based on regularization)
     float learning_rate = 0.01f / (1.0f + model->alpha);
     
-    // Calculate gradients
-    float* weight_gradients = (float*)calloc(model->n_features, sizeof(float));
+    // Initialize gradients buffer to zero
+    memset(weight_gradients_buffer, 0, model->n_features * sizeof(float));
     float bias_gradient = 0.0f;
-    
-    if (!weight_gradients) return;  // Allocation failed
     
     // Forward pass and gradient calculation
     for (uint16_t i = 0; i < n_samples; i++) {
@@ -78,14 +77,14 @@ void elastic_net_iterate(elastic_net_model_t* model,
         // Accumulate gradients
         bias_gradient += error;
         for (uint16_t j = 0; j < model->n_features; j++) {
-            weight_gradients[j] += error * X[i * model->n_features + j];
+            weight_gradients_buffer[j] += error * X[i * model->n_features + j];
         }
     }
     
     // Average gradients
     bias_gradient /= n_samples;
     for (uint16_t j = 0; j < model->n_features; j++) {
-        weight_gradients[j] /= n_samples;
+        weight_gradients_buffer[j] /= n_samples;
     }
     
     // Update weights with regularization
@@ -94,7 +93,7 @@ void elastic_net_iterate(elastic_net_model_t* model,
         float l2_penalty = model->alpha * (1.0f - model->l1_ratio) * model->weights[j];
         
         // Update weight
-        float new_weight = model->weights[j] - learning_rate * (weight_gradients[j] + l2_penalty);
+        float new_weight = model->weights[j] - learning_rate * (weight_gradients_buffer[j] + l2_penalty);
         
         // Apply L1 penalty via soft thresholding
         float l1_penalty = model->alpha * model->l1_ratio * learning_rate;
@@ -103,8 +102,6 @@ void elastic_net_iterate(elastic_net_model_t* model,
     
     // Update bias (no regularization on bias)
     model->bias -= learning_rate * bias_gradient;
-    
-    free(weight_gradients);
 }
 
 // Calculate mean squared error
@@ -129,7 +126,8 @@ void elastic_net_train(elastic_net_model_t* model,
                       uint16_t n_samples,
                       uint16_t max_iterations,
                       float tolerance,
-                      int verbose) {
+                      int verbose,
+                      float* weight_gradients_buffer) {
     
     float prev_mse = 1e10f;
     
@@ -141,7 +139,7 @@ void elastic_net_train(elastic_net_model_t* model,
     }
     
     for (uint16_t iter = 0; iter < max_iterations; iter++) {
-        elastic_net_iterate(model, X, y, n_samples);
+        elastic_net_iterate(model, X, y, n_samples, weight_gradients_buffer);
         
         // Check convergence every 10 iterations
         if (iter % 10 == 0) {
@@ -197,6 +195,7 @@ uint16_t elastic_net_count_nonzero(const elastic_net_model_t* model, float thres
 void example_usage() {
     // Static allocation
     static float weights[4];
+    static float weight_gradients[4];     // Working memory for gradients
     static float X_train[20];
     static float y_train[5];
     
@@ -227,7 +226,7 @@ void example_usage() {
     elastic_net_model_t model;
     elastic_net_init(&model, weights, 4, 0.0f, 0.0f);
     
-    elastic_net_train(&model, X_train, y_train, 5, 2000, 1e-8f, 1);
+    elastic_net_train(&model, X_train, y_train, 5, 2000, 1e-8f, 1, weight_gradients);
     
     printf("Results (expected: [2.0, 3.0, 1.0, 0.0], bias=1.0):\n");
     printf("Learned weights: [%.4f, %.4f, %.4f, %.4f]\n",
