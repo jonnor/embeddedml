@@ -80,22 +80,31 @@ class ARIMAXAnomalyDetector:
     def _difference_series(self, series, order):
         """Apply differencing to achieve stationarity."""
         diff_series = series.copy()
-        self.original_values = [series.iloc[:order]]
+        self.original_values = []
         
         for i in range(order):
+            # Store values needed for inverse differencing
+            self.original_values.append(diff_series.iloc[:i+1].copy())
             diff_series = diff_series.diff()
             
         return diff_series
     
-    def _inverse_difference(self, diff_series, original_values, order):
+    def _inverse_difference(self, diff_series, order):
         """Reverse differencing operation."""
+        if order == 0:
+            return diff_series
+            
         series = diff_series.copy()
         
-        for i in range(order):
-            # Add back the differenced values
+        # Reverse differencing step by step
+        for i in range(order-1, -1, -1):
+            # Integrate (cumulative sum)
             series = series.cumsum()
-            if i < len(original_values):
-                series.iloc[0] = original_values[i].iloc[-1]
+            
+            # Add back the initial value for this level
+            if i < len(self.original_values):
+                initial_val = self.original_values[i].iloc[-1]
+                series = series + initial_val
                 
         return series
     
@@ -127,7 +136,7 @@ class ARIMAXAnomalyDetector:
         
         return time_features
     
-    def prepare_features(self, y, X=None, timestamps=None):
+    def _prepare_features(self, y, X=None, timestamps=None):
         """
         Prepare all features for ARIMAX model.
         
@@ -187,8 +196,11 @@ class ARIMAXAnomalyDetector:
         if timestamps is None and hasattr(y.index, 'to_pydatetime'):
             timestamps = y.index
         
+        # Store original series for inverse differencing
+        self.y_original_ = y.copy()
+        
         # Prepare features
-        features, y_diff = self.prepare_features(y, X, timestamps)
+        features, y_diff = self._prepare_features(y, X, timestamps)
         
         # Initialize residuals for MA terms (start with zeros)
         residuals = pd.Series(0, index=y.index)
@@ -233,49 +245,73 @@ class ARIMAXAnomalyDetector:
         self.is_fitted = True
         return self
     
-    def predict(self, steps=1, X=None, timestamps=None):
+    def predict(self, y, X=None, timestamps=None):
         """
-        Make predictions for the next 'steps' time periods.
+        Make predictions on original scale.
         
         Parameters:
-        - steps: Number of steps to predict
-        - X: Future exogenous variables
-        - timestamps: Future timestamps
+        - y: Time series to predict (needed for feature generation)
+        - X: Exogenous variables
+        - timestamps: DatetimeIndex
+        
+        Returns:
+        - predictions: Predictions on original scale
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before making predictions")
-        
-        predictions = []
-        current_residuals = self.residuals_.copy()
-        
-        for step in range(steps):
-            # Prepare features for this step
-            # This is a simplified version - in practice, you'd need to handle
-            # the recursive nature of multi-step predictions more carefully
-            if X is not None:
-                if isinstance(X, pd.DataFrame):
-                    current_X = X.iloc[step:step+1]
-                else:
-                    current_X = X[step:step+1]
-            else:
-                current_X = None
             
-            # For simplicity, we'll use the last known features
-            # In practice, you'd build the feature vector recursively
-            last_features = self.features_.iloc[-1:].copy()
+        if not isinstance(y, pd.Series):
+            y = pd.Series(y)
             
-            # Add MA terms
+        if timestamps is None and hasattr(y.index, 'to_pydatetime'):
+            timestamps = y.index
+        
+        # Internal: Prepare features (includes scaling and differencing)
+        features, y_diff = self._prepare_features(y, X, timestamps)
+        
+        # Initialize residuals for MA terms
+        residuals = pd.Series(0, index=y.index)
+        
+        # Iterative process to estimate MA terms
+        for iteration in range(2):  # Fewer iterations for inference
             if self.ma_order > 0:
-                ma_features = self._create_ma_terms(current_residuals, self.ma_order)
+                ma_features = self._create_ma_terms(residuals, self.ma_order)
                 ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
-                last_features = pd.concat([last_features, ma_features.iloc[-1:]], axis=1)
+                features_with_ma = pd.concat([features, ma_features], axis=1)
+            else:
+                features_with_ma = features
             
-            # Scale and predict
-            X_scaled = np.ascontiguousarray(self.scaler.transform(last_features))
-            pred = self.model.predict(X_scaled)[0]
-            predictions.append(pred)
+            # Get valid indices
+            valid_idx = features_with_ma.dropna().index
+            if len(valid_idx) == 0:
+                return pd.Series(np.nan, index=y.index)
+            
+            X_clean = features_with_ma.loc[valid_idx]
+            y_clean = y_diff.loc[valid_idx]
+            
+            # Internal: Scale features
+            X_scaled = np.ascontiguousarray(self.scaler.transform(X_clean))
+            
+            # Internal: Make predictions on differenced/scaled data
+            predictions_diff = self.model.predict(X_scaled)
+            
+            # Update residuals for next iteration
+            residuals.loc[valid_idx] = y_clean - predictions_diff
         
-        return np.array(predictions)
+        # Internal: Convert predictions back to original scale
+        predictions_diff_series = pd.Series(predictions_diff, index=valid_idx)
+        
+        if self.diff_order > 0:
+            # Inverse differencing to get back to original scale
+            predictions_original = self._inverse_difference(predictions_diff_series, self.diff_order)
+        else:
+            predictions_original = predictions_diff_series
+        
+        # Create full-length results
+        full_predictions = pd.Series(np.nan, index=y.index)
+        full_predictions.loc[valid_idx] = predictions_original
+        
+        return full_predictions
     
     def detect_anomalies(self, y, X=None, timestamps=None):
         """
@@ -289,78 +325,41 @@ class ARIMAXAnomalyDetector:
         Returns:
         - anomaly_scores: Standardized residuals
         - anomalies: Boolean mask indicating anomalies
-        - predictions: Model predictions
+        - predictions: Model predictions (on original scale)
         """
         if not isinstance(y, pd.Series):
             y = pd.Series(y)
             
-        if timestamps is None and hasattr(y.index, 'to_pydatetime'):
-            timestamps = y.index
+        # Get predictions on original scale
+        predictions = self.predict(y, X, timestamps)
         
-        # Prepare features
-        features, y_diff = self.prepare_features(y, X, timestamps)
+        # Calculate residuals on original scale
+        residuals = y - predictions
         
-        # Initialize residuals for MA terms
-        residuals = pd.Series(0, index=y.index)
+        # Remove NaN values for anomaly detection
+        valid_mask = ~(residuals.isna() | predictions.isna())
+        valid_residuals = residuals[valid_mask]
         
-        # Iterative process to estimate MA terms for new data
-        for iteration in range(2):  # Fewer iterations for inference
-            if self.ma_order > 0:
-                ma_features = self._create_ma_terms(residuals, self.ma_order)
-                ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
-                features_with_ma = pd.concat([features, ma_features], axis=1)
-            else:
-                features_with_ma = features
-            
-            # Get valid indices
-            valid_idx = features_with_ma.dropna().index
-            if len(valid_idx) == 0:
-                # If no valid data, return empty results
-                empty_series = pd.Series(np.nan, index=y.index)
-                empty_bool = pd.Series(False, index=y.index)
-                return empty_series, empty_bool, empty_series
-            
-            X_clean = features_with_ma.loc[valid_idx]
-            y_clean = y_diff.loc[valid_idx]
-            
-            # Scale features
-            X_scaled = np.ascontiguousarray(self.scaler.transform(X_clean))
-            
-            # Make predictions on differenced data
-            predictions_diff = self.model.predict(X_scaled)
-            
-            # Update residuals for next iteration
-            residuals.loc[valid_idx] = y_clean - predictions_diff
+        if len(valid_residuals) == 0:
+            # No valid data
+            empty_series = pd.Series(np.nan, index=y.index)
+            empty_bool = pd.Series(False, index=y.index)
+            return empty_series, empty_bool, predictions
         
-        # Convert predictions back to original scale
-        predictions_original = predictions_diff.copy()
-        if self.diff_order > 0:
-            # Simple inverse differencing approximation
-            predictions_original = pd.Series(predictions_diff, index=valid_idx)
-            
-            # Add back the last known value to approximate inverse differencing
-            if len(valid_idx) > 0:
-                start_val = y.loc[valid_idx[0]] if valid_idx[0] in y.index else y.iloc[0]
-                predictions_original = start_val + predictions_original.cumsum()
-        
-        # Calculate residuals on original scale for anomaly detection
-        final_residuals = y.loc[valid_idx] - predictions_original
-        anomaly_scores = (final_residuals - self.error_mean_) / self.error_std_
+        # Calculate standardized anomaly scores
+        anomaly_scores = (valid_residuals - self.error_mean_) / self.error_std_
         
         # Detect anomalies
-        anomalies = np.abs(anomaly_scores) > self.anomaly_threshold
+        anomalies_valid = np.abs(anomaly_scores) > self.anomaly_threshold
         
         # Create full-length results
         full_anomaly_scores = pd.Series(np.nan, index=y.index)
-        full_anomaly_scores.loc[valid_idx] = anomaly_scores
+        full_anomaly_scores.loc[valid_mask] = anomaly_scores
         
         full_anomalies = pd.Series(False, index=y.index)
-        full_anomalies.loc[valid_idx] = anomalies
+        full_anomalies.loc[valid_mask] = anomalies_valid
         
-        full_predictions = pd.Series(np.nan, index=y.index)
-        full_predictions.loc[valid_idx] = predictions_original
-        
-        return full_anomaly_scores, full_anomalies, full_predictions
+        return full_anomaly_scores, full_anomalies, predictions
     
     def plot_results(self, y, anomaly_scores, anomalies, predictions, title="ARIMAX Anomaly Detection"):
         """Plot the results of anomaly detection."""
@@ -406,5 +405,3 @@ class ARIMAXAnomalyDetector:
         
         plt.tight_layout()
         plt.show()
-
-
