@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -76,16 +77,24 @@ class ARIMAXAnomalyDetector:
         feature_names = X.columns
         
         for i, feature_name in enumerate(feature_names):
-            if feature_name.startswith('ar_'):
+            if feature_name.startswith('ar_') or feature_name.startswith('sar_'):
                 X_penalized[:, i] *= self.ar_penalty
-            elif feature_name.startswith('ma_'):
+            elif feature_name.startswith('ma_') or feature_name.startswith('sma_'):
                 X_penalized[:, i] *= self.ma_penalty
             elif feature_name.startswith('t_'):
                 X_penalized[:, i] *= self.time_penalty
         
         return X_penalized
+
         
-        
+    def _create_ma_terms(self, residuals, ma_order):
+            """Create moving average terms from residuals."""
+            ma_features = []
+            for lag in range(1, ma_order + 1):
+                ma_term = residuals.shift(lag)
+                ma_features.append(ma_term)
+            return pd.concat(ma_features, axis=1)
+
     def _create_lags(self, series, max_lag):
         """Create lagged features for AR terms."""
         lagged_features = []
@@ -103,13 +112,14 @@ class ARIMAXAnomalyDetector:
             seasonal_features.append(lagged)
         return pd.concat(seasonal_features, axis=1)
     
-    def _create_ma_terms(self, residuals, ma_order):
-        """Create moving average terms from residuals."""
-        ma_features = []
-        for lag in range(1, ma_order + 1):
-            ma_term = residuals.shift(lag)
-            ma_features.append(ma_term)
-        return pd.concat(ma_features, axis=1)
+    def _create_seasonal_ma_terms(self, residuals, seasonal_ma_order):
+        """Create seasonal moving average terms from residuals."""
+        seasonal_ma_features = []
+        for lag in range(1, seasonal_ma_order + 1):
+            seasonal_lag = lag * self.seasonal_period
+            seasonal_ma_term = residuals.shift(seasonal_lag)
+            seasonal_ma_features.append(seasonal_ma_term)
+        return pd.concat(seasonal_ma_features, axis=1)
     
     def _difference_series(self, series, order):
         """Apply differencing to achieve stationarity."""
@@ -237,6 +247,12 @@ class ARIMAXAnomalyDetector:
             else:
                 features_with_ma = features
             
+            # Add seasonal MA terms if specified
+            if self.seasonal_ma > 0:
+                seasonal_ma_features = self._create_seasonal_ma_terms(residuals, self.seasonal_ma)
+                seasonal_ma_features.columns = [f'sma_lag_{i+1}' for i in range(self.seasonal_ma)]
+                features_with_ma = pd.concat([features_with_ma, seasonal_ma_features], axis=1)
+
             # Remove rows with NaN values
             valid_idx = features_with_ma.dropna().index
             X_clean = features_with_ma.loc[valid_idx]
@@ -303,6 +319,12 @@ class ARIMAXAnomalyDetector:
                 ma_features = self._create_ma_terms(current_residuals, self.ma_order)
                 ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
                 last_features = pd.concat([last_features, ma_features.iloc[-1:]], axis=1)
+
+            # Add seasonal MA terms
+            if self.seasonal_ma > 0:
+                seasonal_ma_features = self._create_seasonal_ma_terms(current_residuals, self.seasonal_ma)
+                seasonal_ma_features.columns = [f'sma_lag_{i+1}' for i in range(self.seasonal_ma)]
+                last_features = pd.concat([last_features, seasonal_ma_features.iloc[-1:]], axis=1)
             
             # Apply penalties and scaling
             X_scaled = np.ascontiguousarray(self._apply_penalties_and_scaling(last_features, fit=False))
@@ -310,91 +332,4 @@ class ARIMAXAnomalyDetector:
             predictions.append(pred)
         
         return np.array(predictions)
-    
-    def detect_anomalies(self, y, X=None, timestamps=None):
-        """
-        Detect anomalies in the time series.
-        
-        Parameters:
-        - y: Time series to analyze
-        - X: Exogenous variables
-        - timestamps: DatetimeIndex
-        
-        Returns:
-        - anomaly_scores: Standardized residuals
-        - anomalies: Boolean mask indicating anomalies
-        - predictions: Model predictions
-        """
-        if not isinstance(y, pd.Series):
-            y = pd.Series(y)
-            
-        if timestamps is None and hasattr(y.index, 'to_pydatetime'):
-            timestamps = y.index
-        
-        # Prepare features
-        features, y_diff = self.prepare_features(y, X, timestamps)
-        
-        # Initialize residuals for MA terms
-        residuals = pd.Series(0, index=y.index)
-        
-        # Iterative process to estimate MA terms for new data
-        for iteration in range(2):  # Fewer iterations for inference
-            if self.ma_order > 0:
-                ma_features = self._create_ma_terms(residuals, self.ma_order)
-                ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
-                features_with_ma = pd.concat([features, ma_features], axis=1)
-            else:
-                features_with_ma = features
-            
-            # Get valid indices
-            valid_idx = features_with_ma.dropna().index
-            if len(valid_idx) == 0:
-                # If no valid data, return empty results
-                empty_series = pd.Series(np.nan, index=y.index)
-                empty_bool = pd.Series(False, index=y.index)
-                return empty_series, empty_bool, empty_series
-            
-            X_clean = features_with_ma.loc[valid_idx]
-            y_clean = y_diff.loc[valid_idx]
-            
-            # Apply penalties and scaling
-            X_scaled = np.ascontiguousarray(self._apply_penalties_and_scaling(X_clean, fit=False))
-            
-            # Make predictions on differenced data
-            predictions_diff = self.model.predict(X_scaled)
-            
-            # Update residuals for next iteration
-            residuals.loc[valid_idx] = np.ascontiguousarray(y_clean) - predictions_diff
-        
-        # Convert predictions back to original scale
-        predictions_original = predictions_diff.copy()
-        if self.diff_order > 0:
-            # Simple inverse differencing approximation
-            predictions_original = pd.Series(predictions_diff, index=valid_idx)
-            
-            # Add back the last known value to approximate inverse differencing
-            if len(valid_idx) > 0:
-                start_val = y.loc[valid_idx[0]] if valid_idx[0] in y.index else y.iloc[0]
-                predictions_original = start_val + predictions_original.cumsum()
-        
-        # Calculate residuals on original scale for anomaly detection
-        final_residuals = y.loc[valid_idx] - predictions_original
-        anomaly_scores = (final_residuals - self.error_mean_) / self.error_std_
-        
-        # Detect anomalies
-        anomalies = np.abs(anomaly_scores) > self.anomaly_threshold
-        
-        # Create full-length results
-        full_anomaly_scores = pd.Series(np.nan, index=y.index)
-        full_anomaly_scores.loc[valid_idx] = anomaly_scores
-        
-        full_anomalies = pd.Series(False, index=y.index)
-        full_anomalies.loc[valid_idx] = anomalies
-        
-        full_predictions = pd.Series(np.nan, index=y.index)
-        full_predictions.loc[valid_idx] = predictions_original
-        
-        return full_anomaly_scores, full_anomalies, full_predictions
-    
-
 
