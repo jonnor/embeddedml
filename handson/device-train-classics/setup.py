@@ -7,8 +7,8 @@ import pybind11
 # Define the extension module
 ext_modules = [
     Pybind11Extension(
-        "elastic_net_multiclass",
-        ["logreg.cpp"],
+        "elastic_net_linear",
+        ["linreg.cpp"],
         include_dirs=[
             pybind11.get_include(),
         ],
@@ -18,7 +18,7 @@ ext_modules = [
 ]
 
 setup(
-    name="elastic_net_multiclass",
+    name="elastic_net_linear",
     version="0.1.0",
     author="Your Name",
     author_email="your.email@example.com",
