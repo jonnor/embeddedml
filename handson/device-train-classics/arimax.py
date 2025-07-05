@@ -282,54 +282,164 @@ class ARIMAXAnomalyDetector:
         
         self.is_fitted = True
         return self
-    
-    def predict(self, steps=1, X=None, timestamps=None):
+
+
+    def predict(self, steps=1, X=None, timestamps=None, start_index=None):
         """
-        Make predictions for the next 'steps' time periods.
+        Make predictions for future time periods.
         
         Parameters:
-        - steps: Number of steps to predict
-        - X: Future exogenous variables
-        - timestamps: Future timestamps
+        - steps: Number of future steps to predict
+        - X: Future exogenous variables (pandas DataFrame or numpy array)
+        - timestamps: Future timestamps (DatetimeIndex)
+        - start_index: Starting index for predictions (if None, continues from training data)
+        
+        Returns:
+        - predictions: Series with future predictions
         """
         if not self.is_fitted:
             raise ValueError("Model must be fitted before making predictions")
         
-        predictions = []
-        current_residuals = self.residuals_.copy()
+        # Determine prediction index
+        if start_index is not None:
+            pred_index = pd.RangeIndex(start=start_index, stop=start_index + steps)
+        elif timestamps is not None:
+            if len(timestamps) != steps:
+                raise ValueError(f"Length of timestamps ({len(timestamps)}) must match steps ({steps})")
+            pred_index = timestamps
+        else:
+            # Continue from last training index
+            last_idx = self.valid_idx_[-1] if len(self.valid_idx_) > 0 else 0
+            pred_index = pd.RangeIndex(start=last_idx + 1, stop=last_idx + 1 + steps)
         
-        for step in range(steps):
-            # Prepare features for this step
-            # This is a simplified version - in practice, you'd need to handle
-            # the recursive nature of multi-step predictions more carefully
+        # Initialize prediction containers
+        predictions = pd.Series(np.nan, index=pred_index)
+        
+        # Get the last known values for AR terms
+        last_y_values = self.y_diff_.iloc[-max(self.ar_order, self.seasonal_ar * self.seasonal_period):]
+        
+        # Get residuals history for MA terms
+        residuals_history = self.residuals_.copy()
+        
+        # Make predictions step by step
+        for i, pred_idx in enumerate(pred_index):
+            # Prepare features for this prediction step
+            features_row = {}
+            
+            # AR terms - use last known values and previous predictions
+            if self.ar_order > 0:
+                for lag in range(1, self.ar_order + 1):
+                    if i >= lag:
+                        # Use previous prediction
+                        features_row[f'ar_lag_{lag}'] = predictions.iloc[i - lag]
+                    else:
+                        # Use last known training value
+                        if len(last_y_values) >= lag:
+                            features_row[f'ar_lag_{lag}'] = last_y_values.iloc[-(lag - i)]
+                        else:
+                            features_row[f'ar_lag_{lag}'] = 0
+            
+            # Seasonal AR terms
+            if self.seasonal_ar > 0:
+                for lag in range(1, self.seasonal_ar + 1):
+                    seasonal_lag = lag * self.seasonal_period
+                    if i >= seasonal_lag:
+                        # Use previous prediction
+                        features_row[f'sar_lag_{lag}'] = predictions.iloc[i - seasonal_lag]
+                    else:
+                        # Use last known training value
+                        if len(last_y_values) >= seasonal_lag - i:
+                            features_row[f'sar_lag_{lag}'] = last_y_values.iloc[-(seasonal_lag - i)]
+                        else:
+                            features_row[f'sar_lag_{lag}'] = 0
+            
+            # MA terms - use residuals history
+            if self.ma_order > 0:
+                for lag in range(1, self.ma_order + 1):
+                    if len(residuals_history) >= lag:
+                        features_row[f'ma_lag_{lag}'] = residuals_history.iloc[-lag]
+                    else:
+                        features_row[f'ma_lag_{lag}'] = self.error_mean_
+            
+            # Seasonal MA terms
+            if self.seasonal_ma > 0:
+                for lag in range(1, self.seasonal_ma + 1):
+                    seasonal_lag = lag * self.seasonal_period
+                    if len(residuals_history) >= seasonal_lag:
+                        features_row[f'sma_lag_{lag}'] = residuals_history.iloc[-seasonal_lag]
+                    else:
+                        features_row[f'sma_lag_{lag}'] = self.error_mean_
+            
+            # Exogenous variables
             if X is not None:
                 if isinstance(X, pd.DataFrame):
-                    current_X = X.iloc[step:step+1]
+                    if i < len(X):
+                        for col in X.columns:
+                            features_row[col] = X.iloc[i][col]
+                    else:
+                        # Fill with last known values or zeros
+                        for col in X.columns:
+                            features_row[col] = X.iloc[-1][col] if len(X) > 0 else 0
                 else:
-                    current_X = X[step:step+1]
-            else:
-                current_X = None
+                    if i < len(X):
+                        for j in range(X.shape[1]):
+                            features_row[f'X_{j}'] = X[i, j]
+                    else:
+                        for j in range(X.shape[1]):
+                            features_row[f'X_{j}'] = X[-1, j] if len(X) > 0 else 0
             
-            # For simplicity, we'll use the last known features
-            # In practice, you'd build the feature vector recursively
-            last_features = self.features_.iloc[-1:].copy()
+            # Time features
+            if timestamps is not None:
+                current_timestamp = timestamps[i] if i < len(timestamps) else timestamps[-1]
+                time_features = self._create_time_features(pd.DatetimeIndex([current_timestamp]))
+                for col in time_features.columns:
+                    features_row[col] = time_features.iloc[0][col]
             
-            # Add MA terms
-            if self.ma_order > 0:
-                ma_features = self._create_ma_terms(current_residuals, self.ma_order)
-                ma_features.columns = [f'ma_lag_{i+1}' for i in range(self.ma_order)]
-                last_features = pd.concat([last_features, ma_features.iloc[-1:]], axis=1)
-
-            # Add seasonal MA terms
-            if self.seasonal_ma > 0:
-                seasonal_ma_features = self._create_seasonal_ma_terms(current_residuals, self.seasonal_ma)
-                seasonal_ma_features.columns = [f'sma_lag_{i+1}' for i in range(self.seasonal_ma)]
-                last_features = pd.concat([last_features, seasonal_ma_features.iloc[-1:]], axis=1)
+            # Create feature vector
+            feature_vector = pd.DataFrame([features_row])
             
-            # Apply penalties and scaling
-            X_scaled = np.ascontiguousarray(self._apply_penalties_and_scaling(last_features, fit=False))
-            pred = self.model.predict(X_scaled)[0]
-            predictions.append(pred)
+            # Ensure all training features are present
+            for col in self.feature_names_:
+                if col not in feature_vector.columns:
+                    feature_vector[col] = 0
+            
+            # Reorder to match training
+            feature_vector = feature_vector[self.feature_names_]
+            
+            # Apply scaling and penalties
+            X_scaled = self._apply_penalties_and_scaling(feature_vector, fit=False)
+            
+            # Make prediction
+            pred_diff = self.model.predict(X_scaled)[0]
+            
+            # Store prediction
+            predictions.iloc[i] = pred_diff
+            
+            # Update residuals history (assume prediction error is close to training mean)
+            new_residual = self.error_mean_
+            residuals_history = pd.concat([residuals_history, pd.Series([new_residual])])
         
-        return np.array(predictions)
+        # Reverse differencing if applied
+        if self.diff_order > 0:
+            # For out-of-sample prediction, we need to connect to the last training value
+            if hasattr(self, 'original_values') and len(self.original_values) > 0:
+                # Use the last actual value from training as reference
+                last_original = self.original_values[0].iloc[-1]  # Last undifferenced value
+                
+                # Create a series that starts with the last original value
+                extended_series = pd.Series([last_original] + predictions.tolist())
+                
+                # Apply inverse differencing
+                predictions_original = self._inverse_difference(
+                    extended_series, self.original_values, self.diff_order
+                )[1:]  # Remove the reference value
+                
+                # Restore original index
+                predictions_original.index = predictions.index
+            else:
+                predictions_original = predictions
+        else:
+            predictions_original = predictions
+        
+        return predictions_original
 
