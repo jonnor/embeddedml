@@ -25,18 +25,26 @@ private:
     std::vector<float> weights_buffer;
     std::vector<float> gradients_buffer;  // Working memory for gradients
     bool is_fitted;
+    
+    // Training parameters
+    int max_iterations;
+    double tolerance;
+    bool verbose;
+    int check_interval;
+    double divergence_factor;
 
 public:
-    ElasticNetRegression(double alpha = 0.01, double l1_ratio = 0.5, double learning_rate = 0.01) 
-        : is_fitted(false) {
+    ElasticNetRegression(double alpha = 0.01, double l1_ratio = 0.5, double learning_rate = 0.01,
+                        int max_iterations = 1000, double tolerance = 1e-6, bool verbose = true,
+                        int check_interval = 10, double divergence_factor = 10.0) 
+        : is_fitted(false), max_iterations(max_iterations), tolerance(tolerance), 
+          verbose(verbose), check_interval(check_interval), divergence_factor(divergence_factor) {
         model.alpha = static_cast<float>(alpha);
         model.l1_ratio = static_cast<float>(l1_ratio);
         model.learning_rate = static_cast<float>(learning_rate);
     }
     
-    void fit(py::array_t<float> X, py::array_t<float> y, 
-             int max_iterations = 1000, double tolerance = 1e-6, 
-             bool verbose = true, int check_interval = 10, double divergence_factor = 10.0) {
+    void fit(py::array_t<float> X, py::array_t<float> y) {
         
         // Validate input shapes
         if (X.ndim() != 2) {
@@ -207,6 +215,14 @@ public:
     }
     
     // Property getters
+    int get_max_iterations() const { return max_iterations; }
+    double get_tolerance() const { return tolerance; }
+    bool get_verbose() const { return verbose; }
+    int get_check_interval() const { return check_interval; }
+    double get_divergence_factor() const { return divergence_factor; }
+    double get_l1_ratio() const { return model.l1_ratio; }
+    bool get_is_fitted() const { return is_fitted; }    
+
     py::array_t<float> get_weights() const {
         if (!is_fitted) {
             throw std::runtime_error("Model must be fitted first");
@@ -232,10 +248,8 @@ public:
     
     int get_n_features() const { return model.n_features; }
     double get_alpha() const { return model.alpha; }
-    double get_l1_ratio() const { return model.l1_ratio; }
-    bool get_is_fitted() const { return is_fitted; }    
     double get_learning_rate() const { return model.learning_rate; }
-
+    
     int count_nonzero_weights(double threshold = 1e-6) const {
         if (!is_fitted) {
             throw std::runtime_error("Model must be fitted first");
@@ -248,29 +262,32 @@ PYBIND11_MODULE(elastic_net_linear, m) {
     m.doc() = "Elastic Net Linear Regression";
     
     py::class_<ElasticNetRegression>(m, "ElasticNetRegression")
-        .def(py::init<double, double, double>(), 
-             py::arg("alpha") = 0.01, py::arg("l1_ratio") = 0.5, py::arg("learning_rate") = 0.01,
-             "Initialize Elastic Net Linear Regression\n\n"
-             "Parameters:\n"
-             "  alpha: Regularization strength (default: 0.01)\n"
-             "  l1_ratio: L1 vs L2 mix, 0=Ridge, 1=LASSO (default: 0.5)\n"
-             "  learning_rate: Learning rate for gradient descent (default: 0.01)")
-        .def("fit", &ElasticNetRegression::fit,
-             py::arg("X"), py::arg("y"), 
+        .def(py::init<double, double, double, int, double, bool, int, double>(), 
+             py::arg("alpha") = 0.01, 
+             py::arg("l1_ratio") = 0.5, 
+             py::arg("learning_rate") = 0.01,
              py::arg("max_iterations") = 1000,
              py::arg("tolerance") = 1e-6,
              py::arg("verbose") = true,
              py::arg("check_interval") = 10,
              py::arg("divergence_factor") = 10.0,
-             "Fit the model to training data\n\n"
+             "Initialize Elastic Net Linear Regression\n\n"
              "Parameters:\n"
-             "  X: Training features (n_samples, n_features)\n"
-             "  y: Training targets (n_samples,)\n"
+             "  alpha: Regularization strength (default: 0.01)\n"
+             "  l1_ratio: L1 vs L2 mix, 0=Ridge, 1=LASSO (default: 0.5)\n"
+             "  learning_rate: Learning rate for gradient descent (default: 0.01)\n"
              "  max_iterations: Maximum number of iterations (default: 1000)\n"
              "  tolerance: Convergence tolerance (default: 1e-6)\n"
              "  verbose: Print training progress (default: True)\n"
              "  check_interval: Iterations between convergence checks (default: 10)\n"
              "  divergence_factor: Factor for divergence detection (default: 10.0)")
+        .def("fit", &ElasticNetRegression::fit,
+             py::arg("X"), py::arg("y"),
+             "Fit the model to training data\n\n"
+             "Parameters:\n"
+             "  X: Training features (n_samples, n_features)\n"
+             "  y: Training targets (n_samples,)\n\n"
+             "Note: Training parameters are set in the constructor")
         .def("predict", &ElasticNetRegression::predict,
              py::arg("X"),
              "Predict target values for samples in X\n\n"
@@ -309,10 +326,22 @@ PYBIND11_MODULE(elastic_net_linear, m) {
                               "Number of features")
         .def_property_readonly("alpha", &ElasticNetRegression::get_alpha,
                               "Regularization strength")
+        .def_property_readonly("alpha", &ElasticNetRegression::get_alpha,
+                              "Regularization strength")
         .def_property_readonly("l1_ratio", &ElasticNetRegression::get_l1_ratio,
                               "L1 vs L2 regularization ratio")
         .def_property_readonly("learning_rate", &ElasticNetRegression::get_learning_rate,
                               "Learning rate for gradient descent")
+        .def_property_readonly("max_iterations", &ElasticNetRegression::get_max_iterations,
+                              "Maximum number of training iterations")
+        .def_property_readonly("tolerance", &ElasticNetRegression::get_tolerance,
+                              "Convergence tolerance")
+        .def_property_readonly("verbose", &ElasticNetRegression::get_verbose,
+                              "Whether to print training progress")
+        .def_property_readonly("check_interval", &ElasticNetRegression::get_check_interval,
+                              "Iterations between convergence checks")
+        .def_property_readonly("divergence_factor", &ElasticNetRegression::get_divergence_factor,
+                              "Factor for divergence detection")
         .def_property_readonly("is_fitted_", &ElasticNetRegression::get_is_fitted,
                               "Whether the model has been fitted");
 }

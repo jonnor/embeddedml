@@ -36,11 +36,11 @@ def test_basic_functionality():
         print(f"--- {case['name']} ---")
         
         # Initialize and train model
-        model = enl.ElasticNetRegression(alpha=case["alpha"], l1_ratio=case["l1_ratio"])
+        model = enl.ElasticNetRegression(alpha=case["alpha"], l1_ratio=case["l1_ratio"], max_iterations=1000, verbose=False)
         print(f"Model: alpha={model.alpha}, l1_ratio={model.l1_ratio}")
         
         # Fit the model
-        model.fit(X, y, max_iterations=1000, verbose=False)
+        model.fit(X, y)
         
         # Make predictions
         y_pred = model.predict(X)
@@ -81,8 +81,8 @@ def test_sklearn_compatibility():
         )
         
         # Train our model
-        our_model = enl.ElasticNetRegression(alpha=0.1, l1_ratio=0.5)
-        our_model.fit(X_train, y_train, verbose=False)
+        our_model = enl.ElasticNetRegression(alpha=0.1, l1_ratio=0.5, verbose=False)
+        our_model.fit(X_train, y_train)
         
         # Train sklearn model
         sklearn_model = ElasticNet(alpha=0.1, l1_ratio=0.5, max_iter=1000)
@@ -143,8 +143,8 @@ def test_edge_cases():
     X_perfect = np.array([[1, 2], [2, 3], [3, 4], [4, 5]], dtype=np.float32)
     y_perfect = np.array([5, 8, 11, 14], dtype=np.float32)  # y = 1*x0 + 2*x1 + 1
     
-    model = enl.ElasticNetRegression(alpha=0.0, l1_ratio=0.0)
-    model.fit(X_perfect, y_perfect, verbose=False)
+    model = enl.ElasticNetRegression(alpha=0.0, l1_ratio=0.0, verbose=False)
+    model.fit(X_perfect, y_perfect)
     
     print("Perfect linear relationship test:")
     print(f"Expected coefficients: [1.0, 2.0]")
