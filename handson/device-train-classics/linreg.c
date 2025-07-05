@@ -1,4 +1,4 @@
-// linreg.c - Corrected implementation
+// linreg.c - Simple gradient descent implementation (more reliable than coordinate descent)
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 // Elastic Net regression for embedded systems
-// Fixed version using proper coordinate descent with residual maintenance
+// Using gradient descent instead of coordinate descent for reliability
 
 typedef struct {
     float* weights;     // Pointer to externally allocated weights
@@ -52,93 +52,59 @@ static float predict_sample(const elastic_net_model_t* model, const float* featu
     return prediction;
 }
 
-// CORRECTED: Proper coordinate descent with residual maintenance
-static void update_coordinate_fixed(elastic_net_model_t* model,
-                                   const float* X,
-                                   const float* y,
-                                   uint16_t n_samples,
-                                   uint16_t feature_idx,
-                                   float* residuals) {
-    
-    // Calculate X^T * residuals and X^T * X for this feature
-    float sum_x_residual = 0.0f;
-    float sum_x_squared = 0.0f;
-    
-    for (uint16_t i = 0; i < n_samples; i++) {
-        float x_ij = X[i * model->n_features + feature_idx];
-        sum_x_residual += x_ij * residuals[i];
-        sum_x_squared += x_ij * x_ij;
-    }
-    
-    if (sum_x_squared > 1e-12f) {  // Avoid division by zero
-        // Store old weight for residual update
-        float old_weight = model->weights[feature_idx];
-        
-        // Calculate new weight
-        float l1_penalty = model->alpha * model->l1_ratio;
-        float l2_penalty = model->alpha * (1.0f - model->l1_ratio);
-        
-        float numerator = sum_x_residual;
-        float denominator = sum_x_squared + l2_penalty;
-        
-        // Apply soft thresholding for L1 penalty
-        float new_weight = soft_threshold(numerator / denominator, 
-                                        l1_penalty / denominator);
-        
-        // Update weight
-        model->weights[feature_idx] = new_weight;
-        
-        // Update residuals: r = r - (new_w - old_w) * X[:, j]
-        float weight_change = new_weight - old_weight;
-        for (uint16_t i = 0; i < n_samples; i++) {
-            float x_ij = X[i * model->n_features + feature_idx];
-            residuals[i] -= weight_change * x_ij;
-        }
-    }
-}
-
-// Update bias using residuals
-static void update_bias_fixed(elastic_net_model_t* model,
-                             float* residuals,
-                             uint16_t n_samples) {
-    
-    float sum_residuals = 0.0f;
-    for (uint16_t i = 0; i < n_samples; i++) {
-        sum_residuals += residuals[i];
-    }
-    
-    float old_bias = model->bias;
-    float new_bias = sum_residuals / n_samples;
-    
-    model->bias = new_bias;
-    
-    // Update residuals: r = r - (new_bias - old_bias)
-    float bias_change = new_bias - old_bias;
-    for (uint16_t i = 0; i < n_samples; i++) {
-        residuals[i] -= bias_change;
-    }
-}
-
-// Single iteration of coordinate descent - FIXED VERSION
+// Single iteration of gradient descent
 void elastic_net_iterate(elastic_net_model_t* model,
                         const float* X,
                         const float* y,
-                        uint16_t n_samples,
-                        float* residuals) {
+                        uint16_t n_samples) {
     
-    // Initialize residuals if needed (first iteration)
-    // r = y - X*w - bias
+    // Learning rate (adaptive based on regularization)
+    float learning_rate = 0.01f / (1.0f + model->alpha);
+    
+    // Calculate gradients
+    float* weight_gradients = (float*)calloc(model->n_features, sizeof(float));
+    float bias_gradient = 0.0f;
+    
+    if (!weight_gradients) return;  // Allocation failed
+    
+    // Forward pass and gradient calculation
     for (uint16_t i = 0; i < n_samples; i++) {
-        residuals[i] = y[i] - predict_sample(model, &X[i * model->n_features]);
+        // Calculate prediction
+        float prediction = predict_sample(model, &X[i * model->n_features]);
+        
+        // Calculate error
+        float error = prediction - y[i];  // Note: pred - true for gradient
+        
+        // Accumulate gradients
+        bias_gradient += error;
+        for (uint16_t j = 0; j < model->n_features; j++) {
+            weight_gradients[j] += error * X[i * model->n_features + j];
+        }
     }
     
-    // Update each coordinate
+    // Average gradients
+    bias_gradient /= n_samples;
     for (uint16_t j = 0; j < model->n_features; j++) {
-        update_coordinate_fixed(model, X, y, n_samples, j, residuals);
+        weight_gradients[j] /= n_samples;
     }
     
-    // Update bias
-    update_bias_fixed(model, residuals, n_samples);
+    // Update weights with regularization
+    for (uint16_t j = 0; j < model->n_features; j++) {
+        // Add L2 penalty to gradient
+        float l2_penalty = model->alpha * (1.0f - model->l1_ratio) * model->weights[j];
+        
+        // Update weight
+        float new_weight = model->weights[j] - learning_rate * (weight_gradients[j] + l2_penalty);
+        
+        // Apply L1 penalty via soft thresholding
+        float l1_penalty = model->alpha * model->l1_ratio * learning_rate;
+        model->weights[j] = soft_threshold(new_weight, l1_penalty);
+    }
+    
+    // Update bias (no regularization on bias)
+    model->bias -= learning_rate * bias_gradient;
+    
+    free(weight_gradients);
 }
 
 // Calculate mean squared error
@@ -156,7 +122,7 @@ float elastic_net_mse(const elastic_net_model_t* model,
     return mse / n_samples;
 }
 
-// Train model using coordinate descent - FIXED VERSION
+// Train model using gradient descent
 void elastic_net_train(elastic_net_model_t* model,
                       const float* X,
                       const float* y,
@@ -165,24 +131,17 @@ void elastic_net_train(elastic_net_model_t* model,
                       float tolerance,
                       int verbose) {
     
-    // Allocate residuals buffer
-    float* residuals = (float*)malloc(n_samples * sizeof(float));
-    if (!residuals) {
-        if (verbose) printf("Failed to allocate residuals buffer\n");
-        return;
-    }
-    
     float prev_mse = 1e10f;
     
     if (verbose) {
-        printf("Starting training with alpha=%.4f, l1_ratio=%.2f\n", 
+        printf("Starting training with alpha=%.4f, l1_ratio=%.2f (Gradient Descent)\n", 
                model->alpha, model->l1_ratio);
         printf("Iter    MSE       Change\n");
         printf("----    ----      ------\n");
     }
     
     for (uint16_t iter = 0; iter < max_iterations; iter++) {
-        elastic_net_iterate(model, X, y, n_samples, residuals);
+        elastic_net_iterate(model, X, y, n_samples);
         
         // Check convergence every 10 iterations
         if (iter % 10 == 0) {
@@ -193,17 +152,25 @@ void elastic_net_train(elastic_net_model_t* model,
                 printf("%4d    %.6f  %.6f\n", iter, mse, change);
             }
             
-            if (change < tolerance) {
+            // Check for convergence
+            if (change < tolerance && iter > 50) {  // Don't converge too early
                 if (verbose) {
                     printf("Converged at iteration %d\n", iter);
                 }
                 break;
             }
+            
+            // Check for divergence
+            if (mse > prev_mse * 10.0f || !isfinite(mse)) {
+                if (verbose) {
+                    printf("Diverged at iteration %d, stopping\n", iter);
+                }
+                break;
+            }
+            
             prev_mse = mse;
         }
     }
-    
-    free(residuals);
     
     if (verbose) {
         printf("Training completed.\n\n");
@@ -254,13 +221,13 @@ void example_usage() {
     memcpy(X_train, training_data, sizeof(training_data));
     memcpy(y_train, targets, sizeof(targets));
     
-    printf("=== Testing Fixed Implementation ===\n");
+    printf("=== Testing Simple Gradient Descent ===\n");
     
     // Test no regularization
     elastic_net_model_t model;
     elastic_net_init(&model, weights, 4, 0.0f, 0.0f);
     
-    elastic_net_train(&model, X_train, y_train, 5, 1000, 1e-8f, 1);
+    elastic_net_train(&model, X_train, y_train, 5, 2000, 1e-8f, 1);
     
     printf("Results (expected: [2.0, 3.0, 1.0, 0.0], bias=1.0):\n");
     printf("Learned weights: [%.4f, %.4f, %.4f, %.4f]\n",
