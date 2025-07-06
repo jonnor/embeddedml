@@ -35,6 +35,23 @@ https://www.youtube.com/watch?v=pIk8I10ZmYY
 Explains absorbance and usage for determining fluid concentration,
 and how fluoresence can be used to quantify DNA.
 
+## Refences
+
+Theremino project has a lot of info.
+
+"Diffraction Grating Spectrometer, Design and Collected Spectra, Theremino System" has 85 pages of good stuff.
+Includig spectra from interesting compounds. Including Hemoglobin, 
+UV flourestnce spectroscopy. Using 405 nm exitation, mostly.
+
+> In the spectrum of “Extra Vergine” olive oil, obtained by cold pressing you notice the absence of the
+products of peroxidation of fatty acids, which give fluorescence at about 470nm. This happens both
+because the oil is cold worked and because the high content of natural anti-oxidants (carotenes and
+polyphenols ) prevents oil from oxidative degradation.
+
+Shows different oils. Peanut, olive, sunflower, corn, soybean, almond, sesame, castor.
+Shows also thermally degraded oils.
+
+
 ## Project 1, oil quality
 
 Edible oil. Quality estimation. Poor storage. Oxidation.
@@ -55,6 +72,47 @@ EVOO, BO, and SO
 https://www.edinst.com/resource/application-note-olive-oil-quality-assessment-with-uv-vis-spectrophotometry/
 Shows different concentrations.
 Big differences at 330-420nm.
+
+
+#### Application of steady-state and time-resolved fluorescence spectroscopy in identification of cold-pressed vegetal oils
+
+Fluorescence emission spectra of the studied cold-pressed vegetal oils:
+walnut oil – OW, corn oil – K, roasted peanut oil – A, Extra Virgin Olive oil – O, sunflower oil – S.
+Excitation wavelength: (a i b) λexc=290 nm, (c) λexc=320 nm, (d) λexc=350 nm, (e) λexc=405 nm
+
+The most evident differences in the shape of the fluorescence bands
+were obtained in the emission spectrum at
+λexc = 350 nm and in the excitation spectrum at λem = 500 nm
+
+#### Validation of Fluorescence Spectroscopy to Detect Adulteration of Edible Oil in Extra Virgin Olive Oil (EVOO) by Applying Chemometrics
+
+https://journals.sagepub.com/doi/abs/10.1177/0003702818768485?utm_source=chatgpt.com
+
+In this study, adulteration of edible oil (sunflower oil) is made with pure EVOO
+and analyzed using fluorescence spectroscopy (excitation wavelength at 350 nm).
+
+365 nm quite commmon and affordable. 
+
+
+#### Quantitative Detection of Extra Virgin Olive Oil Adulteration, as Opposed to Peanut and Soybean Oil, Employing LED-Induced Fluorescence Spectroscopy 
+https://www.mdpi.com/1424-8220/22/3/1227?utm_source=chatgpt.com
+
+Eight LEDs with central wavelengths from ultra-violet (UV) to blue are tested to induce the fluorescence spectra of EVOO, peanut oil, and soybean oil, and the UV LED of 372 nm is selected for further detection.
+Samples are prepared by mixing olive oil with different volume fractions of peanut or soybean oil, and their fluorescence spectra are collected.
+
+! used reflectance. Emitter 45 degree from top, 
+
+Eight LEDs with a central wavelength of
+370 nm, 372 nm, 396 nm, 402 nm, 414 nm, 441 nm, 451 nm, and 465 nm
+were employed to excite the fluorescence
+of pure EVOO, PO, and SO samples, respectively.
+An acquisition time of 1 s was used. 
+
+However, the light sources used in [17,18] were lasers,
+which are narrow in bandwidths (typically less than 1 nm) compared to that of LEDs (typically ten to twenty nanometers).
+Another phenomenon that can be observed is that the longer the central wavelength, the wider the bandwidth.
+
+Thus, though lasers of wavelength larger than 440 nm can be utilized for oil adulteration detection, LEDs of this band are not suitable, because their own spectrum may overlap with the fluorescence spectrum. Thus, the excitation wavelength of 372 nm was selected.
 
 
 #### Monitoring of oxidative stability of olive oils using visible spectroscopy
@@ -158,6 +216,8 @@ In this article the possibility to detect adulteration of costly olive oils with
 UV-Vis-NIR absorption data, where all the EVOOs from each region are treated as one class, while the EVOO-edible oil mixtures are treated as four classes,
 Measured 200-1000 nm. 350 - 750 nm.
 
+#### Misc
+(olive oil) excited with a violet laser at 405nm
 
 
 
@@ -260,6 +320,17 @@ Measurement diodes. Marktech MT03-023, 15 USD. 250nm - 1100 nm.
 
 Generic. Wurth 1540051EA3590. OSRAM SFH 229. 400-1100 nm. 0.5 USD. 
 
+Cheapest InGaAs.
+Hamatsu G12183. Around 100 USD.
+Marktech Optoelectronics. Has many options in 10 USD price range. Both 1700 nm and 2600nm.
+Ex: MTPD2601N
+
+NIR diffraction gratings around 100 USD.
+https://www.edmundoptics.in/f/reflective-ruled-diffraction-gratings/12220/
+By placing grating on a rotating pivot, can build a scanning monochromator?
+Note that one also need to have mirrors.
+Minimum is a focusing mirror and collimiating mirror?
+
 #### TSP #38 - Teardown, Upgrade and Experiments with a Verity Visible Wavelength Monochromator
 https://hackaday.com/2014/11/22/creating-a-scanning-monochromator/
 https://www.youtube.com/watch?v=veETVeEsaNM
@@ -292,22 +363,26 @@ Or as a big roll.
 
 #### TODO
 
-- Order cuvettes
-- Design cuvette holder for Little Garden, for absorbation. Incandecent bulb
+- Design cuvette holder for Little Garden, for absorbation. WIP
 - Setup Little Garden
 - Create test samples of oils
 
 Minituariszation
 
-- Order AS7343, from Pimoroni
 - Test on AS7343
 - Implement in MicroPython, for running on ESP32 etc
-- Design an LED driver board. I2C QWIIC pass-through. Absorber source (white CRI93+), flouresence source
+- Design an LED driver board. I2C QWIIC pass-through.
+Absorber source (white CRI93+), flouresence source
 
 
 ### AS7343
 405-855 nm. 14 bands.
 Pimoroni
+
+https://shop.pimoroni.com/products/as7343-breakout?variant=41694602526803
+
+Sparkfun.
+
 
 ## Little garden  spectrometer
 
@@ -368,5 +443,24 @@ https://www.fybikon.no/biologi/dyr-og-planter/fotosyntese-og-celleaanding/go-dir
 
 380-950 nm, 4 nm resolution
 
-
 500nm and 405 nm exitation sources
+
+## Open source software
+
+#### spectro-web
+
+Spectrometer using camera. Runs entirely in web browser
+https://github.com/gheja/spectro-web
+
+#### Theremino_Spectrometer
+
+https://www.theremino.com/en/downloads/automation#spectrometer
+
+https://www.theremino.com/en/downloads
+
+#### PySpectrometer
+
+https://github.com/leswright1977/PySpectrometer2
+https://github.com/leswright1977/PySpectrometer
+
+
