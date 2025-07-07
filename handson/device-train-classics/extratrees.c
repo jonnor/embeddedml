@@ -65,41 +65,44 @@ static void shuffle_indices(int16_t *indices, int16_t n, uint32_t *rng_state) {
     }
 }
 
-// Calculate Gini impurity
-static int16_t calculate_gini(const int16_t *labels, const int16_t *indices, 
-                             int16_t start, int16_t end, int16_t n_classes) {
+// Calculate Gini impurity using floating point
+static float calculate_gini_float(const int16_t *labels, const int16_t *indices, 
+                                 int16_t start, int16_t end, int16_t n_classes) {
     int16_t counts[256] = {0}; // Assume max 256 classes
     int16_t total = end - start;
     
-    if (total == 0) return 0;
+    if (total == 0) return 0.0f;
     
     for (int16_t i = start; i < end; i++) {
         counts[labels[indices[i]]]++;
     }
     
-    int32_t gini = 10000; // Start with 1.0 * 10000 for fixed point
+    float gini = 1.0f;
     for (int16_t i = 0; i < n_classes; i++) {
         if (counts[i] > 0) {
-            int32_t prob = (counts[i] * 10000) / total;
-            gini -= (prob * prob) / 10000;
+            float prob = (float)counts[i] / (float)total;
+            gini -= prob * prob;
         }
     }
     
-    return (int16_t)gini;
+    return gini;
 }
 
-// Find best split for a node
+// Find best split for a node using floating point Gini
 static int16_t find_best_split(const int16_t *features, const int16_t *labels,
                               EmlTreesModel *model, EmlTreesWorkspace *workspace, 
                               int16_t start, int16_t end, int16_t n_features_subset, 
                               int8_t *best_feature, int16_t *best_threshold) {
     
-    int16_t best_gini = 32767; // Large number
+    float best_improvement = -1.0f; // Best information gain found
     *best_feature = -1;
     *best_threshold = 0;
     
     int16_t total_samples = end - start;
-    if (total_samples < 2) return best_gini;
+    if (total_samples < 2) return -1;
+    
+    // Calculate parent impurity
+    float parent_gini = calculate_gini_float(labels, workspace->sample_indices, start, end, model->n_classes);
     
     // Try each feature in the subset
     for (int16_t f = 0; f < n_features_subset; f++) {
@@ -113,33 +116,43 @@ static int16_t find_best_split(const int16_t *features, const int16_t *labels,
         for (int16_t t = 0; t < model->config.n_thresholds; t++) {
             int16_t threshold = min_val + (eml_rand(&workspace->rng_state) % (max_val - min_val + 1));
             
-            // Count samples on each side and calculate impurity
-            int16_t left_count = 0;
+            // Temporarily partition samples to calculate impurity
+            int16_t left_idx = 0, right_idx = 0;
+            
+            // Count and separate samples
             for (int16_t i = start; i < end; i++) {
                 if (features[workspace->sample_indices[i] * model->n_features + feature_idx] <= threshold) {
-                    left_count++;
+                    workspace->temp_indices[left_idx++] = workspace->sample_indices[i];
+                } else {
+                    workspace->temp_indices[total_samples - 1 - right_idx++] = workspace->sample_indices[i];
                 }
             }
             
-            int16_t right_count = total_samples - left_count;
+            int16_t left_count = left_idx;
+            int16_t right_count = right_idx;
+            
             if (left_count == 0 || right_count == 0) continue;
             if (left_count < model->config.min_samples_leaf || right_count < model->config.min_samples_leaf) continue;
             
+            // Calculate Gini for left and right partitions
+            float left_gini = calculate_gini_float(labels, workspace->temp_indices, 0, left_count, model->n_classes);
+            float right_gini = calculate_gini_float(labels, workspace->temp_indices, total_samples - right_count, total_samples, model->n_classes);
+            
             // Calculate weighted Gini impurity
-            int16_t left_gini = calculate_gini(labels, workspace->sample_indices, start, start + left_count, model->n_classes);
-            int16_t right_gini = calculate_gini(labels, workspace->sample_indices, start + left_count, end, model->n_classes);
+            float weighted_gini = ((float)left_count * left_gini + (float)right_count * right_gini) / (float)total_samples;
             
-            int32_t weighted_gini = (left_count * left_gini + right_count * right_gini) / total_samples;
+            // Calculate information gain
+            float improvement = parent_gini - weighted_gini;
             
-            if (weighted_gini < best_gini) {
-                best_gini = (int16_t)weighted_gini;
+            if (improvement > best_improvement) {
+                best_improvement = improvement;
                 *best_feature = feature_idx;
                 *best_threshold = threshold;
             }
         }
     }
     
-    return best_gini;
+    return (best_improvement > 0.0f) ? 0 : -1; // Return 0 if good split found, -1 otherwise
 }
 
 // Partition samples based on feature threshold
@@ -262,11 +275,11 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
         // Find best split
         int8_t best_feature;
         int16_t best_threshold;
-        int16_t split_quality = find_best_split(features, labels, model, workspace, 
-                                               current.start, current.end,
-                                               n_features_subset, &best_feature, &best_threshold);
+        int16_t split_result = find_best_split(features, labels, model, workspace, 
+                                              current.start, current.end,
+                                              n_features_subset, &best_feature, &best_threshold);
         
-        if (best_feature == -1) {
+        if (split_result != 0 || best_feature == -1) {
             // No valid split found, create leaf
             model->nodes[node_idx].feature = -1;
             model->nodes[node_idx].value = get_majority_class(labels, workspace->sample_indices,

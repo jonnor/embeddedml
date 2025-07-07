@@ -129,11 +129,11 @@ int test_basic_functionality() {
     model.nodes = malloc(model.max_nodes * sizeof(EmlTreesNode));
     model.tree_starts = malloc(n_trees * sizeof(int16_t));
     
-    // Setup config - more conservative settings
-    model.config.max_depth = 6;
-    model.config.min_samples_leaf = 10;
-    model.config.n_thresholds = 5;
-    model.config.subsample_ratio_num = 8;
+    // Setup config - improved settings for better accuracy
+    model.config.max_depth = 10;
+    model.config.min_samples_leaf = 2;
+    model.config.n_thresholds = 20;
+    model.config.subsample_ratio_num = 9;
     model.config.subsample_ratio_den = 10;
     model.config.feature_subsample_ratio_num = 1;
     model.config.feature_subsample_ratio_den = 1;
@@ -201,7 +201,7 @@ int test_spiral_dataset() {
     const int16_t n_samples = 600;
     const int16_t n_features = 4;
     const int16_t n_classes = 3;
-    const int16_t n_trees = 20;
+    const int16_t n_trees = 50;
     
     // Allocate data
     int16_t *features = malloc(n_samples * n_features * sizeof(int16_t));
@@ -215,18 +215,18 @@ int test_spiral_dataset() {
     model.n_features = n_features;
     model.n_classes = n_classes;
     model.n_trees = n_trees;
-    model.max_nodes = 3000;
+    model.max_nodes = 5000;
     model.nodes = malloc(model.max_nodes * sizeof(EmlTreesNode));
     model.tree_starts = malloc(n_trees * sizeof(int16_t));
     
-    // Setup config for more complex problem - but still conservative
-    model.config.max_depth = 8;
-    model.config.min_samples_leaf = 8;
-    model.config.n_thresholds = 10;
-    model.config.subsample_ratio_num = 7;
+    // Setup config for complex problem - better settings
+    model.config.max_depth = 12;
+    model.config.min_samples_leaf = 2;
+    model.config.n_thresholds = 30;
+    model.config.subsample_ratio_num = 8;
     model.config.subsample_ratio_den = 10;
-    model.config.feature_subsample_ratio_num = 3;
-    model.config.feature_subsample_ratio_den = 4;
+    model.config.feature_subsample_ratio_num = 1;
+    model.config.feature_subsample_ratio_den = 1;
     model.config.rng_seed = 54321;
     
     // Setup workspace
