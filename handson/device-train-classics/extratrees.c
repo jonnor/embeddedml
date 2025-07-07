@@ -113,7 +113,7 @@ static int16_t find_best_split(const int16_t *features, const int16_t *labels,
         for (int16_t t = 0; t < model->config.n_thresholds; t++) {
             int16_t threshold = min_val + (eml_rand(&workspace->rng_state) % (max_val - min_val + 1));
             
-            // Count samples on each side
+            // Count samples on each side and calculate impurity
             int16_t left_count = 0;
             for (int16_t i = start; i < end; i++) {
                 if (features[workspace->sample_indices[i] * model->n_features + feature_idx] <= threshold) {
@@ -123,12 +123,16 @@ static int16_t find_best_split(const int16_t *features, const int16_t *labels,
             
             int16_t right_count = total_samples - left_count;
             if (left_count == 0 || right_count == 0) continue;
+            if (left_count < model->config.min_samples_leaf || right_count < model->config.min_samples_leaf) continue;
             
-            // Calculate weighted Gini impurity (simplified version)
-            int16_t weighted_gini = (left_count * 100) / total_samples + (right_count * 100) / total_samples;
+            // Calculate weighted Gini impurity
+            int16_t left_gini = calculate_gini(labels, workspace->sample_indices, start, start + left_count, model->n_classes);
+            int16_t right_gini = calculate_gini(labels, workspace->sample_indices, start + left_count, end, model->n_classes);
+            
+            int32_t weighted_gini = (left_count * left_gini + right_count * right_gini) / total_samples;
             
             if (weighted_gini < best_gini) {
-                best_gini = weighted_gini;
+                best_gini = (int16_t)weighted_gini;
                 *best_feature = feature_idx;
                 *best_threshold = threshold;
             }

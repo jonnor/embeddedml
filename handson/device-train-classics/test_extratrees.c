@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-
 #include "extratrees.c"
 
 // Generate synthetic spiral dataset - good medium complexity problem
@@ -130,10 +129,10 @@ int test_basic_functionality() {
     model.nodes = malloc(model.max_nodes * sizeof(EmlTreesNode));
     model.tree_starts = malloc(n_trees * sizeof(int16_t));
     
-    // Setup config
-    model.config.max_depth = 10;
-    model.config.min_samples_leaf = 5;
-    model.config.n_thresholds = 10;
+    // Setup config - more conservative settings
+    model.config.max_depth = 6;
+    model.config.min_samples_leaf = 10;
+    model.config.n_thresholds = 5;
     model.config.subsample_ratio_num = 8;
     model.config.subsample_ratio_den = 10;
     model.config.feature_subsample_ratio_num = 1;
@@ -216,14 +215,14 @@ int test_spiral_dataset() {
     model.n_features = n_features;
     model.n_classes = n_classes;
     model.n_trees = n_trees;
-    model.max_nodes = 2000;
+    model.max_nodes = 3000;
     model.nodes = malloc(model.max_nodes * sizeof(EmlTreesNode));
     model.tree_starts = malloc(n_trees * sizeof(int16_t));
     
-    // Setup config for more complex problem
-    model.config.max_depth = 15;
-    model.config.min_samples_leaf = 3;
-    model.config.n_thresholds = 20;
+    // Setup config for more complex problem - but still conservative
+    model.config.max_depth = 8;
+    model.config.min_samples_leaf = 8;
+    model.config.n_thresholds = 10;
     model.config.subsample_ratio_num = 7;
     model.config.subsample_ratio_den = 10;
     model.config.feature_subsample_ratio_num = 3;
