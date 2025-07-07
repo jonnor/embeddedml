@@ -133,10 +133,8 @@ int test_basic_functionality() {
     model.config.max_depth = 10;
     model.config.min_samples_leaf = 2;
     model.config.n_thresholds = 20;
-    model.config.subsample_ratio_num = 9;
-    model.config.subsample_ratio_den = 10;
-    model.config.feature_subsample_ratio_num = 1;
-    model.config.feature_subsample_ratio_den = 1;
+    model.config.subsample_ratio = 0.9f;
+    model.config.feature_subsample_ratio = 1.0f;
     model.config.rng_seed = 12345;
     
     // Setup workspace
@@ -223,10 +221,8 @@ int test_spiral_dataset() {
     model.config.max_depth = 12;
     model.config.min_samples_leaf = 2;
     model.config.n_thresholds = 30;
-    model.config.subsample_ratio_num = 8;
-    model.config.subsample_ratio_den = 10;
-    model.config.feature_subsample_ratio_num = 1;
-    model.config.feature_subsample_ratio_den = 1;
+    model.config.subsample_ratio = 0.8f;
+    model.config.feature_subsample_ratio = 1.0f;
     model.config.rng_seed = 54321;
     
     // Setup workspace

@@ -20,10 +20,8 @@ typedef struct _EmlTreesConfig {
     int16_t max_depth;
     int16_t min_samples_leaf;
     int16_t n_thresholds;
-    int16_t subsample_ratio_num;  // numerator of subsample ratio
-    int16_t subsample_ratio_den;  // denominator of subsample ratio
-    int16_t feature_subsample_ratio_num;
-    int16_t feature_subsample_ratio_den;
+    float subsample_ratio;          // subsample ratio as float (0.0 to 1.0)
+    float feature_subsample_ratio;  // feature subsample ratio as float (0.0 to 1.0)
     uint32_t rng_seed;
 } EmlTreesConfig;
 
@@ -214,9 +212,9 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
     int16_t tree_start = model->n_nodes_used;
     
     // Subsample features
-    int16_t n_features_subset = (model->n_features * model->config.feature_subsample_ratio_num) / 
-                               model->config.feature_subsample_ratio_den;
+    int16_t n_features_subset = (int16_t)((float)model->n_features * model->config.feature_subsample_ratio);
     if (n_features_subset < 1) n_features_subset = 1;
+    if (n_features_subset > model->n_features) n_features_subset = model->n_features;
     
     for (int16_t i = 0; i < model->n_features; i++) {
         workspace->feature_indices[i] = i;
@@ -366,8 +364,9 @@ int16_t eml_trees_train(EmlTreesModel *model, EmlTreesWorkspace *workspace,
     workspace->rng_state = model->config.rng_seed;
     
     // Calculate subsample size
-    int16_t subsample_size = (workspace->n_samples * model->config.subsample_ratio_num) / 
-                            model->config.subsample_ratio_den;
+    int16_t subsample_size = (int16_t)((float)workspace->n_samples * model->config.subsample_ratio);
+    if (subsample_size < 1) subsample_size = 1;
+    if (subsample_size > workspace->n_samples) subsample_size = workspace->n_samples;
     
     // Initialize sample indices
     for (int16_t i = 0; i < workspace->n_samples; i++) {
