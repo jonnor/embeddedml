@@ -201,7 +201,7 @@ int test_spiral_dataset() {
     const int16_t n_samples = 600;
     const int16_t n_features = 4;
     const int16_t n_classes = 3;
-    const int16_t n_trees = 50;
+    const int16_t n_trees = 20;
     
     // Allocate data
     int16_t *features = malloc(n_samples * n_features * sizeof(int16_t));
