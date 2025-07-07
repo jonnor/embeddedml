@@ -199,6 +199,8 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
     // Subsample features
     int16_t n_features_subset = (model->n_features * model->config.feature_subsample_ratio_num) / 
                                model->config.feature_subsample_ratio_den;
+    if (n_features_subset < 1) n_features_subset = 1;
+    
     for (int16_t i = 0; i < model->n_features; i++) {
         workspace->feature_indices[i] = i;
     }
@@ -206,7 +208,7 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
     
     // Initialize root node state
     int16_t stack_size = 1;
-    workspace->node_stack[0].node_idx = 0;
+    workspace->node_stack[0].node_idx = tree_start;
     workspace->node_stack[0].start = 0;
     workspace->node_stack[0].end = workspace->n_samples;
     workspace->node_stack[0].depth = 0;
@@ -229,16 +231,17 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
     // Process stack
     while (stack_size > 0) {
         NodeState current = workspace->node_stack[--stack_size];
-        int16_t node_idx = tree_start + current.node_idx;
+        int16_t node_idx = current.node_idx;
         
-        if (model->n_nodes_used >= model->max_nodes) {
+        if (node_idx >= model->max_nodes) {
             return -1; // Out of nodes
         }
         
         // Check stopping criteria
         int16_t n_samples_node = current.end - current.start;
         if (current.depth >= model->config.max_depth || 
-            n_samples_node < model->config.min_samples_leaf * 2) {
+            n_samples_node < model->config.min_samples_leaf * 2 ||
+            n_samples_node <= 0) {
             
             // Create leaf node
             model->nodes[node_idx].feature = -1;
@@ -246,7 +249,9 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
                                                             current.start, current.end, model->n_classes);
             model->nodes[node_idx].left = -1;
             model->nodes[node_idx].right = -1;
-            model->n_nodes_used++;
+            if (node_idx >= model->n_nodes_used) {
+                model->n_nodes_used = node_idx + 1;
+            }
             continue;
         }
         
@@ -264,7 +269,9 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
                                                             current.start, current.end, model->n_classes);
             model->nodes[node_idx].left = -1;
             model->nodes[node_idx].right = -1;
-            model->n_nodes_used++;
+            if (node_idx >= model->n_nodes_used) {
+                model->n_nodes_used = node_idx + 1;
+            }
             continue;
         }
         
@@ -272,24 +279,58 @@ static int16_t build_tree(EmlTreesModel *model, EmlTreesWorkspace *workspace,
         int16_t split_point = partition_samples(features, model, workspace, current.start, current.end, 
                                                best_feature, best_threshold);
         
+        // Check if partition was successful
+        if (split_point <= current.start || split_point >= current.end) {
+            // Partition failed, create leaf
+            model->nodes[node_idx].feature = -1;
+            model->nodes[node_idx].value = get_majority_class(labels, workspace->sample_indices,
+                                                            current.start, current.end, model->n_classes);
+            model->nodes[node_idx].left = -1;
+            model->nodes[node_idx].right = -1;
+            if (node_idx >= model->n_nodes_used) {
+                model->n_nodes_used = node_idx + 1;
+            }
+            continue;
+        }
+        
+        // Calculate next available node indices
+        int16_t next_node = model->n_nodes_used;
+        if (next_node + 1 >= model->max_nodes) {
+            // Not enough space for children, create leaf
+            model->nodes[node_idx].feature = -1;
+            model->nodes[node_idx].value = get_majority_class(labels, workspace->sample_indices,
+                                                            current.start, current.end, model->n_classes);
+            model->nodes[node_idx].left = -1;
+            model->nodes[node_idx].right = -1;
+            if (node_idx >= model->n_nodes_used) {
+                model->n_nodes_used = node_idx + 1;
+            }
+            continue;
+        }
+        
         // Create internal node
         model->nodes[node_idx].feature = best_feature;
         model->nodes[node_idx].value = best_threshold;
-        model->nodes[node_idx].left = model->n_nodes_used + 1;
-        model->nodes[node_idx].right = model->n_nodes_used + 2;
-        model->n_nodes_used++;
+        model->nodes[node_idx].left = next_node;
+        model->nodes[node_idx].right = next_node + 1;
+        
+        // Update n_nodes_used to reserve space for children
+        model->n_nodes_used = next_node + 2;
+        if (node_idx >= model->n_nodes_used - 2) {
+            model->n_nodes_used = node_idx + 1;
+        }
         
         // Add children to stack (right first, then left for correct processing order)
-        if (stack_size < model->max_nodes - 2) {
+        if (stack_size < 100) { // Reasonable stack limit
             // Right child
-            workspace->node_stack[stack_size].node_idx = model->nodes[node_idx].right - tree_start;
+            workspace->node_stack[stack_size].node_idx = model->nodes[node_idx].right;
             workspace->node_stack[stack_size].start = split_point;
             workspace->node_stack[stack_size].end = current.end;
             workspace->node_stack[stack_size].depth = current.depth + 1;
             stack_size++;
             
             // Left child
-            workspace->node_stack[stack_size].node_idx = model->nodes[node_idx].left - tree_start;
+            workspace->node_stack[stack_size].node_idx = model->nodes[node_idx].left;
             workspace->node_stack[stack_size].start = current.start;
             workspace->node_stack[stack_size].end = split_point;
             workspace->node_stack[stack_size].depth = current.depth + 1;
