@@ -145,7 +145,6 @@ int test_basic_functionality() {
     workspace.min_vals = malloc(n_features * sizeof(int16_t));
     workspace.max_vals = malloc(n_features * sizeof(int16_t));
     workspace.node_stack = malloc(model.max_nodes * sizeof(NodeState));
-    workspace.temp_indices = malloc(n_samples * sizeof(int16_t));
     
     // Train model
     printf("Training on XOR dataset...\n");
@@ -186,7 +185,6 @@ int test_basic_functionality() {
     free(workspace.min_vals);
     free(workspace.max_vals);
     free(workspace.node_stack);
-    free(workspace.temp_indices);
     
     printf("Basic test passed!\n\n");
     return 0;
@@ -233,7 +231,6 @@ int test_spiral_dataset() {
     workspace.min_vals = malloc(n_features * sizeof(int16_t));
     workspace.max_vals = malloc(n_features * sizeof(int16_t));
     workspace.node_stack = malloc(model.max_nodes * sizeof(NodeState));
-    workspace.temp_indices = malloc(n_samples * sizeof(int16_t));
     
     // Train model
     printf("Training on 3-class spiral dataset...\n");
@@ -283,7 +280,6 @@ int test_spiral_dataset() {
     free(workspace.min_vals);
     free(workspace.max_vals);
     free(workspace.node_stack);
-    free(workspace.temp_indices);
     
     printf("Spiral test passed!\n\n");
     return 0;
