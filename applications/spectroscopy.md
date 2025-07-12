@@ -220,6 +220,26 @@ Measured 200-1000 nm. 350 - 750 nm.
 (olive oil) excited with a violet laser at 405nm
 
 
+## Other applications
+
+
+#### Measuring vitamin content
+
+Emissions seems to be more in the UV range than visible range
+https://www.researchgate.net/publication/365799564_Partition_of_antioxidants_available_in_biowaste_using_a_green_aqueous_biphasic_system/figures?lo=1&utm_source=google&utm_medium=organic
+
+Flouresence seems to be more in the visible range
+
+#### Monitoring Vitamin B2 in Energy Drinks
+Vitamin B2, Riboflavin, is highly fluorescent
+
+https://www.vernier.com/vernier-ideas/monitoring-vitamin-b2-in-energy-drinks/
+
+Because Riboflavin peaks at 440 nm, it is appropriate to use either excitation wavelength 405 nm or 500 nm.
+Excitation at 500 nm exhibits an emission peak at 550 nm. 
+
+## 
+
 
 ## Light sources
 

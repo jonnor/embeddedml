@@ -3,13 +3,18 @@
 
 ## Terms used
 
-Human Activity Recognition (HAR) is also known as
+Human Activity Recognition (HAR) is also known as / has sub-tasks such as
 
 * Activity Recognition / human activity recognition (AR) 
 * Activities of Daily Living (ADL).
 * Action recognition
 * Fall detection. (FD)
-* Exercise recognition
+* Fitness tracking / Exercise recognition
+* Sleep monitoring / sleep quality tracking
+* Posture monitoring
+* Gait analysis
+* Eating monitoring
+* Seizure detection
 
 
 ## Datasets
