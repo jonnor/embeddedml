@@ -18,11 +18,24 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import ElasticNet
 from sklearn.model_selection import cross_validate, StratifiedKFold, train_test_split, GridSearchCV
-import numpy as np
+from sklearn.metrics import make_scorer
 
 
 pd = pandas
 np = numpy
+
+
+
+def sparsity_percentage_scorer(estimator, X=None, y=None):
+    """Custom scorer for sparsity percentage"""
+    model = estimator.named_steps['regressor']
+    zero_coef = np.sum(np.abs(model.coef_) < 1e-10)
+    return (zero_coef / len(model.coef_)) * 100
+
+def num_nonzero_features_scorer(estimator, X=None, y=None):
+    """Custom scorer for number of non-zero features"""
+    model = estimator.named_steps['regressor']
+    return np.sum(np.abs(model.coef_) >= 1e-10)
 
 
 def evaluate_pipeline(pipeline, X, y, cv=5, test_size=0.30, scoring=None, random_state=1):
@@ -37,7 +50,10 @@ def evaluate_pipeline(pipeline, X, y, cv=5, test_size=0.30, scoring=None, random
     grid_search, alpha_range = gridsearch_alpha(X_train, y_train)
 
     # Plot grid search results
-    grid_results = plot_gridsearch_results(grid_search, alpha_range)
+    plot_sparsity_vs_alpha(grid_search)
+    plot_gridsearch_results(grid_search, alpha_range)
+
+
     pipeline = grid_search.best_estimator_
 
     #scores = cross_validate(pipeline, X_train, y_train, cv=cv, scoring=scoring, return_train_score=True)
@@ -255,8 +271,10 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     fig, axes = plt.subplots(2, 2, figsize=figsize)
     fig.suptitle('ElasticNet Alpha Grid Search Results', fontsize=16, fontweight='bold')
 
-    mean_train_score = -results_df['mean_train_score']
-    mean_test_score = -results_df['mean_test_score']
+    print('grid result columns', sorted(results_df.columns))
+    feature = 'rmse'
+    mean_train_score = -results_df['mean_train_'+feature]
+    mean_test_score = -results_df['mean_test_'+feature]
     param = 'regressor__alpha'
 
 
@@ -264,8 +282,8 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     ax1 = axes[0, 0]
     ax1.semilogx(alpha_range, mean_test_score, 'b-', label='CV Score', linewidth=2)
     ax1.fill_between(alpha_range, 
-                     mean_test_score - results_df['std_test_score'],
-                     mean_test_score + results_df['std_test_score'],
+                     mean_test_score - results_df['std_test_'+feature],
+                     mean_test_score + results_df['std_test_'+feature],
                      alpha=0.2, color='blue')
 
 
@@ -274,7 +292,7 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
                 linestyle=':', linewidth=2, label=f"Best α={grid_search.best_params_[param]:.4f}")
 
     ax1.set_xlabel('Alpha (log scale)')
-    ax1.set_ylabel('Mean Squared Error')
+    ax1.set_ylabel(feature)
     ax1.set_title('Validation Curve')
     ax1.legend()
     ax1.grid(True, alpha=0.3)
@@ -285,7 +303,7 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     ax2.axvline(grid_search.best_params_[param], color='green', 
                 linestyle=':', linewidth=2, label=f"Best α={grid_search.best_params_[param]:.4f}")
     ax2.set_xlabel('Alpha')
-    ax2.set_ylabel('Mean Squared Error')
+    ax2.set_ylabel(feature)
     ax2.set_title('CV Score vs Alpha (Linear Scale)')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
@@ -297,7 +315,7 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     ax3.axvline(grid_search.best_params_[param], color='green', 
                 linestyle=':', linewidth=2, label='Best α')
     ax3.set_xlabel('Alpha (log scale)')
-    ax3.set_ylabel('Mean Squared Error')
+    ax3.set_ylabel(feature)
     ax3.set_title('Training vs Validation Score')
     ax3.legend()
     ax3.grid(True, alpha=0.3)
@@ -308,7 +326,7 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
 
     best_score = grid_search.best_score_
     best_alpha = grid_search.best_params_[param]
-    best_std = results_df.loc[results_df['param_'+param] == best_alpha, 'std_test_score'].iloc[0]
+    best_std = results_df.loc[results_df['param_'+param] == best_alpha, 'std_test_'+feature].iloc[0]
 
     
     summary_text = f"""
@@ -340,7 +358,104 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     return results_df
 
 
-def gridsearch_alpha(X_train, y_train, cv=5, scoring='neg_root_mean_squared_error'):
+def plot_sparsity_vs_alpha(grid_search, figsize=(12, 8)):
+    """Plot sparsity metrics using grid search results"""
+    
+    regressor = grid_search.best_estimator_.named_steps['regressor']
+    param = 'regressor__alpha'
+    metric = 'rmse'
+
+
+    # Extract results from grid search cv_results_
+    results_df = pd.DataFrame(grid_search.cv_results_)
+
+    alpha_range = results_df['param_'+param].values
+    
+    # Extract sparsity metrics (note: sparsity scorer returns negative values)
+    sparsity_percentages = -results_df['mean_test_sparsity_pct'].values
+    num_nonzero_features = results_df['mean_test_num_nonzero'].values
+    
+    total_features = len(regressor.coef_)
+    l1_ratio = regressor.l1_ratio
+    
+    # Create subplots
+    fig, axes = plt.subplots(2, 2, figsize=figsize)
+    fig.suptitle(f'Feature Sparsity vs Alpha (from Grid Search)', fontsize=16, fontweight='bold')
+    
+    # 1. Sparsity percentage vs alpha
+    ax1 = axes[0, 0]
+    ax1.semilogx(alpha_range, sparsity_percentages, 'b-', linewidth=2, marker='o', markersize=4)
+   
+
+    # Highlight best alpha from grid search
+    best_alpha = grid_search.best_params_[param]
+    best_alpha_idx = list(alpha_range).index(best_alpha)
+    best_sparsity = sparsity_percentages[best_alpha_idx]
+    
+    ax1.scatter(best_alpha, best_sparsity, color='red', s=100, zorder=5, 
+                label=f'Best α={best_alpha:.4f} ({best_sparsity:.1f}% sparse)')
+    
+    ax1.set_xlabel('Alpha (log scale)')
+    ax1.set_ylabel('Sparsity (%)')
+    ax1.set_title('Sparsity Percentage vs Alpha')
+    ax1.grid(True, alpha=0.3)
+    ax1.set_ylim(0, 100)
+    
+    # Add horizontal reference lines
+    ax1.axhline(y=50, color='gray', linestyle='--', alpha=0.7, label='50% sparse')
+    ax1.axhline(y=90, color='gray', linestyle='--', alpha=0.7, label='90% sparse')
+    ax1.legend()
+    
+    # 2. Number of non-zero features vs alpha
+    ax2 = axes[0, 1]
+    ax2.semilogx(alpha_range, num_nonzero_features, 'g-', linewidth=2, marker='s', markersize=4)
+    
+    # Highlight best alpha
+    best_nonzero = num_nonzero_features[best_alpha_idx]
+    ax2.scatter(best_alpha, best_nonzero, color='red', s=100, zorder=5,
+                label=f'Best α: {best_nonzero:.0f} features')
+    
+    ax2.set_xlabel('Alpha (log scale)')
+    ax2.set_ylabel('Number of Non-Zero Features')
+    ax2.set_title('Active Features vs Alpha')
+    ax2.grid(True, alpha=0.3)
+    ax2.set_ylim(0, total_features)
+    
+    # Add reference line for total features
+    ax2.axhline(y=total_features, color='gray', linestyle='--', alpha=0.7, 
+                label=f'Total features ({total_features})')
+    ax2.legend()
+    
+    # 3. Performance vs Sparsity trade-off
+    ax3 = axes[1, 0]
+    scores = -results_df['mean_test_'+metric].values
+    
+    # Create scatter plot of MSE vs Sparsity
+    scatter = ax3.scatter(sparsity_percentages, scores, c=np.log10(alpha_range), 
+                         cmap='viridis', s=60, alpha=0.7)
+    
+    # Highlight best alpha
+    ax3.scatter(best_sparsity, scores[best_alpha_idx], color='red', s=100, 
+                zorder=5, label=f'Best (α={best_alpha:.4f})')
+    
+    ax3.set_xlabel('Sparsity (%)')
+    ax3.set_ylabel(metric)
+    ax3.set_title('Performance vs Sparsity Trade-off')
+    ax3.grid(True, alpha=0.3)
+    ax3.legend()
+    
+    # Add colorbar
+    cbar = plt.colorbar(scatter, ax=ax3)
+    cbar.set_label('log₁₀(α)')
+    
+    # 4. Summary statistics
+    ax4 = axes[1, 1]
+    ax4.axis('off')
+    
+    plt.tight_layout()
+    plt.show()
+
+def gridsearch_alpha(X_train, y_train, cv=5):
     """Perform grid search over alpha parameter for ElasticNet"""
 
     # Create pipeline
@@ -349,10 +464,21 @@ def gridsearch_alpha(X_train, y_train, cv=5, scoring='neg_root_mean_squared_erro
     # Define alpha range - typical values from very small to large
     alpha_range = np.logspace(-6, 0.5, 25)
 
-    # Alternative ranges you might consider:
-
     param_grid = {
         'regressor__alpha': alpha_range
+    }
+
+    # Create custom scorers
+    sparsity_scorer = sparsity_percentage_scorer
+    nonzero_scorer = num_nonzero_features_scorer
+    
+
+    scoring = {
+        'rmse': 'neg_root_mean_squared_error',
+        'mae': 'neg_mean_absolute_error',
+        'r2': 'r2',
+        'sparsity_pct': sparsity_scorer,
+        'num_nonzero': nonzero_scorer
     }
 
     # Perform grid search
@@ -362,6 +488,7 @@ def gridsearch_alpha(X_train, y_train, cv=5, scoring='neg_root_mean_squared_erro
         cv=cv, 
         scoring=scoring,
         return_train_score=True,
+        refit='rmse',
         n_jobs=-1,
         verbose=1
     )
