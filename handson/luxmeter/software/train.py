@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from analysis import load_files
 
 from sklearn.linear_model import ElasticNet
+from sklearn.decomposition import PCA
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -50,26 +51,27 @@ def evaluate_pipeline(pipeline, X, y, cv=5, test_size=0.30, scoring=None, random
     grid_search, alpha_range = gridsearch_alpha(X_train, y_train)
 
     # Plot grid search results
-    plot_sparsity_vs_alpha(grid_search)
     plot_gridsearch_results(grid_search, alpha_range)
-
+    plot_sparsity_vs_alpha(grid_search)
 
     pipeline = grid_search.best_estimator_
 
     #scores = cross_validate(pipeline, X_train, y_train, cv=cv, scoring=scoring, return_train_score=True)
 
     plot_evaluation(pipeline,  X_train, X_test, y_train, y_test)
+    # FIXME: feature names not correct when preprocessing like PCA has been used
     plot_model_features(pipeline,  X_train, feature_names=X.columns)
 
     return pandas.DataFrame(scores)
 
 
-def create_pipeline():
+def create_pipeline(n_components=10):
     """Create sklearn pipeline with MinMaxScaler and ElasticNet"""
     pipeline = Pipeline([
         #('scaler', StandardScaler()),
-        #('scaler', MinMaxScaler()),
-        ('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=True))
+        ('scaler', MinMaxScaler()),
+        #('pca', PCA(n_components=n_components, random_state=42)),
+        ('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=False))
         #('regressor', RandomForestRegressor()),
     ])
     return pipeline
