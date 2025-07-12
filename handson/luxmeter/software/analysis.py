@@ -26,8 +26,6 @@ def load_files(directory):
         data = numpy.load(filepath)
         #print(filename, data.shape)
 
-
-
         regex = r"(\w+)_(\d+)(\w+)_(\d+)(\w+)\.npy"
         match = re.findall(regex, filename)
 
@@ -43,7 +41,8 @@ def load_files(directory):
         # TODO: include all values, add measurement index
         # FIXME: add proper column names
         columns = ['ch_'+ch for ch in CHANNEL_MAP]
-        df = pandas.DataFrame([avg], columns=columns)
+        df = pandas.DataFrame(data.T, columns=columns)
+        df['datapoint'] = numpy.arange(len(df))
 
         df['filename'] = filename
         df['experiment'] = experiment
@@ -58,13 +57,36 @@ def load_files(directory):
     out = pandas.concat(dfs)
     return out
 
-df = load_files('data/one')
-print(df.head())
+def main():
+    df = load_files('data/one')
+    print('Raw')
+    print(df.shape)
+    print(df.head())
+
+    g = seaborn.relplot(data=df, x='ch_FY', y='lux', col='colortemp')
+    fig = g.figure
+    plot_path = 'one_raw.png'
+    fig.savefig(plot_path)
+    print('Wrote', plot_path)
+
+    # XXX: when using raw, there is no clear linear relationship with Lux
+
+    index = ['filename']
+    avg = df.groupby(index).agg('median', numeric_only=True)
+
+    print('Averaged')
+    print(avg.shape)
+    print(avg.head())
+
+    g = seaborn.relplot(data=avg, x='ch_FY', y='lux', col='colortemp')
+    fig = g.figure
+    plot_path = 'one_averaged.png'
+    fig.savefig(plot_path)
+    print('Wrote', plot_path)
 
 
-g = seaborn.relplot(data=df, x='ch_FY', y='lux', col='colortemp')
-fig = g.figure
 
-fig.savefig('one.png')
+if __name__ == '__main__':
+    main()
 
 
