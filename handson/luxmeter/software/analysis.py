@@ -85,6 +85,13 @@ def main():
     print('Wrote', plot_path)
 
 
+    g = seaborn.relplot(data=df, x='datapoint', y='ch_FY', col='lux', col_wrap=5)
+    fig = g.figure
+    plot_path = 'one_datapoint.png'
+    fig.savefig(plot_path)
+    print('Wrote', plot_path)
+
+
 
 if __name__ == '__main__':
     main()
