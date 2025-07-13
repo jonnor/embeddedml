@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import sys
-sys.path.insert(0, '../software')
+sys.path.insert(0, './firmware')
 
 import pandas
 import seaborn
@@ -10,6 +10,7 @@ import numpy
 import matplotlib.pyplot as plt
 
 from analysis import load_files
+from luxmeter_core import AS7343_INFO
 
 from sklearn.linear_model import ElasticNet
 from sklearn.decomposition import PCA
@@ -92,10 +93,6 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(15, 10))
     # Get the fitted ElasticNet model
     elasticnet = pipeline.named_steps['regressor']
 
-    # Feature names
-    if feature_names is None:
-        feature_names = [f'Feature_{i}' for i in range(len(elasticnet.coef_))]
-
     # Create subplots
     fig, axes = plt.subplots(2, 2, figsize=figsize)
     fig.suptitle('ElasticNet Model Feature Analysis', fontsize=16, fontweight='bold')
@@ -104,15 +101,58 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(15, 10))
     ax1 = axes[0, 0]
     coef_abs = np.abs(elasticnet.coef_)
     colors = ['red' if c < 0 else 'blue' for c in elasticnet.coef_]
-    bars = ax1.bar(range(len(elasticnet.coef_)), elasticnet.coef_, color=colors, alpha=0.7)
+
+    channels = pandas.DataFrame(AS7343_INFO).set_index('channel')
+
+    x = []
+    y = []
+    names = []
+    for i, name in enumerate(feature_names):
+        c = elasticnet.coef_[i]
+        #name = channels['channel']
+        channel = name.removeprefix('ch_')
+        center = channels['peak_wavelength'].loc[channel]
+        y.append(c)
+        names.append(channel)
+        x.append(center)
+
+    bars = ax1.bar(x, y, color=colors, alpha=0.7, width=5.0)
     ax1.set_xlabel('Features')
     ax1.set_ylabel('Coefficient Value')
     ax1.set_title('Feature Coefficients')
     ax1.axhline(y=0, color='black', linestyle='-', alpha=0.3)
-    if len(feature_names) <= 20:
-        ax1.set_xticks(range(len(feature_names)))
-        ax1.set_xticklabels(feature_names, rotation=45, ha='right')
+    #if len(names) <= 20:
+    #    ax1.set_xticks(x)
+    #    ax1.set_xticklabels(names, rotation=45, ha='right')
     ax1.grid(True, alpha=0.3)
+
+    # Annotate each bar near its base (y=0)
+    # Alternate y-offsets for labels near y=0
+    offsets = [0.0, 0.1]  # Alternate between these values
+    import matplotlib.transforms as transforms
+    blended_transform = transforms.blended_transform_factory(ax1.transData, ax1.transAxes)
+    for i, bar in enumerate(bars):
+        x = bar.get_x() + bar.get_width() / 2
+        y = offsets[i % 2]  # alternate between 0.3 and 0.6
+        ax1.text(
+            x, y,
+            names[i],
+            ha='center', va='bottom',
+            transform=blended_transform,
+            fontweight='bold', fontsize=12, fontfamily='DejaVu Sans',
+        )
+        ax1.axvline(x, ls='--', alpha=0.30, color='black')
+
+    ax1.set_xlim(350, 900)
+
+    # Add photopic function as reference
+    from luxmeter_core import photopic_interpolated
+    wavelengths = numpy.linspace(350, 900, 50)
+    photopic_values = numpy.array([photopic_interpolated(wl) for wl in wavelengths])
+    ax1.plot(wavelengths, photopic_values,
+        label='Photopic (CIE1931)',
+        color='black', alpha=0.5, linewidth=1.5, transform=blended_transform)
+
 
     # 2. Feature importance (absolute coefficients)
     ax2 = axes[0, 1]
@@ -171,7 +211,7 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(15, 10))
              verticalalignment='top', bbox=dict(boxstyle='round', facecolor='lightcyan', alpha=0.8))
 
     plt.tight_layout()
-    plt.show()
+    fig.savefig('model_features.png')
 
     return {
         'coefficients': elasticnet.coef_,
@@ -254,7 +294,7 @@ def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(12, 8),
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.show()
+    fig.savefig('evaluation.png')
 
     # Print metrics comparison
     print("\nMetrics Comparison:")
@@ -364,7 +404,7 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     
 
     plt.tight_layout()
-    plt.show()
+    fig.savefig('gridsearch.png')
 
     return results_df
 
@@ -464,7 +504,8 @@ def plot_sparsity_vs_alpha(grid_search, figsize=(12, 8)):
     ax4.axis('off')
     
     plt.tight_layout()
-    plt.show()
+    fig.savefig('sparsity.png')
+
 
 def gridsearch_alpha(X_train, y_train, cv=5, groups=None):
     """Perform grid search over alpha parameter for ElasticNet"""
