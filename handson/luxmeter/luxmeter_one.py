@@ -22,6 +22,7 @@ def measure_batch(sensor, filename, samples):
     
     n_channels = 18
     typecode = 'h' # int16
+    # FIXME: this should be the other way around!
     shape = (n_channels, samples)
 
     with npyfile.Writer(filename, shape, typecode) as f:
@@ -37,7 +38,7 @@ def measure_batch(sensor, filename, samples):
                 arr = array.array(typecode, data)
                 f.write_values(arr)
                 collected += 1
-                yield collected
+                yield collected, arr
 
             # wait
             time.sleep_ms(10)
@@ -46,20 +47,29 @@ def measure_batch(sensor, filename, samples):
 def foo():
     print('main-start')
 
+    # Note: the measurement time is per set of 6 channels
+    # So for 18 channels, effective time is 3x as long
+    mtime = 100
+    samples = 20
+    filename = 'data/foo.npy'
+
     spectral = as7343.AS7343(i2c1)
 
     # Use FIFO
     spectral.start_measurement()
     spectral.set_integration_time(50*1000) # in us, max 182000 us
-    spectral.set_measurement_time(200) # in ms
+    spectral.set_measurement_time(mtime) # in ms
 
     spectral.set_illumination_current(60) # mA
     spectral.set_illumination_led(False)
 
     
-    filename = 'data/one_4000k_868lux.npy'
-    for s in measure_batch(spectral, filename, samples=20):
-        print(s)
+    start = time.ticks_us()
+    idx = spectral.CHANNEL_MAP.index('FZ')
+    for s, data in measure_batch(spectral, filename, samples=samples):
+        print('sample', time.ticks_ms(), s, data[idx])
+    duration = time.ticks_diff(time.ticks_us(), start) / 1000
+    print('recording-done', duration, duration/samples, mtime)
 
     print('Saved', filename)
 
