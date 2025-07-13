@@ -12,36 +12,40 @@ CHANNEL_MAP = [
     "F1", "F7", "F8", "F5", "VIS3_TL", "VIS3_BR",    # Cycle 3
 ]
 
-def load_files(directory):
+def load_files(directory, fixup_shape=False):
 
     dfs = []
     for filename in os.listdir(directory):
         suffix = os.path.splitext(filename)[1]
         filepath = os.path.join(directory, filename)
         if suffix != '.npy':
-            print('Ignore', filename)
+            print('Ignore wrong extension', filename)
             continue    
 
         #tok = 
         data = numpy.load(filepath)
         #print(filename, data.shape)
 
+        if fixup_shape:
+            # First set of data had wrong order of the shape in .npy files
+            data = data.reshape(data.shape[1], data.shape[0])
+    
         regex = r"(\w+)_(\d+)(\w+)_(\d+)(\w+)\.npy"
         match = re.findall(regex, filename)
 
         if not match:
-            print('Ignored', filename)
+            print('Ignored wrong filename format', filename)
             continue
 
         experiment, color_temp, _, lux, _ = match[0]
 
-        avg = numpy.median(data, axis=1)
+        avg = numpy.median(data, axis=0)
         assert len(avg) == 18
 
         # TODO: include all values, add measurement index
         # FIXME: add proper column names
         columns = ['ch_'+ch for ch in CHANNEL_MAP]
-        df = pandas.DataFrame(data.T, columns=columns)
+        df = pandas.DataFrame(data, columns=columns)
         df['datapoint'] = numpy.arange(len(df))
 
         df['filename'] = filename
@@ -58,10 +62,11 @@ def load_files(directory):
     return out
 
 def main():
-    df = load_files('data/one')
+    df = load_files('data/test', fixup_shape=True)
+
     print('Raw')
     print(df.shape)
-    print(df.head())
+    print(df)
 
     g = seaborn.relplot(data=df, x='ch_FY', y='lux', col='colortemp')
     fig = g.figure

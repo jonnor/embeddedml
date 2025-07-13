@@ -322,12 +322,10 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(12, 8)):
     fig, axes = plt.subplots(2, 2, figsize=figsize)
     fig.suptitle('ElasticNet Alpha Grid Search Results', fontsize=16, fontweight='bold')
 
-    print('grid result columns', sorted(results_df.columns))
     feature = 'rmse'
     mean_train_score = -results_df['mean_train_'+feature]
     mean_test_score = -results_df['mean_test_'+feature]
     param = 'regressor__alpha'
-
 
     # 1. Validation curve
     ax1 = axes[0, 0]
@@ -514,7 +512,7 @@ def gridsearch_alpha(X_train, y_train, cv=5, groups=None):
     pipeline = create_pipeline()
 
     # Define alpha range - typical values from very small to large
-    alpha_range = np.logspace(-6, 0.5, 25)
+    alpha_range = np.logspace(-4, 0.5, 25)
 
     param_grid = {
         'regressor__alpha': alpha_range
