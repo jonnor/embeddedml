@@ -43,6 +43,14 @@ AS7343_INFO = {
     "counts": [ 5749, 1756, 2169, 770, 3141, 3747, 1574, 4776, 3336, 5435, 864, 10581 ],
 }
 
+# Info about returned channels
+# Note the presence of VIS1-3 in addition to the spectral channels
+AS7343_CHANNEL_MAP = [
+    "FZ", "FY", "FXL", "NIR", "VIS1_TL", "VIS1_BR",  # Cycle 1
+    "F2", "F3", "F4", "F6", "VIS2_TL", "VIS2_BR",    # Cycle 2
+    "F1", "F7", "F8", "F5", "VIS3_TL", "VIS3_BR",    # Cycle 3
+]
+
 def photopic_stockman_sharpe(wavelength):
     """
     Stockman & Sharpe approximation based on L+M cone fundamentals
