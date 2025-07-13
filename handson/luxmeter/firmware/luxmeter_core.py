@@ -102,3 +102,60 @@ def photopic_interpolated(wavelength):
     
     return 0.0
 
+class FeatureScaler():
+    """
+    Linear transformation of features
+
+    Can be used to do the inference part of
+    MinMaxScaler, StandardScaler, et.c. from scikit-learn
+    """
+
+    def __init__(self, minimums, scales):
+        self.minimums = array.array('f', minimums)
+        self.scales = array.array('f', scales)
+        n_features = len(self.scales)
+        assert len(self.minimums) == n_features, (len(self.minimums), n_features)
+
+    def transform_into(self, inp, out):
+        n_features = len(self.scales)
+        assert len(inp) == n_features, (len(inp), n_features)
+        assert len(out) == n_features, (len(out), n_features)
+        for i in range(n_features):
+            out[i] = self.minimums[i] + self.scales[i] * inp[i] 
+
+    def transform(self, inp):
+        n_features = len(self.scales)
+        out = array.array('f', (0.0 for _ in range(n_features)))
+        self.transform_into(inp, out)
+        return out
+
+
+def load_pipeline(path, expect_features=None):
+
+    import npyfile
+    import emlearn_linreg
+
+    shape, data = npyfile.load(path) 
+
+    print(shape)
+    assert len(shape) == 2, shape
+    assert shape[0] == 4, shape # scale_min, scale_mul, reg_bias, reg_weights
+    n_features = shape[1]
+
+    if expect_features is not None:
+        assert n_features == expect_features, (n_features, expect_features)
+
+    # pick out the different parts
+    scaler_minimums = ( data[i] for i in range(0, n_features) )
+    scale_multiply = ( data[i] for i in range(n_features, n_features*2) )
+    bias = data[n_features*2]
+    weights = array.array('f', ( data[i] for i in range(n_features*3, n_features*4) ))
+
+    model = emlearn_linreg.new(n_features, 0, 0, 0)
+    model.set_bias(bias)
+    model.set_weights(weights)
+
+    scaler = FeatureScaler(scaler_minimums, scale_multiply)
+
+    return scaler, model
+
