@@ -3,8 +3,7 @@
 And why some datapoint work much better than others.
 And why random picking falls apart.
 Is there some startup effect? Or cyclic effect?
-- Add grouped CV, on the experiment / spectral composition.
-To gridsearch and train/test.
+
 - Plot selected features with their wavelengths. Include Lux formula range
 
 - Test model on data, on device.

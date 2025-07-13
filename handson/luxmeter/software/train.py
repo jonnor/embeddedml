@@ -18,13 +18,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import ElasticNet
-from sklearn.model_selection import cross_validate, StratifiedKFold, train_test_split, GridSearchCV
+from sklearn.model_selection import cross_validate, StratifiedKFold, GroupShuffleSplit, GridSearchCV
 from sklearn.metrics import make_scorer
 
 
 pd = pandas
 np = numpy
-
 
 
 def sparsity_percentage_scorer(estimator, X=None, y=None):
@@ -39,16 +38,29 @@ def num_nonzero_features_scorer(estimator, X=None, y=None):
     return np.sum(np.abs(model.coef_) >= 1e-10)
 
 
-def evaluate_pipeline(pipeline, X, y, cv=5, test_size=0.30, scoring=None, random_state=1):
+def evaluate_pipeline(pipeline, data,
+        group='colortemp', target='lux',
+        features=None, cv=5, test_size=0.30,
+        scoring=None, random_state=1):
     """Evaluate pipeline using cross_validate"""
     if scoring is None:
         scoring = ['neg_mean_absolute_error', 'r2']
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state
-    )
+    if features is None:
+        features = [ c for c in data.columns if 'ch_F' in c]
 
-    grid_search, alpha_range = gridsearch_alpha(X_train, y_train)
+    X = data[features]
+    y = data[target]
+    groups = data[group]
+
+    # Split respecting groups
+    train_inds, test_inds = next(GroupShuffleSplit(n_splits=1, test_size=test_size).split(X, y, groups))
+    X_train, X_test = X.iloc[train_inds], X.iloc[test_inds]
+    y_train, y_test = y.iloc[train_inds], y.iloc[test_inds]
+    groups_train = groups.iloc[train_inds]
+    
+    splitter = GroupShuffleSplit(n_splits=cv)
+    grid_search, alpha_range = gridsearch_alpha(X_train, y_train, cv=splitter, groups=groups_train)
 
     # Plot grid search results
     plot_gridsearch_results(grid_search, alpha_range)
@@ -56,13 +68,10 @@ def evaluate_pipeline(pipeline, X, y, cv=5, test_size=0.30, scoring=None, random
 
     pipeline = grid_search.best_estimator_
 
-    #scores = cross_validate(pipeline, X_train, y_train, cv=cv, scoring=scoring, return_train_score=True)
-
     plot_evaluation(pipeline,  X_train, X_test, y_train, y_test)
     # FIXME: feature names not correct when preprocessing like PCA has been used
     plot_model_features(pipeline,  X_train, feature_names=X.columns)
 
-    return pandas.DataFrame(scores)
 
 
 def create_pipeline(n_components=10):
@@ -71,7 +80,7 @@ def create_pipeline(n_components=10):
         #('scaler', StandardScaler()),
         ('scaler', MinMaxScaler()),
         #('pca', PCA(n_components=n_components, random_state=42)),
-        ('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=False))
+        ('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=True))
         #('regressor', RandomForestRegressor()),
     ])
     return pipeline
@@ -457,7 +466,7 @@ def plot_sparsity_vs_alpha(grid_search, figsize=(12, 8)):
     plt.tight_layout()
     plt.show()
 
-def gridsearch_alpha(X_train, y_train, cv=5):
+def gridsearch_alpha(X_train, y_train, cv=5, groups=None):
     """Perform grid search over alpha parameter for ElasticNet"""
 
     # Create pipeline
@@ -495,7 +504,7 @@ def gridsearch_alpha(X_train, y_train, cv=5):
         verbose=1
     )
 
-    grid_search.fit(X_train, y_train)
+    grid_search.fit(X_train, y_train, groups=groups)
 
     return grid_search, alpha_range
 
@@ -506,21 +515,16 @@ def main():
     #print(data.shape)
     #data.head(5)
 
-    avg = data.groupby(['filename']).agg('median', numeric_only=True)
+    sampled = data.groupby('filename', group_keys=False).apply(lambda df: df.head(7).tail(1))
+
+    avg = sampled.groupby(['filename']).agg('median', numeric_only=True)
     print(avg.shape)
     print(avg.head())
 
-    features = [ c for c in data.columns if 'ch_F' in c]
-    print(features)
-    #sub = avg[avg.colortemp == 2500]
-    sub = avg.copy()
-    X = sub[features] / 1000.0
-    y = sub['lux']
 
     est = create_pipeline()
 
-    scores = evaluate_pipeline(est, X, y)
-    scores
+    scores = evaluate_pipeline(est, avg)
 
 
 if __name__ == '__main__':
