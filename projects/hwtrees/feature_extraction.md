@@ -174,6 +174,117 @@ Quite memory layout and configuration
 https://notblackmagic.com/bitsnpieces/dsp-accelerators/
 Was only slightly faster than ARM CPU though?
 
+### Multiply Accumulate peripheral
+
+A low-precision MAC operation could be used to speed up operations such as FIR, dot-product, convolution.
+Maybe implement as a TinyQV peripheral, as part of the RISC-V peripheral competition.
+
+Questions:
+
+- What can one fit in 1-2 tiles?
+- What kind of unit-of-operation makes sense? Can one do say 4xint8 in one operation (operating on "packed" 32 bit)?
+- How does theoretical throughput compare with what TinyQV can do with its standard ADD/Mul operations?
+https://github.com/MichaelBell/tinyQV?tab=readme-ov-file#instruction-timing
+Need to take into account store/load from peripheral
+Note that instructions are 8 clocks
+- How would the peripheral be used in practice via the instruction? X stores, then X nop for a fixed number of cycles, before loading result?
+- What level of serial/parallel to use in adder/multiplication unit? TinyQV itself is 4bit. Full serial 1 bit is most space efficient?
+- What is the packing format to use for int8 in 32 bits on TinyQV / RISC-V?
+- Can we implement SMMUL8 / KDOT8? And be faster? 4 packed 8x8, 32 bit output, with saturation?
+4 muls, 4 adds. Saturation operation.
+Compare design options. Fully-serial 1-bit shift-add. 2-bit. 4-bit. Full parallel, 8-bit
+- ? how would one do pipelining? Such that one can do say 4 KDOT8 in 4 cycles. Probably avoided first time. But interesting to contemplate.
+
+Theoretical speedups possible, due to IO limits
+(4*2+4*1)*8 / ((1+3)*8) = 3.0
+
+Brainstorming
+https://chatgpt.com/c/6876318c-cba8-8007-a94b-85c8127019cc
+
+Demos
+
+- Audio filters using FIR
+- Image classification using CNN
+- MLP for classification
+- Wrap it in MicroPython C module?
+
+Goal. At least 2x throughput improvement
+
+### PDM input peripheral
+
+Outputs PCM samples from a digital PDM microphone.
+
+- Clock generation. Ideally configurable. 
+- CIC filter with decimiation
+- 1 clock output
+- 2 inputs
+
+Configuration
+
+- Clock.
+64 MHz nominal in. But might be lower??
+Out. 1024 kHz nominal. 3 Mhz max. 
+- Scaling
+Allow to shift by ?
+- Oversampling ratio. Fixed 64x ?
+- Channels. Single mono only.
+?? Selectable clock edge?
+
+
+## References
+
+- STM32 DFSDM
+https://st-onlinetraining.s3.amazonaws.com/STM32L4_System_Digital_Filter_for_SD_Modulators_interface_(DFSDM)/index.html
+Supports both SPI mode, clock+data and 1-wire Manchester mode
+Min/max detection. Interrupts on faults.
+Configurable oversampling 1-1024.
+Support up to 24 bits
+- ESP32 I2S, also used for PDM
+https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/i2s.html
+Only supports 16 bit.
+Two oversampling settings, 64x and 128x
+
+## ADPCM Compressor with CIC filtering ASIC for Tiny Tapeout 06
+https://github.com/hesscharlie/tt06-ADPCM-Compressor
+https://tinytapeout.com/runs/tt06/tt_um_ADPCM_COMPRESSOR
+Takes PDM microphone input. Outputs ADPCM 4-bit samples.
+Decimate by a factor of 64
+Needs slow_clk, a clock 8x slower than clk 
+Took 4 tiles. ? not sure how much CIC vs ADPCM
+Uses 3 sections. Full parallell. ADPCM uses lookup table
+
+CIC filter. Under 8 bit paralell output?
+https://github.com/gfg-development/tt-micro-tiles-cic/blob/main/src/tt_um_micro_cic.v
+
+
+https://github.com/arghunter/Supermic-tt08/blob/main/docs/info.md
+8 channel beamformer.
+PDM input. 3Mhz.
+Each mic signal passed through a third order CIC (Cascading Integrator Comb) Filter to convert it from PDM (Pulse Density Modulation) format to PCM.
+Took 8x2 slices. Outputs I2S.
+
+
+Should be able to read out 16 bits at a time. Not have to split into bytes.
+
+Peripheral interface 4 MB/sec maximum throughput.
+We just need 32 kB/sec for 16 bit @ 16 Khz, or 96 kB/sec at 48 Khz.
+If one uses full 32 bit words to transfer, still OK by a large margin.
+CPU runs at 64 Mhz clock, but only does 8 M instructions per second.
+For 16 Khz, would need to read out samples every 500 instruction.
+So can do a few 100x compute instructions per sample. OK for many applications.
+
+Questions
+
+- Does one need some buffer? To let microcontroller read out sample(s) after an interrupt
+- Can it fit into 1-2 tiles?
+- How to do control/settings, in addition to data readout?
+
+Demos
+
+- Audio recording to a file
+- Audio processing. Incl DSP and/or ML
+- Combine with MAC
+
 
 #### Temporal Convolutional Network
 
