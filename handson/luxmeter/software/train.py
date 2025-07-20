@@ -44,6 +44,7 @@ def evaluate_pipeline(pipeline, data,
         features=None, cv=5, test_size=0.30,
         scoring=None, random_state=1,
         scale_predict=1.0,
+        error_threshold=20,
         ):
     """Evaluate pipeline using cross_validate"""
     if scoring is None:
@@ -52,6 +53,7 @@ def evaluate_pipeline(pipeline, data,
     if features is None:
         features = [ c for c in data.columns if 'ch_F' in c]
 
+    data = data.reset_index()
     X = data[features]
     y = data[target]
     groups = data[group]
@@ -69,13 +71,23 @@ def evaluate_pipeline(pipeline, data,
     plot_gridsearch_results(grid_search, alpha_range)
     plot_sparsity_vs_alpha(grid_search)
 
+    # Fit on entire training data
     pipeline = grid_search.best_estimator_
+    pipeline.fit(X_train, y_train)
 
-    plot_evaluation(pipeline,  X_train, X_test, y_train, y_test, scale_predict=scale_predict)
+    plot_evaluation(pipeline,  X_train, X_test, y_train, y_test,
+        scale_predict=scale_predict, error_threshold=error_threshold)
     # FIXME: feature names not correct when preprocessing like PCA has been used
     plot_model_features(pipeline,  X_train, feature_names=X.columns)
 
-    return pipeline, features
+    # Error analysis
+    results = data.copy()
+    results.loc[train_inds, 'split'] = 'train'
+    results.loc[test_inds, 'split'] = 'test'
+    results['out'] = pipeline.predict(results[features]) * scale_predict
+    results['error'] = results['out'] - (results[target] * scale_predict)
+
+    return pipeline, features, results
 
 
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -276,8 +288,7 @@ def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5),
     """Create evaluation plots comparing train and test data"""
     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-    # Fit pipeline and predict
-    pipeline.fit(X_train, y_train)
+    # Predict
     y_pred_train = pipeline.predict(X_train) * scale_predict
     y_pred_test = pipeline.predict(X_test) * scale_predict
 
