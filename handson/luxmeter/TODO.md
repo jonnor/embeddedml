@@ -41,11 +41,25 @@ My currently lacks this dome, so is only correct for light coming in from the fr
 
 ### Baseline comparison
 
-Normalize the channels based on their specified sensitivity.
-And weight the normalized responses by the Lux curve.
-Compare the results with linear regression straight.
+- Show comparison between models. A) photopic Lux B) FY channel C) Learned coefficients
+- Add a FixedScaled and move the Lux scaling there
+- Do lux estimate using photopic without modifying original inputs
+- Add a distribution plot of errors, with reference lines
+- Update on-device code. Multiply output value
+- Apply target scaling values in all plots
+- Include the approx gaussians in the feature plot window. Remove importance plot?
+- See if the outlier values that appear on some regression fits, are indeed outliers
+Like, try to remove from dataset, see resulting models?
 
-Might want to try dropping out F5?
+
+White LEDs have a peak around 450 nm, the FZ channel. Especially prominent for cold temps
+https://www.digikey.com/en/articles/defining-the-color-characteristics-of-white-leds
+
+How LEDs are useful for fluorescence microscopy
+https://zeiss-campus.magnet.fsu.edu/print/lightsources/leds-print.html
+
+16 channels with wavelenths for fluorescence microscopy. From 365 nm to 770 nm
+https://www.coolled.com/products/pe-4000/
 
 ### On-device learning
 

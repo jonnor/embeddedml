@@ -41,6 +41,8 @@ AS7343_INFO = {
     # sensitivity info
     # counts at Ee=155 mW/m² (typical). AGAIN: 1024x, Integration Time: 27.8 ms
     "counts": [ 5749, 1756, 2169, 770, 3141, 3747, 1574, 4776, 3336, 5435, 864, 10581 ],
+    "counts_min": [4311, 1317, 1627, 577, 2356, 2810, 1180, 3582, 2502, 4095, 648, 7936],
+    "counts_max": [7760, 2371, 2711, 962, 3926, 4684, 1967, 5970, 4170, 6774, 1166, 13226],
 }
 
 # Info about returned channels

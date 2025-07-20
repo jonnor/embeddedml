@@ -42,7 +42,9 @@ def num_nonzero_features_scorer(estimator, X=None, y=None):
 def evaluate_pipeline(pipeline, data,
         group='colortemp', target='lux',
         features=None, cv=5, test_size=0.30,
-        scoring=None, random_state=1):
+        scoring=None, random_state=1,
+        scale_predict=1.0,
+        ):
     """Evaluate pipeline using cross_validate"""
     if scoring is None:
         scoring = ['neg_mean_absolute_error', 'r2']
@@ -69,21 +71,72 @@ def evaluate_pipeline(pipeline, data,
 
     pipeline = grid_search.best_estimator_
 
-    plot_evaluation(pipeline,  X_train, X_test, y_train, y_test)
+    plot_evaluation(pipeline,  X_train, X_test, y_train, y_test, scale_predict=scale_predict)
     # FIXME: feature names not correct when preprocessing like PCA has been used
     plot_model_features(pipeline,  X_train, feature_names=X.columns)
-
 
     return pipeline, features
 
 
-def create_pipeline(n_components=10):
+from sklearn.base import BaseEstimator, TransformerMixin
+import numpy as np
+
+class IdentityScaler(BaseEstimator, TransformerMixin):
+    def __init__(self, feature_range=(0, 1), copy=True, clip=False):
+        self.feature_range = feature_range
+        self.copy = copy
+        self.clip = clip
+    
+    def fit(self, X, y=None):
+        X = self._validate_data(X, accept_sparse=False, dtype='numeric')
+        
+        # Set parameters for identity transformation:
+        # X_scaled = X * scale_ + min_
+        # For identity: X_scaled = X * 1 + 0
+        self.scale_ = np.ones(X.shape[1])   # Multiply by 1
+        self.min_ = np.zeros(X.shape[1])    # Add 0
+        
+        # Store data statistics (like MinMaxScaler)
+        self.data_min_ = np.min(X, axis=0)
+        self.data_max_ = np.max(X, axis=0)
+        self.data_range_ = self.data_max_ - self.data_min_
+        self.n_features_in_ = X.shape[1]
+        
+        return self
+    
+    def transform(self, X):
+        X = self._validate_data(X, accept_sparse=False, dtype='numeric', reset=False)
+        
+        if self.copy:
+            X = X.copy()
+        
+        # Apply identity transformation
+        X *= self.scale_  # X * 1
+        X += self.min_    # X + 0
+        
+        return X
+    
+    def inverse_transform(self, X):
+        return X if not self.copy else X.copy()
+
+
+from sklearn.linear_model import QuantileRegressor
+
+
+from sklearn.linear_model import SGDRegressor
+
+
+def create_pipeline(n_components=10, positive=True, fit_intercept=True, scaler=MinMaxScaler):
     """Create sklearn pipeline with MinMaxScaler and ElasticNet"""
+
     pipeline = Pipeline([
         #('scaler', StandardScaler()),
-        ('scaler', MinMaxScaler()),
+        ('scaler', scaler()),
         #('pca', PCA(n_components=n_components, random_state=42)),
-        ('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=True, fit_intercept=True))
+        #('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=positive, fit_intercept=fit_intercept))
+        ('regressor', QuantileRegressor(quantile=0.5, alpha=0.01, solver='highs', fit_intercept=fit_intercept)),
+        #('regressor', SGDRegressor(loss='huber', penalty='elasticnet', l1_ratio=0.5, alpha=0.01, epsilon=1.35)),
+        #('regressor', SGDRegressor(loss='epsilon_insensitive', penalty='elasticnet', l1_ratio=0.5, alpha=0.01, epsilon=0.1)),
         #('regressor', RandomForestRegressor()),
     ])
     return pipeline
@@ -157,7 +210,9 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
     photopic_values = numpy.array([photopic_interpolated(wl) for wl in wavelengths])
     ax1.plot(wavelengths, photopic_values,
         label='Photopic (CIE1931)',
-        color='black', alpha=0.5, linewidth=1.5, transform=blended_transform)
+        color='black', alpha=0.5, linewidth=1.5,
+        #transform=blended_transform,
+    )
 
 
     # 2. Feature importance (absolute coefficients)
@@ -185,7 +240,6 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
     ElasticNet Parameters:
 
     Alpha (λ): {elasticnet.alpha:.4f}
-    L1 Ratio: {elasticnet.l1_ratio:.4f}
 
     Model Statistics:
 
@@ -218,14 +272,17 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
 
 
 
-def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5), error_threshold=50):
+def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5), error_threshold=20, scale_predict=1.0):
     """Create evaluation plots comparing train and test data"""
     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
     # Fit pipeline and predict
     pipeline.fit(X_train, y_train)
-    y_pred_train = pipeline.predict(X_train)
-    y_pred_test = pipeline.predict(X_test)
+    y_pred_train = pipeline.predict(X_train) * scale_predict
+    y_pred_test = pipeline.predict(X_test) * scale_predict
+
+    y_test *= scale_predict
+    y_train *= scale_predict
 
     # Calculate metrics
     test_mse = mean_squared_error(y_test, y_pred_test)
@@ -395,7 +452,6 @@ def plot_sparsity_vs_alpha(grid_search, figsize=(10, 5)):
     num_nonzero_features = results_df['mean_test_num_nonzero'].values
     
     total_features = len(regressor.coef_)
-    l1_ratio = regressor.l1_ratio
     
     # Create subplots
     fig, axes = plt.subplots(1, 2, figsize=figsize)
