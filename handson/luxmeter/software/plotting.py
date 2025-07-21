@@ -17,14 +17,19 @@ pd = pandas
 np = numpy
 
 
-def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
+def plot_model_features(pipeline, X_train,
+    feature_names=None, figsize=(12, 3),
+    wavelength_min=380, wavelength_max=700,
+    error_max=None, error_min=None,
+    ):
     """Plot feature coefficients and regularization analysis"""
     # Get the fitted ElasticNet model
     elasticnet = pipeline.named_steps['regressor']
 
+
+
     # Create subplots
-    fig, axes = plt.subplots(1, 3, figsize=figsize)
-    fig.suptitle('ElasticNet Model Feature Analysis', fontsize=16, fontweight='bold')
+    fig, axes = plt.subplots(1, 2, figsize=figsize, width_ratios=[7, 3])
 
     # 1. Feature coefficients bar plot
     ax1 = axes[0]
@@ -45,11 +50,20 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
         except KeyError:
             print('Unknown feature', name)
             continue
+        if c == 0.0:
+            continue
         y.append(c)
         names.append(channel)
         x.append(center)
 
-    bars = ax1.bar(x, y, color=colors, alpha=0.7, width=5.0)
+    lollipop_size = 30
+
+    # lollipop style    
+    #bars = ax1.bar(x, y, color=colors, alpha=0.7, width=5.0)
+    #bars = ax1.stem(x, y)
+    ax1.vlines(x, 0, y, colors='gray', linewidth=2.0, ls='--', alpha=0.5)
+    ax1.scatter(x, y, s=lollipop_size, c='black', zorder=5)   # Circles
+
     ax1.set_xlabel('Features')
     ax1.set_ylabel('Coefficient Value')
     ax1.set_title('Feature Coefficients')
@@ -57,30 +71,42 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
     #if len(names) <= 20:
     #    ax1.set_xticks(x)
     #    ax1.set_xticklabels(names, rotation=45, ha='right')
+
+    from matplotlib.ticker import MultipleLocator
+
+    ax1.xaxis.set_major_locator(MultipleLocator(50))
+    ax1.yaxis.set_major_locator(MultipleLocator(0.2))
+
     ax1.grid(True, alpha=0.3)
+
 
     # Annotate each bar near its base (y=0)
     # Alternate y-offsets for labels near y=0
-    offsets = [0.0, 0.1]  # Alternate between these values
+    offsets = [-0.05, -0.10]  # Alternate between these values
     import matplotlib.transforms as transforms
-    blended_transform = transforms.blended_transform_factory(ax1.transData, ax1.transAxes)
-    for i, bar in enumerate(bars):
-        x = bar.get_x() + bar.get_width() / 2
-        y = offsets[i % 2]  # alternate between 0.3 and 0.6
+    blended_transform = transforms.blended_transform_factory(ax1.transData, ax1.transData)
+    for i, xx in enumerate(x):
+        if not (xx > wavelength_min and xx < wavelength_max):
+            continue
+        yy = offsets[i % 2]  # alternate between 0.3 and 0.6
         ax1.text(
-            x, y,
+            xx, yy,
             names[i],
             ha='center', va='bottom',
             transform=blended_transform,
-            fontweight='bold', fontsize=12, fontfamily='DejaVu Sans',
+            fontweight='bold', fontsize=10, fontfamily='DejaVu Sans',
         )
-        ax1.axvline(x, ls='--', alpha=0.30, color='black')
+        #ax1.axvline(xx, ls='--', alpha=0.30, color='black')
 
-    ax1.set_xlim(350, 900)
+    ax1.set_xlim(wavelength_min, wavelength_max)
+
+
+    # Add background color
+    color_background_wavelengths(ax1, start=wavelength_min, end=wavelength_max)
 
     # Add photopic function as reference
     from luxmeter_core import photopic_interpolated
-    wavelengths = numpy.linspace(350, 900, 50)
+    wavelengths = numpy.linspace(wavelength_min, wavelength_max, 50)
     photopic_values = numpy.array([photopic_interpolated(wl) for wl in wavelengths])
     ax1.plot(wavelengths, photopic_values,
         label='Photopic (CIE1931)',
@@ -90,11 +116,26 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
 
 
     # 2. Feature importance (absolute coefficients)
-    ax2 = axes[1]
-    sorted_idx = np.argsort(coef_abs)[::-1]
-    top_features = min(15, len(sorted_idx))  # Show top 15 features
+    N = 10
 
-    ax2.barh(range(top_features), coef_abs[sorted_idx[:top_features]], color='steelblue', alpha=0.7)
+
+    ax2 = axes[1]
+    nonzero_coeff_abs = coef_abs
+    sorted_idx = np.argsort(coef_abs)[::-1]
+
+    sorted_idx = [i for i in sorted_idx if coef_abs[i] > 0.0 ] # only non-zero
+
+    top_features = min(N, len(sorted_idx))  # Show top 15 features
+
+
+    feature_weight = coef_abs[sorted_idx[:top_features]]
+    feature_n = range(top_features)
+
+    #ax2.barh(range(top_features), coef_abs[sorted_idx[:top_features]], color='steelblue', alpha=0.7)
+    # lollipop style
+    ax2.hlines(feature_n, 0, feature_weight, color='black', alpha=0.7)
+    ax2.scatter(feature_weight, range(top_features), s=lollipop_size, c='black', zorder=5)   # Circles
+
     ax2.set_xlabel('|Coefficient|')
     ax2.set_ylabel('Features')
     ax2.set_title(f'Top {top_features} Features by Importance')
@@ -102,36 +143,12 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
     ax2.set_yticklabels([feature_names[i] for i in sorted_idx[:top_features]])
     ax2.grid(True, alpha=0.3)
 
-    # 4. Model parameters and sparsity info
-    ax4 = axes[2]
-    ax4.axis('off')
+    ax2.set_ylim(-0.5, N-0.5)
+
 
     # Calculate sparsity metrics
     zero_coef = np.sum(np.abs(elasticnet.coef_) < 1e-10)
     sparsity = zero_coef / len(elasticnet.coef_) * 100
-
-    model_info = f"""
-    ElasticNet Parameters:
-
-    Alpha (λ): {elasticnet.alpha:.4f}
-
-    Model Statistics:
-
-    Total Features: {len(elasticnet.coef_)}
-    Zero Coefficients: {zero_coef}
-    Sparsity: {sparsity:.1f}%
-
-    Intercept: {elasticnet.intercept_:.4f}
-
-    Coefficient Stats:
-    Max: {np.max(elasticnet.coef_):.4f}
-    Min: {np.min(elasticnet.coef_):.4f}
-    Mean: {np.mean(elasticnet.coef_):.4f}
-    Std: {np.std(elasticnet.coef_):.4f}
-    """
-
-    ax4.text(0.1, 0.9, model_info, transform=ax4.transAxes, fontsize=11,
-             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='lightcyan', alpha=0.8))
 
     plt.tight_layout()
 
@@ -146,9 +163,63 @@ def plot_model_features(pipeline, X_train, feature_names=None, figsize=(12, 4)):
     return fig, metrics
 
 
-def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5), error_threshold=20, scale_predict=1.0):
+def wavelength_to_rgb_colour(wavelength):
+   """Simple wavelength to RGB conversion
+
+   XXX: unverified Claude output
+   """
+   if 380 <= wavelength < 440:
+       R = -(wavelength - 440) / (440 - 380)
+       G = 0.0
+       B = 1.0
+   elif 440 <= wavelength < 490:
+       R = 0.0
+       G = (wavelength - 440) / (490 - 440)
+       B = 1.0
+   elif 490 <= wavelength < 510:
+       R = 0.0
+       G = 1.0
+       B = -(wavelength - 510) / (510 - 490)
+   elif 510 <= wavelength < 580:
+       R = (wavelength - 510) / (580 - 510)
+       G = 1.0
+       B = 0.0
+   elif 580 <= wavelength < 645:
+       R = 1.0
+       G = -(wavelength - 645) / (645 - 580)
+       B = 0.0
+   elif 645 <= wavelength <= 780:
+       R = 1.0
+       G = 0.0
+       B = 0.0
+   else:
+       R = G = B = 0.0
+   
+   return (R, G, B)
+
+
+def color_background_wavelengths(ax, start=380, end=800, r=1):
+
+    wl_range = np.arange(start, end, r)
+    colors = np.array([wavelength_to_rgb_colour(wl) for wl in wl_range])
+
+    # Create gradient that spans full height regardless of y-limits
+    gradient = colors.reshape(1, -1, 3)
+    ax.imshow(gradient, aspect='auto', 
+              extent=[start, end, 0, 1],  # 0 to 1 in axes coordinates
+              transform=ax.get_xaxis_transform(),  # X in data coords, Y in axes coords
+              alpha=0.2, zorder=0)
+
+
+def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(12.4, 6),
+    error_threshold=20,
+    error_min=None, error_max=None,
+    scale_predict=1.0):
     """Create evaluation plots comparing train and test data"""
     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+    if error_max is not None and error_min is None:
+        error_min = -error_max
 
     # Predict
     y_pred_train = pipeline.predict(X_train) * scale_predict
@@ -168,7 +239,6 @@ def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5),
 
     # Create subplots
     fig, axes = plt.subplots(1, 2, figsize=figsize)
-    fig.suptitle('Model Evaluation: Train vs Test Comparison', fontsize=16, fontweight='bold')
 
     # 1. Actual vs Predicted for both train and test
     ax1 = axes[0]
@@ -196,6 +266,8 @@ def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5),
     ax1.set_title('Actual vs Predicted')
     ax1.legend()
     ax1.grid(True, alpha=0.3)
+    ax1.set_aspect('equal', adjustable='box')
+
 
     # 2. Residuals plot for both train and test
     ax2 = axes[1]
@@ -217,6 +289,8 @@ def plot_evaluation(pipeline, X_train, X_test, y_train, y_test, figsize=(10, 5),
     ax2.set_title('Residuals vs Predicted')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
+    if error_max is not None:
+        ax2.set_ylim(error_min, error_max)
 
     plt.tight_layout()
     fig.savefig('evaluation.png')
@@ -246,7 +320,6 @@ def plot_gridsearch_results(grid_search, alpha_range, figsize=(10, 5)):
 
     # Create subplots
     fig, axes = plt.subplots(1, 2, figsize=figsize)
-    fig.suptitle('ElasticNet Alpha Grid Search Results', fontsize=16, fontweight='bold')
 
     feature = 'rmse'
     mean_train_score = -results_df['mean_train_'+feature]

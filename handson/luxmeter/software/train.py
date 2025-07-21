@@ -83,7 +83,7 @@ def evaluate_pipeline(pipeline, data,
     pipeline.fit(X_train, y_train)
 
     predictions_fig, _ = plot_evaluation(pipeline,  X_train, X_test, y_train, y_test,
-        scale_predict=scale_predict, error_threshold=error_threshold)
+        scale_predict=scale_predict, error_threshold=error_threshold, error_max=10*error_threshold)
     features_fig, _ = plot_model_features(pipeline,  X_train, feature_names=X.columns)
 
     # Error analysis

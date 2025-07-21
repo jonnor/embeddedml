@@ -41,9 +41,7 @@ My currently lacks this dome, so is only correct for light coming in from the fr
 
 ### Baseline comparison
 
-- Fix figure titles. Clean up the look/style a bit
 - Include the approx gaussians in the feature plot window
-- Maybe remove importance plot?
 
 
 ### On-device learning
