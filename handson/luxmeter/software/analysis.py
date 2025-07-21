@@ -40,10 +40,9 @@ def load_files(directory, fixup_shape=False):
         experiment, color_temp, _, lux, _ = match[0]
 
         avg = numpy.median(data, axis=0)
-        assert len(avg) == 18
+        assert len(avg) == 18, len(avg)
 
         # TODO: include all values, add measurement index
-        # FIXME: add proper column names
         columns = ['ch_'+ch for ch in CHANNEL_MAP]
         df = pandas.DataFrame(data, columns=columns)
         df['datapoint'] = numpy.arange(len(df))
@@ -52,9 +51,6 @@ def load_files(directory, fixup_shape=False):
         df['experiment'] = experiment
         df['lux'] = int(lux)
         df['colortemp'] = int(color_temp)
-
-        #print(avg)
-        #print(filename)
 
         dfs.append(df)
 
@@ -74,7 +70,6 @@ def main():
     fig.savefig(plot_path)
     print('Wrote', plot_path)
 
-    # XXX: when using raw, there is no clear linear relationship with Lux
 
     index = ['filename']
     avg = df.groupby(index).agg('median', numeric_only=True)
