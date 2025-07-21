@@ -25,7 +25,7 @@ from sklearn.model_selection import cross_validate, GroupShuffleSplit, GridSearc
 from sklearn.metrics import make_scorer
 
 from analysis import load_files
-from luxmeter_core import AS7343_INFO
+from luxmeter_core import AS7343_INFO, AS7343_CHANNEL_MAP
 from preprocessing import IdentityScaler
 from plotting import plot_gridsearch_results, plot_sparsity_vs_alpha, plot_evaluation, plot_model_features
 
@@ -125,6 +125,46 @@ def create_pipeline(n_components=10, positive=True, fit_intercept=True, scaler=N
         #('regressor', SGDRegressor(loss='epsilon_insensitive', penalty='elasticnet', l1_ratio=0.5, alpha=0.01, epsilon=0.1)),
     ])
     return pipeline
+
+
+def export_linreg_pipeline(out : str, pipeline, features : list[str]):
+    """
+    Export a sklearm Pipeline for linear regression.
+
+    Must have these steps:
+    "scaler": a linear scaler for features, such as StandardScaler/MinMaxScaler/RobustScaler/FixedScaler/IdentityScaler
+    "regressor": a sklearn.linear_model Estimator
+    """
+
+    scaler = pipeline.named_steps['scaler']
+    regressor = pipeline.named_steps['regressor']
+    assert len(pipeline.named_steps) == 2, pipeline.named_steps
+    
+    # We adapt the model to respect the original ordering/number of channels
+    # Unused features will just be zeroed
+    all_channels = AS7343_CHANNEL_MAP
+    n_channels = len(all_channels)
+    scale_min = numpy.zeros(n_channels)
+    scale_mul = numpy.zeros(n_channels)
+    regressor_weights = numpy.zeros(n_channels)
+    
+    for channel_idx, channel in enumerate(all_channels):
+        feature = 'ch_'+channel
+        if feature not in features:
+            #print('Unused', channel, feature)
+            continue
+        feature_idx = features.index(feature)
+        scale_min[channel_idx] = scaler.min_[feature_idx]
+        scale_mul[channel_idx] = scaler.scale_[feature_idx]
+        regressor_weights[channel_idx] = regressor.coef_[feature_idx]
+
+    # Duplicate bias just to make it compatible in shape with the rest
+    regressor_bias = numpy.array([regressor.intercept_] * n_channels)
+    
+    combined = numpy.stack([ scale_min, scale_mul, regressor_bias, regressor_weights ]).astype(float)
+    
+    numpy.save(out, combined)
+    return combined
 
 
 def gridsearch_alpha(X_train, y_train, cv=5, groups=None):

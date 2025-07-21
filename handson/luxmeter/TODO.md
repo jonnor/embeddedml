@@ -41,35 +41,19 @@ My currently lacks this dome, so is only correct for light coming in from the fr
 
 ### Baseline comparison
 
-- Show comparison between models. A) photopic Lux B) FY channel C) Learned coefficients
-- Add a FixedScaled and move the Lux scaling there
-- Do lux estimate using photopic without modifying original inputs
-- Add a distribution plot of errors, with reference lines
-- Update on-device code. Multiply output value
-- Apply target scaling values in all plots
-- Include the approx gaussians in the feature plot window. Remove importance plot?
-- See if the outlier values that appear on some regression fits, are indeed outliers
-Like, try to remove from dataset, see resulting models?
+- Fix figure titles. Clean up the look/style a bit
+- Include the approx gaussians in the feature plot window
+- Maybe remove importance plot?
 
-
-White LEDs have a peak around 450 nm, the FZ channel. Especially prominent for cold temps
-https://www.digikey.com/en/articles/defining-the-color-characteristics-of-white-leds
-
-How LEDs are useful for fluorescence microscopy
-https://zeiss-campus.magnet.fsu.edu/print/lightsources/leds-print.html
-
-16 channels with wavelenths for fluorescence microscopy. From 365 nm to 770 nm
-https://www.coolled.com/products/pe-4000/
 
 ### On-device learning
 
 - Try to re-implement the learning in MicroPython, run on-device
-MinMaxScaler
-Random sampling from files?
-train_test split. Ideally respecting groups
-RMSE error reporting
-r2 metric calculation
-- ? positive constraint in emlearn_linreg ?
+- Load samples? Can just take first item. Should ignore the outliers files
+- train_test split. Ideally respecting groups
+- RMSE error reporting
+- r2 metric calculation
+
 
 ### More functional Lux meter
 Main problem: Only really accepts light straigth from the front
@@ -79,11 +63,11 @@ Main problem: Only really accepts light straigth from the front
 - Disable the red power LED
 
 
-
 ### Ambient light sensing with basic components
 
 Showcasing linear regression.
 Without using any special components.
+Just using LEDs and diodes (for temperature compensation).
 
 #### Video script
 Did you know you can measure light with an LED?
@@ -166,4 +150,14 @@ Solder LEDs and diodes to M5StickC protoboard.
 After brief check on breadboard, of diode.
 ! only 3 GPIO on M5StickC hat connector.
 
+
+### Random
+White LEDs have a peak around 450 nm, the FZ channel. Especially prominent for cold temps
+https://www.digikey.com/en/articles/defining-the-color-characteristics-of-white-leds
+
+How LEDs are useful for fluorescence microscopy
+https://zeiss-campus.magnet.fsu.edu/print/lightsources/leds-print.html
+
+16 channels with wavelenths for fluorescence microscopy. From 365 nm to 770 nm
+https://www.coolled.com/products/pe-4000/
 
