@@ -53,6 +53,9 @@ AS7343_CHANNEL_MAP = [
     "F1", "F7", "F8", "F5", "VIS3_TL", "VIS3_BR",    # Cycle 3
 ]
 
+# Photopic luminous efficacy of radiation has a maximum possible value of 683.002 lm/W
+PHOTOPIC_LUMINOUS_EFFICACY = 683.0
+
 def photopic_stockman_sharpe(wavelength):
     """
     Stockman & Sharpe approximation based on L+M cone fundamentals

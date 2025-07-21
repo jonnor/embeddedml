@@ -106,16 +106,21 @@ def evaluate_pipeline(pipeline, data,
 
 
 
-def create_pipeline(n_components=10, positive=True, fit_intercept=True, scaler=MinMaxScaler):
+def create_pipeline(n_components=10, positive=True, fit_intercept=True, scaler=None):
     """Create sklearn pipeline with MinMaxScaler and ElasticNet"""
 
-    pipeline = Pipeline([
-        #('scaler', StandardScaler()),
-        ('scaler', scaler()),
-        #('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=positive, fit_intercept=fit_intercept))
+    if scaler is None:
+        scaler = MinMaxScaler()
 
+    pipeline = Pipeline([
+        ('scaler', scaler),
+
+        # many options for linear models. L1 regression does automatic feature selection
         # QuantileRegressor is more robust, has ability to reject some outliers in training data
         ('regressor', QuantileRegressor(quantile=0.5, alpha=0.01, solver='highs', fit_intercept=fit_intercept)),
+
+        #('regressor', ElasticNet(alpha=0.0001, l1_ratio=0.5, random_state=42, max_iter=100000, positive=positive, fit_intercept=fit_intercept))
+
         #('regressor', SGDRegressor(loss='huber', penalty='elasticnet', l1_ratio=0.5, alpha=0.01, epsilon=1.35)),
         #('regressor', SGDRegressor(loss='epsilon_insensitive', penalty='elasticnet', l1_ratio=0.5, alpha=0.01, epsilon=0.1)),
     ])

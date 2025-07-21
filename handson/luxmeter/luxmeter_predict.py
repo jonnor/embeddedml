@@ -2,18 +2,18 @@
 import npyfile
 import array
 
-from luxmeter_core import load_pipeline
+from luxmeter_core import load_pipeline, PHOTOPIC_LUMINOUS_EFFICACY
 
 
-pipeline_path = 'pipeline.npy'
+pipeline_path = 'notebooks/pipeline.npy'
 n_features = 18
 scaler, model = load_pipeline(pipeline_path, expect_features=n_features)
 
 data_paths = [
-    'data/rgb33_100h_156lux.npy',
-    'data/rgb33_0h_55lux.npy',
-    'data/rgb1_120h_395lux.npy',
-    'data/rgb1_180h_714lux.npy',
+    'data/one/rgb33_100h_156lux.npy',
+    'data/one/rgb33_0h_55lux.npy',
+    'data/one/rgb1_120h_395lux.npy',
+    'data/one/rgb1_180h_714lux.npy',
 ]
 for data_path in data_paths:
     print(data_path)
@@ -29,7 +29,7 @@ for data_path in data_paths:
         sample = array.array('f', (data[offset+i] for i in range(n_features)))
         t = scaler.transform(sample)
 
-        out = model.predict(t)
+        out = model.predict(t) * PHOTOPIC_LUMINOUS_EFFICACY
         print(out, data_path)
 
 
