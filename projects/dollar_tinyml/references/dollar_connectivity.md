@@ -17,17 +17,18 @@ For example 1 MB, collected over some hours or days.
 Use USB? Tricky, most solutions too expensive.
 Use SDcard? Unknown
 
-## Audio
-
-http://web.eecs.umich.edu/~prabal/projects/hijack/
-
 ## Visible light / LEDs
+
+?
+
+
+## Audio
 
 ### WebJack
 https://webjack.io/
 
 SoftModem Arduino library
-to create two-way communication between a browser windo
+to create two-way communication between a browser window.
 Bell 202 modem-like
 FSK 1225 bit/s
 
@@ -36,9 +37,16 @@ FSK 1225 bit/s
 300 baud data transfer using Bell 202 FSK signaling, or
 8.82 kbaud using a Manchester-encoded, direct-digital communication using hardware accelerators on the HiJack microcontroller.
 
+
+### ggwave
 https://github.com/ggerganov/ggwave
 8-16 bytes/sec depending on the protocol parameter
 Provides libraries for many platforms, including Arduino and WebAssembly
+Using error correction codes. Quite robust.
+Uses FSK.
+Implemented in C++.
+Can do 8-16 bytes/sec.
+MIT licensed
 
 https://github.com/weckbach/AstroMech
 

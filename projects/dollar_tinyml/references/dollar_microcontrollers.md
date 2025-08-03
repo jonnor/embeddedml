@@ -17,7 +17,7 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - WCH CH571. `0.40 USD @ 1k`. BLE+USB
 - WCH CH582F. `0.68 USD @ 1k`. BLE+USB
 - CH32V203. 64 kB RAM / 256 kB. USB. 0.35 USD @ 1k.
-- CH32X035. 64 kB RAM / 256 kB. USB. OPA/PGA. 0.28 USD @ 1k.
+- CH32X035. 64 kB RAM / 256 kB. USB. OPA/PGA. 0.25 USD @ 1k.
 - ATTiny with 4KB FLASH / 512 bytes RAM
 `0.4 USD @ 1k`
 - STM32G030F6P6 0.30 USD 32 kB FLASH / 8 kB RAM.
@@ -28,6 +28,8 @@ Prices are per Jan 2024, according to [LCSC](https://www.lcsc.com/).
 - WCH CH32V003. RISC-V
 16KB FLASH / 2KB RAM.  48MHz QFN-20
 `0.15 USD @ 1k`
+- WCH CH32V006. RISC-V. 8 kB RAM. 48 Khz.
+`0.13 USD @ 1k`
 - PY32F003. Cortex M0+
 `0.15 USD @ 1k`
 64 Kb FLASH / 8 kB RAM. 24 Mhz. DMA
@@ -97,6 +99,34 @@ https://github.com/Taoyukai/wch_kicad_library
 Flashing tools for low-cost microcontrollers. Implemented in pure Python
 https://github.com/wagiminator/MCU-Flash-Tools
 
+## WCH CH32V006
+
+Like CH32V003 but with more RAM, FLASH and pins.
+
+CH32V005 is same, but no TouchKey support or TIM3. Missing OPA polling.
+CH32V005 is same, but tailored for motor control. High voltage ADC, 3 channels.
+
+Integrated opamp is very interesting for audio type applications.
+Har programmable gain, and comparator.
+DMA.
+ADC is just 12 bits. But PGA should make it possible to get much more out of it compared to static gain.
+
+- Gain Bandwidth product. 64 Mhz. Super
+- Equivalent noise leve. 60 - 100 nV/sqrt(Hz) @ 1 Khz. Not so good... Want 20 nV at 10 Khz
+- Slew rate. 10 V/us. Super, way above 0.25 needed
+- Current consumption. 1.4 mA. Not great. Around 5-10x external competitors
+
+Might get better noise figures by having a common-emitter first stage?
+Goal would be to add 10-100x gain with that, to bring up the signal a bit.
+Like a BC849C.
+
+CH32V006F8U6 available at LCSC. QFN-20 pin. 18 gpio.
+
+Has Zephyr support!
+https://docs.zephyrproject.org/latest/boards/wch/ch32v006evt/doc/index.html
+
+CH32V005D6U6 is QFN-12. `0.10 USD @ 1k`. 32 kB FLASH, 6 kB RAM.
+
 ## Puya PY32F0
 
 PY32F002A/003/030 considered very similar.
@@ -121,6 +151,7 @@ Open source toolchain here
 https://github.com/IOsetting/py32f0-template/
 Based on STM32HAL, GCC, JLINK
 
+PY32F003F16U6.
 
 ### Padauk
 
@@ -151,10 +182,11 @@ Documentation primarily in Chinese. Only a little bit in English.
 
 SPI NOR FLASH
 
-- ZD25Q16CTIGT  2 MB   `0.09 USD @ 1k`
-- ZD25WD20BUIGR 256 kB `0.05 @ 1k`
+- xx 25Q16   2 MB   `0.09 USD @ 1k`
+- xx 25Q8    1 MB   `0.08 USD @ 1k`
+- xx 25WD20  256 kB `0.05 @ 1k`
 
+SOIC8 or USON8. Or WSON8
 
-
-
+https://docs.zephyrproject.org/latest/build/dts/api/bindings/mtd/jedec%2Cspi-nor.html
 
