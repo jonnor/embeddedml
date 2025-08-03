@@ -2,9 +2,14 @@
 
 25 Aug 2025 - 27 Aug 2025, Amsterdam
 
-https://events.linuxfoundation.org/open-source-summit-europe/program/cfp/
+## Event
+
+https://osseu2025.sched.com/event/25Voe/machine-learning-on-microcontrollers-with-zephyr-and-emlearn-jon-nordby-soundsensing
+
 
 ## Title
+
+Machine Learning on Microcontrollers With Zephyr and emlearn
 
 ## Description
 

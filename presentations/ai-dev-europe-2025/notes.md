@@ -3,6 +3,10 @@
 
 Machine Learning on microcontrollers; tiny systems with widespread applications
 
+## Conference link
+
+https://aideveu2025.sched.com/event/25TvE/machine-learning-on-microcontrollers-tiny-useful-and-fun-jon-nordby-soundsensing
+
 ## Description
 
 In recent years, generative AI models have come to dominate the discourse around artificial intelligence and machine learning.
