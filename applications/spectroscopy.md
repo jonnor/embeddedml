@@ -74,6 +74,118 @@ Shows different concentrations.
 Big differences at 330-420nm.
 
 
+
+#### EU regulations
+
+Commission Delegated Regulation (EU) 2022/2104 of 29 July 2022 supplementing Regulation (EU) No 1308/2013 of the European Parliament and of the Council as regards marketing standards for olive oil, and repealing Commission Regulation (EEC) No 2568/91 and Commission Implementing Regulation (EU) No 29/2012
+https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A02022R2104-20240610
+
+Commission Delegated Regulation (EU) 2022/2104 of 29 July 2022 supplementing Regulation (EU) No 1308/2013 of the European Parliament and of the Council as regards marketing standards for olive oil, and repealing Commission Regulation (EEC) No 2568/91 and Commission Implementing Regulation (EU) No 29/2012
+https://eur-lex.europa.eu/legal-content/en/TXT/?uri=CELEX%3A32022R2104
+
+Commission Regulation (EEC) No 2568/91 of 11 July 1991 on the characteristics of olive oil and olive-residue oil and on the relevant methods of analysis
+Date of end of validity: 23/11/2022; Repealed by 32022R2104
+https://eur-lex.europa.eu/eli/reg/1991/2568/oj/eng
+
+European regulation for the commercial classification into EVOO, VOO, and LOO categories.
+The quality is determined by both chemical parameters, such as acidity and peroxide index, and sensory parameters, such as the fruity median and the median defect.
+
+#### Exploration of Spanish Olive Oil Quality with a Miniaturized Low-Cost Fluorescence Sensor and Machine Learning Techniques
+https://www.mdpi.com/2304-8158/10/5/1010
+April 2021.
+Cited by 30x by 2025.
+
+Used LED at 395 nm.
+Used a spectrometer.
+Used a Raspberry PI.
+
+Miniature spectrometer (STS-Vis, Ocean Optics, Dunedin, FL, USA).
+1024-element CCD array which acquires the entire spectrum in one single measurement.
+The resolution of the spectrometer was 16 nm.
+The spectrometer was placed at 90∘ with respect to the LED to avoid the LED light transmitted by the sample to reach the spectrometer.
+
+The sensor has a very small footprint of 12.5 cm × 12.5 cm × 5 cm.
+
+All measurements were taken under ambient conditions in a single day to avoid different aging of the olive oils to influence the results.
+The description of the samples is reported in Section 2.1.
+For each olive oil sample, 20 measurements were performed. A total of 27 samples × 20 measurements produced 540 spectra.
+The integration time is 1 second.
+
+Support vector machines (SVM), naïve Bayes (NB), multinomial logistic regression (MLR), PCA combined with LDA, decision tree (DT), ANN, RF, and k-NN.
+
+680 nm area seems highly discriminative.
+Also differences at around 720 nm.
+
+#### Development of Rapid Extra Virgin Olive Oil Quality Assessment Procedures Based on Spectroscopic Techniques 
+https://www.mdpi.com/2073-4395/10/1/41
+
+Tested under different days under ambient light.
+2 days, 4 weeks, and darkness 4 weeks
+
+QE Pro spectrometer (Ocean Optics, Inc., Dunedin, FL, USA) with a CCD image sensor and detection wavelengths ranging from 197 nm to 998,763 nm.
+
+! nice 2d plot of fluoresence, exitation vs emission.
+
+Exhitation at 326 nm, 350 nm, 365 nm
+
+PSLR analysis.
+Estimated total tocopherols,  K232, 
+
+Excitation at 350 nm provided the most useful emission spectra since the estimation models provided R2
+close to 0.9 for acidity, K232 and total tocopherol content.
+The R2 was close to 0.7 for the peroxide index.
+
+#### Rapid synchronous fluorescence method for virgin olive oil adulteration assessment
+https://www.sciencedirect.com/science/article/abs/pii/S0308814606010041
+2007
+
+> Differentiation of virgin olive from olive-pomace, corn, sunflower, soybean, rapeseed and walnut oils using total synchronous fluorescence (TSyF) spectra.
+> TSyF spectra are acquired by varying the excitation wavelength in the region 250–720 nm
+> and the wavelength interval (Δλ) in the region from 20 to 120 nm.
+> It is shown that adulterants can be discriminated from virgin olive oil using a wavelength interval of 20 nm
+> and excitation wavelength region 315–400, 315–392, 315–375, 315–365, 315–375 and 315–360
+> for olive-pomace, corn, sunflower, soybean, rapeseed and walnut oils, respectively.
+> Thirty one virgin olive oil mixtures with each potential adulterant were prepared at varying levels with emphasis at low concentrations.
+> The partial least-squares regression model was used to quantify adulteration.
+> This technique is useful for detection of olive-pomace, corn, sunflower, soybean, rapeseed
+> and walnut oil in virgin olive oil at levels of 2.6%, 3.8%, 4.3%, 4.2%, 3.6%, and 13.8% (w/w), respectively.
+
+
+#### Predicting extra virgin olive oil freshness during storage by fluorescence spectroscopy
+https://www.researchgate.net/publication/322316588_Predicting_extra_virgin_olive_oil_freshness_during_storage_by_fluorescence_spectroscopy
+2018
+
+> The observed change in the selected spectral features and mathematical modelling over time was
+> compared with the accepted model for predicting the amount of pyropheophytin a, which is based on isokinetic studies.
+> The best regression was obtained for 655 nm (adjusted-R2 = 0.91) wavelength,
+> which matches the distinctive band of pigments.
+> The two mathematical models described in this study highlight the usefulness of pigments in the prediction of the shelf-life of extra virgin olive oil.
+
+Two extravirgin olive oils (EVOO) that were stored for 18 months.
+
+chlorophylls decreate over time.
+Pyropheophytin a increases over time.
+Both have emission around 650-680 nm.
+
+Overall a large decrease in fluoresence intensity at around 680 nm over time.
+
+Chose to relate emission at 655 nm (λex= 350 nm), with age. Shows a nice curve fit.
+
+
+
+#### Shedding light on the ageing of extra virgin olive oil: Probing the impact of temperature with fluorescence spectroscopy and machine learning techniques
+https://www.sciencedirect.com/science/article/pii/S0023643823012586
+January 2024
+
+> The ML approach indicates that the two excitation wavelengths (480 nm) and (300 nm) exhibit the maximum relative change in fluorescence intensity during the ageing for the majority of the oils, thus identifying the wavelengths which are more informative for quality prediction.
+
+> Such a method is of interest because it paves the way to the realization of a low-cost, portable device for in-field quality control.
+> The following study demonstrates that fluorescence spectroscopy has the capability to monitor the effect of oxidation and assess the quality of EVOO,
+> even when the data are highly aggregated.
+> It shows that complex laboratory equipment is not necessary to exploit fluorescence spectroscopy using the proposed method
+> and that cost-effective solutions, which can be used in-field by non-scientists, could provide an easily-accessible assessment of the quality of EVOO.
+
+
 #### Application of steady-state and time-resolved fluorescence spectroscopy in identification of cold-pressed vegetal oils
 
 Fluorescence emission spectra of the studied cold-pressed vegetal oils:
