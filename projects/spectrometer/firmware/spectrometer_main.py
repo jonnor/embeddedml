@@ -6,15 +6,52 @@ import array
 from aw9523 import AW9523
 from as7343 import AS7343
 
-i2c = machine.I2C("i2c1")
-ext = AW9523(i2c, address=0x5b)
-as7343 = AS7343(i2c)
+i2c_int = machine.I2C("i2c0")
+
+i2c_ext = machine.I2C("i2c1")
+ext = AW9523(i2c_ext, address=0x5b)
+as7343 = AS7343(i2c_ext)
 
 as7343.set_measurement_time(200) # ms
 as7343.set_integration_time(100*1000, repeat=1) # us
 as7343.start_measurement()
 
+
+from machine import Pin, SoftI2C
+
+
+from color_setup import ssd  # Create a display instance
+from gui.core.nanogui import refresh
+from gui.core.writer import Writer
+from gui.widgets.meter import Meter
+from gui.widgets.label import Label
+import gui.fonts.courier20 as fixed
+
+
+def test_screen():
+    ssd.fill(0)
+    refresh(ssd)
+    Writer.set_textpos(ssd, 0, 0)  # In case previous tests have altered it
+    wri = Writer(ssd, fixed, verbose=False)
+    wri.set_clip(False, False, False)
+    textfield = Label(wri, 0, 2, wri.stringlen('longer'))
+    numfield = Label(wri, 25, 2, wri.stringlen('99.99'), bdcolor=None)
+    countfield = Label(wri, 0, 90, wri.stringlen('1'))
+    n = 1
+    for s in ('short', 'longer', '1', ''):
+        textfield.value(s)
+        numfield.value('{:5.2f}'.format(40400 /1000))
+        countfield.value('{:1d}'.format(n))
+        n += 1
+        refresh(ssd)
+        time.sleep(2)
+    textfield.value('Done', True)
+    refresh(ssd)
+
+
 while True:
+
+    test_screen()
 
     order = AS7343.CHANNEL_MAP
 
