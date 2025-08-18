@@ -11,6 +11,33 @@ Wednesday, August 20, 1:30 PM
 Room 1.19 (Ground Floor)
 Computational Tools and Scientific Python Infrastructure
 
+30 minutes slot.
+20-25 minutes + QA.
+
+## Communication goals
+
+> You as a scientist, or engineer supporting scientists,
+
+> become familiar with how to create custom sensor systems
+> using microcontrollers and (Micro)Python
+
+> including on-sensor data processing
+> like digital signal procesing and machine learning
+> using emlearn
+
+
+### Take aways
+
+- Many scientific applications rely on collecting a lot of physical data
+- Wireless communication and battery operation often highly desirable for low-cost, scaling deployments
+- Wireless sensor nodes are typically using a microcontroller
+- Microcontrollers can be programmed in Python using MicroPython
+- Microcontrollers can do a decent amount of data processing,
+Including audio and image datam and machine learning inference
+- MicroPython has good tools for sensor data processing,
+including connectivity, storage, performance (Viper/ASM/C modules)
+- There are good ecosystem of libraries
+Including ulab, emlearn, OpenMV et.c.
 
 
 ## Outline
@@ -24,6 +51,16 @@ Broad categories
 - About MicroPython
 - Tools and practices for efficient sensor data processing in MicroPython
 
+## Scope
+
+Out-of-scope / scope limitations
+
+Tradeoffs/strategies for different wireless protocols
+Just mention that the relevant options are generally supported in MicroPython
+
+Explanation of how the different optimizations work
+Cover briefly. Refer to PyConZA presentation for details.
+
 ## Planning
 
 ### About MicroPython
@@ -31,6 +68,20 @@ Pick from existing presentations. Ex FOSDEM.
 
 ### Tools and practices for efficient sensor data processing in MicroPython
 Pick from PyConZA presentation
+
+
+
+### MicroPython Data Science ecosystem
+
+? 
+
+ulab
+emlearn
+micropython-npyfile
+
+OpenMV
+https://github.com/sparkfun/micropython-opencv
+
 
 ### Sensor nodes and Wireless Sensor Networks
 
@@ -51,6 +102,7 @@ Could be in terms of "typical architectures"?
 Motivation for ML on edge: Being able to transmit
 - MEMS sensors ? Could be covered under applications also
 - Batching of data. Very beneficial. Reducing wakeup times.
+
 
 
 ####  WiFi
@@ -112,11 +164,58 @@ Zigbee uses same transports.
 
 ### Scientific applications
 
-- Ecology
-- Biology?
-- Animal husbandry, livestock
-- Agriculture, farming
-- Human health
+Environmental Sciences
+
+Meteorology - weather stations, satellites
+Oceanography - buoys, underwater sensors
+Ecology - wildlife tracking, environmental monitoring
+
+Earth Sciences
+
+Seismology - earthquake detection
+Geology - ground movement, volcanic activity
+Hydrology - water flow, quality monitoring
+
+Life Sciences
+
+Physiology - heart rate, brain activity, blood chemistry
+Neuroscience - EEG, fMRI, neural implants
+Biology - microscopy sensors, DNA sequencers
+
+Physics & Engineering
+
+Particle Physics - detectors in accelerators
+Astronomy - telescopes, space-based sensors
+Materials Science - stress, temperature, electromagnetic properties
+
+Applied Fields
+
+Medicine - diagnostic imaging, patient monitoring
+Agriculture - soil sensors, crop monitoring
+Transportation - GPS, speed sensors, collision detection
+
+### WSN applications
+
+Especially relevant when measuring at many locations
+And want coverage over time
+
+*Spatio-temporal* data
+
+
+### Examples at different complexity levels
+
+Output data rate on LoRaWAN ex,
+40 bytes every 10 minutes
+
+
+- Low datarate logging
+Sleep, measure+send, sleep
+No or very simple data processing on edge. Basic averaging/filters etc.
+No particular benefit of doing more advanced.
+
+- Med
+
+
 
 #### For sound
 
@@ -148,5 +247,42 @@ Tasks
 - Wildlife cameras
 
 #### Other
+
+## Unrelated
+
+#### Building C programs and running in browser
+
+For usage with Jupyter Lite for emlearn tutorials etc.
+
+Would need to create a Python module, build it with PyScript,
+and expose an API that allows to compile a file.
+
+
+xcc
+https://github.com/tyfkda/xcc
+Standalone C compiler/assembler/linker/libc for x86-64/aarch64/riscv64/wasm 
+Has browser demo of compiling C to WASM and running it
+
+
+tcc
+https://repo.or.cz/tinycc.git/
+https://github.com/TinyCC/tinycc
+No WASM backend?
+
+wasmtime/cranelift
+https://github.com/bytecodealliance/wasmtime/issues/2566
+No WASM backend?
+
+lcc
+https://github.com/drh/lcc
+C89 only, not C99
+
+
+
+Server-side approaches with APIs
+
+https://github.com/compiler-explorer/compiler-explorer
+
+https://github.com/judge0/judge0
 
 
