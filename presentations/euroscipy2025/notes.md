@@ -14,6 +14,8 @@ Computational Tools and Scientific Python Infrastructure
 30 minutes slot.
 20-25 minutes + QA.
 
+Approx 20-25 slides.
+
 ## Communication goals
 
 > You as a scientist, or engineer supporting scientists,
@@ -39,6 +41,16 @@ including connectivity, storage, performance (Viper/ASM/C modules)
 - There are good ecosystem of libraries
 Including ulab, emlearn, OpenMV et.c.
 
+
+## Summary
+
+- Many scientific applications rely on collecting a lot of physical data
+- Large deployments possible with low-cost Wireless Sensor Networks
+- Sensor nodes can be developed in Python, using MicroPython on microcontroller
+- MicroPython has good tools for sensor data processing,
+including connectivity, storage, performance (Viper/ASM/C modules)
+- Good ecosystem of libraries for data processing,
+including machine learning with emlearn-micropython
 
 ## Outline
 
@@ -83,6 +95,28 @@ OpenMV
 https://github.com/sparkfun/micropython-opencv
 
 
+### Classification representation
+
+#### Class proportions/distribution.
+Need hard thresholding.
+
+N bits per class.
+Say 8 bits, 5 classes = 5 bytes.
+
+Send every N minutes. Ex 5 or 15 minutes
+
+Could pack N such consecutive into a single packet.
+Ex have 4x every 20 minutes, for 5 minute resolution.
+20 bytes total.
+
+#### Cow activity Damle
+3 second long segments
+50hz
+20 bytes features
+1 byte classification
+
+LoRaWAN energy per byte. Ranges around 0.5 - 10 mJ per byte.
+
 ### Sensor nodes and Wireless Sensor Networks
 
 Existing slide(s)
@@ -108,7 +142,6 @@ Motivation for ML on edge: Being able to transmit
 ####  WiFi
 Very easy. Very well supported.
 Not power efficient. WiFi 6 improves
-
 
 #### Cellular
 LTE CAT M1 / LTE CAT NB "narrowband iot"
@@ -262,7 +295,8 @@ xcc
 https://github.com/tyfkda/xcc
 Standalone C compiler/assembler/linker/libc for x86-64/aarch64/riscv64/wasm 
 Has browser demo of compiling C to WASM and running it
-
+Seems the best option
+PyPi package exist, but is empty
 
 tcc
 https://repo.or.cz/tinycc.git/
