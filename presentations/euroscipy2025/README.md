@@ -4,7 +4,10 @@ With focus on scientific applications.
 
 #### Slides
 [.PPTX](<EuroSciPy 2025 - Sensor data processing on microcontrollers with MicroPython.pptx>)
-[.PDF](<EuroSciPy 2025 - Sensor data processing on microcontrollers with MicroPython.pdf>)
+| [.PDF](<EuroSciPy 2025 - Sensor data processing on microcontrollers with MicroPython.pdf>)
+
+#### Notes
+[Notes](./notes.md) | [Proposal](./proposal.md)
 
 ## Abstract
 Being able to sense physical phenomena is critical to many areas of science;
