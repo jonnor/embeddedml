@@ -6,6 +6,8 @@ import array
 from aw9523 import AW9523
 from as7343 import AS7343
 
+from encoder import M5StackEncoder
+
 i2c_int = machine.I2C("i2c0")
 
 i2c_ext = machine.I2C("i2c1")
@@ -49,36 +51,78 @@ def test_screen():
     refresh(ssd)
 
 
-while True:
+def test_encoder():
 
-    test_screen()
+    encoder = M5StackEncoder(i2c_ext)
 
-    order = AS7343.CHANNEL_MAP
+    #encoder.set_mode('pulse')
+    #encoder.reset_counter()
 
-    print(order)
-    # measure without exitation
-    ext[0:16] = 0
-    time.sleep(1.00)
-    # XXX: make sure to flush out old readings from FIFO
-    for i in range(20):
-        readings = as7343.read()
-    #as7343.stop_measurement()
-    values = array.array('f', (readings[c] for c in order))
-    print('off     ', readings['F7'], values)
-    time.sleep(1.00)
+    color1 = bytearray([255, 0, 255])
+    color2 = bytearray([0, 255, 0])
+
+    accumulated = 0
+    while True:
+
+        intensity = (accumulated/20000)
+        c = bytearray([0, int(255*intensity), 0])
+
+        #encoder.set_led(0, color1)
+        encoder.set_led(1, c)
+
+        button = encoder.read_button()
+        if button:
+            encoder.set_led(0, color2)
+            encoder.set_led(1, color2)          
+
+        rel = encoder.read_relative()
+        rot = encoder.read_count()
+        accumulated += rel
+
+        print(button, rot, rel, accumulated)
+        time.sleep_ms(10)
+
+def main():
+
+    #test_encoder()
+
+    #encoder = M5StackEncoder(i2c_ext)
+
+    while True:
+
+        test_screen()
+
+        order = AS7343.CHANNEL_MAP
+
+        print(order)
+        # measure without exitation
+        ext[0:16] = 0
+        time.sleep(1.00)
+        # XXX: make sure to flush out old readings from FIFO
+        for i in range(20):
+            readings = as7343.read()
+        #as7343.stop_measurement()
+        values = array.array('f', (readings[c] for c in order))
+        print('off     ', readings['F7'], values)
+        time.sleep(1.00)
 
 
-    # Turn on exitation
-    ext[0:16] = 100
-    time.sleep(1.00)
-    # XXX: make sure to flush out old readings from FIFO
-    for i in range(20):
-        readings = as7343.read()
-    #as7343.stop_measurement()
-    values = array.array('f', (readings[c] for c in order))
-    print('excited!', readings['F7'], values)
+        # Turn on exitation
+        ext[0:16] = 100
+        time.sleep(1.00)
+        # XXX: make sure to flush out old readings from FIFO
+        for i in range(20):
+            readings = as7343.read()
+        #as7343.stop_measurement()
+        values = array.array('f', (readings[c] for c in order))
+        print('excited!', readings['F7'], values)
 
-    # TODO: turn on white LED, measure reflectance spectra
+        # TODO: turn on white LED, measure reflectance spectra
 
 
-    time.sleep(5.0)
+        time.sleep(1.0)
+
+
+if __name__ == '__main__':
+    main()
+
