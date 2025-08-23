@@ -1,61 +1,5 @@
 
-
-25 Aug 2025 - 27 Aug 2025, Amsterdam
-
-## Event
-
-https://osseu2025.sched.com/event/25Voe/machine-learning-on-microcontrollers-with-zephyr-and-emlearn-jon-nordby-soundsensing
-
-
-## Title
-
-Machine Learning on Microcontrollers With Zephyr and emlearn
-
-## Description
-
-Modern Machine Learning makes it possible to automatically extract valuable information from sensor data,
-and it has become feasible to deploy ML systems to low-cost embedded devices and sensors.
-This niche is often referred to as "TinyML", and is enabling a range of new applications in consumer electronics, science and industry.
-
-emlearn is an open-source project for deploying Machine Learning models to any device with a C99 compiler.
-It provides a Python library for converting models made with scikit-learn or Keras to efficient C code.
-The library has been used for many applications across a range of sensor modes,
-such as audio, vibration, power-line, radar, et.c.
-
-Zephyr RTOS is a comprehensive open-source operating system that runs on a wide range of microcontrollers.
-The support for low-power operation, communication protocols,
-and standardized "sensors" API makes it a very attractive platform for TinyML applications.
-
-In this presentation we introduce the emlearn project, and show how it can be used together with Zephyr.
-We will cover the key features and tools that the library provides,
-and demonstrate how to perform practical Machine Learning tasks.
-
-
-## Section
-
-Zephyr Developer Summit
-
-Machine Learning and AI working with Zephyr
-
-## Format
-
-Session Presentation (typically 30-40 minutes in length)
-
-
-## Benefits to the Ecosystem
-
-Practical introduction to Machine Learning for
-How this can be done using Zephyr
-Especially sensor API
-
-## Audience Level 
-
-Intermediate
-
-Expect that people have familiarity with
-Zephyr, C programming.
-
-## Speaker office hours
+# Speaker office hours
 
 Machine Learning for sensor-data analysis.
 Especially on microcontroller-grade systems, but also on larger embedded systems (Linux),
@@ -63,34 +7,126 @@ or on desktop/server.
 
 technical guidance, best practices
 
+# Talk
 
-## Bio
+## Format
 
-Jon is a Machine Learning Engineer specialized in IoT systems.
-He has a Master in Data Science and a Bachelor in Electronics Engineering,
-and has published several papers on applied Machine Learning.
-He has been contributing to open-source software since 2010.
+40 minute slot.
+30 minutes + QA.
 
-These days Jon is co-founder and Head of Data Science at Soundsensing,
-a leading provider of condition monitoring solutions for commercial buildings and HVAC systems.
-He is also the creator and maintainer of emlearn,
-an open-source Machine Learning library for microcontrollers and embedded systems.
+30-45 slides total
+
+## Goals
+
+- Make emlearn for Zephyr and C better
+- Learn more about Zephyr
+- Attract users of emlearn. Maybe also contributors
+
+## Call to Action
+
+- visit me in Speaker Working Hours
+- come visit at the Zephyr booth
+- ? try out the samples
+- ? check out the MR
+
+## Take aways
+
+- Running machine learning inference on microcontroller grade is useful in many applications
+- Zephyr is a good base for TinyML applications. Sensor API, connectivity
+- emlearn for scikit-learn or Keras to efficient C code
+- emlearn can be used together with Zephyr via the C library/module
 
 
+## Outline
 
-## Prep
+- Applications
+- TinyML system diagram
 
-    What are you hoping to get from your presentation?
-    What do you expect the audience to gain from your presentation?
-    How will your presentation help better the ecosystem?
+- ML tasks. Clear definition for each, with example in TinyML setting
+Classification, Regression, Anomaly Detection
+
+- Zephyr APIs for sensor data
+Sensor API. accel/gyro, dmic
+
+- emlearn overview
+- emlearn for C
+- emlearn C + Zephyr
+
+- Recording data ?
+- Labeling of data ?
+
+MicroPython+Zephyr+emlearn
+Quite short, say 3-4 slides
+- MicroPython for Zephyr
+- emlearn with MicroPython
 
 
-## Session formats
+## Audience considerations 
 
-    Session Presentation (typically 30-40 minutes in length)
-    Panel Discussion (typically 30-40 minutes in length)
-    Birds of a Feather (typically 45 minutes to one hour in length)
-    Tutorial/Hands-on Lab (typically 1.5 – 2 hours in length)
-    Lightning Talk (typically 5 – 10 minutes in length)
-    NEW – for Linux Only: Hackathon Session (typically 1-1.5 hours in length)
+Assuming most will be firmware engineers / embedded software engineers.
+Not ML engineers / data scientists. Probably have less exposure to machine learning.
+Might have some digital signal processing exposure.
+
+Expect that people have familiarity with Zephyr, C programming.
+
+Expect them to be more interested in C development compared to (Micro)Python
+! keep focus on C + Zephyr
+MicroPython mentioned only briefly
+
+! need to define relevant ML terms simply and clearly
+? focus on Classification
+Supervised learning
+
+
+## TODO
+
+- Create outline
+- Import all reference slides from existing presentations
+- Add placeholders for planned slides
+- Fill inn all missing slides
+
+- Complete Zephyr C code samples
+
+#### Maybe
+
+- Sample code for sensor data readout with Zephyr, on XIAO BLE Sense
+Accelerometer/dyro readout
+https://docs.zephyrproject.org/latest/samples/sensor/lsm6dsl/README.html
+Alternatively dmic soundlevel example
+https://docs.zephyrproject.org/latest/samples/drivers/audio/dmic/README.html#dmic
+
+- ? feature extraction pipeline for accelerometer in C
+Foremost toothbrush grade
+Stretch: FFT etc
+Take raw sensor data buffers, returns features
+Wrap as MicroPython module? Integrate into har_trees that way?
+
+- ? demo of toothbrush application on Zephyr+MicroPython
+Inference foremost
+Need LSM6 support. Queues in Zephyr would be preferred.
+Fallback: FIFO in MicroPython
+
+- ? test the new video labeling in Label Studio?
+
+#### Later
+
+- ? add XIAO BLE with Zephyr support to har_trees
+Need LSM6 with FIFO support
+
+## Dream design for emlearn + Zephyr
+
+Zephyr used for the HAL
+Complete ML pipeline can run in C
+Nice tools to make this clear and supporting best practices
+
+emlearn has feature-extraction / pre-processing transformers,
+with integrated support for C code
+
+emlearn supports for doing on-device model validation and data recording,
+via .npy files
+
+emlearn-micropython also works with Zephyr (same as other MicroPython ports)
+
+MAYBE. Example of how to expose a complete C pipeline to MicroPython application
+
 
