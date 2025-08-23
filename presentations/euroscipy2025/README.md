@@ -2,6 +2,12 @@
 # Sensor data processing on microcontrollers with MicroPython
 With focus on scientific applications.
 
+#### Video recording
+
+[<img src="video-cover_600px.png">](https://www.youtube.com/watch?v=VmVQu9cygMI)
+
+[Video (YouTube)](https://www.youtube.com/watch?v=VmVQu9cygMI)
+
 #### Slides
 [.PPTX](<EuroSciPy 2025 - Sensor data processing on microcontrollers with MicroPython.pptx>)
 | [.PDF](<EuroSciPy 2025 - Sensor data processing on microcontrollers with MicroPython.pdf>)
