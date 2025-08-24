@@ -3,6 +3,8 @@
 
 https://osseu2025.sched.com/event/25Voe/machine-learning-on-microcontrollers-with-zephyr-and-emlearn-jon-nordby-soundsensing
 
+Monday August 25, 2025 15:35 - 16:15 CEST
+
 ## Abstract
 
 Modern Machine Learning makes it possible to automatically extract valuable information from sensor data,
