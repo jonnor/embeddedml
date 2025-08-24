@@ -67,8 +67,10 @@ Magic wand example also uses adxl345.
 
 # Zephyr sensor readout example case
 
-### Existing practice
+Moved to
+https://github.com/emlearn/emlearn/issues/108
 
+### Existing practice
 
 Accel polling example in Zephyr
 https://docs.zephyrproject.org/latest/samples/sensor/accel_polling/README.html
@@ -86,7 +88,6 @@ https://github.com/zephyrproject-rtos/zephyr/tree/main/samples/modules/tflite-mi
 example of polling combined with a machine learning model.
 ! seems to not read continiously. But instead reads a burst, then processes it, then continues reading.
 
-
 ### Design criteria
 
 - Consumer can get data from a message queue. Using a low-priority queue
@@ -102,203 +103,37 @@ Might imply limiting queue length to 1 initially?
 - Work with 3-axis accelerometer
 - (later) Support 3-axis magnetometer, 6-axis, 9 axis IMU
 
-## Open questions:
+## Considerations
 
-- Can setup be done outside the thread?
+- Can sensor setup be done outside the thread?
+Yes.
+
 - Can we provide a macro that does all the neccesary setup, like what thread etc
 
 - Can we have a unified API for decoded and fetch cases?
-Would have to be sensor_value based - fetch does not support raw values
+fetch does not support raw values.
+Would have to be sensor_value based, or something derived from it.
+The primary interaction point would be a queue with data.
+If messages are the same/similar, that would maybe be sufficient?
+Most important that rest of the code - preprocessing etc, is independent.
 
 - What would we pass on?
+float * is an option.
 I guess it would be sensor_value for now...
+Or back-tranlate to int16
+
 - Raw data only feasible with new decode API
 Could be a separate implementation?
 Following same conventions?
 
 - How does this relate to Digital Mic and Video cases?
+dmic API is already a chunk based.
+Is smilar in that regard. But not using thread/queue.
 
 - How does this relate to ADC cases?
 ADC also seems to be quite low-level
-Primarily single-sample oriented
+Primarily single-sample oriented.
+Would use fetch approach with thread.
 
 
-```C
 
-struct {
-    int window_length;
-    int hop_length;
-    int samplerate;
-
-    sensor_value *read_samples;
-    int read_samples_index;
-
-    sensor_value *output_buffer;
-    int output_buffer_index;
-
-    int n_channels;
-    enum sensor_channel *channels;
-
-    const struct device *dev;
-    struct k_msgq *queue;
-    struct k_thread *thread;
-
-} sensor_chunk_reader;
-
-struct sensor_chunk_msg {
-    int sample_no;
-    sensor_value *output_buffer; // n_channels * window_length
-}
-
-
-sensor_chunk_reader_start(sensor_chunk_reader *self) 
-{
-    // start new thread
-
-    k_tid_t my_tid = k_thread_create(&my_thread_data, my_stack_area,
-                                     K_THREAD_STACK_SIZEOF(my_stack_area),
-                                     sensor_chunk_reader_task,
-                                     self, NULL, NULL,
-                                     MY_PRIORITY, 0, K_NO_WAIT);
-
-}
-
-
-#define SENSOR_CHUNK_READER_MAX_CHANNELS 9
-
-// Designed to be called in a new thread
-sensor_chunk_reader_task(sensor_chunk_reader *self)
-{
-    // verify that sensor is setup. Check ready?
-
-    struct sensor_value values[SENSOR_CHUNK_READER_MAX_CHANNELS];
-
-    // MAYBE: support a way of exiting loop gracefully?
-    while (1) {
-
-        // Read data
-        // TODO: count failures intead of printing here
-	    const int fetch_ret = sensor_sample_fetch(dev);
-	    if (fetch_ret < 0) {
-		    printk("%s: sensor_sample_fetch() failed: %d\n", dev->name, ret);
-		    return ret;
-	    }
-
-	    for (size_t i = 0; i < self->n_channels; i++) {
-		    const int get_ret = sensor_channel_get(dev, self->channels[i], &values[i]);
-		    if (get_ret < 0) {
-			    printk("%s: sensor_channel_get(%c) failed: %d\n", dev->name, 'X' + i, ret);
-			    return ret;
-		    }
-	    }
-
-        // Buffer received data
-        const int read_offset = (self->read_samples_index*self->n_channels);
-        memcpy(read_samples+read_offset)
-        
-        if (self->read_samples_index == ) {
-            // Push onto output buffer
-
-            // Check if output buffer is full
-            if () {
-                // Send as message
-	            int put = k_msgq_put(struct k_msgq *msgq, self->output_buffer, K_NO_WAIT);
-
-            }
-        }
-
-        // FIXME: calculate from sampling rate
-        const int wait_timeout_us = 1000000/self->samplerate;
-        k_usleep(wait_timeout_us);
-    }
-}
-```
-
-
-```
-#define SAMPLERATE 100
-#define WINDOW_LENGTH 100
-#define HOP_LENGTH 25
-
-// Configuration
-#define N_CHANNELS = 3;
-enum sensor_channel sensor_reader_channels[N_CHANNELS] = {
-	SENSOR_CHAN_ACCEL_X,
-	SENSOR_CHAN_ACCEL_Y,
-	SENSOR_CHAN_ACCEL_Z,
-};
-
-
-// Reader internals
-sensor_value sensor_reader_output_buffer[WINDOW_LENGTH*N_CHANNELS];
-sensor_value sensor_reader_new_buffer[HOP_LENGTH*N_CHANNELS];
-
-K_THREAD_STACK_DEFINE(sensor_reader_stack, MY_STACK_SIZE);
-struct k_thread sensor_reader_thread;
-
-K_MSGQ_DEFINE(sensor_reader_queue, sizeof(struct data_item_type), 1, 1);
-
-
-struct sensor_chunk_reader {
-    .samplerate=SAMPLERATE,
-    .thread=&sensor_reader_thread,
-
-
-    .read_samples=sensor_reader_new_buffer,
-    .read_samples_index=0,
-
-    .output_buffer=sensor_reader_output_buffer,
-    .output_buffer_index=0,
-
-    .n_channels=N_CHANNELS,
-    .channels=sensor_reader_channels,
-
-    .dev=sensor,
-    .queue=&sensor_reader_queue,
-    .thread=&sensor_reader_thread,
-}
-
-
-static int set_sampling_freq(const struct device *dev, int samplerate)
-{
-	int ret;
-	struct sensor_value odr;
-	odr.val1 = samplerate;
-	odr.val2 = 0;
-	ret = sensor_attr_set(dev, SENSOR_CHAN_ACCEL_XYZ, SENSOR_ATTR_SAMPLING_FREQUENCY, &odr);
-
-	return 0;
-}
-
-
-int main(void) {
-
-    struct sensor_chunk_msg chunk;
-
-    if (!device_is_ready(sensor) {
-        printk("sensor: device %s not ready.\n", sensors[i]->name);
-        return 0;
-    }
-
-    // Setup sensor
-    set_sampling_freq(sensor, SAMPLINGRATE);
-
-    // Start high-priority thread for collecting data
-    sensor_chunk_reader_start(&sensor_reader);
-
-    while (1) {
-
-        // check for new data
-        const int get_status = k_msgq_get(sensor_reader.queue, &chunk, K_NO_WAIT);
-        if (get_status != 0) {
-
-            process(chunk.buffer, chunk.length);
-        }
-
-	    k_msleep(100);
-    }
-
-    return 0;
-}
-
-```
