@@ -5,6 +5,18 @@ https://osseu2025.sched.com/event/25Voe/machine-learning-on-microcontrollers-wit
 
 Monday August 25, 2025 15:35 - 16:15 CEST
 
+#### Video recording
+
+```Will be published by event / Linux Foundation```
+
+#### Slides
+[.PPTX](<Machine Learning for Microcontrollers With Zephyr and emlearn.pptx>)
+| [.PDF](<Machine Learning for Microcontrollers With Zephyr and emlearn.pdf>)
+
+#### Notes
+[Notes](./notes.md) | [Proposal](./proposal.md)
+
+
 ## Abstract
 
 Modern Machine Learning makes it possible to automatically extract valuable information from sensor data,

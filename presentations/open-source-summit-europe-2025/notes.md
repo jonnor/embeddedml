@@ -39,11 +39,16 @@ https://github.com/emlearn/emlearn/issues/108
 
 ## Take aways
 
-- Running machine learning inference on microcontroller grade is useful in many applications
-- Zephyr is a good base for TinyML applications. Sensor API, connectivity
-- emlearn for scikit-learn or Keras to efficient C code
-- emlearn can be used together with Zephyr via the C library/module
-- MicroPython can also be used with Zephyr and emlearn-micropython
+Running machine learning inference on microcontroller grade is useful in many applications
+
+Zephyr is a good base for TinyML applications
+Sensor API, filesystem, connectivity
+
+emlearn makes deploying models simple
+Converting scikit-learn or Keras to efficient C code
+Easy to use via Zephyr module
+
+Bonus: MicroPython can also be used with Zephyr and emlearn-micropython
 
 #### What we need
 
@@ -94,15 +99,13 @@ Introduction
 - Applications
 - TinyML system diagram overall
 
-Overview
 - TinyML tasks. Clear definition for each, with example in TinyML setting
 Classification, Regression, Anomaly Detection
 
-- Focus task. Continious classification. HAR
-Related like toothbrush, exercise detection, animal activity etc
+Activity Reconition task
 
-- Overlapped windows.
-Chunks. Sampling is time-sensitive, but processing not.
+- Continious classification. HAR
+Related like toothbrush, exercise detection, animal activity etc
 
 - Software system diagram. **KEY**
 Which components need to be in place. The differences how they are used. ML pipeline as a core.
@@ -110,23 +113,22 @@ Runnning inference. Collecting data. Preprocessing during training. Validation.
 
 Sensor data input
 
-- Reading accelerometer in Zephyr with sensor thread
-
-- ADC. Would follow same thread-based example
-
+- Overlapped windows.
+Chunks. Sampling is time-sensitive, but processing not.
+- Reading accelerometer in Zephyr with polling sensor thread
+ADC. Would follow same thread-based example
 - Reading IMU with new fetch and decode API
+https://github.com/zephyrproject-rtos/zephyr/blob/main/samples/subsys/rtio/sensor_batch_processing/src/main.c
 
 (- Honorable mention. Zephyr dmic API)
 
-Collecting data
+Creating a dataset
 
 - Saving using file system
 CSV support in emlearn
 - Tranferring to PC via cable. USB/serial
 - Wireless options. BLE/Ethernet etc
-
-Labeling of data
-- Brief mention of Label Studio
+- Labeling. mention of Label Studio
 
 Training
 
@@ -137,13 +139,21 @@ Deploying model
 
 - emlearn convert
 - emlearn for C
+- emlearn Zephyr module
 
 Validating model
+
+- Validating on PC.
 - Load data from filesystem. CSV
+Run though entire pipeline. Check outputs
 
+Summarize. Putting it all together
 
-Putting it all together
-
+- There are many pieces. But emlearn and Zephyr provides help in all areas
+Important to follow best practices to ensure correctness
+Reuse preprocessing code.
+Use portable code
+Test end2end
 
 MicroPython+Zephyr+emlearn
 Quite short, say 3-4 slides
@@ -170,8 +180,9 @@ Supervised learning
 
 ## TODO
 
-- Add placeholders for planned slides
-- Fill inn all missing slides
+- Add Call to Action slide
+- Add Summary slide
+- Do a check over all slides, check nothing big missing
 
 ## Zephyr code samples
 
@@ -294,6 +305,29 @@ FUTURE: full example for processing IMU/accelerometer data with emlearn
 
 In Zephyr 4.2, around 18 drivers with read and decode
 
+git grep '\.get_decoder' -- drivers/sensor/
+
+```
+drivers/sensor/adi/adxl345/adxl345.c:   .get_decoder = adxl345_get_decoder,
+drivers/sensor/adi/adxl362/adxl362.c:   .get_decoder = adxl362_get_decoder,
+drivers/sensor/adi/adxl367/adxl367.c:   .get_decoder = adxl367_get_decoder,
+drivers/sensor/adi/adxl372/adxl372.c:   .get_decoder = adxl372_get_decoder,
+drivers/sensor/asahi_kasei/akm09918c/akm09918c.c:       .get_decoder = akm09918c_get_decoder,
+drivers/sensor/bosch/bma4xx/bma4xx.c:   .get_decoder = bma4xx_get_decoder,
+drivers/sensor/bosch/bme280/bme280.c:   .get_decoder = bme280_get_decoder,
+drivers/sensor/broadcom/afbr_s50/afbr_s50.c:    .get_decoder = afbr_s50_get_decoder,
+drivers/sensor/maxim/ds3231/ds3231.c:   .get_decoder = sensor_ds3231_get_decoder,
+drivers/sensor/melexis/mlx90394/mlx90394.c:     .get_decoder = mlx90394_get_decoder,
+drivers/sensor/memsic/mmc56x3/mmc56x3.c:        .get_decoder = mmc56x3_get_decoder,
+drivers/sensor/pixart/paa3905/paa3905.c:        .get_decoder = paa3905_get_decoder,
+drivers/sensor/pixart/pat9136/pat9136.c:        .get_decoder = pat9136_get_decoder,
+drivers/sensor/pni/rm3100/rm3100.c:     .get_decoder = rm3100_get_decoder,
+drivers/sensor/st/lis2dux12/lis2dux12.c:        .get_decoder = lis2dux12_get_decoder,
+drivers/sensor/st/lsm6dsv16x/lsm6dsv16x.c:      .get_decoder = lsm6dsv16x_get_decoder,
+drivers/sensor/tdk/icm42688/icm42688.c: .get_decoder = icm42688_get_decoder,
+drivers/sensor/tdk/icm45686/icm45686.c: .get_decoder = icm45686_get_decoder,
+```
+
 In git master per March 2025, around 12 drivers implement.
 A few accelerometers, IMUs, magnetometers, humidity/pressure.
 
@@ -321,6 +355,8 @@ Might have breakout boards with adxl345, at the office?
 mmc56x3 magnetometer is also interesting. Have one of those?
 
 Magic wand example also uses adxl345.
+
+
 
 
 # Gyro sensor fusion
@@ -390,5 +426,10 @@ Added lights to show the color, and which is being dispensed.
 
 https://www.reviewmylife.co.uk/blog/2014/12/22/high-speed-mandm-sorting-machine/
 Lets the MMs fall by gravity, and have multiple servos that shift them
+
+# Unrelated
+
+Machine learning on Zephyr - users experience?
+https://lists.zephyrproject.org/g/users/topic/machine_learning_on_zephyr/112897072
 
 
