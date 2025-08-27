@@ -1,5 +1,5 @@
 
-# Machine Learning on Microcontrollers With Zephyr and emlearn
+# Machine Learning for Microcontrollers With Zephyr and emlearn
 
 https://osseu2025.sched.com/event/25Voe/machine-learning-on-microcontrollers-with-zephyr-and-emlearn-jon-nordby-soundsensing
 
