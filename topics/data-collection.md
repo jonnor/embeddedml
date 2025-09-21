@@ -45,8 +45,12 @@ Fails out-of-distribution. Misleading metric values. Looks good, fails in practi
 - How to identify (potential) factors and observational variables, covariates.
 Brainstorming. Multi-perspective. Causal graphs.
 Literature review. Sensor, environment, subject-of-interest, other-subjects/actors.
+- Setting up expectations.
+How are each factor/variable expected to influence the data.
+- Factors that are independent of the variable of interest. Class-invariance. Mostly/fully.
 - How to capture factors and observational variables, structured way. Document. Carry metadata along data samples.
-- How to validate our dataset. For coverage, bias
+- How to reduce the factorial explosion. Fractionall factorical. Pairwise interactions.
+- How to validate our dataset. For coverage, bias. Fairness. Sub-group analysis.
 - How to identify out-of-distribution cases. In dataset, in production.
 - Using factors and observed variables for error analysis
 - How simple features can help dataset and model analysis
@@ -62,6 +66,22 @@ Maybe
 
 - Strategies for labeling data. 
 - Average case vs worst-case error
+
+Explore
+
+- domain adaptation techniques?
+- Smart fractional designs, like Resolution IV+ ?
+
+
+## Pedagogical tools
+
+Things that we would like to show intutively - visually
+
+- Illustrate out-of-distribution, prediction problems. In 2d data space
+- Illustrate how poor subgroup performance does not show in aggregate metrics. Ex 10%
+- Illustrate how inbalanced data can lead to poor performance for other sub-groups
+- ? show how incorrect splits lead to data leakage. Grouped vs non-grouped splitting
+
 
 ## Potential covariates
 

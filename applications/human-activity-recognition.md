@@ -16,6 +16,20 @@ Human Activity Recognition (HAR) is also known as / has sub-tasks such as
 * Eating monitoring
 * Seizure detection
 
+## Review papers
+Giving some overview of the area.
+
+#### A systematic review of smartphone-based human activity recognition methods for health research
+https://www.nature.com/articles/s41746-021-00514-4
+
+Marcin Straczkiewicz, Peter James & Jukka-Pekka Onnela. 2021
+
+> Describes the various approaches used for
+> data acquisition, data preprocessing, feature extraction, and activity classification,
+> identifying the most common practices, and their alternatives.
+
+Very nice illustrations.
+
 
 ## Datasets
 
