@@ -143,7 +143,11 @@ No dynamic allocations. No runtime needed.
 Supports neural network models made with TensorFlow (including Keras).
 Can run on wide range of platforms.
 Since November 2018. Supports ARM Cortex M, RISC-V, ESP32/Xtensa and Linux/MacOS host.
-Requires a runtime.
+Requires a runtime, aroud 20 kB.
+* [onnx2c](https://github.com/kraiskil/onnx2c). Allows generating C code from ONNX models.
+* [iree](https://iree.dev/guides/deployment-configurations/bare-metal/). Compiler. Around 30 kB runtime.
+* [executorch](https://github.com/pytorch/executorch). C++ framework for deploying PyTorch models.
+Around 50 kB runtime. Supports bare-metal via "Portable" operations, or specialized for Cortex M.
 * [nnom](https://github.com/majianjia/nnom) - Fixed-point neural network compiler for microcontrollers.
 Supports wide range of networks. Outputs plain C code. Can use CMSIS-NN on ARM Cortex M.
 - [micromlgen](https://github.com/eloquentarduino/micromlgen)
