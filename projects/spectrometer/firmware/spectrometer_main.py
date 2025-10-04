@@ -3,6 +3,7 @@ import time
 import machine
 import array
 import asyncio
+import math
 
 from aw9523 import AW9523
 from as7343 import AS7343
@@ -35,43 +36,81 @@ def update_screen(n):
 
     refresh(ssd)
 
-
-async def measure_sample(as7343, ext):
-    # TODO: take the array as an input, and fill it
-    print('ss')
+async def measure_one(as7343, data, offset=0, wait_time=1.0):
 
     order = AS7343.CHANNEL_MAP
-    print(order)
+
+    # wait for condition to settle
+    await asyncio.sleep(wait_time)
+
+    # XXX: make sure to flush out old readings from FIFO
+    for i in range(10):
+        readings = as7343.read()
+        await asyncio.sleep(0.10)
+
+    # Copy data
+    for i, c in enumerate(order):
+        data[offset+i] = readings[c]
+
+    await asyncio.sleep(wait_time)
+
+async def measure_sample(as7343, ext, data, wait_time=1.0):
+    """
+    Make one complete measurement, consisting of 3 sub-measurements:
+
+    - no excitation / baseline
+    - UV excitation / flouresence
+    - white / reflectance
+
+    The values are concatenated
+    """
+    
+    n_channels = len(AS7343.CHANNEL_MAP)
+    n_datapoints = n_channels * 3
+    assert len(data) == n_datapoints
+
+    start = time.ticks_ms()
+    print('measure-sample-start', start)
 
     # measure without exitation
     ext[0:16] = 0
-    await asyncio.sleep(1.0)
-    # XXX: make sure to flush out old readings from FIFO
-    for i in range(10):
-        readings = as7343.read()
-        await asyncio.sleep(0.10)
+    await measure_one(as7343, data, offset=0)
 
-    #as7343.stop_measurement()
-    values = array.array('f', (readings[c] for c in order))
-    print('off     ', readings['F7'], values)
-
-    await asyncio.sleep(1.00)
-
-    # Turn on exitation
+    # Measure with UV exitation
     ext[0:16] = 100
-    await asyncio.sleep(1.00)
+    await measure_one(as7343, data, offset=n_channels)
+    ext[0:16] = 0
 
-    # XXX: make sure to flush out old readings from FIFO
-    for i in range(10):
-        readings = as7343.read()
-        await asyncio.sleep(0.10)
+    # Measure with white LED
+    as7343.set_illumination_led(True)
+    await measure_one(as7343, data, offset=2*n_channels)
+    as7343.set_illumination_led(False)
 
-    #as7343.stop_measurement()
-    values = array.array('f', (readings[c] for c in order))
-    print('excited!', readings['F7'], values)
+    duration = time.ticks_diff(time.ticks_ms(), start)
+    print('measure-sample-end', time.ticks_ms(), duration)
 
-    # TODO: turn on white LED, measure reflectance spectra
 
+def print_measurement(data):
+
+    max_value = 20
+    width = 40
+    char = '*'
+    base = 2.0
+
+    max_value_seen = 0
+
+    for i in range(len(data)):
+        v = data[i]
+        l = max(0, math.log(v+1e-9, base))
+        if l > max_value_seen:
+            max_value_seen = l
+        
+        w = int((l / max_value) * width)
+        #print(v, l, w)
+        s = char * w
+        print(s)
+
+    print('mm', max_value_seen)
 
 def main():
 
@@ -84,6 +123,12 @@ def main():
     as7343.set_measurement_time(200) # ms
     as7343.set_integration_time(100*1000, repeat=1) # us
     as7343.start_measurement()
+
+    as7343.set_illumination_led(False)
+    as7343.set_illumination_current(20)
+
+    measurement_data = array.array('f', (0.0 for _ in range(3*len(AS7343.CHANNEL_MAP))))
+
 
     #test_encoder()
 
@@ -124,9 +169,8 @@ def main():
     async def make_measurement():
 
         while True:
-            print('mm')
-            await measure_sample(as7343, ext)
-            print('xx')
+            await measure_sample(as7343, ext, data=measurement_data)
+            print_measurement(measurement_data)
             await asyncio.sleep(5.0)
 
 
