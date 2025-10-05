@@ -14,7 +14,7 @@ import npyfile
 from machine import Pin, SoftI2C
 
 
-from color_setup import ssd  # Create a display instance
+from color_setup import ssd, display_height, display_width  # Create a display instance
 from gui.core.nanogui import refresh
 from gui.core.writer import Writer
 from gui.widgets.meter import Meter
@@ -22,21 +22,68 @@ from gui.widgets.label import Label
 import gui.fonts.courier20 as fixed
 
 
-def update_screen(n, state):
+def draw_hlines(ssd, x0, x1, y0, y1, lines=10, dash=5, gap=2, color=1):
 
+    y_dist = int((y1-y0) / lines)
+    for y in range(y0, y1, y_dist):
+        
+        # dashed
+        for x in range(x0, x1, dash + gap):
+            ssd.hline(x, y, min(dash, x1-x), color)
+
+def draw_vlines(ssd, x0, x1, y0, y1, lines=10, dash=5, gap=2, color=1):
+
+    x_dist = int((x1-x0) / lines)
+    for x in range(x0, x1, x_dist):
+        
+        # dashed
+        for y in range(y0, y1, dash + gap):
+            ssd.vline(x, y, min(dash, y1-y), color)
+
+def update_screen(n, state, data, x_column, y_column):
+
+
+    # Blank the screen
     ssd.fill(0)
 
-    Writer.set_textpos(ssd, 0, 0)  # In case previous tests have altered it
-    wri = Writer(ssd, fixed, verbose=False)
-    wri.set_clip(False, False, False)
+    x_offset = 0
+    y_offset = 5
+    x_max = 3000
+    y_max = 100
+    width = display_width
+    height = display_height
 
-    textfield = Label(wri, 0, 2, wri.stringlen('measure'))
-    textfield.value(state)
+    if state == 'done':
 
-    #countfield = Label(wri, 0, 90, wri.stringlen('1'))
+        # Draw grid
+        draw_hlines(ssd, x0=x_offset, x1=width, y0=y_offset, y1=height, lines=5, gap=8, dash=1)
+        #draw_vlines(ssd, x0=x_offset, x1=width, y0=y_offset, y1=height, lines=10, gap=8, dash=1)
 
-    #numfield.value('{:5.2f}'.format(40400 /1000))
-    #countfield.value('{:1d}'.format(n))
+        # Draw datapoints
+        print('draw-datapoints', len(data), x_column, y_column)
+        x_paper = data[x_column] / x_max
+        y_paper = data[y_column] / y_max
+        
+        if x_paper < 0.0 or x_paper > 1.0 or y_paper < 0.0 or y_paper > 1.0:
+            print('point-out-of-bounds', x_paper, y_paper)
+
+        x = int(x_paper * width)
+        y = int(y_paper * height)
+        color = 1
+        size = 7
+
+        print('draw-point', data[x_column], data[y_column], x, y)
+        # Draw a small point
+        ssd.fill_rect(x + x_offset, y + y_offset, size, size, color)
+
+    else:
+
+        Writer.set_textpos(ssd, 0, 0)
+        wri = Writer(ssd, fixed, verbose=False)
+        wri.set_clip(False, False, False)
+
+        textfield = Label(wri, 0, 2, wri.stringlen('measure'))
+        textfield.value(state)
 
     refresh(ssd)
 
@@ -129,20 +176,24 @@ def main():
     as7343.start_measurement()
 
     as7343.set_illumination_led(False)
-    as7343.set_illumination_current(20)
+    as7343.set_illumination_current(2)
 
     measurement_data = array.array('f', (0.0 for _ in range(3*len(AS7343.CHANNEL_MAP))))
 
+    shape, measurement_data = npyfile.load('data2/channels-13800.npy')
+    print('loaded-data', shape, len(measurement_data))
 
     encoder = M5StackEncoder(i2c_ext)
     accumulated = 0.0
     iteration = 0
 
-    data_dir = 'data'
+    data_dir = 'data2'
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
     measurement_state = 'ready'
+    measurement_state = 'done'
+
 
     async def check_inputs():
 
@@ -187,8 +238,16 @@ def main():
 
         while True:
 
+            uv_start = len(AS7343.CHANNEL_MAP)*1
+            x_index = AS7343.CHANNEL_MAP.index('F6')
+            y_index = AS7343.CHANNEL_MAP.index('F1')
             start = time.ticks_ms()
-            update_screen(n=iteration, state=measurement_state)
+            update_screen(n=iteration,
+                state=measurement_state,
+                data=measurement_data,
+                x_column=uv_start+x_index,
+                y_column=uv_start+y_index,
+            )
             duration = time.ticks_diff(time.ticks_ms(), start)
             print('screen-update', duration)
             await asyncio.sleep(0.5)
