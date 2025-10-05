@@ -5,6 +5,7 @@ import array
 import asyncio
 import math
 import os.path
+import gc
 
 from aw9523 import AW9523
 from as7343 import AS7343
@@ -21,6 +22,8 @@ from gui.widgets.meter import Meter
 from gui.widgets.label import Label
 import gui.fonts.courier20 as fixed
 
+# Free memory used by imports
+gc.collect()
 
 def draw_hlines(ssd, x0, x1, y0, y1, lines=10, dash=5, gap=2, color=1):
 
@@ -62,9 +65,13 @@ class NeighborsClassifier():
             shape, data = npyfile.load(p)
             assert len(shape) == 1, shape
 
-            # TODO: load class names, map to index
+            tok = filename.split('-')
+            classname = tok[0]
+            if classname == 'unknown':
+                continue
             x = self.transform(data)
-            y = 1
+            y = self.classes.index(classname)
+            print('load-item', classname, y, x)
             self.model.additem(x, y)
 
     def transform(self, data):
@@ -76,12 +83,12 @@ class NeighborsClassifier():
     def predict(self, measurement):
         # TODO: also check how close the closest point is?
         x = self.transform(measurement)
-        print(self.model.predict)
+        print('predict', x)
         out = self.model.predict(x)
         return out
 
 
-def update_screen(n, state, data, x_column, y_column, prediction):
+def update_screen(n, state, data, x_column, y_column, prediction, x_max=10000, y_max=500):
 
 
     # Blank the screen
@@ -89,8 +96,7 @@ def update_screen(n, state, data, x_column, y_column, prediction):
 
     x_offset = 0
     y_offset = 5
-    x_max = 3000
-    y_max = 100
+
     width = display_width
     height = display_height
 
@@ -156,7 +162,7 @@ async def measure_one(as7343, data, offset=0, wait_time=1.0):
 
     await asyncio.sleep(wait_time)
 
-async def measure_sample(as7343, ext, data, wait_time=1.0):
+async def measure_sample(i2c_ext, ext, data, wait_time=1.0):
     """
     Make one complete measurement, consisting of 3 sub-measurements:
 
@@ -167,6 +173,13 @@ async def measure_sample(as7343, ext, data, wait_time=1.0):
     The values are concatenated
     """
     
+    as7343 = AS7343(i2c_ext)
+
+    as7343.set_measurement_time(200) # ms
+    as7343.set_integration_time(100*1000, repeat=1) # us
+    as7343.set_illumination_led(False)
+    as7343.set_illumination_current(4)
+
     n_channels = len(AS7343.CHANNEL_MAP)
     n_datapoints = n_channels * 3
     assert len(data) == n_datapoints
@@ -174,45 +187,32 @@ async def measure_sample(as7343, ext, data, wait_time=1.0):
     start = time.ticks_ms()
     print('measure-sample-start', start)
 
+    as7343.start_measurement()
+    await asyncio.sleep(0.1)   
+
     # measure without exitation
-    ext[0:16] = 0
-    await measure_one(as7343, data, offset=0, wait_time=wait_time)
+    #print('measure-no-light')
+    #ext[0:16] = 0
+    #await measure_one(as7343, data, offset=0, wait_time=wait_time)
 
     # Measure with UV exitation
+    print('measure-uv')
     ext[0:16] = 100
     await measure_one(as7343, data, offset=n_channels, wait_time=wait_time)
     ext[0:16] = 0
 
     # Measure with white LED
-    as7343.set_illumination_led(True)
-    await measure_one(as7343, data, offset=2*n_channels, wait_time=wait_time)
-    as7343.set_illumination_led(False)
+    #print('measure-white')
+    #as7343.set_illumination_led(True)
+    #await measure_one(as7343, data, offset=2*n_channels, wait_time=wait_time)
+    #as7343.set_illumination_led(False)
+
+    as7343.stop_measurement()
 
     duration = time.ticks_diff(time.ticks_ms(), start)
     print('measure-sample-end', time.ticks_ms(), duration)
 
 
-def print_measurement(data):
-
-    max_value = 20
-    width = 40
-    char = '*'
-    base = 2.0
-
-    max_value_seen = 0
-
-    for i in range(len(data)):
-        v = data[i]
-        l = max(0, math.log(v+1e-9, base))
-        if l > max_value_seen:
-            max_value_seen = l
-        
-        w = int((l / max_value) * width)
-        #print(v, l, w)
-        s = char * w
-        print(s)
-
-    print('mm', max_value_seen)
 
 def main():
 
@@ -220,14 +220,7 @@ def main():
 
     i2c_ext = machine.I2C("i2c1")
     ext = AW9523(i2c_ext, address=0x5b)
-    as7343 = AS7343(i2c_ext)
 
-    as7343.set_measurement_time(200) # ms
-    as7343.set_integration_time(100*1000, repeat=1) # us
-    as7343.start_measurement()
-
-    as7343.set_illumination_led(False)
-    as7343.set_illumination_current(2)
 
     measurement_data = array.array('f', (0.0 for _ in range(3*len(AS7343.CHANNEL_MAP))))
 
@@ -238,7 +231,7 @@ def main():
     accumulated = 0.0
     iteration = 0
 
-    data_dir = 'data2'
+    data_dir = 'data3'
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
@@ -252,15 +245,17 @@ def main():
     last_prediction = None
 
     uv_start = len(AS7343.CHANNEL_MAP)*1
-    x_index = AS7343.CHANNEL_MAP.index('F6')
-    y_index = AS7343.CHANNEL_MAP.index('F1')
+    x_index = uv_start + AS7343.CHANNEL_MAP.index('F7')
+    y_index = uv_start + AS7343.CHANNEL_MAP.index('FZ')
     classifier = NeighborsClassifier(classes=classes, columns=[x_index, y_index])
     classifier.load_data(data_dir)
 
-    classifier.predict(measurement_data)
+    #classifier.predict(measurement_data)
 
     measurement_state = 'ready'
     #measurement_state = 'done'
+
+    selected_class = 'unknown'
 
     async def check_inputs():
 
@@ -275,21 +270,23 @@ def main():
             if button:
                 if measurement_state == 'ready':
                     measurement_state = 'measure'
-                    await measure_sample(as7343, ext, data=measurement_data, wait_time=0.2)
 
-                    # TODO: support specifying part of filename
-                    filename = 'channels-' + str(time.time()) + '.npy'
+                    gc.collect()
+                    await measure_sample(i2c_ext, ext, data=measurement_data, wait_time=0.2)
+
+                    filename = selected_class + '-channels-' + str(time.time()) + '.npy'
                     path = os.path.join(data_dir, filename)
                     shape = (len(measurement_data),)
                     npyfile.save(path, measurement_data, shape=shape)
                     print('measurement-saved', path)
 
                     measurement_state = 'done'
-                    await asyncio.sleep(1.0)
+                    await asyncio.sleep(2.0)
 
                     class_idx = classifier.predict(measurement_data)
                     class_name = classifier.classes[class_idx]
                     last_prediction = class_name
+                    print('predict-result', class_idx, class_name)
                     measurement_state = 'result'
                     await asyncio.sleep(2.0)
 
@@ -316,15 +313,16 @@ def main():
         while True:
 
             start = time.ticks_ms()
-            update_screen(n=iteration,
-                state=measurement_state,
-                data=measurement_data,
-                x_column=uv_start+x_index,
-                y_column=uv_start+y_index,
-                prediction=last_prediction,
-            )
-            duration = time.ticks_diff(time.ticks_ms(), start)
-            print('screen-update', duration)
+            if True:
+                update_screen(n=iteration,
+                    state=measurement_state,
+                    data=measurement_data,
+                    x_column=x_index,
+                    y_column=y_index,
+                    prediction=last_prediction,
+                )
+                duration = time.ticks_diff(time.ticks_ms(), start)
+                print('screen-update', duration)
             await asyncio.sleep(0.5)
 
     async def run():
