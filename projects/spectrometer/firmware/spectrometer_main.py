@@ -22,19 +22,21 @@ from gui.widgets.label import Label
 import gui.fonts.courier20 as fixed
 
 
-def update_screen(n):
+def update_screen(n, state):
+
     ssd.fill(0)
-    #refresh(ssd)
+
     Writer.set_textpos(ssd, 0, 0)  # In case previous tests have altered it
     wri = Writer(ssd, fixed, verbose=False)
     wri.set_clip(False, False, False)
-    textfield = Label(wri, 0, 2, wri.stringlen('longer'))
-    numfield = Label(wri, 25, 2, wri.stringlen('99.99'), bdcolor=None)
-    countfield = Label(wri, 0, 90, wri.stringlen('1'))
 
-    textfield.value("longer")
-    numfield.value('{:5.2f}'.format(40400 /1000))
-    countfield.value('{:1d}'.format(n))
+    textfield = Label(wri, 0, 2, wri.stringlen('measure'))
+    textfield.value(state)
+
+    #countfield = Label(wri, 0, 90, wri.stringlen('1'))
+
+    #numfield.value('{:5.2f}'.format(40400 /1000))
+    #countfield.value('{:1d}'.format(n))
 
     refresh(ssd)
 
@@ -153,7 +155,7 @@ def main():
             button = encoder.read_button()
             if button:
                 if measurement_state == 'ready':
-                    measurement_state = 'measuring'
+                    measurement_state = 'measure'
                     await measure_sample(as7343, ext, data=measurement_data, wait_time=0.2)
 
                     # TODO: support specifying part of filename
@@ -186,7 +188,7 @@ def main():
         while True:
 
             start = time.ticks_ms()
-            update_screen(n=iteration)
+            update_screen(n=iteration, state=measurement_state)
             duration = time.ticks_diff(time.ticks_ms(), start)
             print('screen-update', duration)
             await asyncio.sleep(0.5)
