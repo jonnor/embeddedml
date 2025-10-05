@@ -4,10 +4,12 @@ import machine
 import array
 import asyncio
 import math
+import os.path
 
 from aw9523 import AW9523
 from as7343 import AS7343
 from encoder import M5StackEncoder
+import npyfile
 
 from machine import Pin, SoftI2C
 
@@ -74,16 +76,16 @@ async def measure_sample(as7343, ext, data, wait_time=1.0):
 
     # measure without exitation
     ext[0:16] = 0
-    await measure_one(as7343, data, offset=0)
+    await measure_one(as7343, data, offset=0, wait_time=wait_time)
 
     # Measure with UV exitation
     ext[0:16] = 100
-    await measure_one(as7343, data, offset=n_channels)
+    await measure_one(as7343, data, offset=n_channels, wait_time=wait_time)
     ext[0:16] = 0
 
     # Measure with white LED
     as7343.set_illumination_led(True)
-    await measure_one(as7343, data, offset=2*n_channels)
+    await measure_one(as7343, data, offset=2*n_channels, wait_time=wait_time)
     as7343.set_illumination_led(False)
 
     duration = time.ticks_diff(time.ticks_ms(), start)
@@ -130,47 +132,51 @@ def main():
     measurement_data = array.array('f', (0.0 for _ in range(3*len(AS7343.CHANNEL_MAP))))
 
 
-    #test_encoder()
-
     encoder = M5StackEncoder(i2c_ext)
-
-    #encoder.set_mode('pulse')
-    #encoder.reset_counter()
-
-    color1 = bytearray([255, 0, 255])
-    color2 = bytearray([0, 255, 0])
-
     accumulated = 0.0
-
-    encoder = M5StackEncoder(i2c_ext)
-
     iteration = 0
+
+    data_dir = 'data'
+    if not os.path.exists(data_dir):
+        os.mkdir(data_dir)
+
+    measurement_state = 'ready'
 
     async def check_inputs():
 
+        nonlocal measurement_state
         nonlocal accumulated
         nonlocal iteration
 
         while True:
-            intensity = (accumulated/20000)
-            c = bytearray([0, int(255*intensity), 0])
 
-            encoder.set_led(1, c)
             button = encoder.read_button()
             if button:
-                encoder.set_led(1, color2)          
+                if measurement_state == 'ready':
+                    measurement_state = 'measuring'
+                    await measure_sample(as7343, ext, data=measurement_data, wait_time=0.2)
+
+                    # TODO: support specifying part of filename
+                    filename = 'channels-' + str(time.time()) + '.npy'
+                    path = os.path.join(data_dir, filename)
+                    shape = (len(measurement_data),)
+                    npyfile.save(path, measurement_data, shape=shape)
+
+                    measurement_state = 'ready'
+                else:
+                    print('button-ignored', measurement_state)
 
             rel = encoder.read_relative()
             accumulated += rel
 
             iteration += 1
-            await asyncio.sleep(0.005)
+            await asyncio.sleep(0.010)
 
     async def make_measurement():
 
         while True:
-            await measure_sample(as7343, ext, data=measurement_data)
-            print_measurement(measurement_data)
+            # XXX: does nothing right now
+            pass
             await asyncio.sleep(5.0)
 
 
