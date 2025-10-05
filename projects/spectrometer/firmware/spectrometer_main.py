@@ -40,7 +40,48 @@ def draw_vlines(ssd, x0, x1, y0, y1, lines=10, dash=5, gap=2, color=1):
         for y in range(y0, y1, dash + gap):
             ssd.vline(x, y, min(dash, y1-y), color)
 
-def update_screen(n, state, data, x_column, y_column):
+class NeighborsClassifier():
+
+    def __init__(self,
+            columns : list[int],
+            classes : list[str],
+            max_items=100,
+            n_neighbors=1,
+        ):
+
+        self.classes = classes
+        self.columns = columns
+
+        import emlearn_neighbors
+        self.model = emlearn_neighbors.new(max_items, len(columns), n_neighbors)
+
+    def load_data(self, data_dir : str):
+
+        for filename in os.listdir(data_dir):
+            p = os.path.join(data_dir, filename)
+            shape, data = npyfile.load(p)
+            assert len(shape) == 1, shape
+
+            # TODO: load class names, map to index
+            x = self.transform(data)
+            y = 1
+            self.model.additem(x, y)
+
+    def transform(self, data):
+        # Extract the relevant columns
+        # TODO: maybe also do a log transform?
+        values = array.array('h', ( int(data[i]) for i in self.columns ))
+        return values
+
+    def predict(self, measurement):
+        # TODO: also check how close the closest point is?
+        x = self.transform(measurement)
+        print(self.model.predict)
+        out = self.model.predict(x)
+        return out
+
+
+def update_screen(n, state, data, x_column, y_column, prediction):
 
 
     # Blank the screen
@@ -75,6 +116,16 @@ def update_screen(n, state, data, x_column, y_column):
         print('draw-point', data[x_column], data[y_column], x, y)
         # Draw a small point
         ssd.fill_rect(x + x_offset, y + y_offset, size, size, color)
+
+    elif state == 'result':
+
+        Writer.set_textpos(ssd, 0, 0)
+        wri = Writer(ssd, fixed, verbose=False)
+        wri.set_clip(False, False, False)
+
+        # TODO: center this
+        textfield = Label(wri, 0, 2, wri.stringlen('measure'))
+        textfield.value(prediction)        
 
     else:
 
@@ -191,15 +242,32 @@ def main():
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
-    measurement_state = 'ready'
-    measurement_state = 'done'
+    classes = [
+        'none',
+        'sunflower',
+        'canola',
+        'EVOO',
+        'ROO',
+    ]
+    last_prediction = None
 
+    uv_start = len(AS7343.CHANNEL_MAP)*1
+    x_index = AS7343.CHANNEL_MAP.index('F6')
+    y_index = AS7343.CHANNEL_MAP.index('F1')
+    classifier = NeighborsClassifier(classes=classes, columns=[x_index, y_index])
+    classifier.load_data(data_dir)
+
+    classifier.predict(measurement_data)
+
+    measurement_state = 'ready'
+    #measurement_state = 'done'
 
     async def check_inputs():
 
         nonlocal measurement_state
         nonlocal accumulated
         nonlocal iteration
+        nonlocal last_prediction
 
         while True:
 
@@ -215,6 +283,15 @@ def main():
                     shape = (len(measurement_data),)
                     npyfile.save(path, measurement_data, shape=shape)
                     print('measurement-saved', path)
+
+                    measurement_state = 'done'
+                    await asyncio.sleep(1.0)
+
+                    class_idx = classifier.predict(measurement_data)
+                    class_name = classifier.classes[class_idx]
+                    last_prediction = class_name
+                    measurement_state = 'result'
+                    await asyncio.sleep(2.0)
 
                     measurement_state = 'ready'
                 else:
@@ -238,15 +315,13 @@ def main():
 
         while True:
 
-            uv_start = len(AS7343.CHANNEL_MAP)*1
-            x_index = AS7343.CHANNEL_MAP.index('F6')
-            y_index = AS7343.CHANNEL_MAP.index('F1')
             start = time.ticks_ms()
             update_screen(n=iteration,
                 state=measurement_state,
                 data=measurement_data,
                 x_column=uv_start+x_index,
                 y_column=uv_start+y_index,
+                prediction=last_prediction,
             )
             duration = time.ticks_diff(time.ticks_ms(), start)
             print('screen-update', duration)

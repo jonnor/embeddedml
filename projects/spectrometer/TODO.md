@@ -6,9 +6,10 @@ Using AS7343.
 
 #### PoC
 
-- Plot the data on computer
-- Remove uninformative columns
-- Plot data on screen. Bars or similar
+
+
+Later
+
 - Scroll to select which thing to measure. Put into filename
 
 
