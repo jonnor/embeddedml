@@ -161,6 +161,7 @@ def main():
                     path = os.path.join(data_dir, filename)
                     shape = (len(measurement_data),)
                     npyfile.save(path, measurement_data, shape=shape)
+                    print('measurement-saved', path)
 
                     measurement_state = 'ready'
                 else:
