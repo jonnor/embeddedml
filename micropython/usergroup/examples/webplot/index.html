@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div id="plot"></div>
+  
+  <script>
+    // Fetch and plot CSV data
+    fetch('data.csv')
+      .then(response => response.text())
+      .then(csvData => {
+        Papa.parse(csvData, {
+          header: true,
+          dynamicTyping: true,
+          complete: function(results) {
+            const data = results.data;
+            console.log('data loaded', data);
+            
+
+            const times = data.map(row => row.time);
+            const values = data.map(row => row.measurement);
+
+            Plotly.newPlot('plot', [{
+              x: times,
+              y: values,
+              type: 'scatter',
+              mode: 'lines+markers'
+            }]);
+          }
+        });
+      });
+  </script>
+</body>
+</html>
