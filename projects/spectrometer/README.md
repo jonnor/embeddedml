@@ -1,9 +1,4 @@
 
 # Spectrometer
 
-## Firmware
-
-Dependencies
-```
-mpremote mip install os-path
-```
+Moved to https://github.com/jonnor/spectrometer
