@@ -1,9 +1,13 @@
 
 # TODO
 
+Testing
+
+- Test CH32V006 with Zephyr. At least I2C, PWM. Preferably also SPI FLASH, power management
+
 PCB design
 
-- Move LIR battery to board surface, instead of on top of components.
-PCB needs to be longer, maybe 45 mm.
-Should reduce from 5mm height to 3.5 (USB-C+PCB dictates).
-
+- Fix buzzer footprint. Should be for 5x5 mm footprint?
+- Switch to CH32V006 (Zephyr support)
+- Add mousebites for breaking off battery, add battery wire pads
+- Maybe. Add microphone input, to OPA channel
