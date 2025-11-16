@@ -288,44 +288,124 @@ Demos
 - Streaming stats/summaries
 - DTW / on-device gesture detection etc
 
+## emlearn-motion
+
+#### Typical tasks
+
+- Human Activity Detection
+- Animal Acticity Detection
+- Gesture Recognition
+- Repetition counting. Steps. Exercise
+- Fall detection
+
+
+#### Functionality
+
+- Datasets
+- Training
+- Labeling
+- Feature extraction
+- Hyperparameter tuning
+- Evaluation. Grouping. Class/EventDetection/EventTimeRegression
+- Data recording
+- Data visualization
+- Deployment. Wrapping emlearn
+- Model validation
+- Error analysis
+- Post processing. Filtering, event discretization
+- On device learning. For personalization and demos/quickstart
+
+#### Should have
+
+- Benchmarks on standard datasets. With scores and compute requirements
+- Examples that run on Zephyr and Arduino. On reference hardware
+- Bindings in emlearn-micropython
+
+#### Preprocessing/feature extraction
+
+Exists
+
+- FFT
+- Gravity separation, lowpass
+
+TODO
+
+- Axis remapping
+- Gravity separation, complimentary filter
+- Gravity separation, Mahogny/Madgewick
+
+#### Import from misc repos
+
+- toothbrush. Usecase/training pipeline. Consume emlearn-motion as library
+- har_trees in emlearn-micropython. Training pipeline
+- leaf-clustering-random-forests. Dataset download/load/normalize
+
+embeddedml. 
+
+- emlearn/activity-reconition.md
+- handson/har-chestmount/
+- handson/cat-tracker/
+- handson/tkeyo-gestures/
+- handson/continous-gestures/
+- applications/human-activity-recognition.md
+- applications/animal-activity-recognition.md
+- applications/gesture-recognition.md
+- applications/fall-detection.md
+
+#### Support in emlearn
+Things that are useful also outside of motion usecases.
+
+- .npy support
+- MiniRocket feature extractor
+- Temporal Convolutional Network (TCN)
+- Dynamic Time Warping
+
 
 # numpy .npy support
 
 ### .npy file support in C
 
+#### onai/npio
+
 https://github.com/onai/npio
-MIT licensed
-Has proper Python dict parser, and dtype parser
-Uses file descriptor ints as interface
-Allocates internally
 
+- MIT licensed
+- Has proper Python dict parser, and dtype parser
+- Uses file descriptor ints as interface
+- Allocates internally
+
+#### npy_array
 https://github.com/oysteijo/npy_array
-Seems to work without seek
-Quite simple header parsing
-Uses FILE API
-Supports npz via libzip
-Supports mmap for read
-Simple usage examples
-Provides variadic macros for constructing shape and array info
-No support for streaming write?
 
+- Seems to work without seek
+- Quite simple header parsing
+- Uses FILE API
+- Supports npz via libzip
+- Supports mmap for read
+- Simple usage examples
+- Provides variadic macros for constructing shape and array info
+- No support for streaming write?
+
+#### elgw/npio
 https://github.com/elgw/npio
-MIT
-Allocates internally
-Uses FILE interface
-No support for streaming?
 
+- MIT
+- Allocates internally
+- Uses FILE interface
+- No support for streaming?
 
-micropython-ulab
-Implements numpy .npy files in io_load and io_save
-Designed for microcontrollers
+#### micropython-ulab
 https://github.com/v923z/micropython-ulab/blob/825ec2b143ebd8d3d3707bac2af0fe1ae6cb401a/code/numpy/io/io.c#L53
-Uses memcpy to build up the header, not string formatting
-Has a minimal sprintf for size_t
-Also implements number parsing manually
-Reads a fixed 128 bytes for header. Then seeks to data start
 
-C++
+- Implements numpy .npy files in io_load and io_save
+- Designed for microcontrollers
+- Uses memcpy to build up the header, not string formatting
+- Has a minimal sprintf for size_t
+- Also implements number parsing manually
+- Reads a fixed 128 bytes for header. Then seeks to data start
+
+#### C++
+
 https://github.com/fengwang/cnpypp
 https://github.com/cdcseacave/TinyNPY
 https://github.com/rogersce/cnpy
