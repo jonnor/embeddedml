@@ -20,7 +20,6 @@ Walking detection, ref https://www.nature.com/articles/s41746-022-00745-z ?
 Data loading
 
 - Support Numpy .npy files
-- Support .csv files
 
 Classifiers
 
@@ -28,6 +27,9 @@ Classifiers
 - Switch to only output one inference method at a time.
 - Add a wrapper function also in the loadable case, for uniform C API
 
+Documentation
+
+- 
 
 ## Preprocessing improvement
 
@@ -36,7 +38,7 @@ Preprocessing
 - Feature scaling. StandardScaler/MinMax/RobustScaler
 - Feature transformations. Support custom C code
 
-Documentaion
+Documentation
 
 - Update feature extraction section
 
@@ -61,7 +63,6 @@ Examples
 
 Models
 
-- trees. Support proba
 - knn. Support proba
 
 Preprocessing
@@ -78,24 +79,20 @@ Demos
 
 - ? Heartrate detector
 - Impulse sound detector
+- Voice Activity Detection (VAD) - energy based
 
 ## Optimized trees
 
-Models
-
-- trees. Support adjustable leaf-node quantization
-- trees. Switch to 4-byte nodes? From 8 bytes now (incl padding)
-Implicit left, 8 bit relative jump. Ref feedback from Martin
-
+Work ongoing for a leaf quantization/clustering paper.
+github.com/jonnor/leaf-clustering/
 
 Benchmarking
 
-- Comparison of emlearn 0.15.x trees vs NEW trees. Size and inference time
 - Comparison with m2cgen and micromlgen
-
-Documentation
-
-- Make a paper on the leaf-compression schemes
+- Comparison with neural networks (MLP)
+Compare program memory size and execution time, vs performance.
+Need hyperparameter optimization to find good cost/performance tradeoff.
+tflite micro (int8), vs emlearn MLP (float)
 
 Marketing
 
@@ -112,12 +109,12 @@ https://www.informatica.vu.lt/journal/INFORMATICA/article/1281/text
 
 Platform support
 
-- Sensor API readout example, buffering into fixed-length windows
 - Use Zephyr QEMU to run tests in CI
 
 Demos
 
-- Something on RuuviTag?
+- Motion classification.
+Toothbrush / walking model. On XIAO etc
 
 
 ## Sound Event Detection
@@ -153,7 +150,7 @@ Support the full width of common models.
 Models
 
 - net. MLP autoencoder for anomaly/outlier
-- linear. Linear regression
+- linear. Linear regression. Move from emlearn-micropython
 - linear. Logistic regression
 - neighbour. kNN regression
 - neighbour. Nearest centroid 
