@@ -10,11 +10,13 @@ with *as little effort and risk as possible*.
 Technology choice is often made at 1)
 - if the proof-of-concept works, and no new blockers come up, they stick with that.
 
+Ease of getting started is thus key to adoptation.
+
 Hardware trends
 
 - FLASH and RAM has become much cheaper. 1MB+ now quite usual
 - Floating point FPU standard on majority of application MCUs
-- SIMD available for many. ARM NEON in Cortex M4F+
+- SIMD available for many general-purpose MCUs. ARM NEON in Cortex M4F+, DSP in Cortex M33+
 - NPUs now available in high-end MCUs
 
 

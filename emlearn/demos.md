@@ -361,6 +361,12 @@ LED matrix as CCD. 8x8. Used a light pen.
 
 Static Hand Gesture Recognition Using Capacitive Sensing and Machine Learning
 https://www.mdpi.com/1424-8220/23/7/3419
+6×18 array of capacitive sensors that captured five gestures—Palm, Fist, Middle, OK, and Index—of five participants to create a dataset of gesture images.
+Decision Tree, Naïve Bayes, Multi-Layer Perceptron (MLP) neural network, and Convolutional Neural Network (CNN) classifiers.
+Each classifier was trained five times; each time, the classifier was trained using four different participants’ gestures and tested with one different participant’s gestures.
+The MLP classifier performed the best, achieving an average accuracy of 96.87% and an average 𝐹1 score of 92.16%.
+Using FDC1004 capacitance-to-digital converters and STM32G03 MCUs. Need 27 of them. 2 USD per unit.
+CH32V006 has 8 channels capacitive touch. Only need 14 of them.
 
 ## DIY microphone
 

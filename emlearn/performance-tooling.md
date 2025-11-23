@@ -47,6 +47,7 @@ Allow to declare budgets, function for checking if over?
 Device benchmark:
 
 eml_bench_device
+
     multiply_adds/second,
     convolutions_3x3/second
     node_evaluations/second (trees)

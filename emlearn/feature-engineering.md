@@ -173,7 +173,7 @@ https://link.springer.com/article/10.1007/s10618-022-00844-1
 2022.
 
 Builds on MiniRocket.
-Does a first-order difference transformation on the input.
+Also does a first-order difference transformation on the input.
 And uses 4 pooling operators.
 Percentage of positive values (PPV); Mean of Positive Values (MPV); Mean of Indices of Positive Values (MIPV); and Longest Stretch of Positive Values (LSPV).
 Defaults to 50k features. Also tested with 10k features.
@@ -215,8 +215,21 @@ https://arxiv.org/abs/2309.14518
 Still a few thousand features. Heavily over-parametrized.
 
 HIERVAR: A HIERARCHICAL FEATURE SELECTION METHOD FOR TIME SERIES ANALYSIS
+https://arxiv.org/html/2407.16048v1
+Left with 500-1000 features, down from 10k+.
+Found a smaller amount of features than E-ROCKET.
 
-Left with 500-1000 features, down from 10k+
+S-rocket: Selective random convolution kernels for time series classification
+https://arxiv.org/abs/2203.03445
+Compares with l1 -norm pruning, Soft Filter pruning, and a Random masking.
+
+E-ROCKET. Reducing the computational complexity of learning with random convolutional features
+https://ieeexplore.ieee.org/abstract/document/10095893
+
+pre-training, knee/elbow detection, and post-training.
+
+Raster: Representation learning for time series classification using scatter score and randomized threshold exceedance rate
+
 
 #### Random and Fixed Covolutional filters
 
