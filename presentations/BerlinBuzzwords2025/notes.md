@@ -1,8 +1,14 @@
 
-## Call for Proposals
+## About
+
+7-9 June 2026 @Kulturbrauerei
 
 > Berlin Buzzwords is Europe’s leading conference for modern data infrastructure,
 > search and machine learning and is focused on open source software projects.
+
+## Call for Proposals
+
+
 
 https://program.berlinbuzzwords.de/bbuzz26/cfp
 
@@ -37,10 +43,13 @@ Title, abstract, and description of your talk will be visible to everyone and wi
 ```
 
 ## Title
-Data Science in 1 megabyte - with MicroPython and emlearn
+Data Science under 1 megabyte - for microcontrollers and browser
+
+(with MicroPython and emlearn)
+
 
 ## Length
-40 minutes, or 20 minutes
+20 minutes. Alternatively: 40 minutes 
 
 ## Abstract
 
@@ -62,7 +71,7 @@ Products.
 
 ## Notes
 
-Regular PyData stack is a foundation for science, engineering and education around the globe
+Regular PyData stack is a foundation for science, engineering and education around the globe.
 
 MicroPython enables scienstics, engineers, makers and students to use their Python skills
 also in the area of physical computing, embedded devices, etc
@@ -83,10 +92,8 @@ It is a solid alternative to Arduino etc.
 
 - Submit abstract
 - Test emlearn-micropython in browser
-- Create demo out of 
-- Make a browser demo for inference
-- Make a browser demo of training
-- Make a browser demo for train-in-browser + deploy-on-device
+- Create some web demo
+
 
 ## Ideas
 
@@ -105,7 +112,28 @@ Usecases
 - Robotics.
 - DIY/Maker/kits. For niche cases. Or open-ended.
 
-Searching in the context of IoT standalone devices, private and open
+Demos
+
+- Motion classification
+- Audio analysis / Sound Event Detection
+- UV-Vis-NIR spectroscopy
+- Gesture recognition. With built-in learning. Datavis in browser
+- Indoor localization and mapping
+
+Random
+
+- Reference Amy, and their in browser ?
+
+
+## MicroPython and emlearn in browser
+
+- Make a browser demo for inference. Basically same kind of model as on device.
+- Browser demo, heavier model, running on instances on-device model flagged of interest
+- Make a brower demo for labeling
+- Make a browser demo of training
+- Make a browser demo for train-in-browser + deploy-on-device
+
+## Searching in the context of IoT standalone devices, private and open
 
 - Searching through large amounts of information is a key facet of todays IoT and cloud systems
 - Often this is done by transmitting all the IoT data to a centralized (and propriertary) cloud service, which then can do the search
@@ -121,28 +149,57 @@ Want to do event detection, to annotate timeline. But also search to find things
 - On-edge storage.
 - What can be done on ESP32 class hardware? Or RPI grade.
 Do some benchmarking. Of 
-- My interests right now. Not so much the computer vision or smart.
-But time-series storage / data-warehouse for MicroPython is good fundamental to have.
-Both features and vectors. Ex: Parquet. Or Arrow.
-Approximate Neigbors vector search would also be interesting.
-Maybe Locality Sensitive Hashing? Or Product Quantization (PQ). Or HNSW.
-Indexing for features also interesting. Inverted Index with Bucketing. VA-File (Vector Approximation). R-Tree*
-Multi-step temporal aggregation also interesting.
-Data-thinning strategies with implementations.
-Data-sampling strategies with implementations.
-Indexing strategies must be suitable for incremental/continious indexing, and work with low memory.
+- My interests right now. Not so much the computer vision or smart doorbell.
 More interested in applying it to Sound Event Detection.
 
+## Related fundamentals
 
-Demos
+- Time-series storage / data-warehouse for MicroPython 
+- Both for features and vectors. Ex: Parquet. Or Arrow.
+- Also web APIs to access this, with MicroDot
+- Approximate Neigbors vector search would also be interesting.
+Maybe Locality Sensitive Hashing? Or Product Quantization (PQ). Or HNSW.
+- Indexing for features also interesting.
+Inverted Index with Bucketing.
+VA-File (Vector Approximation).
+R-Tree*
+- Multi-step temporal aggregation also interesting.
+- Data-thinning strategies with implementations.
+- Data-sampling strategies with implementations.
 
-- Motion classification
-- Audio analysis / Sound Event Detection
-- UV-Vis-NIR spectroscopy
-- Gesture recognition. With built-in learning. Datavis in browser
-- Indoor localization and mapping
+NOTE: Indexing strategies must be suitable for incremental/continious indexing,
+and work with low memory.
 
-Random
 
-- Reference Amy, and their in browser ?
+## Performance boundaries
+
+How much data do we have, with time-series
+
+- 1 second resolution over 1 year, 31 M datapoints. 1 GB at 32 bytes/sample
+- 1 minute resolution over 1 year, 0.5 M datapoints. 16 MB
+- 1 second resolution over 3 months, 7 M datapoints. 250 MB
+
+> Here's the result for the onboard flash on an ESP32-S3-MINI-N8R2:
+> 
+> Write: 4.25 MB, 78.510 secs, 55.43243 kB/sec
+> Read: 4.25 MB,  4.294 sec, 1013.507 kB/sec
+> 
+> It's running in quad mode and 80 MHz.
+> 
+> Was able to get 10 MB/sec, with some tweaks to block sizes.
+>
+> https://github.com/orgs/micropython/discussions/14130
+
+On STM32, people were able to read SDcard at 10 MB/S
+
+> https://github.com/micropython/micropython/issues/2648
+
+Assuming we can read 1 MB/second.
+At 100 bytes/sample, 10k samples/second.
+With 8 MB PSRAM, could theoretically keep 1MB+ data in-memory.
+
+Only dynamic/parametric queries makes sens to do after-the-fact.
+Other things are better to do on a continual basis.
+
+
 
