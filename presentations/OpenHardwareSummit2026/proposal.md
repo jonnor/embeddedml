@@ -72,4 +72,5 @@ cocotb. Python-based test framework for register-level hardware. https://docs.co
 Verilator. A Verilog simultor. https://verilator.org/guide/latest
 LibreLane. Convert designs to ASIC manufacturing. https://librelane.readthedocs.io/en/latest/
 
+Project and presentation by jonnor (https://jonnor.com) and mastensg (http://mastensg.net/).
 

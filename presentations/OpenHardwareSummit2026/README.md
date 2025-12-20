@@ -6,3 +6,5 @@
 [Talk proposal](./proposal.md)
 
 [Notes/planning](./notes.md)
+
+Project and presentation by [jonnor](https://jonnor.com) and [mastensg](http://mastensg.net/).
