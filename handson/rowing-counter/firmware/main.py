@@ -102,7 +102,7 @@ def main():
     record_enable = True
     record_duration = 20.0
     record_dir = 'record'
-    record_class = 'other'
+    record_class = 'rowing'
 
     # FIXME: standardize configuration between hardwares
     if hardware == HW_M5STICK_PLUS2:
