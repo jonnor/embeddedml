@@ -105,14 +105,7 @@ def main():
     record_class = 'rowing'
 
     # FIXME: standardize configuration between hardwares
-    if hardware == HW_M5STICK_PLUS2:
-        samplerate = 50
-        accel_offset = 0 # data is AxAyAzTc
-        accel_format = '>hhh'
-        # FIXME: make MPU also support gyro
-        bytes_per_sample = 8 
-        record_format = '>hhh'
-    else:
+    if hardware == HW_XIAO_BLE_SENSE:
         samplerate = 52
         bytes_per_sample = 12
         accel_offset = 6 # data is GxGyGzAxAyAz
@@ -140,7 +133,6 @@ def main():
         print('hardware-init-xiao-ble-sense')
         time.sleep(1)
 
-        import lsm6ds
         # On XIAO BLE, pin 6, 26, 30 has RGB LED. Active low
         record_pin = machine.Pin(("gpio0", 6), machine.Pin.OUT) # 6=blue
         error_pin = machine.Pin(("gpio0", 26), machine.Pin.OUT) # 26=red
@@ -153,7 +145,8 @@ def main():
         time.sleep(0.1)
         error_pin.value(1)
 
-        # FIXME: use 52 Hz, and FIFO
+        # Setup accelerometer/gyro
+        import lsm6ds
         i2c = I2C("i2c0")
         assert samplerate == 52
         imu = lsm6ds.LSM6DS3(i2c, mode=lsm6ds.MODE_52HZ | 0b0000_1000)
