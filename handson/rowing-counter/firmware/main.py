@@ -226,16 +226,14 @@ if __name__ == '__main__':
 
     #test_outputs()
 
-    main()
-
-    #try:
-    #    main()
-    #except KeyboardInterrupt:
-    #    raise
-    #except Exception as e:
-    #    print('unhandled-exception', e)
-    #    time.sleep(1)
-    #    raise e
-    #    machine.reset()
+    try:
+        main()
+    except KeyboardInterrupt:
+        raise e
+    except Exception as e:
+        print('unhandled-exception', e)
+        time.sleep(1)
+        raise e
+        machine.reset()
 
 
