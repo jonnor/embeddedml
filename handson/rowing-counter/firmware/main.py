@@ -136,37 +136,22 @@ def main():
     time.sleep(1)
 
     # Setup hardware-specific things
-    if hardware == HW_M5STICK_PLUS2:
-        # pin19 is internal red LED on M5StickC PLUS2
-        led_pin = machine.Pin(19, machine.Pin.OUT)
-        # pin2 is internal buzzer on M5StickC PLUS2
-        buzzer_pin = machine.Pin(2)
-
-        # On M5StickC we need to set HOLD pin to stay alive when on battery
-        hold_pin = machine.Pin(4, machine.Pin.OUT)
-        hold_pin.value(1)
-
-        from mpu6886 import MPU6886
-        imu = MPU6886(I2C(0, sda=21, scl=22, freq=100000))
-        # Enable FIFO at a fixed samplerate
-        imu.fifo_enable(True)
-        imu.set_odr(samplerate)
-
-        assert imu.bytes_per_sample == bytes_per_sample,\
-            (imu.bytes_per_sample, bytes_per_sample)
-        deinterleave_samples = deinterleave_samples_m5stick
-
-    elif hardware == HW_XIAO_BLE_SENSE:
+    if hardware == HW_XIAO_BLE_SENSE:
         print('hardware-init-xiao-ble-sense')
         time.sleep(1)
 
         import lsm6ds
-        # On XIAO BLE, pin 6, 26, 30 has RGB LED
-        led_pin = ("gpio0", 26)
-        # Using PWM on the same bank as buzzer does not work
-        #led_pin = ("pwm0", 0)
-        # PWM1 is mapped to GPIO pins using Zephyr .overlay
-        buzzer_pin = ("pwm0", 1)
+        # On XIAO BLE, pin 6, 26, 30 has RGB LED. Active low
+        record_pin = machine.Pin(("gpio0", 6), machine.Pin.OUT) # 6=blue
+        error_pin = machine.Pin(("gpio0", 26), machine.Pin.OUT) # 26=red
+        detect_pin = machine.Pin(("gpio0", 30), machine.Pin.OUT) # 30=green
+        record_pin.value(1)
+        detect_pin.value(1)
+
+        # Indicate start
+        error_pin.value(0)
+        time.sleep(0.1)
+        error_pin.value(1)
 
         # FIXME: use 52 Hz, and FIFO
         i2c = I2C("i2c0")
@@ -212,9 +197,11 @@ def main():
                         rowstride=bytes_per_sample, offset=accel_offset, format=accel_format)
 
                     if record_enable:
+                        record_pin.value(0)
                         decode_samples(chunk, record_buffer,
                             format=record_format, rowstride=bytes_per_sample)
                         recorder.process(record_buffer)
+                        record_pin.value(1)
 
                     read_duration = time.ticks_ms() - read_start
 
