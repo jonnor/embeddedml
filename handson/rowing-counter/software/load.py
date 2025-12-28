@@ -9,7 +9,11 @@ def load_recordings(path,
         samplerate=52,
         sensitivity=4.0,
         maxvalue=32767,
+        columns=None,
         ):
+
+    if columns is None:
+        columns = ['gyro_x', 'gyro_y', 'gyro_z', 'acc_x', 'acc_y', 'acc_z']
 
     suffix = '.npy'
 
@@ -24,9 +28,10 @@ def load_recordings(path,
                 print(e)
                 continue
 
-            df = pandas.DataFrame(data, columns=['x', 'y', 'z'])
+            df = pandas.DataFrame(data, columns=columns)
 
             # Scale values into physical units (g)
+            # FIXME: handle gyro scaled separately
             df = df.astype(float) / maxvalue * sensitivity
 
             # Add a time column, use as index

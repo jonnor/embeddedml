@@ -46,6 +46,7 @@ class DataProcessor():
         neg_level=-0.2,
         pos_time_min=0.1,
         neg_time_min=0.1,
+        state_time_max=2.0,
         ):
 
         self.state = initial
@@ -59,8 +60,10 @@ class DataProcessor():
         # convert from seconds to number of samples
         self.pos_time_min = int(pos_time_min * samplerate)
         self.neg_time_min = int(neg_time_min * samplerate)
+        self.time_max = int(state_time_max * samplerate)
 
-        
+        self.accepts = 0
+        self.cancels = 0
     
     def process(self, values, filtered, states):
         """
@@ -97,16 +100,25 @@ class DataProcessor():
                         new_state = State.WAIT_NEG
                     else:
                         new_state = State.CANCEL
+                else:
+                    if self.time_in_state >= self.time_max:
+                        new_state = State.CANCEL
 
             elif self.state == State.WAIT_NEG:
                 if value < self.neg_level:
                     new_state = State.NEG_PEAK
+                else:
+                    if self.time_in_state >= self.time_max:
+                        new_state = State.CANCEL
 
             elif self.state == State.NEG_PEAK:
                 if value >= self.neg_level:
                     if self.time_in_state > self.neg_time_min:
                         new_state = State.ACCEPT
                     else:
+                        new_state = State.CANCEL
+                else:
+                    if self.time_in_state >= self.time_max:
                         new_state = State.CANCEL
 
             if new_state != self.state:
@@ -117,4 +129,9 @@ class DataProcessor():
             self.state = new_state
             states[index] = new_state
             filtered[index] = value
+
+            if new_state == State.ACCEPT:
+                self.accepts += 1
+            if new_state == State.CANCEL:
+                self.cancels += 1
 
