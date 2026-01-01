@@ -219,7 +219,7 @@ Collaboration
 - ?
 
 
-## IMU TinyML
+## Motion / IMU TinyML
 
 Levels
 
@@ -231,11 +231,18 @@ Preprocessing
 - Spectral. Using FFT
 - Interval trees? quant etc
 - Gravity removal. Low-pass
+- Axis remapping
+- Axis rotation
+- Filtering. Low-pass etc
 
 Collaboration possibilities
 
 - Smartwatch projects? https://github.com/wasp-os/wasp-os
 
+Classification models
+
+- DTW and KNN
+https://claude.ai/chat/3d54311a-b26f-40e4-9ec7-6435204be8cb
 
 
 ### Softmax

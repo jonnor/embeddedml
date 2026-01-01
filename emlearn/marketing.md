@@ -32,6 +32,7 @@ Shorts:
 - Speeding up MicroPython compute using code emitters. RMS
 - Dynamic native C module in MicroPython. RMS
 - Use FIFO for IMU with MicroPython, power saving
+- Processing numpy files with micropython-npyfile
 - Extra virgin olive oil detection with UV and AS7343
 - Linear regression on device, with emlearn-micropython, npyfile
 - Toothbrush NRF52 with Zephyr and MicroPython 
