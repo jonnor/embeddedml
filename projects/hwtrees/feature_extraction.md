@@ -119,6 +119,9 @@ https://tinytapeout.com/runs/tt06/tt_um_rejunity_fp4_mul_i8
 https://github.com/rejunity/tiny-asic-1_58bit-matrix-mul
 Uses 6 tiles.
 
+## Coarse-Grain Reconfigurable Arrays (CGRAs)
+
+See [cgra.md](cgra.md)
 
 ## Dot product
 
@@ -226,10 +229,11 @@ Configuration
 Out. 1024 kHz nominal. 3 Mhz max. 
 - Scaling
 Allow to shift by ?
-- Oversampling ratio. Fixed 64x ?
+- Oversampling ratio. Fixed 64x ? Maybe also 128x
 - Channels. Single mono only.
 ?? Selectable clock edge?
-
+- CLK pin selection. 7 pins
+- DATA pin selection. 7 pins
 
 ## References
 

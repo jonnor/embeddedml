@@ -519,6 +519,33 @@ Would probably want to block off the memory region used in firmware program, say
 
 ### Related works
 
+#### ACACES 2025: Designing RISC-V energy-efficient edge-node SoCs, Davide Schiavone – Lecture 4
+
+https://youtu.be/LKRcuP3fQA8?t=1943
+
+EPFL's HEEP and X-HEEP platforms for easily creating accelerators and microcontroller SoCs that contain these. 
+
+An Open-Hardware CGRA for accelerated computation on the edge. 
+https://github.com/esl-epfl/OpenEdgeCGRA
+Coarse Grained Reconfigurable Array (CGRA).
+Can express a computational graph.
+Can do multiple operations per cycle. 16, in 4x4 array
+
+X-HEEP: an open-hardware RISC-V system-on-chip
+https://x-heep.readthedocs.io/en/latest/
+https://github.com/x-heep/x-heep
+
+https://github.com/esl-epfl/HEEPsilon
+
+
+https://github.com/des-cei/strela
+Streaming Coarse Grained Reconfigurable Array (CGRA).
+Cannot reprogram for every operation - quasi-static compute graphs.
+
+In-memory / near-memory computing.
+ALU exists inside the memory.
+Motivation: Reducing memory transfers. Including the related power consumption.
+
 #### FPGA Accelerator for Gradient Boosting Decision Trees
 https://www.mdpi.com/2079-9292/10/3/314
 
