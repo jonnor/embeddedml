@@ -24,9 +24,46 @@ For the software, one try to can upload via built-in bootloader
 
     !! currently not working
 
+TODO: try to use program baked into bitstream instead
+TODO: try on iceSugar instead
+
 ## LiteX
+
+
+### LiteX on IceSugar 1.5
+
+Setup virtualenv with supported Python version
+```
+python3.12 -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies
+```
+pip install -r requirements-litex.txt
+```
+
+Build
+```
+python -m litex_boards.targets.muselab_icesugar     --cpu-type=vexriscv     --cpu-variant=minimal     --build
+```
+
+NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/icesugar/tree/master/tools/src) (NOT `iceprog`).
+
+### LiteX on Upduino v3.x
+
+https://github.com/tinyvision-ai-inc/UPduino-v3.0/issues/16
+
+https://github.com/Xenador77/litex-boards/blob/master/litex_boards/targets/upduino_v3.py
+
 
 ### Can't extract CSR name from code in Python 3.14
 
 https://github.com/enjoy-digital/litex/issues/2399
+https://github.com/m-labs/migen/issues/297
 
+Fixed after 0.9.2 release. But no new release as of January 2026?
+https://github.com/m-labs/migen/commit/4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
+
+Same in Python 3.12
+With Python 3.10, I get litex 2024.12 and migen 0.9.2 - old
