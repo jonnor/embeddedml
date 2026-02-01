@@ -43,9 +43,13 @@ Install dependencies
 pip install -r requirements-litex.txt
 ```
 
-Build
+Build, load bitstream and flash BIOS software
 ```
-python -m litex_boards.targets.muselab_icesugar     --cpu-type=vexriscv     --cpu-variant=minimal     --build
+python -m litex_boards.targets.muselab_icesugar     --cpu-type=vexriscv     --cpu-variant=minimal     --build --load --flash
+```
+
+```
+picocom /dev/ttyACM0 -b 115000
 ```
 
 NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/icesugar/tree/master/tools/src) (NOT `iceprog`).
