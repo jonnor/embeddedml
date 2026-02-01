@@ -88,7 +88,7 @@ static void led_test(void)
 	int i;
 	printf("led_test...\n");
 	for(i=0; i<32; i++) {
-		leds_out_write(i);
+		//leds_out_write(i);
 		busy_wait(1);
 	}
 }
@@ -112,18 +112,27 @@ static void console_service(void)
 
 int main(void)
 {
+
+#if 0
 #ifdef CONFIG_CPU_HAS_INTERRUPT
 	irq_setmask(0);
 	irq_setie(1);
 #endif
 	uart_init();
+#endif
 
+#if 0
 	puts("\nLab004 - CPU testing software built "__DATE__" "__TIME__"\n");
 	help();
 	prompt();
-
-	while(1) {
-		console_service();
+#endif
+	while(1) {  
+        const int interval = 1000;
+        const int bit = 0;
+        gpio_out_write(gpio_out_read() | (1 << bit));
+        busy_wait(interval);
+        gpio_out_write(gpio_out_read() & ~(1 << bit));
+        busy_wait(interval);
 	}
 
 	return 0;
