@@ -1,8 +1,9 @@
--e git+https://github.com/xenador77/litex-boards.git@master#egg=litex-boards
--e git+https://github.com/enjoy-digital/litex.git@2025.04#egg=litex
--e git+https://github.com/enjoy-digital/litedram.git@2025.04#egg=litedram
--e git+https://github.com/litex-hub/litespi.git@2025.04#egg=litespi
+-e git+https://github.com/litex-hub/litex-boards.git@2025.12#egg=litex-boards
+-e git+https://github.com/enjoy-digital/litex.git@2025.12#egg=litex
+-e git+https://github.com/enjoy-digital/litedram.git@2025.12#egg=litedram
+-e git+https://github.com/litex-hub/litespi.git@2025.12#egg=litespi
 -e git+http://github.com/m-labs/migen.git@4c2ae8dfeea37f235b52acb8166f12acaaae4f7c#egg=migen
 git+https://github.com/litex-hub/pythondata-software-compiler_rt.git
 git+https://github.com/litex-hub/pythondata-cpu-vexriscv.git
 git+https://github.com/litex-hub/pythondata-software-picolibc.git
+
