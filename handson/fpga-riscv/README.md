@@ -50,6 +50,21 @@ python -m litex_boards.targets.muselab_icesugar     --cpu-type=vexriscv     --cp
 
 NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/icesugar/tree/master/tools/src) (NOT `iceprog`).
 
+### References
+
+
+[Getting started with Litex on a Tang Nano 9K](https://justanotherelectronicsblog.com/?p=1263)
+
+Tutorial/walkthrough of SoC setup and custom peripheral (PWM).
+Also discusses how to make a program and upload it.
+python -m litex.tools.litex_term /dev/ttyACM0 --kernel foo.bin
+
+
+https://wot.lv/from-zero-to-soc-in-litex.html
+
+Says LiteX BIOS should print stuff on UART on boot.
+
+
 ### LiteX on Upduino v3.x
 
 https://github.com/tinyvision-ai-inc/UPduino-v3.0/issues/16
