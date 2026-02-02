@@ -21,7 +21,7 @@ from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.cores.led import LedChaser
-from litex.soc.cores.gpio import GPIOTristate
+from litex.soc.cores.gpio import GPIOTristate, GPIOIn, GPIOOut
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -97,8 +97,15 @@ class BaseSoC(SoCCore):
                 sys_clk_freq = sys_clk_freq)
 
         # GPIO
-        self.gpio = GPIOTristate(platform.request("user_led_n"))
+        # user_led_n
+        self.gpio = GPIOIn(platform.request_all("user_sw"))
         self.add_csr("gpio")
+
+        self.gpio2 = GPIOOut(platform.request_all("user_led_n"))
+        self.add_csr("gpio2")
+
+        #user_led = platform.request(("user_led_n[1]",)
+        #self.comb += user_led.eq(0)
 
 
 # Flash --------------------------------------------------------------------------------------------
@@ -106,7 +113,10 @@ class BaseSoC(SoCCore):
 def flash(bios_flash_offset):
     from litex.build.lattice.programmer import IceSugarProgrammer
     prog = IceSugarProgrammer()
-    prog.flash(bios_flash_offset, "build/muselab_icesugar/software/bios/bios.bin")
+
+    #prog.flash(bios_flash_offset, "build/muselab_icesugar/software/bios/bios.bin")
+
+    prog.flash(bios_flash_offset, "firmware/firmware.bin")
     prog.flash(0x00000000,        "build/muselab_icesugar/gateware/muselab_icesugar.bin")
 
 # Build --------------------------------------------------------------------------------------------
