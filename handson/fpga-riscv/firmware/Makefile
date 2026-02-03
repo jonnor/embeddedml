@@ -9,9 +9,9 @@ include $(SOC_DIRECTORY)/software/common.mak
 
 # libgcc might be needed for software implementations of math,
 # for some RISC-V variants
-LIBS += libgcc
+#LIBS += libgcc
 
-OBJECTS=main.o isr.o crt0.o
+OBJECTS=main.o crt0.o
 
 all: firmware.bin
 
@@ -23,20 +23,15 @@ all: firmware.bin
 	chmod -x $@
 
 firmware.elf: $(OBJECTS)
-	$(CC) $(LDFLAGS) \
-		-T linker.ld \
-		-N -o $@ \
+	$(CC) $(LDFLAGS) -T linker.ld -N -o $@ \
 		$(OBJECTS) \
 		$(PACKAGES:%=-L$(BUILD_DIR)/software/%) \
+		-Wl,--whole-archive \
+		-Wl,--gc-sections \
+		-Wl,-Map,$@.map \
 		$(LIBS:lib%=-l%)
-	chmod -x $@
 
-main.o: main.c
-	$(compile)
-
-crt0.o: $(CPU_DIRECTORY)/crt0.S
-	@echo "CPU_DIRECTORY=$(CPU_DIRECTORY)"
-	$(assemble)
+VPATH = $(BIOS_DIRECTORY):$(BIOS_DIRECTORY)/cmds:$(CPU_DIRECTORY)
 
 %.o: %.c
 	$(compile)
@@ -47,4 +42,4 @@ crt0.o: $(CPU_DIRECTORY)/crt0.S
 clean:
 	$(RM) $(OBJECTS) $(OBJECTS:.o=.d) firmware.elf firmware.bin .*~ *~
 
-.PHONY: all main.o clean load
+.PHONY: all clean load
