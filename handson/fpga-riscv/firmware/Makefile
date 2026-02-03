@@ -7,7 +7,11 @@ BUILD_DIR=../build/${TARGET}
 include $(BUILD_DIR)/software/include/generated/variables.mak
 include $(SOC_DIRECTORY)/software/common.mak
 
-OBJECTS=main.o
+# libgcc might be needed for software implementations of math,
+# for some RISC-V variants
+LIBS += libgcc
+
+OBJECTS=main.o isr.o crt0.o
 
 all: firmware.bin
 
@@ -31,6 +35,7 @@ main.o: main.c
 	$(compile)
 
 crt0.o: $(CPU_DIRECTORY)/crt0.S
+	@echo "CPU_DIRECTORY=$(CPU_DIRECTORY)"
 	$(assemble)
 
 %.o: %.c

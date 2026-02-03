@@ -54,8 +54,25 @@ picocom /dev/ttyACM0 -b 115000
 
 NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/icesugar/tree/master/tools/src) (NOT `iceprog`).
 
-### References
+### TODO
 
+Must
+
+- Get GDB working. Via UARTBone bridge?
+- Create a custom peripheral, test read/write from software
+- Try integrating the PDM peripheral from TinyTapeout/galearn
+- Try running some code using emlearn
+
+Want
+
+- Automatic build of the firmware
+- Test a smaller CPU.
+serv did not work on first try. PicoRV32? femtorv? neorv32? fazyrv?
+- Get Zephyr-based firmware running
+- Get UART from firmware to work
+- Try out the simulation support
+
+### References
 
 [Getting started with Litex on a Tang Nano 9K](https://justanotherelectronicsblog.com/?p=1263)
 

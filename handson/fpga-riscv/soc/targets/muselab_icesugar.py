@@ -110,14 +110,27 @@ class BaseSoC(SoCCore):
 
 # Flash --------------------------------------------------------------------------------------------
 
-def flash(bios_flash_offset):
+def flash(bios_flash_offset, program='bios'):
     from litex.build.lattice.programmer import IceSugarProgrammer
     prog = IceSugarProgrammer()
 
-    #prog.flash(bios_flash_offset, "build/muselab_icesugar/software/bios/bios.bin")
+    if program == 'bios':
+        program_path = "build/muselab_icesugar/software/bios/bios.bin"
+    elif program == 'firmware':
 
-    prog.flash(bios_flash_offset, "firmware/firmware.bin")
-    prog.flash(0x00000000,        "build/muselab_icesugar/gateware/muselab_icesugar.bin")
+        import subprocess
+        subprocess.run('make -C firmware/ V=1 clean all', shell=True, check=True)
+
+        program_path = "firmware/firmware.bin"
+    else:
+        program_path = program
+
+    # Executable of our program (firmware)
+    prog.flash(bios_flash_offset, program_path)
+    
+    # bitstream for our SoC (gateware)
+    # NOTE: done by --load
+    #prog.flash(0x00000000,        "build/muselab_icesugar/gateware/muselab_icesugar.bin")
 
 # Build --------------------------------------------------------------------------------------------
 
@@ -127,6 +140,9 @@ def main():
     parser.add_target_argument("--flash",             action="store_true",       help="Flash Bitstream.")
     parser.add_target_argument("--sys-clk-freq",      default=24e6,  type=float, help="System clock frequency.")
     parser.add_target_argument("--bios-flash-offset", default="0x40000",         help="BIOS offset in SPI Flash.")
+
+    parser.add_target_argument("--flash-program", default="bios",
+        help="Which program to flash")
 
     args = parser.parse_args()
 
@@ -145,7 +161,7 @@ def main():
         prog.load_bitstream(builder.get_bitstream_filename(mode="sram", ext=".bin")) # FIXME
 
     if args.flash:
-        flash(int(args.bios_flash_offset, 0))
+        flash(int(args.bios_flash_offset, 0), program=args.flash_program)
 
 if __name__ == "__main__":
     main()
