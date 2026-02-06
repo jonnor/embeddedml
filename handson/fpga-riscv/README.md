@@ -54,22 +54,26 @@ picocom /dev/ttyACM0 -b 115000
 
 NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/icesugar/tree/master/tools/src) (NOT `iceprog`).
 
+#### Tested CPUs
+
+- `--cpu-type vexriscv --cpu-variant minimal`. Blink works. 4500 LUTs
+- `--cpu-type picorv32 --cpu-variant standard`. Blink works. 3400 LUTs
+- `--cpu-type femtorv --cpu-variant standard`. Blink and UART out works. 2500 LUTs
+- `--cpu-type fazyrv --cpu-variant standard`. Blink works. 2300 LUTs
+- `--cpu-type serv --cpu-variant standard`. Blink **FAILS**. Under 2000 LUTs
+
 ### TODO
 
 Must
 
-- Get GDB working. Via UARTBone bridge?
 - Create a custom peripheral, test read/write from software
 - Try integrating the PDM peripheral from TinyTapeout/galearn
 - Try running some code using emlearn
 
 Want
 
-- Automatic build of the firmware
-- Test a smaller CPU.
-serv did not work on first try. PicoRV32? femtorv? neorv32? fazyrv?
 - Get Zephyr-based firmware running
-- Get UART from firmware to work
+- Get GDB working. Via UARTBone bridge FAILED. Via JTAG using a DAPLink compatible device?
 - Try out the simulation support
 
 ### References
