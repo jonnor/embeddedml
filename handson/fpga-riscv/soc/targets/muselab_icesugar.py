@@ -8,6 +8,8 @@
 
 # iCESugar FPGA: https://www.aliexpress.com/item/4001201771358.html
 
+import subprocess
+
 from migen import *
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
@@ -117,11 +119,13 @@ def flash(bios_flash_offset, program='bios'):
     if program == 'bios':
         program_path = "build/muselab_icesugar/software/bios/bios.bin"
     elif program == 'firmware':
-
-        import subprocess
         subprocess.run('make -C firmware/ V=1 clean all', shell=True, check=True)
 
         program_path = "firmware/firmware.bin"
+    elif program == 'demo':
+        subprocess.run('litex_bare_metal_demo --build-path build/muselab_icesugar/', shell=True, check=True)
+        program_path = "demo/demo.bin"
+
     else:
         program_path = program
 
