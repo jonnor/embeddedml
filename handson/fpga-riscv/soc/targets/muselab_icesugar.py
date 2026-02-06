@@ -17,6 +17,7 @@ from litex.gen import *
 
 from ..platforms import muselab_icesugar
 from ..cores.pwm import PwmModule
+from ..cores.math import SIMD_PADD8_Signed
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
@@ -112,6 +113,10 @@ class BaseSoC(SoCCore):
 
         self.pwm0 = PwmModule(platform.request("user_led_n"))
         self.add_csr('pwm0')
+
+        # Math acceleration
+        self.submodules.simd = SIMD_PADD8_Signed()
+        self.csr.add("simd") 
 
 
 # Flash --------------------------------------------------------------------------------------------
