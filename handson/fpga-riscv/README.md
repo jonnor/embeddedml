@@ -62,11 +62,18 @@ NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/i
 - `--cpu-type fazyrv --cpu-variant standard`. Blink works. 2300 LUTs
 - `--cpu-type serv --cpu-variant standard`. Blink **FAILS**. Under 2000 LUTs
 
+#### Zephyr on LiteX
+
+NOTE: must have timer uptime enabled. For example by adding `--timer-uptime`.
+
+XXX: when trying to run `minimal` Zephyr sample.
+Not seeing any output on serial from the printk()
+
 ### TODO
 
 Must
 
-- Create a custom peripheral, test read/write from software
+- Test getting an interrupt from peripheral
 - Try integrating the PDM peripheral from TinyTapeout/galearn
 - Try running some code using emlearn
 
@@ -75,6 +82,7 @@ Want
 - Get Zephyr-based firmware running
 - Get GDB working. Via UARTBone bridge FAILED. Via JTAG using a DAPLink compatible device?
 - Try out the simulation support
+- Get MicroPython on Zephyr working
 
 ### References
 
@@ -113,7 +121,7 @@ Same in Python 3.12
 With Python 3.10, I get litex 2024.12 and migen 0.9.2 - old
 
 
-### GDB for 
+### GDB for LiteX with VexRISCV
 
 Per https://github.com/enjoy-digital/litex/wiki/JTAG-GDB-Debugging-with-VexRiscv-CPU
 
