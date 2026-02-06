@@ -115,7 +115,7 @@ class BaseSoC(SoCCore):
         self.add_csr('pwm0')
 
         # Math acceleration
-        self.submodules.simd = SIMD_PADD8_Signed()
+        self.submodules.simd = SIMD_PADD8_Signed(platform)
         self.csr.add("simd") 
 
 
