@@ -1,34 +1,9 @@
 
-# RISC-V softcore on ICE40
+# LiteX RISC-V SoC on ICE40
 
+**Status: Experimental**. Below is a rough collection of notes.
 
-## neo32rv
-
-On Arch Linux, needed to install from AUR
-
-    python-pytooling 8.11.0-1
-    ghdl-yosys-plugin-git
-    riscv-none-elf-gcc-bin
-
-Needed to specify the ghdl plugin
-
-    make BOARD=UPDuino-v3.0 MinimalBoot YOSYS='yosys -m ghdl'
-
-TX/RX is on pin 28/38 on UPDuino 3.1. Default baudrate is 19200
-
-    picocom /dev/ttyUSB0 -b 19200
-
-For the software, one try to can upload via built-in bootloader
-
-    make upload UART_TTY=/dev/ttyUSB0
-
-    !! currently not working
-
-TODO: try to use program baked into bitstream instead
-TODO: try on iceSugar instead
-
-## LiteX
-
+## Notes
 
 ### LiteX on IceSugar 1.5
 
@@ -83,6 +58,7 @@ Want
 - Get GDB working. Via UARTBone bridge FAILED. Via JTAG using a DAPLink compatible device?
 - Try out the simulation support
 - Get MicroPython on Zephyr working
+- Do power measurements of ICE40UP5k. Static, minimal dynamic
 
 ### References
 
@@ -117,8 +93,7 @@ https://github.com/m-labs/migen/issues/297
 Fixed after 0.9.2 release. But no new release as of January 2026?
 https://github.com/m-labs/migen/commit/4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
 
-Same in Python 3.12
-With Python 3.10, I get litex 2024.12 and migen 0.9.2 - old
+Have to install migen from git!
 
 
 ### GDB for LiteX with VexRISCV
