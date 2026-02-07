@@ -19,6 +19,7 @@ from ..platforms import muselab_icesugar
 from ..cores.pwm import PwmModule
 from ..cores.math import SIMD_PADD8_Signed
 from ..cores.timer import TimerIRQ
+from ..cores.pdm import PDMMic
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
@@ -106,22 +107,26 @@ class BaseSoC(SoCCore):
         self.gpio = GPIOIn(platform.request_all("user_sw"))
         self.add_csr("gpio")
 
-        #self.gpio2 = GPIOOut(platform.request_all("user_led_n"))
-        #self.add_csr("gpio2")
+        self.gpio2 = GPIOOut(platform.request_all("user_led_n"))
+        self.add_csr("gpio2")
 
         #user_led = platform.request(("user_led_n[1]",)
         #self.comb += user_led.eq(0)
 
-        self.pwm0 = PwmModule(platform.request("user_led_n"))
-        self.add_csr('pwm0')
+        #self.pwm0 = PwmModule(platform.request("user_led_n"))
+        #self.add_csr('pwm0')
 
         # Math acceleration
-        self.submodules.simd = SIMD_PADD8_Signed(platform)
+        # NOTE: submodules add with AutoCSRs adds CSR automatically
+        #self.submodules.simd = SIMD_PADD8_Signed(platform)
 
         # Something with interrupts
-        self.submodules.itimer = TimerIRQ(platform)
-        # NOTE: submodules add with AutoCSRs adds CSR automatically
-        self.irq.add("itimer", use_loc_if_exists=False)
+        # self.submodules.itimer = TimerIRQ(platform)
+        # self.irq.add("itimer", use_loc_if_exists=False)
+
+        pdm_pads = platform.request("pdm")
+        self.submodules.pdm_mic = PDMMic(platform, pdm_pads)
+        self.irq.add("pdm_mic")
 
 
 # Flash --------------------------------------------------------------------------------------------

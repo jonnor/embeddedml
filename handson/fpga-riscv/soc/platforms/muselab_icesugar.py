@@ -29,6 +29,13 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # PDM microphone, on PMOD 1
+    ("pdm", 0,
+        Subsignal("clk", Pins("48")),
+        Subsignal("data", Pins("9")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # Switches / jumper-attached to PMOD4
     ("user_sw", 0, Pins("18"), IOStandard("LVCMOS18")),
     ("user_sw", 1, Pins("19"), IOStandard("LVCMOS18")),
