@@ -7,7 +7,7 @@ module pdm_mic (
     // Configuration from LiteX CSRs
     input wire enable,
     input wire [7:0] period,
-    input wire irq_clear,
+    input wire irq_clear,  // Not used, kept for compatibility
     
     // PDM interface
     input wire pdm_data_in,
@@ -15,7 +15,7 @@ module pdm_mic (
     
     // Outputs to LiteX
     output reg [15:0] pcm_sample,
-    output reg irq
+    output wire pcm_valid  // Changed from irq
 );
 
     // PDM clock generation
@@ -36,30 +36,27 @@ module pdm_mic (
     
     // CIC filter
     wire [15:0] pcm_from_filter;
-    wire pcm_valid;
+    wire pcm_valid_from_filter;
     
     cic3_pdm cic(
         .clk(pdm_clk),
         .rst(rst),
         .pdm_in(pdm_data_in),
         .pcm_out(pcm_from_filter),
-        .pcm_valid(pcm_valid)
+        .pcm_valid(pcm_valid_from_filter)
     );
     
-    // Sample capture and interrupt generation
+    // Sample capture - output valid when filter produces valid sample
     always @(posedge clk) begin
         if (rst) begin
             pcm_sample <= 0;
-            irq <= 0;
-        end else begin
-            if (irq_clear) begin
-                irq <= 0;
-            end else if (enable & pcm_valid) begin
-                pcm_sample <= pcm_from_filter;
-                irq <= 1;
-            end
+        end else if (enable & pcm_valid_from_filter) begin
+            pcm_sample <= pcm_from_filter;
         end
     end
+    
+    // Pass through valid signal
+    assign pcm_valid = enable & pcm_valid_from_filter;
 
 endmodule
 
