@@ -10,7 +10,7 @@
 #include <generated/csr.h>
 
 #define BATCH_SIZE 64
-volatile int32_t sample_count = 0;
+volatile uint32_t sample_count = 0;
 int16_t audio_buffer[BATCH_SIZE];
 
 void pdm_mic_isr(void) {
@@ -60,7 +60,7 @@ int main(void)
     // PDM microphone
     irq_attach(PDM_MIC_INTERRUPT, pdm_mic_isr);
     
-    pdm_mic_period_write(2000);
+    pdm_mic_period_write(23);
     pdm_mic_ev_enable_write(1); // enable interrupt
     
     irq_setmask(irq_getmask() | (1 << PDM_MIC_INTERRUPT));
@@ -76,6 +76,7 @@ int main(void)
     busy_wait(200);
 
 	printf("\e[92;1started\e[0m> \n");
+    printf("System clock: %d MHz\n", (int)(CONFIG_CLOCK_FREQUENCY / 1e6));
 
     uint32_t start = time_ms();
 	while(1) {
@@ -87,7 +88,7 @@ int main(void)
 
         uint16_t level = pdm_mic_fifo_level_read();
 
-        const int32_t time = time_ms();
+        const int32_t time = time_ms() - start;
         const int per_second = (sample_count * 1000) / time; 
 	    printf("i t=%d s=%d l=%d p=%d \n",
             (int)time, (int)sample_count, (int)level, (int)per_second);
