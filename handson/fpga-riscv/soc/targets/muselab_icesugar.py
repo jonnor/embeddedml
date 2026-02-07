@@ -18,6 +18,7 @@ from litex.gen import *
 from ..platforms import muselab_icesugar
 from ..cores.pwm import PwmModule
 from ..cores.math import SIMD_PADD8_Signed
+from ..cores.timer import TimerIRQ
 
 from litex.soc.cores.ram import Up5kSPRAM
 from litex.soc.cores.clock import iCE40PLL
@@ -116,7 +117,11 @@ class BaseSoC(SoCCore):
 
         # Math acceleration
         self.submodules.simd = SIMD_PADD8_Signed(platform)
-        self.csr.add("simd") 
+
+        # Something with interrupts
+        self.submodules.itimer = TimerIRQ(platform)
+        # NOTE: submodules add with AutoCSRs adds CSR automatically
+        self.irq.add("itimer", use_loc_if_exists=False)
 
 
 # Flash --------------------------------------------------------------------------------------------
@@ -134,6 +139,10 @@ def flash(bios_flash_offset, program='bios'):
     elif program == 'demo':
         subprocess.run('litex_bare_metal_demo --build-path build/muselab_icesugar/', shell=True, check=True)
         program_path = "demo/demo.bin"
+
+    elif program == 'zephyr':
+
+        program_path = '/home/jon/projects/micropython/ports/zephyr/zephyrproject-4.3/build/zephyr/zephyr.bin'
 
     else:
         program_path = program

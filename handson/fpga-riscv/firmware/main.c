@@ -53,6 +53,15 @@ void gpio2_out_write(int x) {
     ;
 }
 
+void itimer_isr(void) {
+    unsigned int pending = itimer_ev_pending_read();
+    
+    if (pending & 1) {
+        printf("Timer interrupt!\n");
+        itimer_ev_pending_write(1);
+    }
+}
+
 int main(void)
 {
     gpio2_out_write(0xFE);
@@ -66,6 +75,24 @@ int main(void)
 	irq_setie(1);
 #endif
 	uart_init();
+
+    // Register itimer ISR
+    irq_attach(ITIMER_INTERRUPT, itimer_isr);
+    
+    // Setup timer
+    itimer_prescaler_write(1000);
+    itimer_count_write(10000);
+    
+    // Enable timer interrupt in EventManager
+    itimer_ev_enable_write(1);
+    
+    irq_setmask(irq_getmask() | (1 << ITIMER_INTERRUPT));
+    irq_setie(1);
+
+    // Enable timer
+    itimer_enable_write(1);    
+    printf("Timer started!\n");
+
 
     gpio2_out_write(0xFB);
     busy_wait(200);
