@@ -9,9 +9,17 @@
 // LiteX includes
 #include <generated/csr.h>
 
+#ifdef __riscv_mul
+#else
+#error "no hardware multiply"
+#endif
+
+float rms_int16(const int16_t *data, uint32_t length);
+
 #define BATCH_SIZE 64
 volatile uint32_t sample_count = 0;
 int16_t audio_buffer[BATCH_SIZE];
+volatile float latest_rms = 0.0f; 
 
 void pdm_mic_isr(void) {
     unsigned int pending = pdm_mic_ev_pending_read();
@@ -26,12 +34,48 @@ void pdm_mic_isr(void) {
         }
         sample_count += to_read;
 
+        const float rms = rms_int16(audio_buffer, to_read);
+        latest_rms = rms;
+
         // Clear interrupt
         pdm_mic_ev_pending_write(1);
     }
 }
 
+// Fast integer square root using Newton's method
+uint32_t isqrt32(uint32_t n) {
+    if (n == 0) return 0;
+    
+    uint32_t x = n;
+    uint32_t y = (x + 1) >> 1;
+    
+    while (y < x) {
+        x = y;
+        y = (x + n / x) >> 1;
+    }
+    
+    return x;
+}
 
+// Compute RMS using all integer operations, return as float
+float rms_int16(const int16_t *data, uint32_t length) {
+    uint64_t sum = 0;
+    
+    // Accumulate sum of squares
+    for (uint32_t i = 0; i < length; i++) {
+        int32_t val = data[i];
+        sum += (uint64_t)(val * val);
+    }
+    
+    // Compute mean
+    uint32_t mean = sum / length;
+    
+    // Integer square root
+    uint32_t rms_int = isqrt32(mean);
+    
+    // Convert to float only at the end
+    return (float)rms_int;
+}
 
 // Get current time in milliseconds
 uint64_t time_ms(void) {
@@ -66,8 +110,6 @@ int main(void)
     irq_setmask(irq_getmask() | (1 << PDM_MIC_INTERRUPT));
     irq_setie(1);
     
-    pdm_mic_enable_write(1); // enable PDM clock
-
     // Timer
     timer0_en_write(1);
 
@@ -78,7 +120,19 @@ int main(void)
 	printf("\e[92;1started\e[0m> \n");
     printf("System clock: %d MHz\n", (int)(CONFIG_CLOCK_FREQUENCY / 1e6));
 
-    uint32_t start = time_ms();
+
+    const int repetitions = 10;
+    const int length = BATCH_SIZE/1;
+    const uint32_t before = time_ms();
+    for (int i=0; i<repetitions; i++) {
+        rms_int16(audio_buffer, length);
+    }
+    const uint32_t duration = time_ms() - before;
+    printf("rms length=%d per call: %d us\n", length, (duration*1000)/repetitions);
+
+
+    pdm_mic_enable_write(1); // enable PDM clock
+    const uint32_t start = time_ms();
 	while(1) {
 
         const int interval = 500;
@@ -90,8 +144,8 @@ int main(void)
 
         const int32_t time = time_ms() - start;
         const int per_second = (sample_count * 1000) / time; 
-	    printf("i t=%d s=%d l=%d p=%d \n",
-            (int)time, (int)sample_count, (int)level, (int)per_second);
+	    printf("i t=%d s=%d l=%d p=%d r=%d \n",
+            (int)time, (int)sample_count, (int)level, (int)per_second, (int)latest_rms);
 
         gpio2_out_write(0x00);
         busy_wait(interval);
