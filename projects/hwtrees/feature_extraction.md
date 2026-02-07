@@ -87,6 +87,28 @@ https://arm-software.github.io/CMSIS_5/Core/html/group__intrinsic__SIMD__gr.html
 
 The Helium SIMD instructions found on ARM Cortex M52 / M55 / M85 further extends this.
 
+### RISC-V P extension - Packed SIMD
+
+[riscv-p-spec](https://github.com/riscv/riscv-p-spec).
+
+Very similar to DSP / NEON extension on ARM Cortex M.
+As of January 2026, P extension is documented, but not ratified.
+
+Not implemented in any chips as of now?
+
+#### P-CORE: Exploring RISC-V Packed-SIMD Extension for CNN
+MUHAMMAD ALI, ENSIEH ALIAGHA, MAHMOUD ELNASHAR AND DIANA GÖHRINGER
+Technische Universität Dresden
+
+Tested Lenet-5 CNN and found 5x speedup overall from 8-bit SIMD.
+Tested on Xilinx Zynq Ultrascale.
+Used a RV32IM CPU as base, added P and F extensions.
+RV32IMP took 11k LUTs vs 4k for RV32IM. Also used DSP cells.
+Dynamic power around 70 mW.
+
+Compared with CV32E40P
+! efficiency was 
+
 
 ### Matrix matrix multiplications
 
