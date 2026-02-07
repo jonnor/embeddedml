@@ -9,18 +9,29 @@
 // LiteX includes
 #include <generated/csr.h>
 
+#define BATCH_SIZE 64
 volatile int32_t sample_count = 0;
-volatile int16_t latest_sample = 0;
+int16_t audio_buffer[BATCH_SIZE];
 
 void pdm_mic_isr(void) {
     unsigned int pending = pdm_mic_ev_pending_read();
     
     if (pending & 1) {
-        latest_sample = (int16_t)pdm_mic_sample_read();
-        sample_count += 1;
+        // Read available samples from FIFO
+        uint16_t level = pdm_mic_fifo_level_read();
+        uint16_t to_read = (level > BATCH_SIZE) ? BATCH_SIZE : level;
+        
+        for (int i = 0; i < to_read; i++) {
+            audio_buffer[i] = pdm_mic_sample_read();
+        }
+        sample_count += to_read;
+
+        // Clear interrupt
         pdm_mic_ev_pending_write(1);
     }
 }
+
+
 
 // Get current time in milliseconds
 uint64_t time_ms(void) {
@@ -73,9 +84,13 @@ int main(void)
         gpio2_out_write(0xFF);
         busy_wait(interval);
     
+
+        uint16_t level = pdm_mic_fifo_level_read();
+
         const int32_t time = time_ms();
         const int per_second = (sample_count * 1000) / time; 
-	    printf("i t=%d s=%d p=%d \n", (int)time, (int)sample_count, (int)per_second);
+	    printf("i t=%d s=%d l=%d p=%d \n",
+            (int)time, (int)sample_count, (int)level, (int)per_second);
 
         gpio2_out_write(0x00);
         busy_wait(interval);
