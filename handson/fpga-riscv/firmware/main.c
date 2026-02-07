@@ -60,7 +60,7 @@ int main(void)
     // PDM microphone
     irq_attach(PDM_MIC_INTERRUPT, pdm_mic_isr);
     
-    pdm_mic_period_write(80);
+    pdm_mic_period_write(2000);
     pdm_mic_ev_enable_write(1); // enable interrupt
     
     irq_setmask(irq_getmask() | (1 << PDM_MIC_INTERRUPT));

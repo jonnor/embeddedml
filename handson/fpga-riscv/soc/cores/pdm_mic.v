@@ -6,8 +6,7 @@ module pdm_mic (
     
     // Configuration from LiteX CSRs
     input wire enable,
-    input wire [7:0] period,
-    input wire irq_clear,  // Not used, kept for compatibility
+    input wire [16:0] period,
     
     // PDM interface
     input wire pdm_data_in,
@@ -15,26 +14,33 @@ module pdm_mic (
     
     // Outputs to LiteX
     output reg [15:0] pcm_sample,
-    output wire pcm_valid  // Changed from irq
+    output reg pcm_valid
 );
 
-    // PDM clock generation
-    reg [7:0] pdm_phase;
+    // PDM clock generation - divide input clock by period
+    reg [16:0] pdm_phase;
     reg pdm_clk;
     
     always @(posedge clk) begin
         if (rst) begin
             pdm_phase <= 0;
             pdm_clk <= 0;
+        end else if (enable) begin
+            if (pdm_phase >= period) begin
+                pdm_phase <= 0;
+                pdm_clk <= ~pdm_clk;
+            end else begin
+                pdm_phase <= pdm_phase + 1;
+            end
         end else begin
-            pdm_clk <= pdm_phase < (period >> 1);
-            pdm_phase <= (pdm_phase + 1 < period) ? pdm_phase + 1 : 0;
+            pdm_phase <= 0;
+            pdm_clk <= 0;
         end
     end
     
     assign pdm_clk_out = enable & pdm_clk;
     
-    // CIC filter
+    // CIC filter runs on PDM clock edges
     wire [15:0] pcm_from_filter;
     wire pcm_valid_from_filter;
     
@@ -46,17 +52,20 @@ module pdm_mic (
         .pcm_valid(pcm_valid_from_filter)
     );
     
-    // Sample capture - output valid when filter produces valid sample
+    // Sample capture and valid signal
     always @(posedge clk) begin
         if (rst) begin
             pcm_sample <= 0;
-        end else if (enable & pcm_valid_from_filter) begin
-            pcm_sample <= pcm_from_filter;
+            pcm_valid <= 0;
+        end else begin
+            pcm_valid <= 0;  // Default to not valid
+            
+            if (enable & pcm_valid_from_filter) begin
+                pcm_sample <= pcm_from_filter;
+                pcm_valid <= 1;  // Pulse valid for one cycle
+            end
         end
     end
-    
-    // Pass through valid signal
-    assign pcm_valid = enable & pcm_valid_from_filter;
 
 endmodule
 
