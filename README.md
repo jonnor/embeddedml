@@ -68,6 +68,139 @@ Require network and wireless hardware components on the circuit design which inc
 It might waste bandwidth sending useless data.
 
 
+
+# Own contributions
+
+Presentations
+
+- [Machine Learning on Microcontrollers; Tiny, Useful and Fun](./presentations/ai-dev-europe-2025). Open Source GenAI & ML Summit. August 2025.
+- [Machine Learning on Microcontrollers With Zephyr and emlearn](./presentations/open-source-summit-europe-2025). Open Source Summit / Zephyr Developer Summit. August 2025.
+- [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/). PyCon South Africa, October 2024.
+- [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024). Embedded Online Conference. April 2024.
+- [6 years of open source TinyML with emlearn](./presentations/TinymlEMEA2024). TinyML EMEA, Milano. June 2024.
+- [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024). May 2024.
+- [Machine Learning on microcontrollers using MicroPython and emlearn](./presentations/PyDataBerlin2024/). PyDataBerlin & PyCon DE. April 2024.
+
+Open source software
+
+- [emlearn](https://github.com/emlearn/emlearn). Machine Learning inference engine in C99 for Microcontrollers and Embedded devices. Since 2018.
+- [emlearn-micropython](https://github.com/emlearn/emlearn-micropython). Efficient and convenient Machine Learning and DSP for MicroPython. Since 2024.
+
+Fun projects
+
+- Automatic toothbrush timer using accelerometer. [Github project](https://github.com/jonnor/toothbrush/). [Video presentation](https://www.youtube.com/watch?v=KkrfKPlnoZQ).
+- Spectrometer for edible oils [Github project](https://github.com/jonnor/spectrometer/).
+
+Commercial projects
+
+- Acoustic detection of first crack in [Roest coffee roasting machines](https://www.roestcoffee.com/). Shipping since 2019.
+[Tech presentation](https://www.youtube.com/watch?v=muZY1eCke40). 
+
+
+# Learning material
+
+Books
+
+* [Learning in Embedded Systems](https://mitpress.mit.edu/books/learning-embedded-systems), May 1993.
+* [TinyML: Machine Learning with TensorFlow on Arduino, and Ultra-Low Power Micro-Controllers](https://tinymlbook.com/). January, 2020.
+* [TinyML Cookbook](https://www.packtpub.com/product/tinyml-cookbook/9781801814973).
+* [Machine Learning Systems - Principles and Practices of Engineering Artificially Intelligent Systems](https://mlsysbook.ai/book/).
+
+Articles
+
+- [Embedded.com: Applying machine learning in embedded systems](https://www.embedded.com/applying-machine-learning-in-embedded-systems)
+- [Embedded.com: Transfer learning for the IoT](https://www.embedded.com/transfer-learning-for-the-iot/)
+
+# Tools
+
+Open-source
+
+* [emlearn](http://github.com/emlearn/emlearn). Inference engine for microcontrollers.
+Supports converting scikit-learn models to plain C code.
+No dynamic allocations. No runtime needed.
+* [TensorFlow Lite for Microcontrollers](https://www.tensorflow.org/lite/microcontrollers).
+Supports neural network models made with TensorFlow (including Keras).
+Can run on wide range of platforms.
+Since November 2018. Supports ARM Cortex M, RISC-V, ESP32/Xtensa and Linux/MacOS host.
+Requires a runtime, aroud 20 kB.
+* [onnx2c](https://github.com/kraiskil/onnx2c). Allows generating C code from ONNX models.
+* [iree](https://iree.dev/guides/deployment-configurations/bare-metal/). Compiler. Has bare metal target. Around 30 kB runtime.
+* [executorch](https://github.com/pytorch/executorch).
+C++ framework for deploying PyTorch models. Focused on custom backends, NPUs etc. Microcontroller CPU less in focus.
+Around 50 kB runtime. Supports bare-metal via "Portable" operations, or specialized for Cortex M.
+* [nnom](https://github.com/majianjia/nnom) - Fixed-point neural network compiler for microcontrollers.
+Supports wide range of networks. Outputs plain C code. Can use CMSIS-NN on ARM Cortex M.
+* [Embedded Learning Library](https://github.com/Microsoft/ELL) by Microsoft. Discontinued in 2024
+Set of C++ libraries for machine learning on embedded platforms. Includes code for kNN, RandomForest etc.
+Also has some node-based dataflow system in place it seems. JavaScript and Python bindings.
+* [uTensor](https://github.com/uTensor/uTensor).
+Export Tensorflow model to mbed/ARM microcontrollers.
+Not supported on ESP32 or RISC-V or similar. Lower activity since 2021.
+- [sklearn-porter](https://github.com/nok/sklearn-porter).
+Can compile DecisionTreeClassifier and SVC models to C.
+Uses dynamic memory.
+Not optimized for use on embedded devices.
+* [microTVM](https://tvm.apache.org/docs/topic/microtvm/index.html).
+Depends only on the C standard library, and runs bare metal such as STM32 and NRF52 microcontrollers.
+Is under development. Which models are supported on microcontrollers not specified.
+
+Low-level libraries
+
+* [gemmlowp](https://github.com/google/gemmlowp).
+Low-precision matrix multiplication. Only general matrix multiplication ("GEMM"). C++11
+* [CMSIS-NN](https://github.com/ARM-software/CMSIS-NN). Neural network operations for ARM Cortex M.
+* [esp-nn](https://github.com/espressif/esp-nn). Neural Network functions Espressif ESP32 (Xtensa and RISC-V).
+* [](https://github.com/google/XNNPACK). Can be used bare-metal, but more focused on mobile/server grade (Cortex A+ etc).
+
+Proprietary
+
+* X-CUBE-AI for STM32
+
+
+Historical
+
+- [nn4mc_cpp](https://github.com/correlllab/nn4mc_cpp).
+Neural Networks for Microcontrollers.
+Supports Keras natively. Provides instructions for PyTorch et.c via ONNX.
+Documentation for using from Python is lacking, as well as the type of networks supported.
+Does not seem maintained since 2020.
+* [Embedded Classification Software Toolbox](https://github.com/ma2th/ecst).
+Unmaintained since 2018.
+* ONNC project has a [backend for ARM Cortex M](https://github.com/ONNC/onnc-tutorial/blob/master/lab_2_Digit_Recognition_with_ARM_CortexM/lab_2.md) (using CMSIS-NN)
+and a [C backend](https://github.com/ONNC/onnc/blob/74e59908b2881844329c3d330eea7a7c306e1e22/docs/ONNC-C-Backend-Guide.md).
+Allows to convert an ONNX models to run on devices.
+Not updated since 2021.
+- [micromlgen](https://github.com/eloquentarduino/micromlgen).
+Generate C code for microcontrollers from Python's sklearn classifiers.
+Archived in 2024.
+
+# Models
+
+A range of Machine Learning models are useful in an embedded devices setting.
+Classical methods are used when the amount of data is quite small,
+and neural networks for large datasets and complex inputs.
+
+Below are notes on the various models in the context of embedded Machine Learning,
+including model size and compute-time optimization.
+
+- [Tree-based methods](./models/tree-based.md).
+Random Forest, Extratrees, Decision Trees, et.c.
+- [Neural Networks](./models/neural-networks.md).
+Convolutional Neural Networks (CNN), Recurrent Neural Networks (RNN), Autoencoders
+- [Support Vector Machines](./models/support-vector-machine.md) (SVM).
+- [Mixture models](./models/mixtures.md).
+Gaussian Mixture Models (GMM).
+- [Nearest Neighbours](./models/k-nearest-neighbours.md). kNN et.c.
+
+
+# More topics
+
+- [Privacy](./topics/privacy.md)
+- [Energy usage](./topics/energy-usage.md)
+- [Model size](./topics/model-size.md)
+- [On-device learning](./on-device-learning)
+
+
 ## State of the Art in 2019
 Of ML inference on general-purpose microcontrollers.
 
@@ -104,107 +237,6 @@ Ways of advancing, make contributions
 - Libraries or tools. Lower time to market, enable more developers
 
 
-# Own contributions
-
-Presentations
-
-- [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/) - October 2024
-- [6 years of open source TinyML with emlearn](./presentations/TinymlEMEA2024) - June 2024
-- [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024) - May 2024
-- [Machine Learning on microcontrollers using MicroPython and emlearn](./presentations/PyDataBerlin2024/). PyDataBerlin & PyCon DE - April 2024 
-
-Open source software projects
-
-- [emlearn](https://github.com/emlearn/emlearn). Machine Learning inference engine for Microcontrollers and Embedded devices.
-- [emlearn-micropython](https://github.com/emlearn/emlearn-micropython). Efficient Machine Learning engine for MicroPython.
-
-
-# Learning material
-
-Books
-
-* [Learning in Embedded Systems](https://mitpress.mit.edu/books/learning-embedded-systems), May 1993.
-* [TinyML: Machine Learning with TensorFlow on Arduino, and Ultra-Low Power Micro-Controllers](https://tinymlbook.com/). January, 2020.
-* [TinyML Cookbook](https://www.packtpub.com/product/tinyml-cookbook/9781801814973)
-
-Articles
-
-- [Embedded.com: Applying machine learning in embedded systems](https://www.embedded.com/applying-machine-learning-in-embedded-systems)
-- [Embedded.com: Transfer learning for the IoT](https://www.embedded.com/transfer-learning-for-the-iot/)
-
-# Tools
-
-Open-source
-
-* [emlearn](http://github.com/emlearn/emlearn). Inference engine for microcontrollers.
-Supports converting scikit-learn models to plain C code.
-No dynamic allocations. No runtime needed.
-* [TensorFlow Lite for Microcontrollers](https://www.tensorflow.org/lite/microcontrollers).
-Supports neural network models made with TensorFlow (including Keras).
-Can run on wide range of platforms.
-Since November 2018. Supports ARM Cortex M, RISC-V, ESP32/Xtensa and Linux/MacOS host.
-Requires a runtime, aroud 20 kB.
-* [onnx2c](https://github.com/kraiskil/onnx2c). Allows generating C code from ONNX models.
-* [iree](https://iree.dev/guides/deployment-configurations/bare-metal/). Compiler. Around 30 kB runtime.
-* [executorch](https://github.com/pytorch/executorch). C++ framework for deploying PyTorch models.
-Around 50 kB runtime. Supports bare-metal via "Portable" operations, or specialized for Cortex M.
-* [nnom](https://github.com/majianjia/nnom) - Fixed-point neural network compiler for microcontrollers.
-Supports wide range of networks. Outputs plain C code. Can use CMSIS-NN on ARM Cortex M.
-- [micromlgen](https://github.com/eloquentarduino/micromlgen)
-* [Embedded Learning Library](https://github.com/Microsoft/ELL) by Microsoft.
-Set of C++ libraries for machine learning on embedded platforms. Includes code for kNN, RandomForest etc.
-Also has some node-based dataflow system in place it seems. JavaScript and Python bindings.
-* ONNC project has a [backend for ARM Cortex M](https://github.com/ONNC/onnc-tutorial/blob/master/lab_2_Digit_Recognition_with_ARM_CortexM/lab_2.md) (using CMSIS-NN)
-and a [C backend](https://github.com/ONNC/onnc/blob/74e59908b2881844329c3d330eea7a7c306e1e22/docs/ONNC-C-Backend-Guide.md).
-Allows to convert an ONNX models to run on devices.
-- [nn4mc_cpp](https://github.com/correlllab/nn4mc_cpp).
-Neural Networks for Microcontrollers.
-Supports Keras natively. Provides instructions for PyTorch et.c via ONNX.
-Documentation for using from Python is lacking, as well as the type of networks supported.
-Does not seem maintained since 2020.
-* [uTensor](https://github.com/uTensor/uTensor).
-Export Tensorflow model to mbed/ARM microcontrollers.
-Not supported on ESP32 or RISC-V or similar.
-* [Embedded Classification Software Toolbox](https://github.com/ma2th/ecst).
-Unmaintained since 2018.
-- [sklearn-porter](https://github.com/nok/sklearn-porter).
-Can compile DecisionTreeClassifier and SVC models to C.
-Uses dynamic memory.
-Not optimized for use on embedded devices.
-* [microTVM](https://tvm.apache.org/docs/topic/microtvm/index.html).
-Depends only on the C standard library, and runs bare metal such as STM32 and NRF52 microcontrollers.
-Is under development. Which models are supported on microcontrollers not specified.
-
-Proprietary
-
-* X-CUBE-AI for STM32
-
-
-# Models
-
-A range of Machine Learning models are useful in an embedded devices setting.
-Classical methods are used when the amount of data is quite small,
-and neural networks for large datasets and complex inputs.
-
-Below are notes on the various models in the context of embedded Machine Learning,
-including model size and compute-time optimization.
-
-- [Tree-based methods](./models/tree-based.md).
-Random Forest, Extratrees, Decision Trees, et.c.
-- [Neural Networks](./models/neural-networks.md).
-Convolutional Neural Networks (CNN), Recurrent Neural Networks (RNN), Autoencoders
-- [Support Vector Machines](./models/support-vector-machine.md) (SVM).
-- [Mixture models](./models/mixtures.md).
-Gaussian Mixture Models (GMM).
-- [Nearest Neighbours](./models/k-nearest-neighbours.md). kNN et.c.
-
-
-# More topics
-
-- [Privacy](./topics/privacy.md)
-- [Energy usage](./topics/energy-usage.md)
-- [Model size](./topics/model-size.md)
-- [On-device learning](./on-device-learning)
 
 
 
