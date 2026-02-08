@@ -73,6 +73,7 @@ It might waste bandwidth sending useless data.
 
 Presentations
 
+- [Sensor data processing for scientific applications with MicroPython](./presentations/euroscipy2025/). EuroSciPy 2025, Krakow.
 - [Machine Learning on Microcontrollers; Tiny, Useful and Fun](./presentations/ai-dev-europe-2025). Open Source GenAI & ML Summit. August 2025.
 - [Machine Learning on Microcontrollers With Zephyr and emlearn](./presentations/open-source-summit-europe-2025). Open Source Summit / Zephyr Developer Summit. August 2025.
 - [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/). PyCon South Africa, October 2024.
