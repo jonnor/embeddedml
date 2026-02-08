@@ -53,7 +53,14 @@ Data Science under 1 megabyte - for microcontrollers and browser
 
 ## Abstract
 
-Python is the lingua franca of the machine learning and data science applications.
+Python is the standard solution for many machine learning and data science applications,
+from large cloud systems, to workstations, and even on larger embedded or robotics systems.
+But as we move down into more constrained environments regular (C)Python starts to be a less good fit.
+The MicroPython project provides a Python implementation that is tailored for such environments,
+and this makes it possible scale down to microcontrollers with just a few megabytes of RAM (or less!).
+As a bonus, MicroPython with WebAssembly also makes lightweight browser applications possible.
+In this talk, we will discuss how to combine IoT devices, MicroPython and browser to build
+stand-alone smart sensor systems and laboratory gear for physical data science.
 
 Scaling down in terms of RAM and CPU requirements enables
 massive scale.
@@ -132,6 +139,34 @@ Random
 - Make a brower demo for labeling
 - Make a browser demo of training
 - Make a browser demo for train-in-browser + deploy-on-device
+
+## Stand-alone devices for physical data science
+
+Plug & play.
+
+- Without needing any cloud connectivity.
+- Without 
+
+- Keeps the user in control
+- 
+
+Aspects
+
+- Measure using sensors
+- Store the data
+- Connectivity using WiFi
+- Discovery using mDNS
+- Settings/configuration/control via webui
+- Automated continious data processing/analysis. DSP and ML
+- Interactive data analysis, served via webui. Lookup, visualization, faceting, clustering
+- Raw data storage/sampling, for building/monitoring ML datasets
+- Labeling for ML models, via webui. Few-shot learning?
+- Optional integration. Pull using HTTP API (same as webui). Push using Webhooks, MQTT
+
+Details
+
+- asyncio concurrency
+
 
 ## Searching in the context of IoT standalone devices, private and open
 

@@ -14,7 +14,8 @@ Computationally efficient tree-based ensemble models
 250 to 2100 characters.
 
 Tree-based ensembles such as Random Forest are incredibly useful predictive models for classification and regression tasks.
-These kinds of models tend to give very good predictive results with little hyperparameter tuning. In many cases, the computational costs (inference time, disk space, and RAM usage) is acceptable by default.
+These kinds of models tend to give very good predictive results with little hyperparameter tuning.
+In many cases, the computational costs (inference time, disk space, and RAM usage) is acceptable by default.
 However, it can happen that your model is much slower or larger than you need.
 In this talk we teach you avoid or fix these problems,
 and how to make tree-based ensemble models that are highly computationally efficient.

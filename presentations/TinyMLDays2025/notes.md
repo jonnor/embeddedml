@@ -263,10 +263,20 @@ Anguita et al (2013)
 > The gravitational force is assumed to have only low frequency components,
 > found from the experiments that 0.3 Hz was an optimal corner frequency for a constant gravity signal.
 
-? also 3rd order 
+? also 3rd order, like their other.
 
+In "A benchmark for domain adaptation and generalization in smartphone-based human activity recognition"
 https://www.nature.com/articles/s41597-024-03951-4
-Uses 3rd order
+
+> The Acc can only sense the total acceleration, so some procedures must be performed to separate the body and gravity acceleration.
+> Several methods described in the literature are suitable for this task.
+> However, the most common involves applying a high-pass Butterworth filter of low order (e.g., order 3) with a cutoff frequency below 1 Hz
+
+In "Frequency Domain Approach for Activity Classification using Accelerometer"
+Chung et al, 2028
+
+> Elliptical IIR High Pass filter (HPF) of seventh order with 0.5 Hz cutoff frequency
+was used to separate the bodily accelerations from the gravity accelerations.
 
 ## Sampling rate
 
@@ -301,7 +311,8 @@ Device Orientation Independent Human Activity Recognition Model for Patient Moni
 
 > highlight the impact of changes in device orientation on a HAR algorithm and the potential of simple wearable sensor data augmentation for tackling this challenge.
 > When applying small rotations (<20 degrees), the error of the baseline non-augmented model steeply increased.
-> On the contrary, even when considering rotations ranging from 0 to 180 along the frontal axis, our model reached a f1-score of 0.85±0.11 against a baseline model f1-score equal to 0.49±0.12.
+> On the contrary, even when considering rotations ranging from 0 to 180 along the frontal axis,
+> our model reached a f1-score of 0.85±0.11 against a baseline model f1-score equal to 0.49±0.12.
 
 ## Window stacking
 
@@ -350,8 +361,7 @@ Explainable features for activity recognition
 Fig. 2. Power spectral density (PSD) and median frequency for the Z-axis data for walking and running
 median frequency was calculated from power spectral density (PSD) of Z-axis
 
-Elliptical IIR High Pass filter (HPF) of seventh order with 0.5 Hz cutoff frequency
-was used to separate the bodily accelerations from the gravity accelerations.
+
 
 
 #### A benchmark for domain adaptation and generalization in smartphone-based human activity recognition

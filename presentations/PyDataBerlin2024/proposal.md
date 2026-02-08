@@ -70,6 +70,8 @@ These are very powerful and affordable, with good WiFi+BLE connectivity support,
 gpod open-source toolchains, very popular both among hobbyist and companies,
 and have many good ready-to-use hardware development kits.
 
+## Intended audience and expected background
+
 The audience is expected to have a basic literacy in Python and proficiency in programming,
 and familiarity with core Machine Learning concepts such as
 supervised/unsupervised learning, classification/regression, et.c.

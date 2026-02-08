@@ -333,6 +333,8 @@ Seems more useful.
 
 Ships MicroPython 1.22
 
+https://gitlab.com/buildroot.org/buildroot/-/tree/master/package/micropython
+
 https://github.com/open-power/buildroot/blob/master/package/micropython/micropython.mk
 
 

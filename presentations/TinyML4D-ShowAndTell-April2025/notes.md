@@ -29,7 +29,7 @@ Image: project overview
 Building examples for emlearn/MicroPython.
 Complete end-to-end project. Non-standard use-case.
 Designing behavior. Data, training, firmware, testing it out.
-
+r
 #### What it does
 Track how long you are actively brushing your teeth. Gives you sound cue as you progress, and complete 2 minutes.
 Because brushing sufficiently long enough is important for dental health. And most people skip on it.

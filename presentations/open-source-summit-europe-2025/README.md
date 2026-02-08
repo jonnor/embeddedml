@@ -7,7 +7,10 @@ Monday August 25, 2025 15:35 - 16:15 CEST
 
 #### Video recording
 
-```Will be published by event / Linux Foundation```
+[Linux Foundation YouTube](https://www.youtube.com/watch?v=FZ0q6RLCYPM)
+
+[Jon Nordby YouTube](https://www.youtube.com/watch?v=rbRCk2DCEWY)
+
 
 #### Slides
 [.PPTX](<Machine Learning for Microcontrollers With Zephyr and emlearn.pptx>)

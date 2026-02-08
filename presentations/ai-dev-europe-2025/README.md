@@ -11,7 +11,9 @@ https://aideveu2025.sched.com/event/25TvE/machine-learning-on-microcontrollers-t
 
 #### Video recording
 
-`To be published by conference / Linux Foundation. TODO: add link`
+[Jon Nordby YouTube](https://www.youtube.com/watch?v=1wDWWqoSyAQ)
+
+[Linux Foundation YouTube](https://www.youtube.com/watch?v=naSl9id933o)
 
 ## Abstract
 

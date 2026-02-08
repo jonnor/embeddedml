@@ -24,29 +24,28 @@ Add bit about storing to CSV
 Explain running entire pipeline on PC
 Explain running entire pipeline on device
 
-- Oil spectrometer
-Add example slide
-https://github.com/jonnor/spectrometer/
-
 - Toothbrush project.
 Mention steps.
 MicroPython + ESP32. January 2025.
 MicroPython + Zephyr + NRF52
 C + Zephyr + NRF52
-C + Zephyr + WCH CH32V006 
+C + Zephyr + WCH CH32V006
 Add pictures of improved hardware
+
+- Oil spectrometer
+Add example slide
+https://github.com/jonnor/spectrometer/
 
 Maybe
 
-- Picture of FFT data on toothbrush case. Backup, use HAR example
 - Add build system integration. CMakeLists.txt
-- Check the QA from OSSummit, consider integrating some of that in slides
 - Improve spectrometer project README
 
 Later
 
 - Fixup missing parts in motion_recognition example
 - Re-test toothbrush on Zephyr+MicroPython.
+- Check the QA from OSSummit, consider integrating some of that in slides
 
 
 ## Review OSSummit slides
