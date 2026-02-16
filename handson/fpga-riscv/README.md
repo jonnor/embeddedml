@@ -18,9 +18,9 @@ Install dependencies
 pip install -r requirements-litex.txt
 ```
 
-Build, load bitstream and flash BIOS software
+Build, load bitstream and flash firmware
 ```
-python -m litex_boards.targets.muselab_icesugar     --cpu-type=vexriscv     --cpu-variant=minimal     --build --load --flash
+python -m soc.targets.muselab_icesugar --cpu-type=vexriscv --cpu-variant=minimal --build --load --flash --flash-program firefox
 ```
 
 ```
@@ -48,8 +48,7 @@ Not seeing any output on serial from the printk()
 
 Must
 
-- Test getting an interrupt from peripheral
-- Try integrating the PDM peripheral from TinyTapeout/galearn
+- TEST PDM peripheral from TinyTapeout/galearn
 - Try running some code using emlearn
 
 Want

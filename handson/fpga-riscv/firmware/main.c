@@ -117,7 +117,7 @@ int main(void)
     gpio2_out_write(0xFB);
     busy_wait(200);
 
-	printf("\e[92;1started\e[0m> \n");
+	printf("Started\n");
     printf("System clock: %d MHz\n", (int)(CONFIG_CLOCK_FREQUENCY / 1e6));
 
 
