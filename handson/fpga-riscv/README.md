@@ -48,16 +48,18 @@ Not seeing any output on serial from the printk()
 
 Must
 
-- TEST PDM peripheral from TinyTapeout/galearn
+- Test PDM peripheral from TinyTapeout/galearn
 - Try running some code using emlearn
 
 Want
 
 - Get Zephyr-based firmware running
 - Get GDB working. Via UARTBone bridge FAILED. Via JTAG using a DAPLink compatible device?
-- Try out the simulation support
 - Get MicroPython on Zephyr working
-- Do power measurements of ICE40UP5k. Static, minimal dynamic
+- Test simulation support in LiteX
+- Test DMA for audio data transfer instead of FIFO
+- Get running on Upduino V3 boards
+- Do power measurements of ICE40UP5K. Static, minimal dynamic
 
 ### References
 
