@@ -53,7 +53,6 @@ Must
 
 Want
 
-- Get Zephyr-based firmware running
 - Get GDB working. Via UARTBone bridge FAILED. Via JTAG using a DAPLink compatible device?
 - Get MicroPython on Zephyr working
 - Test simulation support in LiteX

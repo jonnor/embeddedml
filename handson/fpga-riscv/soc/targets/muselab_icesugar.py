@@ -90,7 +90,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32 * KILOBYTE,
+            size   = 1024 * KILOBYTE,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
@@ -149,6 +149,8 @@ def flash(bios_flash_offset, program='bios'):
 
     elif program == 'zephyr':
 
+        # TODO: run litex_json2dts_zephyr --dts build/overlay.dts --config build/overlay.config build/muselab_icesugar/csr.json
+        # TODO: run west build -b litex_vexriscv zfirmware/ -DDTC_OVERLAY_FILE=build/overlay.dts
         program_path = '/home/jon/projects/micropython/ports/zephyr/zephyrproject-4.3/build/zephyr/zephyr.bin'
 
     else:
