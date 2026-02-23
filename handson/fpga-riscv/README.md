@@ -31,11 +31,14 @@ NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/i
 
 #### Tested CPUs
 
-- `--cpu-type vexriscv --cpu-variant minimal`. Blink works. 4500 LUTs
+- `--cpu-type vexriscv --cpu-variant minimal`. Blink works. 4500 LUTs. No JTAG pins.
 - `--cpu-type picorv32 --cpu-variant minimal`. Blink works. 3400 LUTs
 - `--cpu-type femtorv --cpu-variant standard`. Blink and UART out works. 2500 LUTs. **No interrupts**.
 - `--cpu-type fazyrv --cpu-variant standard`. Blink works. 2300 LUTs. **No interrupts**.
 - `--cpu-type serv --cpu-variant standard`. Blink **FAILS**. Under 2000 LUTs
+- `--cpu-type naxriscv --cpu-variant standard`. Unable to build? Too large for ICE40?
+- `--cpu-type vexiiriscv --cpu-variant standard`. Takes 9k. Too large.
+- `--cpu-type neo32rv --cpu-variant standard`. assert reset_address == 0x0000_0000. Has JTAG?
 
 #### Zephyr on LiteX
 
