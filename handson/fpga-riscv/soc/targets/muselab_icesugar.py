@@ -135,11 +135,11 @@ class BaseSoC(SoCCore):
         # self.submodules.itimer = TimerIRQ(platform)
         # self.irq.add("itimer", use_loc_if_exists=False)
 
-        pdm_pads = platform.request("pdm")
-        self.submodules.pdm_mic = PDMMic(platform, pdm_pads,
-            sys_clk_freq=self.sys_clk_freq,
-        )
-        self.irq.add("pdm_mic")
+        #pdm_pads = platform.request("pdm")
+        #self.submodules.pdm_mic = PDMMic(platform, pdm_pads,
+        #    sys_clk_freq=self.sys_clk_freq,
+        #)
+        #self.irq.add("pdm_mic")
 
 
 # Flash --------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@ volatile uint32_t sample_count = 0;
 int16_t audio_buffer[BATCH_SIZE];
 volatile float latest_rms = 0.0f; 
 
+#if 0
 void pdm_mic_isr(void) {
     unsigned int pending = pdm_mic_ev_pending_read();
     
@@ -41,6 +42,7 @@ void pdm_mic_isr(void) {
         pdm_mic_ev_pending_write(1);
     }
 }
+#endif
 
 // Fast integer square root using Newton's method
 uint32_t isqrt32(uint32_t n) {
@@ -101,14 +103,18 @@ int main(void)
 #endif
 	uart_init();
 
+#if 0
     // PDM microphone
     irq_attach(PDM_MIC_INTERRUPT, pdm_mic_isr);
     
     pdm_mic_period_write(23);
     pdm_mic_ev_enable_write(1); // enable interrupt
-    
+
     irq_setmask(irq_getmask() | (1 << PDM_MIC_INTERRUPT));
     irq_setie(1);
+#endif    
+
+
     
     // Timer
     timer0_en_write(1);
@@ -131,7 +137,10 @@ int main(void)
     printf("rms length=%d per call: %d us\n", length, (duration*1000)/repetitions);
 
 
+#if 0
     pdm_mic_enable_write(1); // enable PDM clock
+#endif
+
     const uint32_t start = time_ms();
 	while(1) {
 
@@ -140,14 +149,18 @@ int main(void)
         busy_wait(interval);
     
 
+#if 0
         uint16_t level = pdm_mic_fifo_level_read();
+#else
+        uint16_t level = 0;
+#endif
 
         const int32_t time = time_ms() - start;
         const int per_second = (sample_count * 1000) / time; 
 	    printf("i t=%d s=%d l=%d p=%d r=%d \n",
             (int)time, (int)sample_count, (int)level, (int)per_second, (int)latest_rms);
 
-        gpio2_out_write(0x00);
+        gpio2_out_write(0xFE);
         busy_wait(interval);
 	}
 
