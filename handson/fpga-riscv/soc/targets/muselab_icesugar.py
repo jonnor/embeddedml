@@ -102,6 +102,17 @@ class BaseSoC(SoCCore):
                 pads         = led_pads,
                 sys_clk_freq = sys_clk_freq)
 
+
+        # JTAG pins. Only if +debug
+        # NOTE: only neorv32 has these cpu names
+        jtag_pads = platform.request("jtag")
+        self.comb += [
+            self.cpu.i_jtag_tck.eq(jtag_pads.tck),
+            self.cpu.i_jtag_tdi.eq(jtag_pads.tdi),
+            self.cpu.i_jtag_tms.eq(jtag_pads.tms),
+            jtag_pads.tdo.eq(self.cpu.o_jtag_tdo),
+        ]
+
         # GPIO
         # user_led_n
         self.gpio = GPIOIn(platform.request_all("user_sw"))

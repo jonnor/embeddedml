@@ -36,6 +36,15 @@ _io = [
         IOStandard("LVCMOS33"),
     ),
 
+    # JTAG on PMOD 2
+    ("jtag", 0,
+        Subsignal("tck", Pins("46")),
+        Subsignal("tdi", Pins("44")),
+        Subsignal("tdo", Pins("42")),
+        Subsignal("tms", Pins("37")),
+        IOStandard("LVCMOS33"),
+    ),
+
     # Switches / jumper-attached to PMOD4
     ("user_sw", 0, Pins("18"), IOStandard("LVCMOS18")),
     ("user_sw", 1, Pins("19"), IOStandard("LVCMOS18")),
