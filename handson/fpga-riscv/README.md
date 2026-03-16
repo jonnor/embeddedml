@@ -38,7 +38,7 @@ NOTE: to flash icesugar, need a tool called [icesprog](https://github.com/wuxx/i
 - `--cpu-type serv --cpu-variant standard`. Blink **FAILS**. Under 2000 LUTs. No JTAG.
 - `--cpu-type naxriscv --cpu-variant standard`. Unable to build? Too large for ICE40?
 - `--cpu-type vexiiriscv --cpu-variant standard`. Takes 9k. Too large. Has JTAG.
-- `--cpu-type neorv32 --cpu-variant minimal+debug`. 4000 LUTs. reset_address == 0x0000_0000. Has JTAG? But C programs fail to build, picolib/newlib not provided?
+- `--cpu-type neorv32 --cpu-variant minimal+debug`. 4000 LUTs. Has JTAG. Needs fork to support custom reset_address
 
 #### Zephyr on LiteX
 
@@ -63,6 +63,9 @@ Want
 - Get running on Upduino V3 boards
 - Do power measurements of ICE40UP5K. Static, minimal dynamic
 
+Test FT232H/FTDI2232 for flashing SPI flash - and UART
+https://www.digikey.com/en/products/detail/adafruit-industries-llc/2264/5761217
+
 ### References
 
 [Getting started with Litex on a Tang Nano 9K](https://justanotherelectronicsblog.com/?p=1263)
@@ -76,6 +79,23 @@ https://wot.lv/from-zero-to-soc-in-litex.html
 
 Says LiteX BIOS should print stuff on UART on boot.
 
+### Neorv32 with custom boot
+
+Need to specify BOOT_ADDR_CUSTOM and BOOT_MODE_SELECT=1
+
+Have a WIP fork of LiteX with this, https://github.com/jonnor/litex/tree/neorv32-boot-address
+
+VHD2VConverter is used in the neorv32 litex core
+
+`neorv32_litex_core_complex.vhd` seems to set BOOT_MODE_SELECT=1 already.
+But BOOT_ADDR_CUSTOM is hardcoded to x"00000000".
+
+
+### Gatemate
+
+! need to have nextprn with peppercorn toolchain
+
+python -m litex_boards.targets.olimex_gatemate_a1_evb --cpu-type=vexriscv --cpu-variant=lite+debug --uart-name crossover+uartbone --uart-baudrate 115200 --build --load --toolchain peppercorn
 
 ### LiteX on Upduino v3.x
 
