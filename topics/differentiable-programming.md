@@ -86,6 +86,14 @@ to reduce memory usage, computation, improve memory locality.
 Important that it can handle the general-purpose / Turing-complete parts.
 Might still need a non-trivial runtime.
 
+## Educational materials
+
+#### TinyTorch via MLSysBook 
+https://mlsysbook.ai/tinytorch/getting-started.html
+
+Could one one enable running them with MicroPython?
+
+
 ## Deployment software
 
 NOTE: initial notes. Still sketching out this space.
@@ -109,4 +117,46 @@ https://github.com/pytorch/executorch/tree/913436a44b877259169e79e6a061f75638336
 As-of 2025, "WIP. This is a temporary/placeholder backend for Cortex-M CPUs. It is not intended to be used in production, but rather as a proof of concept."
 https://github.com/pytorch/executorch/tree/913436a44b877259169e79e6a061f75638336b55/backends/cortex_m
 
+
+# Background
+
+Courses
+
+- [UCSD CSE 291: Differentiable Programming (Spring 2025)](https://cseweb.ucsd.edu/~tzli/cse291/sp2025/)
+- [UCSD CSE 291: Differentiable Programming (Spring 2024)](https://cseweb.ucsd.edu/~tzli/cse291/sp2024)
+- [CMSC 838B / 498Z (Fall 2025): Differentiable Programming](https://www.cs.umd.edu/class/fall2025/cmsc838B)
+- Differentiable programming at Institute of Computing for Climate Science Summer School 2025.
+[Overview](https://iccs.cam.ac.uk/events/institute-computing-climate-science-annual-summer-school-2025)
+[Youtube playlist](https://www.youtube.com/playlist?list=PL3PByZO-B6dODVXyQcfKEDnIldqReFryp)
+- [Github repo](https://github.com/Cambridge-ICCS/differentiable-programming-summer-school-2026?tab=readme-ov-file)
+- [CS 8803 - Differentiable and Probabilistic Programming Languages -Spring 2025](https://jsl1994.github.io/course/cs8803-Sp25/course.html). Focused on papers.
+
+Lectures
+
+- [Differentiable Programming for Data-driven Modeling, Optimization, and Control](https://www.youtube.com/watch?v=VrVxMs5vd-4).
+Jan Drgona, Pacific Northwest National Laboratory.
+- [Differentiable Programming for Data-driven Modeling, Optimization, and Control](https://www.youtube.com/watch?v=s0lI3RroPqA).
+Ján Drgoňa, PNNL, Johns Hopkins University (JHU). Nov 19, 2024.
+- [Neuromancer: Differentiable Programming Library for Data-Driven Modeling and Control](https://www.youtube.com/watch?v=cTCIf7YEu68)
+
+Software
+
+- [NeuroMANCER](https://github.com/pnnl/neuromancer).
+Neural Modules with Adaptive Nonlinear Constraints and Efficient Regularizations (NeuroMANCER)
+is an open-source differentiable programming (DP) library for solving parametric constrained optimization problems,
+physics-informed system identification, and parametric model-based optimal control.
+- [deluca](https://www.deluca.fyi/). jax-based library that provides differentiable environments,
+control algorithms that take advantage of such environments. Focus on reinforcement learning and robotics.
+https://www.deluca.fyi/
+
+Books
+
+- [Physics-based Deep Learning Book](https://physicsbaseddeeplearning.org/intro.html)
+By TU Munich.
+
+Unrelated
+
+- [Random Forests & Other Random Thoughts](https://www.youtube.com/watch?v=FsxiQKXO0UU&list=PL3PByZO-B6dODVXyQcfKEDnIldqReFryp&index=21).
+Fundamentals of random forests and related tree models from first principles, their strengths and weaknesses, and methods for understanding their sensitivity.
+Weakness: Clips outside of input data domains, not suitable for extrapolation.
 
