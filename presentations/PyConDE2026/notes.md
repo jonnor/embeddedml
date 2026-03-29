@@ -181,6 +181,28 @@ Try StreamVByte or Simple8B/Simple9/Simple16
 Brainstorming
 https://claude.ai/chat/f0c3b34d-9e4b-4121-8f16-b2c3f63aecbc
 
+## HTTP testing from RAM
+
+Using ESP32 pico in M5StickC PLUS 2 over WiFi
+
+$ for chunk in 1024 2048 4096 8192 16384 32768 65536; do curl -s "http://192.168.87.152:5000/stream?chunk=$chunk" -o /dev/null -w "chunk=$chunk: HTTP %{http_code}, Size: %{size_download} bytes, Time: %{time_total}s, Speed: %{speed_download} bytes/s\n" --max-time 60; done
+chunk=1024: HTTP 200, Size: 524288 bytes, Time: 3.901785s, Speed: 134371 bytes/s
+chunk=2048: HTTP 200, Size: 524288 bytes, Time: 2.629534s, Speed: 199384 bytes/s
+chunk=4096: HTTP 200, Size: 524288 bytes, Time: 1.776227s, Speed: 295169 bytes/s
+chunk=8192: HTTP 200, Size: 524288 bytes, Time: 2.624618s, Speed: 199757 bytes/s
+chunk=16384: HTTP 200, Size: 524288 bytes, Time: 3.488393s, Speed: 150294 bytes/s
+chunk=32768: HTTP 200, Size: 524288 bytes, Time: 5.452071s, Speed: 96163 bytes/s
+chunk=65536: HTTP 200, Size: 524288 bytes, Time: 4.939647s, Speed: 106138 bytes/s
+Now streaming 512KB. 4KB chunk wins at 295 KB/s, then 2KB at 199 KB/s. Performance degrades significantly with larger chunk sizes.
+
+Would take 16 seconds for 4 MB of data.
+Not fast enough to be done in once go.
+Needs to be background and iterative.
+
+## HTTP testing from disk/FLASH
+
+
+
 ## Hardware platform
 
 - M5Stick C PLUS 2. ! PDM mic, not I2S. 8 M FLASH / 2 MB PSRAM
