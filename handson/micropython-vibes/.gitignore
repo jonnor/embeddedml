@@ -1,0 +1,19 @@
+# MicroPython device files (uploaded to ESP32)
+firmware/micropython/secrets.py
+firmware/micropython/microdot.py
+
+# Logs
+firmware/*.log
+
+# Virtual environments
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+*.mpy
