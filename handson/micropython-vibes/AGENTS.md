@@ -19,14 +19,21 @@ Deploy and test a MicroPython web server on ESP32 that streams data in configura
 - Run: `mpremote run firmware/micropython/server.py`
 - Reset: `mpremote reset`
 
+### 0. MicroPython libraries
+
+- The following are standard Python libraries that are included by default with MicroPython: array, binascii, collections, errno, gzip, hashlib, heapq, io, json, os, platform, random, re, select, socket, ssl, struct, time, zlib, math, cmath, asyncio
+They API of these moduels follow standard Python libraries. Always use the standard libraries with these names. Never use uos, uasyncio, etc.
+- The following are MicroPython specific modules, that can be used on device only:
+machine, micropython, bluetooth, network, gc
+
 ### 1. MicroPython running locally
 
-- Can run programs under MicroPython on PC by using the `micropython` command-line tool
+- Can run programs under MicroPython on PC by using the `micropython` command-line tool.
+It is important to use this for testing MicroPython code, instead of `python` command.
 
 ### 2. Memory Constraints
 - ESP32 has very limited RAM compared to development machine
 - 1MB test data causes allocation failure
-- Optimized down to 4KB working size
 - Need to keep data small and avoid unnecessary allocations
 
 ### 3. WiFi Connection Strategy

@@ -88,3 +88,14 @@ This also happens a fair bit with Claude Sonnet 4.x... And even plain Google sea
 ```
 QUESTION. Can skill files or similar guidance be used to get around this?
 ```
+
+Both Qwen and GPT-OSS-120b likes to use the `uos` etc modules for MicroPython.
+Does not understand that these are deprecated a few years ago.
+This is a common type of problem with 
+
+```
+QUESTION: How to get models to understand that should use the standard, non-prefixed versions of libraries?
+
+Maybe just give a full list of libraries that it can use / that are available - somewhere
+```
+
