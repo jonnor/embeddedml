@@ -201,7 +201,43 @@ Needs to be background and iterative.
 
 ## HTTP testing from disk/FLASH
 
+First version
 
+Results:
+| Chunk | Time | Speed |
+|-------|------|-------|
+| 1024 | 8.18s | 64 KB/s |
+| 2048 | 5.31s | 99 KB/s |
+| 4096 | 3.64s | 144 KB/s |
+| 8192 | 4.35s | 121 KB/s |
+| 16384 | 9.07s | 58 KB/s |
+| 32768 | 7.54s | 70 KB/s |
+| 65536 | 8.30s | 63 KB/s |
+
+accidentially read continiously for as long as request open
+
+chunk=1024: Size: 3309568 bytes, Time: 30.000507s, Speed: 110317 bytes/s
+chunk=4096: Size: 9334784 bytes, Time: 30.000009s, Speed: 311159 bytes/s
+chunk=8192: Size: 4114176 bytes, Time: 30.001165s, Speed: 137133 bytes/s
+chunk=16384: Size: 2172032 bytes, Time: 30.000515s, Speed: 72399 bytes/s
+
+With fixed termination.
+
+File-Stream Benchmark Results:
+| Chunk | Size | Time | Speed |
+|-------|------|------|-------|
+| 1024 | 512KB | 6.06s | 87 KB/s |
+| 2048 | 512KB | 4.11s | 127 KB/s |
+| 4096 | 512KB | 3.23s | 162 KB/s |
+| 8192 | 512KB | 3.49s | 150 KB/s |
+| 16384 | 512KB | 6.41s | 82 KB/s |
+| 32768 | 512KB | 9.36s | 56 KB/s |
+
+Seems like 150 kB/s is best we can do for now.
+
+## HTTP multiple requests
+
+What happens if one browser makes multiple requests? 
 
 ## Hardware platform
 

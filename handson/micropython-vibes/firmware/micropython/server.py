@@ -1,3 +1,4 @@
+import io
 import time
 import uos
 import asyncio
@@ -16,7 +17,7 @@ except ImportError:
     WIFI_AVAILABLE = False
     print("WiFi credentials not found, running in AP mode")
 
-TEST_DATA_SIZE = 128*4096
+TEST_DATA_SIZE = 128 * 4096
 TEST_DATA = bytes(TEST_DATA_SIZE)
 print(f"Test data size: {TEST_DATA_SIZE} bytes")
 
@@ -57,6 +58,41 @@ def stream_data(request):
 
     return Response(
         body=generate_chunks(chunk_size),
+        status_code=200,
+        headers=headers,
+    )
+
+
+def generate_file_stream(filename, chunk_size):
+
+    data = bytearray(chunk_size)
+    with open(filename, "rb") as f:
+        while True:
+            n_read = f.readinto(data)
+            if not n_read:
+                break
+            # FIXME: need memoryview to not send too much
+            yield data
+
+
+@app.route("/file-stream")
+def file_stream_data(request):
+    filename = request.args.get("file", "test.bin")
+    chunk_size = int(request.args.get("chunk", 1024))
+
+    try:
+        file_size = uos.stat(filename)[6]
+    except OSError:
+        return f"File not found: {filename}", 404
+
+    headers = {
+        "Content-Type": "application/octet-stream",
+        "X-Total-Size": str(file_size),
+        "X-Chunk-Size": str(chunk_size),
+    }
+
+    return Response(
+        body=generate_file_stream(filename, chunk_size),
         status_code=200,
         headers=headers,
     )
@@ -108,6 +144,14 @@ async def main():
                     break
             if not connected:
                 print("Failed to connect to WiFi")
+
+    # Create test data file
+    try:
+        with open("test.bin", "wb") as f:
+            f.write(TEST_DATA)
+        print(f"Created test.bin ({TEST_DATA_SIZE} bytes)")
+    except OSError as e:
+        print(f"Failed to create test.bin: {e}")
 
     await app.start_server(host="0.0.0.0", port=5000, debug=True)
 
