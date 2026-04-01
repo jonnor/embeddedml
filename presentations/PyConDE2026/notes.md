@@ -235,6 +235,87 @@ File-Stream Benchmark Results:
 
 Seems like 150 kB/s is best we can do for now.
 
+
+### What is a good chunk size?
+
+
+### What is a good layout
+
+resource-then-time is flexible for different partitioning layouts
+But with multiple resources will have to duplicate
+Also - supporting different partitioning schemes will need more/general code, room for bugs
+
+## Codename
+microhive
+
+## Partition layput
+
+Hive-style partitioning.
+
+```
+date=2026-01-01/
+    a_daily.npy
+    hour=08/
+        a_metrics.npy
+        min=34/
+            a_raw.npy
+```
+
+## Resource metadata
+
+Each resource has:
+
+- An identifier/name. Short, since needs to be in files
+- A hop. In microseconds. Used to compute time offsets from time values
+- An ordered list of column names.
+
+## Time representation
+Time column in files are optional.
+If not present, assumed to be dense: starting from 0 and increasing by 1 for each row.
+Time values are multiplied by a resource-wise hop value, in microseconds.
+Then this is added to the datetime for the partition to get the absolute timestamp value.
+NOTE: time values can be sparse, but must be ordered monotonically increasing.
+When possible they should be
+
+## Mixed columnar and row-based
+Row-based is best for appending. Just put the latest observation(s) there.
+But columnar is best for time-series compression, critical to storage efficiency.
+And for selecting particular columns, if needed.
+
+Only allowed to insert row-based at the end.
+A compaction process converts from
+Triggered on
+External users of the timeseries database or API does not need.
+
+## Chunk representation
+.npy is OK for a prototype. But would like to support columnar-compression
+
+With .npy files, use 1,2,3 etc as column values? To avoid duplicating.
+Or use a binary format from scratch?
+n_columns
+
+?? is it neccesary to support seeking inside a file
+Assuming files are under 100kB each (1 second load), then OK to skip initially.
+But would like to support this later - it makes chunk size less critical.
+
+
+8760 hourly folders for 1 year
+10 metrics at 1 second res, 59kB
+
+1440 minute-wise folders for 1 day
+At 20hz with 3 cols int16, each file is 7.2kB. 15kB if 6axis
+
+? how fast can MicroPython load 1000x files?
+
+### Tests
+
+- Load 1 year of daily-paritioned data, with 1 minute resolution
+- Load 1 day of hour-partitioned data, with 1 second resolution
+- Load 1 hour of 20hz raw data
+- Appending 20hz raw data, in small chunks. With auto-compaction
+
+Key requirement: at no time should any process be blocking for more than 100 ms. 
+
 ## HTTP multiple requests
 
 What happens if one browser makes multiple requests? 
