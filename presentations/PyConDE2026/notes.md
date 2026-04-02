@@ -1,11 +1,7 @@
 
 # TODO
 
-- Fix emlearn pip install in jupyter-lite.
-Need a pure Python wheel. Get rid of last extensions.
 - Import some motion / HAR type datasets, store on device
-- Test transferring the data from device using MicroDot
-
 
 # Planning
 
@@ -236,6 +232,16 @@ File-Stream Benchmark Results:
 Seems like 150 kB/s is best we can do for now.
 
 
+There are some benchmarks for LittleFS on ESP32 at
+https://components.espressif.com/components/joltwallet/littlefs/versions/1.20.4/readme
+
+```
+Reading 5 88KB files
+LittleFS (cache=512 default):   5,874,931 us
+LittleFS (cache=4096):          5,731,385 us
+```
+That is around 88kB per second.
+
 ### What is a good chunk size?
 
 
@@ -268,6 +274,7 @@ Each resource has:
 - An identifier/name. Short, since needs to be in files
 - A hop. In microseconds. Used to compute time offsets from time values
 - An ordered list of column names.
+- A dtype. Must initially be int16
 
 ## Time representation
 Time column in files are optional.
@@ -283,14 +290,52 @@ But columnar is best for time-series compression, critical to storage efficiency
 And for selecting particular columns, if needed.
 
 Only allowed to insert row-based at the end.
-A compaction process converts from
-Triggered on
-External users of the timeseries database or API does not need.
+A compaction process converts from row-based uncompressed to columnar/compressed.
+Triggered on append.
+Internal details. External users of the timeseries database or API does not need.
+
+Row-based chunks have different file ending than columnar.
 
 ## Chunk representation
-.npy is OK for a prototype. But would like to support columnar-compression
+Numpy .npy is OK for a prototype. row-based.
 
-With .npy files, use 1,2,3 etc as column values? To avoid duplicating.
+With .npy files, use 1,2,3 etc as column values. Avoid duplicating them in each file.
+Then the real columns are added in the API accessors.
+
+## Filesystem
+Typically using LittleFSv2 on device.
+Note that in MicroPython, the block size is 4kB.
+This means that files have this as a minimum size.
+
+## API
+
+class MicroHive:
+def __init__(self, base_dir, resources : dict):
+
+def get_timerange(self, resource : str, start : int, end : int, chunk_rows=DEFAULT_CHUNK_):
+
+    Query seconds Unix Epoch
+    Gives a generator. Giving out chunks of array.array, column-major
+    chunk_rows  number of rows yielded per generator iteration
+
+
+def append_data(resource : str, data : array.array)
+
+    Data must have a length which fits with resource
+    array is column-major
+    Will be inserted at the end
+
+resources = {
+    "raw": {
+        "hop": 50000,          # microseconds (20Hz = 50ms)
+        "columns": ["a", "b"],
+        "dtype": "int16",
+        "granularity": "minute" # date | hour | minute
+    }
+}
+
+## Seeking in files
+
 Or use a binary format from scratch?
 n_columns
 
@@ -306,6 +351,15 @@ But would like to support this later - it makes chunk size less critical.
 At 20hz with 3 cols int16, each file is 7.2kB. 15kB if 6axis
 
 ? how fast can MicroPython load 1000x files?
+
+### Other
+
+Yes. Make sure only Python standard library is used, no external dependencies.
+
+And for .npy file reading and writing, use this code
+
+Streaming read
+Streaming/chunked reading can be used to keep memory usage low.
 
 ### Tests
 
