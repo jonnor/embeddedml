@@ -1,7 +1,55 @@
 
 # TODO
 
-- Import some motion / HAR type datasets, store on device
+Project
+
+- Showing EDA in browser. Interactive analysis
+- On-device inference with Random Forest
+- Retrain model in scikit-learn on web, deploy to device
+- Integrated training in-browser with emlearn_extratrees
+
+Slides
+
+- Setup overall disposition
+- IoT architectures alternatives. From physical to device to user in UI.
+Where the components live. Data storage. APIs. UI. Data collection.
+Cloud-based. Device just collects and sends data. Almost everything else happens in cloud.
+Via "gateway" as data transporter. Can be phone (BLE). Or router (WiFi).
+Local-first. Cloud-optional. **what we are making**
+- Deployment targets. PC (x86_64), browser (WASM), device (ESP32)
+- Time-series database/lake. Architecture. Resources. On-disk data representation. API.
+- Concurrency model. asyncio. Sensor data readout with FIFO. Web request with microdot.
+? how to illustrate this? Maybe a railroad diagram
+Key point: Cooperative scheduling - no premption.
+Meaning: Critical that no codepath holds the loop for longer than the shortest deadline
+Longer tasks must make incremental progress and yield in between
+- More info. Add references to Wireless from Krakow 2025
+- Call-to-Action. Come to Krakow for EuroPython and EuroSciPy. Workshop
+
+Optional slides
+
+- Generators for data streaming with MicroDot.
+To support larger-than-RAM. ! no async def in MicroPython
+?? does it actually let our sensor loop run
+?? does it work correctly when sending large files with send_file
+Maybe do some controlled tests/examples?
+
+Limitations right now
+
+- Power management. Not using power saving.
+Can refer to Peter Hinch alt asyncio. ! not tested
+- WiFi management. Manual via mpremote. Only joining existing network
+MicroPython also supports device creating network.
+? link to exiting WiFi management libraries
+- Time-series compression. First version got no savings on real data.
+Needs further investigation. Probably quantization of features.
+
+Documentation
+
+- emlearn-micropython. Add getting started for web/browser.
+Simple example for inference.
+Add to the README.
+
 
 # Planning
 
@@ -10,9 +58,9 @@
 - MicroPython enables physical computing for those that know Python
 - Applicable to many data-oriented applications. Especially those incorporating sensors
 - MicroPython enables scaling down to hardware that costs 10 USD
-- emlearn-micropython enables running machine learning classifiers 
+- emlearn-micropython enables running machine learning models. Both inference and learning
 - Can also run in the browser. Interactive, data visualization, etc
-- MicroPython in browser enables much faster loading compared to big Python
+- MicroPython in browser enables serving from device. Faster loading compared to big Python
 - asyncio enables concurrency
 
 
@@ -56,6 +104,7 @@ Nice to have:
 Concepts
 
 - Serve MicroPython WASM from device. To do learning in browser. Send model back?
+- Doing Exploratory Data Analysis in browser
 - Doing data labeling in browser
 - Doing data curation/cleaning in browser
 - Doing training in browser
@@ -96,8 +145,6 @@ Things I am intereted in
 - Make a brower demo for labeling
 - Make a browser demo of training
 - Make a browser demo for train-in-browser + deploy-on-device
-
-
 
 
 ## Plotting libraries
@@ -377,7 +424,7 @@ What happens if one browser makes multiple requests?
 ## Hardware platform
 
 - M5Stick C PLUS 2. ! PDM mic, not I2S. 8 M FLASH / 2 MB PSRAM
-- Lilygo T-Watch ESP32 S3 watch
+- Lilygo T-Watch ESP32 S3 watch. 16MB FLASH / 8 MB PSRAM
 - T-Camera V3 2020. ! obsolete
 - T-Camera S3. Missing PMU code. 16MB FLASH / 8 MB PSRAM
 - XIAO ESP32S3 Sense. Includes SDcard. ! PDM mic, not I2S
