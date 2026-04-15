@@ -124,3 +124,41 @@ Reviewed 25 studies between 2006–2018
 6 of 25 research studies related to gym exercises,
 while the remaining 19 of 25 research papers were about daily life physical activities, emotional recognition, and elderly fall detection
 
+
+## Activity intensity
+
+#### Comparability of accelerometry outcomes across popular metrics and widespread sensor positions
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0337897
+2025.
+
+The raw data was converted into four common metrics: Movement Acceleration Intensity (MAI), Euclidean Norm Minus One (ENMO), Mean Amplitude Deviation (MAD) and counts per minute (CPM).
+Correlations between MAI, MAD and ENMO were high (r = .9), while correlations between CPM and other metrics were substantially lower (r = .78), less linear, and influenced by activity type.
+
+
+#### Detailed analysis and comparison of different activity metrics
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0261718
+2021.
+
+Actigraphic measurements are an important part of research in different disciplines, yet the procedure of determining activity values is unexpectedly not standardized in the literature. 
+We assessed the different methods by analysing the triaxial acceleration signals measured during a 10-day movement of 42 subjects. We calculated 148 different activity signals for each subject’s movement using the combinations of various types of preprocessing and 7 different activity metrics applied on both axial and magnitude data.
+
+
+#### Validation of Cut-Points for Evaluating the Intensity of Physical Activity with Accelerometry-Based Mean Amplitude Deviation (MAD)
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0134813
+2015
+
+Derive a regression model that estimates oxygen consumption (VO2)
+from MAD values and validate the MAD-based cut-points for light, moderate and vigorous locomotion against VO2 within a wide range of speeds.
+The MAD and VO2 showed a very strong association. Within individuals, the range of r values was from 0.927 to 0.991 providing the mean r = 0.969. The optimal MAD cut-point for 3.0 MET was 91 mg (milligravity) and 414 mg for 6.0 MET.
+
+
+## Walking recognition
+
+#### A “one-size-fits-most” walking recognition method for smartphones, smartwatches, and wearable accelerometers
+https://www.nature.com/articles/s41746-022-00745-z
+
+
+#### Cadence (steps/min) as an indicator of the walk-to-run transition 
+https://pubmed.ncbi.nlm.nih.gov/37336086/
+
+Humans naturally transition from walking to running at a point known as the walk-to-run transition (WRT). The WRT commonly occurs at a speed of ∼2.1 m/s (m/s) or a Froude number (dimensionless value considering leg length) of 0.5. Emerging evidence suggests the WRT can also be classified using a cadence of 140 steps/min.
