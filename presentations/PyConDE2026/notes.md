@@ -8,23 +8,14 @@ Project/demos
 - On-device inference with Random Forest
 - Export data via API. Analyze data in JupyterLite. Push data back via
 
-Slides
+TODO
 
-- Setup overall disposition
-- IoT architectures alternatives. From physical to device to user in UI.
-Where the components live. Data storage. APIs. UI. Data collection.
-Cloud-based. Device just collects and sends data. Almost everything else happens in cloud.
-Via "gateway" as data transporter. Can be phone (BLE). Or router (WiFi).
-Local-first. Cloud-optional. **what we are making**
+- Finish overall disposition
+
+Make slides
+
 - Deployment targets. PC (x86_64), browser (WASM), device (ESP32)
-- Time-series database/lake. Architecture. Resources. On-disk data representation. API.
-- Concurrency model. asyncio. Sensor data readout with FIFO. Web request with microdot.
-? how to illustrate this? Maybe a railroad diagram
-Key point: Cooperative scheduling - no premption.
-Meaning: Critical that no codepath holds the loop for longer than the shortest deadline
-Longer tasks must make incremental progress and yield in between
 - More info. Add references to Wireless from Krakow 2025
-- Call-to-Action. Come to Krakow for EuroPython and EuroSciPy. Workshop
 
 Optional slides
 
@@ -69,11 +60,7 @@ Add to the README.
 - MicroPython in browser enables serving from device. Faster loading compared to big Python
 - asyncio enables concurrency
 
-
-
-## Structure
-
-What was promised
+## What was promised
 
 - Measuring the surroundings using sensors
 - Connectivity using WiFi
@@ -84,36 +71,113 @@ Time-series storage
 API to download data
 - Automated data processing/analysis using DSP and ML, with emlearn-micropython
 Known feature extraction
-FFT analysis.
-Histogram analysis.
 Motion classifier using Random Forest
 Pretrained models?
 - Enabling interactive data analysis via webui
 Browsing timeseries. Selecting sections, comparing. Using Plotly?
-Search for motifs? Repeating occurrences
-Search for anomalies?
-
 - Managing concurrency on microcontroller, using asyncio
+Cooperative scheduling. Deadlines. FIFO
 - Optional integration. Pull using HTTP, and/or push using Webhooks/MQTT
 
-Nice to have:
 
-- Event log. That can be accessed via. Both for internal
-- Discovery device of using mDNS
-- Labeling. Coarse labels in time. And find-grained labeling - events.
+## Disposition
+
+Format. 20-25 minutes + QA.
+20-25 slides.
+
+Goal
+
+- You as a Python developer will learn
+how to build stand-alone IoT devices for measuring and analyzing physical sensor data
+using MicroPython and emlearn
+
+Introduction
+
+- About Soundsensing
+- emlearn-micropython maintainer. MicroPython contributor
+Goal of project. Make it super easy to. Data science for physical data.
+Including machine learning on-device etc.
+Like a scikit-learn for microcontrollers. And then building supporting pieces needed
+
+Case introduction
+
+- What we will build.
+Activity tracker "smartwatch" for Pythonistas that are crazy about data
+Local-first. Data ownership. Full control/access. Easy setup.
+- The hardware. What is a microcontroller.
+- MAYBE:  IoT architectures alternatives. From physical to device to user in UI.
+Where the components live. Data storage. APIs. UI. Data collection.
+Cloud-based. Device just collects and sends data. Almost everything else happens in cloud.
+Via "gateway" as data transporter. Can be phone (BLE). Or router (WiFi).
+Local-first. Cloud-optional. **what we are making**
+- The software stack (overview). System block diagram.
+Device - data processing + web server. Frontend (browser).
+
+Demo 1. On-device time-series database
+
+- Demo video: Loading data. Recording indicator
+- Web server. With microdot
+- Time-series database/lake. Architecture. Resources. On-disk data representation. API.
+- Concurrency model. asyncio.
+Sensor data readout with FIFO. Web request with microdot.
+? how to illustrate this? Maybe a timing diagram
+Key point: Cooperative scheduling - no premption.
+Meaning: Critical that no codepath holds the loop for longer than the shortest deadline
+Longer tasks must make incremental progress and yield in between
+- 
+
+Demo 2.
+
+
+
 
 # Notes
+
+## MicroPython and emlearn in browser
+
+- Make a browser demo for inference. Basically same kind of model as on device.
+- Browser demo, heavier model, running on instances on-device model flagged of interest
+- Make a browser demo for labeling
+- Make a browser demo of training
+- Make a browser demo for train-in-browser + deploy-on-device
+
+## Stand-alone devices for physical data science
+
+Plug & play.
+
+- Without needing any cloud connectivity.
+- Without needing any server setup on local network
+- Keeps the user in control
+- Easy onboarding
+
+Aspects
+
+- Measure using sensors
+- Store the data
+- Connectivity using WiFi
+- Discovery using mDNS
+- Settings/configuration/control via webui
+- Automated continious data processing/analysis. DSP and ML
+- Interactive data analysis, served via webui.
+Lookup, visualization, faceting, clustering
+- Raw data storage/sampling, for building/monitoring ML datasets
+- Labeling for ML models, via webui. Few-shot learning?
+- Optional integration. Pull using HTTP API (same as webui). Push using Webhooks, MQTT
+
+Details
+
+- asyncio concurrency
 
 
 ## Ideas
 
 Concepts
 
-- Serve MicroPython WASM from device. To do learning in browser. Send model back?
-- Doing Exploratory Data Analysis in browser
-- Doing data labeling in browser
-- Doing data curation/cleaning in browser
-- Doing training in browser
+- Serve MicroPython WASM from device. For analysis/training in browser. YES
+- Doing Exploratory Data Analysis in browser. YES
+- Doing data labeling in browser. LATER
+- Doing data curation/cleaning in browser. LATER
+- Doing training in browser. LATER
 
 Usecases
 
@@ -144,14 +208,16 @@ Things I am intereted in
 - Adaptive sampling
 - Adaptive data thinning
 
-## MicroPython and emlearn in browser
+Data analysis techniques
 
-- Make a browser demo for inference. Basically same kind of model as on device.
-- Browser demo, heavier model, running on instances on-device model flagged of interest
-- Make a brower demo for labeling
-- Make a browser demo of training
-- Make a browser demo for train-in-browser + deploy-on-device
+- Search for motifs? Repeating occurrences
+- Search for anomalies?
+A MatrixProfile implementation for MicroPython would be fun!?
+- FFT analysis. Spectrograms. Compare spectrums between different sections of time
+- Histogram analysis. Compare distributions between different sections of time?
 
+
+# Tests and learning
 
 ## Plotting libraries
 
@@ -450,9 +516,6 @@ But using chunking/partitioning
 
 Can we get interesting data storage for IMU data for multi-day into 4 MB?
 
-! 
-
-
 
 ## jupyter-lite for scikit-learn
 
@@ -468,31 +531,5 @@ https://jupyterlite.readthedocs.io/en/latest/howto/pyodide/packages.html
 
 ValueError: Can't find a pure Python 3 wheel for 'emlearn'.
 
-## Stand-alone devices for physical data science
-
-Plug & play.
-
-- Without needing any cloud connectivity.
-- Without 
-
-- Keeps the user in control
-- 
-
-Aspects
-
-- Measure using sensors
-- Store the data
-- Connectivity using WiFi
-- Discovery using mDNS
-- Settings/configuration/control via webui
-- Automated continious data processing/analysis. DSP and ML
-- Interactive data analysis, served via webui. Lookup, visualization, faceting, clustering
-- Raw data storage/sampling, for building/monitoring ML datasets
-- Labeling for ML models, via webui. Few-shot learning?
-- Optional integration. Pull using HTTP API (same as webui). Push using Webhooks, MQTT
-
-Details
-
-- asyncio concurrency
 
 
