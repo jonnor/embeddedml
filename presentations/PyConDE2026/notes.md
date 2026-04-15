@@ -1,12 +1,12 @@
 
 # TODO
 
-Project
+Project/demos
 
+- On-device time-series database
 - Showing EDA in browser. Interactive analysis
 - On-device inference with Random Forest
-- Retrain model in scikit-learn on web, deploy to device
-- Integrated training in-browser with emlearn_extratrees
+- Export data via API. Analyze data in JupyterLite. Push data back via
 
 Slides
 
@@ -33,6 +33,12 @@ To support larger-than-RAM. ! no async def in MicroPython
 ?? does it actually let our sensor loop run
 ?? does it work correctly when sending large files with send_file
 Maybe do some controlled tests/examples?
+
+Future work - for emlearn-micropython / in browser
+
+- Test training of RandomForest using Jupyter Lite.
+- Integrated classifier training with emlearn_extratrees
+https://github.com/emlearn/emlearn-micropython/pull/45/changes
 
 Limitations right now
 
