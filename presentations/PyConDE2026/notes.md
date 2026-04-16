@@ -12,7 +12,7 @@ TODO
 
 - Finish overall disposition
 
-Make slides
+Maybe slides
 
 - Deployment targets. PC (x86_64), browser (WASM), device (ESP32)
 - More info. Add references to Wireless from Krakow 2025
@@ -46,6 +46,7 @@ Documentation
 - emlearn-micropython. Add getting started for web/browser.
 Simple example for inference.
 Add to the README.
+- emlearn-micropython. Check that 2025 presentations are linked in docs
 
 
 # Planning
@@ -91,44 +92,120 @@ Goal
 how to build stand-alone IoT devices for measuring and analyzing physical sensor data
 using MicroPython and emlearn
 
-Introduction
+Introduction. 2 min
 
 - About Soundsensing
-- emlearn-micropython maintainer. MicroPython contributor
+- Goal/structure of this talk
+- What is MicroPython
+- Data science with MicroPython
+- About emlearn-micropython
 Goal of project. Make it super easy to. Data science for physical data.
 Including machine learning on-device etc.
 Like a scikit-learn for microcontrollers. And then building supporting pieces needed
 
-Case introduction
+Case introduction. 3 min
 
 - What we will build.
 Activity tracker "smartwatch" for Pythonistas that are crazy about data
 Local-first. Data ownership. Full control/access. Easy setup.
 - The hardware. What is a microcontroller.
 - MAYBE:  IoT architectures alternatives. From physical to device to user in UI.
-Where the components live. Data storage. APIs. UI. Data collection.
-Cloud-based. Device just collects and sends data. Almost everything else happens in cloud.
-Via "gateway" as data transporter. Can be phone (BLE). Or router (WiFi).
-Local-first. Cloud-optional. **what we are making**
 - The software stack (overview). System block diagram.
 Device - data processing + web server. Frontend (browser).
 
-Demo 1. On-device time-series database
+On-device time-series database. 5 min
 
-- Demo video: Loading data. Recording indicator
 - Web server. With microdot
-- Time-series database/lake. Architecture. Resources. On-disk data representation. API.
 - Concurrency model. asyncio.
-Sensor data readout with FIFO. Web request with microdot.
-? how to illustrate this? Maybe a timing diagram
-Key point: Cooperative scheduling - no premption.
-Meaning: Critical that no codepath holds the loop for longer than the shortest deadline
-Longer tasks must make incremental progress and yield in between
-- 
 
-Demo 2.
+On-device inference with emlearn-micropython. 5 min
+
+- HAR features?
+
+Browsed based ML with emlearn-micropython. 5 min
+
+- emlearn-micropython now runs in browser
+.wasm and .mjs files
+External C modules
+TODO: add documentation
+
+- PCA
+
+Use data in other environments. 3 min
+ 
+- Pull from HTTP API, with a URL. CURL command or Python
+- Push to phone via BLE
+- Push to HTTP or MQTT.
+!? make sure to enable timeout on the socket
+Keep the data to send in a queue. Only remove from queue after successful send
+https://github.com/micropython/micropython-lib/blob/master/micropython/umqtt.simple/umqtt/simple.py
+https://docs.micropython.org/en/latest/library/socket.html
+
+Outro. 2 min
+
+- Call-to-Actions
+If you are interesting in running ML/DSP on microcontroller or in browser,
+check out emlearn-micropython. There are many other talks linked in documentation
 
 
+# Feasibility
+
+The big questions
+
+Can we...
+- Run ML models directly on device?
+Yes. Established from earlier. With emlearn-micropython.
+Previous talks about it at EuroSciPy etc
+
+- Store a sufficient amount of data on device?
+Want 24 hours of raw data.
+And several weeks of activity detections.
+
+Able to store up to 24 hours of raw 3-axis int16 at 25 Hz.
+3*2*3600*24*25/1e6 = 12.96 MB
+
+Implemented time-series compression with Simple9b and delta-encoding. 128bytes
+! did not help. Compression savings around as overhead. No net gain. 
+
+- Provide an interactive web ui for seeing time-series data.
+Yes. With microdot project.
+But will there be enough space?
+Plotly "minimal" only takes around 300 kB. Check
+
+- Load the data fast enough in WebUI.
+Loading time should be a few seconds
+Able to load around 0.1 MB per second. 4kB sizes
+! had hoped for 1.0 MB per second.
+Might be bottlenecked by FLASH hardware, not MicroPython
+
+- Access the data from other devices?
+Yes. Via HTTP API.
+! CORS is critical. MicroDot has built-in support for this
+LLM did not know about this. Spent a lot of time re-implementing it in buggy ways
+Sometimes just reading the documentation is the best...
+
+- Can we run ML algorithms in browser using MicroPython?
+Yes. PCA is working.
+! No dynamic native modules (.mpy) in Webassembly port of MicroPython.
+https://github.com/emlearn/emlearn-micropython/issues/41
+
+All C modules must be included in the build.
+Slightly different interface. Possible to do both with some ifdefs
+WIP: RandomForest training module for emlearn, to do training in browser. MR
+https://github.com/emlearn/emlearn-micropython/pull/45
+
+
+
+
+
+# Status
+
+- All the feasibility checks passed.
+- Got emlearn-micropython working in browser
+- Data pipeline on device has been setup
+
+TODO
+- Implement device UI
 
 
 # Notes
