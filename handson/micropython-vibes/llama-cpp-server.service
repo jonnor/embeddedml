@@ -1,0 +1,35 @@
+[Unit]
+Description=llama.cpp GPU Inference Server
+Documentation=https://github.com/ggerganov/llama.cpp
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/llama-cpp.env
+ExecStartPre=-/usr/bin/docker pull ghcr.io/ggml-org/llama.cpp:server-cuda13
+ExecStart=/usr/bin/docker run \
+    --gpus all \
+    --name llama-cpp-server \
+    -v /home/jon/models/:/models \
+    -p 8080:8080 \
+    --env LLAMA_API_KEY="${LLAMA_API_KEY}" \
+    --restart unless-stopped \
+    ghcr.io/ggml-org/llama.cpp:server-cuda13 \
+    --port 8080 \
+    --host 0.0.0.0 \
+    --api-key "${LLAMA_API_KEY}" \
+    --models-preset /models/llama-preset.ini \
+    --models-max 1
+ExecStop=/usr/bin/docker stop -t 30 llama-cpp-server
+ExecStopPost=/usr/bin/docker rm -f llama-cpp-server
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=120
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
