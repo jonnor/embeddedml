@@ -3,6 +3,21 @@
 
 Testing if this can work on a RTX 5060 TI 16GB for MicroPython development.
 
+## llama-cpp router mode
+
+To have multiple models available, and automating loading/unloading of them
+
+```
+docker run --gpus all -v /home/jon/models/:/models -p 8080:8080 ghcr.io/ggml-org/llama.cpp:server-cuda13 --port 8080 --host 0.0.0.0 --api-key $LLAMA_API_KEY --models-preset /models/llama-preset.ini --models-max 1
+```
+
+Can then select for example in the webui.
+Switchover for Qwen 3.6 35B A3B is around 5 seconds.
+
+Without --models-max 1 it would go out of memory.
+WebUI can sometimes request old model after selecting a new one (if not yet loaded),
+which easily caused this situation.
+
 ## Running llama-cpp with qwen3.6-35b-a3b
 
 Unsloth has guide wrt parameters https://unsloth.ai/docs/models/qwen3.6
