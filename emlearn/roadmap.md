@@ -161,6 +161,20 @@ Models
 - trees. IsolationForest inference
 
 
+## Examples
+
+Forecasting. With ex linreg, ARIMAX
+Worldwide Electricity Load Dataset
+https://data.mendeley.com/datasets/ybggkc58fz/1
+
+Electricity consumption UK 2009-2024
+https://www.kaggle.com/datasets/albertovidalrod/electricity-consumption-uk-20092022
+
+ElectricityLoadDiagrams20112014
+https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
+
+And then prediction-based anomaly detection on top.
+
 ### Support Vector Machine
 
 People online interested in it for microcontrollers
