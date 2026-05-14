@@ -3,6 +3,22 @@
 
 Testing if this can work on a RTX 5060 TI 16GB for MicroPython development.
 
+## Dual RTX 5060 TI 16G
+
+Motivating goal. Get 27B running at 50+ tps and prefill of 500+ tps.
+
+NOTE: this might require MTP to get even close.
+Testing MTP will probably be done separately, when getting into llama-cpp mainline.
+
+- Pick up new hardware
+- Buy power meter. https://www.clasohlson.com/no/Strommaler-til-stikkontakter/p/36-8705
+- Test X570 motherboard with single GPU. Memcheck and llama-bench 35B-A3B
+- Add next GPU. Re-run llama-bench 35B-A3B
+- Transfer OS over to new SSD
+- llama-bench 27B. Compare 1 and 2 cards
+- Try power limiting to 150w per card, re-run
+
+
 ## llama-cpp router mode
 
 To have multiple models available, and automating loading/unloading of them
