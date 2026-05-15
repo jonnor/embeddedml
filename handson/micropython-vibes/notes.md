@@ -10,13 +10,55 @@ Motivating goal. Get 27B running at 50+ tps and prefill of 500+ tps.
 NOTE: this might require MTP to get even close.
 Testing MTP will probably be done separately, when getting into llama-cpp mainline.
 
-- Pick up new hardware
+- Pick up new PSU, cooler, fans and GPU
 - Buy power meter. https://www.clasohlson.com/no/Strommaler-til-stikkontakter/p/36-8705
-- Test X570 motherboard with single GPU. Memcheck and llama-bench 35B-A3B
 - Add next GPU. Re-run llama-bench 35B-A3B
 - Transfer OS over to new SSD
 - llama-bench 27B. Compare 1 and 2 cards
 - Try power limiting to 150w per card, re-run
+
+
+## llama-cpp on X570
+
+AMD Ryzen 5 5600X. With single 5060 TI 16GB in x16 slot
+
+```
+[jon@jon-workstation ~]$ nvidia-smi --query-gpu=pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv
+pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+1, 4, 8, 16
+```
+Shows gen 1 x8?!!
+5060 TI has a x8 connector, motherboard is capable of gen 4.0.
+Does not make sense??
+
+However when re-running under load I get
+
+```
+nvidia-smi --query-gpu=pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv
+pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+4, 4, 8, 16
+```
+
+TODO: force gen 4.0 in BIOS?
+
+
+```
+docker run --gpus all -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13
+```
+
+```
+./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+```
+
+```
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |       650.14 ± 71.18 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |        49.38 ± 11.20 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       559.20 ± 12.81 |
+```
+
+Performance seems basically same as before. 550 on pp7500+tg512.
 
 
 ## llama-cpp router mode
