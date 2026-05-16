@@ -18,6 +18,35 @@ Testing MTP will probably be done separately, when getting into llama-cpp mainli
 - Try power limiting to 150w per card, re-run
 
 
+## With 32GB RAM set to 3200 Mhz
+
+Overclocking main memory. These RAM sticks are rated only to 2666 Mhz.
+
+First run, during `memtester`
+
+```
+root@21d66c9bbd61:/app# ./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |       845.49 ± 63.85 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         53.90 ± 0.66 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        492.36 ± 3.29 |
+```
+
+Second run, nothing else running
+
+```
+root@21d66c9bbd61:/app# ./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      1080.55 ± 17.79 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         70.05 ± 0.11 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        643.91 ± 1.56 |
+
+build: ff6b1062a (8864)
+
+```
+
 ## llama-cpp on X570
 
 AMD Ryzen 5 5600X. With single 5060 TI 16GB in x16 slot
