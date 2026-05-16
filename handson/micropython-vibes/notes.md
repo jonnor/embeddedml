@@ -10,12 +10,34 @@ Motivating goal. Get 27B running at 50+ tps and prefill of 500+ tps.
 NOTE: this might require MTP to get even close.
 Testing MTP will probably be done separately, when getting into llama-cpp mainline.
 
-- Pick up new PSU, cooler, fans and GPU
-- Buy power meter. https://www.clasohlson.com/no/Strommaler-til-stikkontakter/p/36-8705
-- Add next GPU. Re-run llama-bench 35B-A3B
 - Transfer OS over to new SSD
 - llama-bench 27B. Compare 1 and 2 cards
 - Try power limiting to 150w per card, re-run
+- Buy power meter. https://www.clasohlson.com/no/Strommaler-til-stikkontakter/p/36-8705
+
+## With two GPUs
+
+Using `--gpu all` only seems to pass one GPU.
+
+
+```
+docker run --rm --gpus '"device=0,1"' -e CUDA_VISIBLE_DEVICES=0,1 -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13
+```
+
+Can see both GPUs with nvidia-smi.
+
+```
+root@42ef09538303:/app# ./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31692 MiB):
+  Device 0: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15841 MiB
+  Device 1: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15850 MiB
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      2456.17 ± 14.10 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         97.66 ± 0.11 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       1115.39 ± 0.84 |
+```
+Close to 2x in performance.
 
 
 ## With 32GB RAM set to 3200 Mhz
