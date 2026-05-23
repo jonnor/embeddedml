@@ -10,11 +10,81 @@ Motivating goal. Get 27B running at 50+ tps and prefill of 500+ tps.
 NOTE: this might require MTP to get even close.
 Testing MTP will probably be done separately, when getting into llama-cpp mainline.
 
-- Buy power meter. https://www.clasohlson.com/no/Strommaler-til-stikkontakter/p/36-8705
-- Transfer OS over to new SSD
-- Try power limiting to 150w per card, re-run
+TODO
 
-## 27B with MTP - first try
+- Test vLLM instead of llama-cpp
+- Test llama.cpp with NVFP4
+- Try power limiting to 150w per card
+
+## vLLM on dual 5060ti 16GB - UNTESTED
+
+https://www.reddit.com/r/LocalLLaMA/comments/1sysyz2/qwen36_27b_on_dual_rtx_5060_ti_16gb_with_vllm_60/
+
+Supposed to hit over 50 tok/sec generation
+Uses the NVFP4 format. Dedicated support on Blackwell.
+
+Uses this model.
+https://huggingface.co/sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP
+
+https://insiderllm.com/guides/fp4-inference-llamacpp-nvfp4-mxfp4/
+"Quality vs Q4_K_M untested".
+
+https://docs.vllm.ai/en/stable/deployment/docker/
+
+```
+docker run --gpus all -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface  --env "HF_TOKEN=$HF_TOKEN"     -p 8000:8000     --ipc=host     vllm/vllm-openai:latest     --model Qwen/Qwen3-0.6B
+```
+
+```
+docker run --rm \
+  --name open-webui \
+  -p 3000:8080 \
+  -v open-webui:/app/backend/data \
+  -e OPENAI_API_BASE_URL=http://host.docker.internal:8000/v1 \
+  ghcr.io/open-webui/open-webui:main
+```
+
+`FIXME: avoid needing --ipc=host`
+
+```
+docker run --rm --gpus '"device=0,1"' \
+  -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  -p 8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP \
+  --served-model-name qwen36-nvfp4-mtp \
+  --tensor-parallel-size 2 \
+  --max-model-len 104800 \
+  --max-num-batched-tokens 8192 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.95 \
+  --kv-cache-dtype fp8 \
+  --quantization modelopt \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
+  --reasoning-parser qwen3 \
+  --language-model-only \
+  --generation-config vllm \
+  --disable-custom-all-reduce \
+  --attention-backend TRITON_ATTN
+```
+
+
+
+## 27B with NVFP4 on llama-cpp - UNTESTED
+
+NVFP4 has dedicated support on Blackwell.
+Theoretically 4x faster over FP8 computation.
+
+However such quants are relatively rare, and less commonly used/tested.
+https://huggingface.co/Freenixi/Abiray-Qwen3.6-27B-NVFP4-GGUF/tree/main
+
+llama.cpp support landed mid-April 2026.
+https://github.com/ggml-org/llama.cpp/pull/21896
+1.46× in prefill, but same token generation speed.
+
+## 27B with MTP on llama-cpp - first try
 
 On dual 5060 ti 16 GB.
 Using a basic configuration, see llama-preset.ini.
