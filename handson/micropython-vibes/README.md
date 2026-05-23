@@ -12,11 +12,32 @@ Testing MTP will probably be done separately, when getting into llama-cpp mainli
 
 TODO
 
-- Test vLLM instead of llama-cpp
+- Try overclocking memory
 - Test llama.cpp with NVFP4
 - Try power limiting to 150w per card
 
-## vLLM on dual 5060ti 16GB - UNTESTED
+## Verifying practical performance
+
+Would want to run some evals
+
+https://github.com/kyuz0/pi-bench
+based on SWE mini
+Has reference results for Qwen 3.6 27B
+
+## Overclocking memory
+
+People say that 5060 TI can go up to +3000 Mhz compared to stock.
+Might get 15-20% extra bandwidth.
+
+28 Gbps Stock
+30 Gbps Safe, realistic, recommended
+31–32 Gbps Possible but may hurt GPU clocks
+
+Use https://github.com/martinstark/nvoc
+
+Should test with for example cuda_memtest
+
+## vLLM on dual 5060ti 16GB
 
 https://www.reddit.com/r/LocalLLaMA/comments/1sysyz2/qwen36_27b_on_dual_rtx_5060_ti_16gb_with_vllm_60/
 
@@ -31,15 +52,13 @@ https://insiderllm.com/guides/fp4-inference-llamacpp-nvfp4-mxfp4/
 
 https://docs.vllm.ai/en/stable/deployment/docker/
 
-```
-docker run --gpus all -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface  --env "HF_TOKEN=$HF_TOKEN"     -p 8000:8000     --ipc=host     vllm/vllm-openai:latest     --model Qwen/Qwen3-0.6B
-```
 
 ```
 docker run --rm \
   --name open-webui \
   -p 3000:8080 \
   -v open-webui:/app/backend/data \
+  --add-host=host.docker.internal:host-gateway \
   -e OPENAI_API_BASE_URL=http://host.docker.internal:8000/v1 \
   ghcr.io/open-webui/open-webui:main
 ```
@@ -70,6 +89,11 @@ docker run --rm --gpus '"device=0,1"' \
   --attention-backend TRITON_ATTN
 ```
 
+Tokens per second varies a lot with MTP.
+But often above 40 and up to 55 occationally.
+So considerably faster than the tests with llama-cpp on Q4.
+
+Had one crash of the server after a while due to out-of-RAM when running with --gpu-memory-utilization 0.95
 
 
 ## 27B with NVFP4 on llama-cpp - UNTESTED
@@ -83,6 +107,9 @@ https://huggingface.co/Freenixi/Abiray-Qwen3.6-27B-NVFP4-GGUF/tree/main
 llama.cpp support landed mid-April 2026.
 https://github.com/ggml-org/llama.cpp/pull/21896
 1.46× in prefill, but same token generation speed.
+
+Build with NVFP4 MTP was released on May 23
+https://github.com/ggml-org/llama.cpp/releases/tag/b9297
 
 ## 27B with MTP on llama-cpp - first try
 
