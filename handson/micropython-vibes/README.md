@@ -37,6 +37,159 @@ Use https://github.com/martinstark/nvoc
 
 Should test with for example cuda_memtest
 
+Defaults
+
+```
+ nvoc info -d 0,1
+driver: 595.71.05
+gpu 0: NVIDIA GeForce RTX 5060 Ti
+gpu clock: 2595MHz
+gpu offset: 0MHz
+mem clock: 13801MHz
+mem offset: 0MHz
+temp: 48°C
+power: 25W
+power limit: 180W (100%)
+power range: 150W-180W (180W hard limit)
+gpu 1: NVIDIA GeForce RTX 5060 Ti
+gpu clock: 2580MHz
+gpu offset: 0MHz
+mem clock: 13801MHz
+mem offset: 0MHz
+temp: 41°C
+power: 16W
+power limit: 180W (100%)
+power range: 150W-180W (206W hard limit)
+```
+
+Stock configuration
+```
+./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31691 MiB):
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      2484.71 ± 13.77 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |        102.80 ± 0.15 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       1158.17 ± 0.38 |
+```
+
+```
+nvoc -o 100 -m 2000 -d 0,1
+```
+
+```
+./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31691 MiB):
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      2571.02 ± 14.35 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |        108.13 ± 0.16 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       1214.55 ± 0.64 |
+
+build: ff6b1062a (8864)
+```
+
+```
+sudo nvoc -o 150 -m 3000 -d 0,1
+```
+
+```
+root@1e046dcd4327:/app# ./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31691 MiB):
+
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      2624.25 ± 13.68 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |        111.16 ± 0.14 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       1245.52 ± 0.80 |
+```
+
+7.5% boost in overall performance
+
+
+Same config with 27B NVFP4 - q8 context cache
+```
+./llama-bench -m /models/Abiray-Qwen3.6-27B-NVFP4.gguf -pg 7500,512 -t 6 -ctk q8_0 -ctv q8_0  --fit-ctx 100000 --fit-target 500 -fa 1
+
+| model                          |       size |     params | backend    | ngl | type_k | type_v | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -----: | -----: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |           pp512 |        827.40 ± 4.70 |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |           tg128 |         24.51 ± 0.01 |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |    pp7500+tg512 |        284.80 ± 0.12 |
+
+```
+
+Increasing batch size - was beneficial on 35B A3B.
+But gave no change on 27B.
+```
+./llama-bench -m /models/Abiray-Qwen3.6-27B-NVFP4.gguf -pg 7500,512 -t 6 -ctk q8_0 -ctv q8_0  --fit-ctx 100000 --fit-target 500 -fa 1 -b 2048 -ub 2048
+```
+
+
+```
+root@ec2cde828cfd:/app# ./llama-bench -m /models/Abiray-Qwen3.6-27B-NVFP4.gguf -pg 7500,512 -t 6 -ctk q8_0 -ctv q8_0  --fit-ctx 100000 --fit-target 500 -fa 1
+
+| model                          |       size |     params | backend    | ngl | type_k | type_v | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -----: | -----: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |           pp512 |      1409.64 ± 14.70 |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |           tg128 |         25.40 ± 0.02 |
+| qwen35 27B NVFP4               |  17.50 GiB |    26.90 B | CUDA       |  99 |   q8_0 |   q8_0 |  1 |        500 |      100000 |    pp7500+tg512 |        324.86 ± 0.14 |
+
+build: 0f3cb3fc8 (9294)
+```
+Significant increase in more recent llama-cpp for 27B MVFP4.
+
+
+## OpenWebUI as router
+
+Have OpenAI compatible completions endpoints under `/api`
+https://docs.openwebui.com/reference/api-endpoints/#-chat-completions
+
+Supports API key
+
+https://docs.openwebui.com/features/authentication-access/api-keys/#why-api-keys
+
+- Need to `Enable API Keys` in admin settings
+- Non-admins also need group permissions
+- Then (after refreshing) a user can create API key under `Profile -> Settings -> Account`
+
+Might be possible to change the defaults here, using envvars.
+
+https://docs.openwebui.com/reference/env-configuration/#user_permissions_features_api_keys
+
+
+```
+export export OPENWEBUI_TOKEN=sk-XXXXXXX
+
+curl -H "Authorization: Bearer $OPENWEBUI_TOKEN" jon-workstation.local:3000/api/models
+```
+
+```
+curl -v -X POST http://jon-workstation.local:3000/api/chat/completions \
+-H "Authorization: Bearer $OPENWEBUI_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+      "model": "qwen36-nvfp4-mtp",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is the sky blue?"
+        }
+      ]
+    }'
+```
+
+Completions API is broken on 0.9.5: https://github.com/open-webui/open-webui/issues/24553
+
+Worked in 0.9.4 with curl. However, pi still gave 400 error.
+Seeing in OpenWebUI the log
+
+```
+2026-05-24 12:57:05.675 | ERROR    | open_webui.main:process_chat:2010 - Error processing chat payload: "auto" tool choice requires --enable-auto-tool-choice and --tool-call-parser to be set
+```
+
+Adding `--enable-auto-tool-choice --tool-call-parser qwen3_coder` to vLLM config made it work.
+
 ## vLLM on dual 5060ti 16GB
 
 https://www.reddit.com/r/LocalLLaMA/comments/1sysyz2/qwen36_27b_on_dual_rtx_5060_ti_16gb_with_vllm_60/
@@ -60,13 +213,14 @@ docker run --rm \
   -v open-webui:/app/backend/data \
   --add-host=host.docker.internal:host-gateway \
   -e OPENAI_API_BASE_URL=http://host.docker.internal:8000/v1 \
-  ghcr.io/open-webui/open-webui:main
+  ghcr.io/open-webui/open-webui:0.9.4
 ```
 
 `FIXME: avoid needing --ipc=host`
 
 ```
-docker run --rm --gpus '"device=0,1"' \
+docker run --rm --name vllm \
+  --gpus '"device=0,1"' \
   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface \
   --env "HF_TOKEN=$HF_TOKEN" \
   -p 8000:8000 \
@@ -78,7 +232,7 @@ docker run --rm --gpus '"device=0,1"' \
   --max-model-len 104800 \
   --max-num-batched-tokens 8192 \
   --max-num-seqs 1 \
-  --gpu-memory-utilization 0.95 \
+  --gpu-memory-utilization 0.90 \
   --kv-cache-dtype fp8 \
   --quantization modelopt \
   --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
@@ -86,6 +240,8 @@ docker run --rm --gpus '"device=0,1"' \
   --language-model-only \
   --generation-config vllm \
   --disable-custom-all-reduce \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
   --attention-backend TRITON_ATTN
 ```
 
@@ -110,6 +266,9 @@ https://github.com/ggml-org/llama.cpp/pull/21896
 
 Build with NVFP4 MTP was released on May 23
 https://github.com/ggml-org/llama.cpp/releases/tag/b9297
+
+Not yet available as Docker build
+https://github.com/ggml-org/llama.cpp/pkgs/container/llama.cpp/versions?filters%5Bversion_type%5D=tagged
 
 ## 27B with MTP on llama-cpp - first try
 
