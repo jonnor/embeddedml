@@ -258,6 +258,21 @@ Classification models
 - DTW and KNN
 https://claude.ai/chat/3d54311a-b26f-40e4-9ec7-6435204be8cb
 
+### Randomized convolution transform
+
+ROCKET, MiniRocket and MultiRocket
+Useful for time-series data especially.
+Can be used with logistic regression
+
+### Interval trees
+
+quant: a minimalist interval method for time series classification
+https://github.com/angus924/quant/blob/main/doc.md 
+https://arxiv.org/abs/2308.00928 
+Test on Sonar dataset. Can it find the relevant areas? Outperform no feature enginering? Able to perform well with only a few features
+Quant implementation in scikit-learn? With C implementation in emlearn?
+Try on other datasets. Raman spectroscopy / spectra ?
+YT video explaining the method?
 
 ### Softmax
 

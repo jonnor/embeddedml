@@ -37,6 +37,8 @@ Shorts:
 - Linear regression on device, with emlearn-micropython, npyfile
 - Toothbrush NRF52 with Zephyr and MicroPython 
 
+For MicroPython content, post also in Github Discussions
+
 
 ## Existing venues
 
@@ -76,9 +78,25 @@ https://www.linkedin.com/in/vijay-janapa-reddi-63a6a173/ ?
 
 https://ashishware.com/index.html 
 
+## Hardware companies
+
+- Sparkfun. Big on MicroPython
+- Olimex
+- Arduino
+- Waveshare.
+- M5Stack
+
+Each of these have communities centered around them.
+Could create and share content there.
+
+
 ## Long form content ideas
 
 For TowardsDataScience or similar.
+
+https://www.embeddedrelated.com/
+https://www.mlrelated.com/
+
 
 #### Introduction to open-source TinyML
 
