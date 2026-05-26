@@ -74,18 +74,20 @@ It might waste bandwidth sending useless data.
 Presentations
 
 - [Sensor data processing for scientific applications with MicroPython](./presentations/euroscipy2025/). EuroSciPy 2025, Krakow.
-- [Machine Learning on Microcontrollers; Tiny, Useful and Fun](./presentations/ai-dev-europe-2025). Open Source GenAI & ML Summit. August 2025.
-- [Machine Learning on Microcontrollers With Zephyr and emlearn](./presentations/open-source-summit-europe-2025). Open Source Summit / Zephyr Developer Summit. August 2025.
-- [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/). PyCon South Africa, October 2024.
+- [Machine Learning on Microcontrollers; Tiny, Useful and Fun](./presentations/ai-dev-europe-2025). Open Source GenAI & ML Summit. Amsterdam, August 2025.
+- [Machine Learning on Microcontrollers With Zephyr and emlearn](./presentations/open-source-summit-europe-2025). Open Source Summit / Zephyr Developer Summit. Amsterdam, August 2025.
+- [Microcontrollers and Machine Learning with MicroPython and emlearn](./presentations/foss-north-2025). FOSS-North. Gothenburg, April 2025.
+- [Sensor data processing on microcontrollers with MicroPython and emlearn](./presentations/PyConZA2024/). PyCon South Africa. Online, October 2024.
 - [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024). Embedded Online Conference. April 2024.
 - [6 years of open source TinyML with emlearn](./presentations/TinymlEMEA2024). TinyML EMEA, Milano. June 2024.
 - [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024). May 2024.
 - [Machine Learning on microcontrollers using MicroPython and emlearn](./presentations/PyDataBerlin2024/). PyDataBerlin & PyCon DE. April 2024.
+- [HVAC monitoring in commercial buildings using Anomaly Detection](./presentations/TinymlAnomalyDetection2023/). TinyAI Forum on PdM and Anomaly Detection (online). December 2023.
 
 Lecture notes
 
-- [Practical TinyML with emlearn](./presentations/AarhusUniversity2026/). Aarhus University. March 2026
-- [emlearn @ TinyMLDays Aarhus](./presentations/TinyMLDays2025/). August 2025
+- [Practical TinyML with emlearn](./presentations/AarhusUniversity2026/). Aarhus University. March 2026.
+- [emlearn @ TinyMLDays Aarhus](./presentations/TinyMLDays2025/). August 2025.
 
 Open source software
 
