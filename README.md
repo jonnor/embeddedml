@@ -82,6 +82,11 @@ Presentations
 - [emlearn - Machine Learning for Tiny Embedded Systems](./presentations/EmbeddedOnlineConference2024). May 2024.
 - [Machine Learning on microcontrollers using MicroPython and emlearn](./presentations/PyDataBerlin2024/). PyDataBerlin & PyCon DE. April 2024.
 
+Lecture notes
+
+- [Practical TinyML with emlearn](./presentations/AarhusUniversity2026/). Aarhus University. March 2026
+- [emlearn @ TinyMLDays Aarhus](./presentations/TinyMLDays2025/). August 2025
+
 Open source software
 
 - [emlearn](https://github.com/emlearn/emlearn). Machine Learning inference engine in C99 for Microcontrollers and Embedded devices. Since 2018.
