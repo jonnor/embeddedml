@@ -12,7 +12,6 @@ Testing MTP will probably be done separately, when getting into llama-cpp mainli
 
 TODO
 
-- Try overclocking memory
 - Test llama.cpp with NVFP4
 - Try power limiting to 150w per card
 
@@ -270,14 +269,19 @@ https://github.com/ggml-org/llama.cpp/releases/tag/b9297
 Not yet available as Docker build
 https://github.com/ggml-org/llama.cpp/pkgs/container/llama.cpp/versions?filters%5Bversion_type%5D=tagged
 
-## 27B with MTP on llama-cpp - first try
+## 27B with MTP on llama-cpp - two attempts
 
-On dual 5060 ti 16 GB.
-Using a basic configuration, see llama-preset.ini.
+On dual 5060 ti 16 GB. Using a basic configuration, see llama-preset.ini.
 
+May 15.
 Got 21 tok/s out without MTP, and 35 tok/second with on programming tasks via llama-cpp webui.
 Prefill around 900 tok/s, which is nice and fast. Above target!
 
+May 29.
+Updated to build `b9404`.
+With Qwen3.6-27B-UD-Q4_K_XL.gguf, MTP and layer split mode, get 48-50 on Python codegen via llama-cpp webui.
+
+Roughly matches vLLM performance level.
 
 ## With two GPUs
 
