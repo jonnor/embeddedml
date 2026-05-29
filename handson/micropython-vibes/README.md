@@ -23,6 +23,92 @@ https://github.com/kyuz0/pi-bench
 based on SWE mini
 Has reference results for Qwen 3.6 27B
 
+## Testing triple/quad 5060 ti on x570 - TODO
+
+Want to enable higher performance with concurrency, for multi-user setups.
+And enable running higher quants.
+
+Only two cards can run PCIE Gen 4 x8.
+The other two will have to run PCIE Gen 4 x4, via chipset and M2 slot.
+
+!? PCIE16_3 might share lanes with M2 slot? Though manual does not mention it...
+
+Might want to try uneven split using llama-cpp options?
+
+The main PCIE16_1 supports x8/x4/x4 bifurcation.
+Which if one has the right adapter would allow x8/x4/x4 + x4 from chipset. 
+With one NVME still left on M.2 directly to CPU.
+
+In theory, it is possible to use x8/x4/x4 with x4/x4/x4 say Occulink.
+
+eGPU adaptors for x8 Oculink also exists, but much more rare than x4.
+Often called 8i, like Oculink SFF-8611/8612 8i.
+
+## Testing slower PCIE connectivity dual 5060
+
+With PCIE Gen 4 x8/x8 (reference)
+```
+[jon@jon-workstation ~]$ docker run --rm --gpus '"device=0,1"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+root@668a6b054548:/app# ./llama-bench -m /models/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |      2779.09 ± 17.41 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |        121.38 ± 0.24 |
+| qwen35moe 35B.A3B Q4_K - Medium |  20.60 GiB |    34.66 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |       1342.96 ± 1.26 |
+
+root@668a6b054548:/app# ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |        990.27 ± 9.11 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         24.84 ± 0.01 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        303.08 ± 0.05 |
+
+build: 241cbd41d (9404)
+```
+
+With PCIE Gen 3 x8/x8. To simulate bandwidth of PCIE Gen 4 x4/x4.
+BIOS had no setting for the number of lanes.
+```
+nvidia-smi --query-gpu=index,name,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv
+index, name, pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+0, NVIDIA GeForce RTX 5060 Ti, 3, 3, 8, 8
+1, NVIDIA GeForce RTX 5060 Ti, 3, 3, 8, 16
+```
+
+```
+[jon@jon-workstation ~]$ docker run --rm --gpus '"device=0,1"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+root@9e827c5226f1:/app# ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |        934.58 ± 8.43 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         22.46 ± 0.00 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        276.69 ± 0.04 |
+
+build: 241cbd41d (9404)
+```
+
+Around 10% performance drop.
+
+Trying overclock to see if able to regain some performance.
+
+```
+sudo nvoc -o 150 -m 3000 -d 0,1
+```
+
+```
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           pp512 |        984.50 ± 8.45 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |           tg128 |         24.79 ± 0.01 |
+| qwen35 27B Q4_K - Medium       |  16.67 GiB |    27.32 B | CUDA       |  99 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        302.20 ± 0.04 |
+```
+
+Back up to original speeds.
+Good indicator that adding a third card can make sense?
+
 ## Parallell processing with llama-cpp
 
 Was able to reach 3x parallel with 70k context each.
