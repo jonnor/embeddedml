@@ -23,6 +23,64 @@ https://github.com/kyuz0/pi-bench
 based on SWE mini
 Has reference results for Qwen 3.6 27B
 
+## Parallell processing with llama-cpp
+
+Was able to reach 3x parallel with 70k context each.
+Larger values gets out-of-memory in VRAM.
+
+With 3 clients, getting up to 70 tok/second generation.
+Which is nice boost of 45 tok/second for the single client with `parallel=1` configuration.
+However, single client now only gets around 35 tok/second.
+GPU utilization only at 50-60%.
+
+```
+; Qwen3.6 27B - general tasks (instruct / no thinking)
+[qwen3.6-27b-instruct]
+load-on-startup = true
+model = /models/Qwen3.6-27B-UD-Q4_K_XL.gguf
+; --fit system handles ngl automatically, no manual n-cpu-moe needed
+fit = false
+ngl = 99
+;fit-target = 300
+;fit-ctx = 200000
+ctx-size = 210000
+parallel = 3
+; model config
+; Based on Unsloth recommendations https://unsloth.ai/docs/models/qwen3.6
+temp = 1.0
+top-p = 0.95
+top-k = 20
+min-p = 0.0
+presence-penalty = 1.5
+repeat-penalty = 1.0
+chat-template-kwargs = {"enable_thinking": false}
+; performance config
+; no-mmap = true
+; split-mode = tensor
+spec-type = draft-mtp
+spec-draft-n-max = 2
+flash-attn = true
+; batch-size = 2048
+; ubatch-size = 2048
+cache-type-k = q8_0
+cache-type-v = q8_0
+main-gpu = 0
+```
+
+Tried increasing batch size, hoping to improve throughput
+```
+batch-size = 2048
+ubatch-size = 2048
+```
+or 
+```
+batch-size = 1024
+ubatch-size = 1024
+```
+But instead had to go down to `parallel = 2` and `ctx-size = 120000`.
+Thoughput did not improve either. Stuck under 50 tok/second combined. Bad tradeoff.
+
+
 ## Overclocking memory
 
 People say that 5060 TI can go up to +3000 Mhz compared to stock.
@@ -119,7 +177,7 @@ Same config with 27B NVFP4 - q8 context cache
 ```
 
 Increasing batch size - was beneficial on 35B A3B.
-But gave no change on 27B.
+Also gave good improvement in prefill with 27B.
 ```
 ./llama-bench -m /models/Abiray-Qwen3.6-27B-NVFP4.gguf -pg 7500,512 -t 6 -ctk q8_0 -ctv q8_0  --fit-ctx 100000 --fit-target 500 -fa 1 -b 2048 -ub 2048
 ```
