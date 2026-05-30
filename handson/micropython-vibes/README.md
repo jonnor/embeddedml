@@ -13,7 +13,6 @@ Testing MTP will probably be done separately, when getting into llama-cpp mainli
 TODO
 
 - Test llama.cpp with NVFP4
-- Try power limiting to 150w per card
 
 ## Verifying practical performance
 
@@ -23,7 +22,24 @@ https://github.com/kyuz0/pi-bench
 based on SWE mini
 Has reference results for Qwen 3.6 27B
 
-## Testing triple/quad 5060 ti on x570 - TODO
+## Asus PCIE bifurcation support - UNTESTED
+
+Has data for X570 boards, all other chipsets
+https://www.asus.com/support/faq/1037507/
+
+?? Seems that maybe the "PCIE RAID" setting on CROSSHAIR VIII HERO is actually code for x4x4x4x4, when used on PCIE16_1 only ?
+And x4x4 plus x4x4 when using both _1 and _2 ?
+
+HYPER M.2 X16 Card
+
+## Testing quad 5060 ti on x570 - TODO
+
+Still waiting for bifurcation PCIE adapters.
+Must use the chipset slot for now (M2_2 or PCIE_16).
+Maybe move NVME into SATA enclosure? Or could even use USB...
+
+
+## Testing triple 5060 ti on x570 with llama-cpp
 
 Want to enable higher performance with concurrency, for multi-user setups.
 And enable running higher quants.
@@ -43,6 +59,295 @@ In theory, it is possible to use x8/x4/x4 with x4/x4/x4 say Occulink.
 
 eGPU adaptors for x8 Oculink also exists, but much more rare than x4.
 Often called 8i, like Oculink SFF-8611/8612 8i.
+
+Testing on ROG Crosshair VIII Hero.
+X570 with x8 x8 in PCIE 1 and 2.
+And third card using M2 slot via Oculink (x4).
+
+```
+nvidia-smi --query-gpu=index,name,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv
+index, name, pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+index, name, pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+0, NVIDIA GeForce RTX 5060 Ti, 4, 4, 4, 8
+1, NVIDIA GeForce RTX 5060 Ti, 4, 4, 8, 8
+2, NVIDIA GeForce RTX 5060 Ti, 4, 4, 8, 8
+-bash: index,: command not found
+```
+
+```
+docker run --rm --gpus '"device=0,1,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           pp512 |       775.90 ± 39.49 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           tg128 |         22.19 ± 0.04 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        268.88 ± 0.67 |
+
+build: 241cbd41d (9404)
+```
+
+! BAD. Worse than dual 5060 ti on jon-workstation.
+GPU utilization is low, around 30-40%.
+Could it be because the x4 card is index 0, and that causes bottlenecks?
+
+Trying to reorder
+```
+docker run --rm --gpus '"device=1,2,0"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+```
+
+Can see that GPU 2 got slightly more layers, 6 GB vs 5 GB usage.
+
+```
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           pp512 |       773.71 ± 45.00 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           tg128 |         22.19 ± 0.04 |
+```
+
+Same bad performance.
+
+Doing a reference with two GPUs both on x8 x8
+```
+docker run --rm --gpus '"device=1,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           pp512 |       780.44 ± 38.85 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           tg128 |         22.20 ± 0.04 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        276.09 ± 0.93 |
+```
+
+Same performance as 3 GPUs. And worse by 10% compared to workstation.
+What gives?
+
+! CPU memory was defaulting to 2133 Mhz. Have now set to official 3200 Mhz
+
+```
+docker run --rm --gpus '"device=1,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+^Aa^[[O| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           pp512 |       777.32 ± 39.60 |
+^[[I^[[O| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           tg128 |         22.21 ± 0.04 |
+```
+
+Same bad. Also with 3 GPUs.
+
+Plugged out the GPU that was on Occulink.
+```
+Same performance...
+```
+
+Driver and CUDA version on host
+
+```
+| NVIDIA-SMI 610.43.02              KMD Version: 610.43.02     CUDA UMD Version: 13.3     |
+
+Linux soundsensing-test-gpu-2 6.12.90+deb13.1-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.90-2 (2026-05-27) x86_64 GNU/Linux
+```
+
+Tested default configuration (above)
+```
+nvoc info -d all
+driver: 610.43.02
+gpu 0: NVIDIA GeForce RTX 5060 Ti
+gpu clock: 2812MHz
+gpu offset: 0MHz
+mem clock: 13801MHz
+mem offset: 0MHz
+temp: 46°C
+power: 84W
+power limit: 180W (100%)
+power range: 150W-180W (180W hard limit)
+gpu 1: NVIDIA GeForce RTX 5060 Ti
+gpu clock: 2775MHz
+gpu offset: 0MHz
+mem clock: 13801MHz
+mem offset: 0MHz
+temp: 48°C
+power: 106W
+power limit: 180W (100%)
+power range: 150W-180W (180W hard limit)
+```
+
+Trying to overclock
+
+```
+sudo nvoc -o 150 -m 3000 -d 0,1
+```
+
+```
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31754 MiB):
+  Device 0: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15866 MiB
+  Device 1: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           pp512 |       810.57 ± 44.36 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |           tg128 |         24.46 ± 0.05 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |       6 |     2048 |  1 |        300 |      100000 |    pp7500+tg512 |        301.35 ± 1.09 |
+```
+Got slight boost.
+But still worse than workstation, even when that has no OC. Especially prefill.
+
+
+Trying split mode layer with dual GPU
+```
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31754 MiB):
+  Device 0: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15866 MiB
+  Device 1: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |      1068.37 ± 70.97 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         42.34 ± 0.25 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |    pp7500+tg512 |        446.52 ± 1.15 |
+
+```
+
+Big improvement in throughput.
+Also seeing power draws of 100-170 watt instead of 60-100.
+
+Adding back eGPU.
+
+```
+sudo nvoc -o 150 -m 3000 -d 0,1,2
+```
+
+```
+docker run --rm --gpus '"device=1,2,0"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+```
+
+```
+/app/ggml/src/ggml-backend-meta.cpp:1052: GGML_ASSERT(split_state.ne[j] * tensor->src[i]->ne[src_ss[i].axis] == sum * tensor->ne[split_state.axis]) failed
+```
+Crashed - maybe splitting over 3 does not work?
+
+## Testing triple GPU on vLLM
+
+For reference dual case
+```
+docker run --rm --name vllm \
+  --gpus '"device=0,1"' \
+  -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  -p 8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP \
+  --served-model-name qwen36-nvfp4-mtp \
+  --tensor-parallel-size 2 \
+  --max-model-len 104800 \
+  --max-num-batched-tokens 8192 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.90 \
+  --kv-cache-dtype fp8 \
+  --quantization modelopt \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
+  --reasoning-parser qwen3 \
+  --language-model-only \
+  --generation-config vllm \
+  --disable-custom-all-reduce \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --attention-backend TRITON_ATTN
+```
+
+Testing via OpenWebUI.
+Getting up to 75 tok/s for first chapter of Bible.
+And for a Python TODO app.
+Seing utilization of 95%.
+
+Trying 3 GPU with tensor parallel
+
+```
+docker run --rm --name vllm \
+  --gpus '"device=0,1,2"' \
+  -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  -p 8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP \
+  --served-model-name qwen36-nvfp4-mtp \
+  --tensor-parallel-size 3 \
+  --max-model-len 104800 \
+  --max-num-batched-tokens 8192 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.90 \
+  --kv-cache-dtype fp8 \
+  --quantization modelopt \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
+  --reasoning-parser qwen3 \
+  --language-model-only \
+  --generation-config vllm \
+  --disable-custom-all-reduce \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --attention-backend TRITON_ATTN
+```
+
+```
+(Worker_TP0 pid=285) ERROR 05-30 19:59:18 [multiproc_executor.py:870]   File "/usr/local/lib/python3.12
+/dist-packages/vllm/distributed/utils.py", line 55, in ensure_divisibility                             
+(Worker_TP0 pid=285) ERROR 05-30 19:59:18 [multiproc_executor.py:870]     assert numerator % denominato
+r == 0, "{} is not divisible by {}".format(                                                            
+(Worker_TP0 pid=285) ERROR 05-30 19:59:18 [multiproc_executor.py:870]            ^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^                                                                                                 
+(Worker_TP0 pid=285) ERROR 05-30 19:59:18 [multiproc_executor.py:870] AssertionError: 16 is not divisib
+le by 3   
+```
+Errors. Likely need to have 4 GPUs.
+
+
+Trying pipeline-parallel with 3 GPUs.
+```
+docker run --rm --name vllm \
+  --gpus '"device=0,1,2"' \
+  -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  -p 8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP \
+  --served-model-name qwen36-nvfp4-mtp \
+  --tensor-parallel-size 1 \
+  --pipeline-parallel-size 3 \
+  --max-model-len 104800 \
+  --max-num-batched-tokens 8192 \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.90 \
+  --kv-cache-dtype fp8 \
+  --quantization modelopt \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
+  --reasoning-parser qwen3 \
+  --language-model-only \
+  --generation-config vllm \
+  --disable-custom-all-reduce \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --attention-backend TRITON_ATTN
+```
+
+```
+(APIServer pid=1) NotImplementedError: Pipeline parallelism is not supported for this model. Supported models implement the `SupportsPP` interface.
+```
+
+"vLLM does not currently support enabling both pipeline parallelism and speculative decoding at the same time."
+Mar 10, 2026
+https://github.com/vllm-project/vllm/issues/36643
+
 
 ## Testing slower PCIE connectivity dual 5060
 
