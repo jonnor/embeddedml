@@ -38,6 +38,280 @@ Still waiting for bifurcation PCIE adapters.
 Must use the chipset slot for now (M2_2 or PCIE_16).
 Maybe move NVME into SATA enclosure? Or could even use USB...
 
+First try.
+Using 4th card plugged into M.2 
+Showing in lspci, but not in nvidia-smi.
+
+Was unable to booth with NVME in SATA adapter.
+Disk was not seen in BIOS.
+Using USB-C NVME adapter worked, but only with USB-C to Type A adapter - not with C to C cable.
+
+After forcing the M2 slots to Gen 4 in BIOS,
+can boot.
+
+! was seeing a bit sluggish behavior when connecting over SSH.
+
+```
+nvidia-smi --query-gpu=index,name,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max --format=csv
+index, name, pcie.link.gen.current, pcie.link.gen.max, pcie.link.width.current, pcie.link.width.max
+0, NVIDIA GeForce RTX 5060 Ti, 4, 4, 4, 8
+1, NVIDIA GeForce RTX 5060 Ti, 4, 4, 4, 8
+2, NVIDIA GeForce RTX 5060 Ti, 4, 4, 8, 8
+3, NVIDIA GeForce RTX 5060 Ti, 4, 4, 8, 8
+```
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1,2,3"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP   --served-model-name qwen36-nvfp4-mtp   --tensor-parallel-size 4   --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 8192   --max-num-seqs 1   --gpu-memory-utilization 0.90   --kv-cache-dtype fp8   --quantization modelopt   --speculative-config '{"method":"mtp","num_speculative_tokens":3}'   --reasoning-parser qwen3   --language-model-only   --generation-config vllm   --disable-custom-all-reduce   --enable-auto-tool-choice   --tool-call-parser qwen3_coder   --attention-backend TRITON_ATTN
+```
+
+Did not get up and running in 3 minutes
+```
+(EngineCore pid=243) INFO 05-31 13:50:02 [shm_broadcast.py:698] No available shared memory broadcast block found in 60 seconds. This typically happens when some processes are hanging or doing some time-consuming work (e.g. compilation, weight/kv cache quantization).
+```
+
+Trying llama.cpp
+
+
+```
+docker run --rm --gpus '"device=1,2,0,3"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+```
+
+```
+root@dc2b7dc07c14:/app# ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 6 --fit-ctx 100000 --fit-target 300 -fa 1 -b 2048 -ub 2048
+ggml_cuda_init: found 4 CUDA devices (Total VRAM: 63532 MiB):
+  Device 0: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+  Device 1: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+  Device 2: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15866 MiB
+  Device 3: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+| model                          |       size |     params | backend    | ngl | threads | n_ubatch | fa |       fitt |        fitc |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | ------: | -------: | -: | ---------: | ----------: | --------------: | -------------------: |
+/app/ggml/src/ggml-cuda/ggml-cuda.cu:103: CUDA error
+libggml-base.so.0(+0x1b176)[0x7faf850e2176]
+libggml-base.so.0(ggml_print_backtrace+0x21a)[0x7faf850e25fa]
+libggml-base.so.0(ggml_abort+0x15b)[0x7faf850e27db]
+/app/libggml-cuda.so(_Z15ggml_cuda_errorPKcS0_S0_iS0_+0xb5)[0x7faf7b2be955]
+/app/libggml-cuda.so(+0x29627b)[0x7faf7b2bf27b]
+```
+
+Failed with error.
+! no longer listed in nvidia-smi.
+
+Tried swapping cable.
+
+Was able to run llama-bench default.
+Low performance, 737 / 22.
+
+```
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       415.29 ± 18.86 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         37.22 ± 0.33 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |    pp7500+tg512 |        274.90 ± 0.47 |
+```
+
+Poor results, worse than dual GPU.
+Utilization is around 50-60%.
+Or sometimes 90% on two GPUS, and 50% on the other.
+
+Testing just the two x8 GPUs
+```
+docker run --rm --gpus '"device=3,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+groups: cannot find name for group ID 992
+
+ ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       970.25 ± 81.96 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         38.30 ± 0.23 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |    pp7500+tg512 |        414.68 ± 1.12 |
+```
+
+Testing just the two x4 GPUs
+
+```
+jon@soundsensing-test-gpu-2:~$ docker run --rm --gpus '"device=0,1"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+groups: cannot find name for group ID 992
+
+root@5b55834c1a58:/app# ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       801.94 ± 55.38 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         38.04 ± 0.12 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |    pp7500+tg512 |        379.96 ± 0.88 |
+```
+Slight reduction in prefill, but generation is same.
+
+Testing x8 GPU with x4
+
+```
+docker run --rm --gpus '"device=2,0"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+groups: cannot find name for group ID 992
+root@f07113dcdf53:/app# ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31754 MiB):
+  Device 0: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15888 MiB
+  Device 1: NVIDIA GeForce RTX 5060 Ti, compute capability 12.0, VMM: yes, VRAM: 15866 MiB
+load_backend: loaded CUDA backend from /app/libggml-cuda.so
+load_backend: loaded CPU backend from /app/libggml-cpu-haswell.so
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       828.30 ± 58.91 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         38.50 ± 0.14 |
+```
+
+Close to x4+x4.
+
+Same devices just reversed order
+
+```
+docker run --rm --gpus '"device=0,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
+
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       825.58 ± 58.06 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         38.51 ± 0.13 |
+```
+
+Order does not seem to matter.
+
+Testing other x4 GPU.
+
+```
+docker run --rm --gpus '"device=1,2"' -v /home/jon/models/:/models -p 8080:8080 --entrypoint /bin/bash -it ghcr.io/ggml-org/llama.cpp:full-cuda13-b9404
+
+| model                          |       size |     params | backend    | ngl | n_ubatch |     sm | fa |            test |                  t/s |
+| ------------------------------ | ---------: | ---------: | ---------- | --: | -------: | -----: | -: | --------------: | -------------------: |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           pp512 |       804.79 ± 55.02 |
+| qwen35 27B Q4_K - Medium       |  16.39 GiB |    26.90 B | CUDA       |  99 |     2048 | tensor |  1 |           tg128 |         38.02 ± 0.15 |
+```
+
+Very minor difference.
+
+Retesting vLLM. Now that the GPUs themselves seem stable.
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1,2,3"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP   --served-model-name qwen36-nvfp4-mtp   --tensor-parallel-size 4   --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 8192   --max-num-seqs 1   --gpu-memory-utilization 0.90   --kv-cache-dtype fp8   --quantization modelopt   --speculative-config '{"method":"mtp","num_speculative_tokens":3}'   --reasoning-parser qwen3   --language-model-only   --generation-config vllm   --disable-custom-all-reduce   --enable-auto-tool-choice   --tool-call-parser qwen3_coder   --attention-backend TRITON_ATTN
+```
+
+Seeing 70-100 for "Avg generation throughput" on Python codegen and bible text.
+
+Trying higher concurrency configuration
+```
+docker run --rm --name vllm   --gpus '"device=0,1,2,3"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP   --served-model-name qwen36-nvfp4-mtp   --tensor-parallel-size 4   --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 8192   --max-num-seqs 8   --gpu-memory-utilization 0.90   --kv-cache-dtype fp8   --quantization modelopt   --speculative-config '{"method":"mtp","num_speculative_tokens":3}'   --reasoning-parser qwen3   --language-model-only   --generation-config vllm   --disable-custom-all-reduce   --enable-auto-tool-choice   --tool-call-parser qwen3_coder   --attention-backend TRITON_ATTN
+```
+
+
+
+https://huggingface.co/datasets/likaixin/InstructCoder
+is just 150 MB
+
+https://docs.vllm.ai/en/stable/benchmarking/cli/#interactive-timeline
+
+
+Have to not use --served-model-name to use with guidellm...
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1,2,3"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP  --tensor-parallel-size 4   --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 8192   --max-num-seqs 8   --gpu-memory-utilization 0.90   --kv-cache-dtype fp8   --quantization modelopt   --speculative-config '{"method":"mtp","num_speculative_tokens":3}'   --reasoning-parser qwen3   --language-model-only   --generation-config vllm   --disable-custom-all-reduce   --enable-auto-tool-choice   --tool-call-parser qwen3_coder   --attention-backend TRITON_ATTN
+```
+
+```
+podman run \
+  --rm -it \
+  -v "./results:/results:rw" \
+  -e GUIDELLM_TARGET=http://host.containers.internal:8000 \
+  -e GUIDELLM_PROFILE=sweep \
+  -e GUIDELLM_MAX_SECONDS=30 \
+  -e GUIDELLM_DATA="type=synthetic_text,prompt_tokens=256,output_tokens=128" \
+  ghcr.io/vllm-project/guidellm:latest
+```
+
+Seeing GPU utilization at 95%.
+Power per GPU only 70-80watt.
+
+! Not sure how to interpret the output...
+
+
+```
+podman run \
+  --rm -it \
+  -v "/home/jon/guidellm/results:/results:rw" \
+  -e GUIDELLM_TARGET=http://host.containers.internal:8000 \
+  -e GUIDELLM_PROFILE=concurrent \
+  -e GUIDELLM_RATE=1,2,4,8,16 \
+  -e GUIDELLM_MAX_SECONDS=30 \
+  -e GUIDELLM_DATA="type=synthetic_text,prompt_tokens=256,output_tokens=128" \
+  ghcr.io/vllm-project/guidellm:latest
+```
+
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.6     | 176.4        | 84.9          | 261.3        |
+| concurrent | 2.0   | 2.0  | 1.0     | 309.4        | 145.8         | 455.1        |
+| concurrent | 4.0   | 4.0  | 1.5     | 464.6        | 217.4         | 682.0        |
+| concurrent | 8.0   | 8.0  | 2.0     | 681.4        | 306.7         | 988.1        |
+| concurrent | 16.0  | 16.0 | 2.0     | 758.4        | 306.5         | 1064.9       |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+Over 50 generated tok/s for 4 concurrent. Nice!
+Not much performance improvement after 8 concurrent.
+Expected since had `--max-num-seqs 8`.
+
+85 tok/s for single request is also good.
+This is around what people report on a RTX 5090.
+https://www.reddit.com/r/LocalLLaMA/comments/1sr8gyf/qwen3527b_on_rtx_5090_served_via_vllm_77_tps/
+
+
+Note that agentic coding workflows probably will be more input heavy.
+
+Retesting with just the two internal GPUs.
+
+```
+docker run --rm --name vllm   --gpus '"device=2,3"'   -v /home/jon/
+models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN"   -p 8000:8000
+   --ipc=host   vllm/vllm-openai:latest   --model sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP  --tens
+or-parallel-size 2 --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 
+8192   --max-num-seqs 8   --gpu-memory-utilization 0.90   --kv-cache-dtype fp8   --quantization modelopt   --speculative-config '{"method":"mtp","num_speculative_tokens":3}'   --reasoning-parser qwen3   --language-model-only   --generation-config vllm   --disable-custom-all-reduce   --enable-auto-tool-choice   --tool-call-parser qwen3_coder   --attention-backend TRITON_ATT
+```
+
+Seeing over 100 watt per GPU now.
+
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.5     | 140.7        | 67.7          | 208.4        |
+| concurrent | 2.0   | 2.0  | 0.8     | 255.1        | 119.6         | 374.6        |
+| concurrent | 4.0   | 4.0  | 1.5     | 439.0        | 209.5         | 648.6        |
+| concurrent | 8.0   | 8.0  | 2.1     | 686.3        | 311.8         | 998.1        |
+| concurrent | 16.0  | 16.0 | 2.1     | 753.9        | 314.0         | 1067.8       |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+67 tok/s in single case, down from 85 tok/s.
+60 tok/s for 2 concurrent, and still around 50 tok/s for 5 concurrent. 
+
+So in a concurrent scenario, actually able match quad GPU!?
+
+This combined with low power usage per GPU of quad indicates
+that PCIE Gen 4 x4 is actually a bottleneck in this configuration.
+
+`TODO: test in practice with concurrent agentic coding tools`
 
 ## Testing triple 5060 ti on x570 with llama-cpp
 
@@ -200,7 +474,7 @@ Got slight boost.
 But still worse than workstation, even when that has no OC. Especially prefill.
 
 
-Trying split mode layer with dual GPU
+Trying split mode tensor with dual GPU
 ```
 ./llama-bench -m /models/Qwen3.6-27B-UD-Q4_K_XL.gguf -pg 7500,512 -t 8 -fa 1 -b 2048 -ub 2048 -sm tensor
 ggml_cuda_init: found 2 CUDA devices (Total VRAM: 31754 MiB):
