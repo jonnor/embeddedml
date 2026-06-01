@@ -32,7 +32,186 @@ And x4x4 plus x4x4 when using both _1 and _2 ?
 
 HYPER M.2 X16 Card
 
-## Testing quad 5060 ti on x570 - TODO
+## vLLM quants for Qwen 3.6 27B
+
+Need safetensor format?
+Though supposedly it is possible to load GGUF also??
+vLLM models with integer quantization often have `AWQ` or `GPTQ` in the name.
+
+Qwen3.6-27B KLDs - INTs and NVFPs 
+https://www.reddit.com/r/LocalLLaMA/comments/1ssyukx/qwen3627b_klds_ints_and_nvfps/
+Has overview of KL divergence vs file size.
+
+!! sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP does the worst
+And cyankiwi/Qwen3.6-27B-AWQ-INT4 the best for low models.
+Intel not tested, neither QuantTrio 6bit
+
+Best for small models: Lorbus/Qwen3.6-27B-int4-AutoRound and cyankiwi/Qwen3.6-27B-AWQ-INT4
+
+cyankiwi did a silent update of their model. No details on neither original nor update.
+
+Lorbus provides some information.
+
+```
+https://huggingface.co/Intel/Qwen3.6-27B-int4-AutoRound
+19 GB
+
+https://huggingface.co/Lorbus/Qwen3.6-27B-int4-AutoRound
+19 GB
+"made with Intel Autoround"
+
+https://huggingface.co/cyankiwi/Qwen3.6-27B-AWQ-INT4
+20 GB
+
+https://huggingface.co/QuantTrio/Qwen3.6-27B-AWQ
+22 GB
+
+https://huggingface.co/rdtand/Qwen3.6-27B-PrismaQuant-5.5bit-vllm
+22 GB
+
+https://huggingface.co/QuantTrio/Qwen3.6-27B-AWQ-6Bit
+27 GB
+
+https://huggingface.co/cyankiwi/Qwen3.6-27B-AWQ-BF16-INT4
+28 GB
+
+https://huggingface.co/unsloth/Qwen3.6-27B-NVFP4/tree/main
+28GB
+```
+
+Someone running vLLM on dual 5060 ti 16 gb.
+https://huggingface.co/cyankiwi/Qwen3.6-27B-AWQ-BF16-INT4/discussions/5
+
+## Benchmarking llama-cpp concurrency
+
+Using guidellm to compare directly with vLLM
+
+```
+wget -O models/Qwen3.6-27B-Q4_K_M.gguf https://huggingface.co/unsloth/Qwen3.6-27B-MTP-GGUF/resolve/main/Qwen3.6-27B-Q4_K_M.gguf?download=true
+```
+
+First with standard split-mode layer
+
+! must use HuggingFace name for guidellm to work
+
+```
+; Qwen3.6 27B 
+[Qwen/Qwen3.6-27B]
+load-on-startup = true
+model = /models/Qwen3.6-27B-Q4_K_M.gguf
+; --fit system handles ngl automatically, no manual n-cpu-moe needed
+fit = false
+ngl = 99
+;fit-target = 300
+;fit-ctx = 200000
+ctx-size = 210000
+parallel = 3
+; model config
+; Based on Unsloth recommendations https://unsloth.ai/docs/models/qwen3.6
+temp = 1.0
+top-p = 0.95
+top-k = 20
+min-p = 0.0
+presence-penalty = 1.5
+repeat-penalty = 1.0
+chat-template-kwargs = {"enable_thinking": false}
+; performance config
+; no-mmap = true
+; split-mode = tensor
+spec-type = draft-mtp
+spec-draft-n-max = 2
+flash-attn = true
+; batch-size = 2048
+; ubatch-size = 2048
+cache-type-k = q8_0
+cache-type-v = q8_0
+main-gpu = 0
+```
+
+Running without API key for guidellm
+```
+./llama-server --port 8080 --host 0.0.0.0 --models-preset /models/llama-preset.ini --models-max 1
+```
+
+```
+podman run \
+  --rm -it \
+  -v "/home/jon/guidellm/results:/results:rw" \
+  -e GUIDELLM_TARGET=http://host.containers.internal:8080 \
+  -e GUIDELLM_PROFILE=concurrent \
+  -e GUIDELLM_RATE=1,2,4,8,16 \
+  -e GUIDELLM_MAX_SECONDS=30 \
+  -e GUIDELLM_DATA="type=synthetic_text,prompt_tokens=256,output_tokens=128" \
+  ghcr.io/vllm-project/guidellm:latest
+```
+
+```
+│ [16:38:55]   100% concurrent@1  (complete)   Req:    0.2 req/s,    3.99s Lat,     1.0 Conc,       8 Comp,        0 Inc,        0 Err                                                       │
+│                                              Tok:   32.9 gen/s,  101.7 tot/s, 572.0ms TTFT,   26.9ms ITL,   268 Prompt,      128 Gen                                                       │
+│ [16:39:29]   100% concurrent@2  (complete)   Req:    0.3 req/s,    6.81s Lat,     2.0 Conc,       9 Comp,        1 Inc,        0 Err                                                       │
+│                                              Tok:   36.4 gen/s,  112.8 tot/s, 781.9ms TTFT,   47.5ms ITL,   268 Prompt,      128 Gen                                                       │
+│ [16:40:07]   100% concurrent@4  (complete)   Req:    0.3 req/s,   11.90s Lat,     3.8 Conc,      10 Comp,        3 Inc,        0 Err                                                       │
+│                                              Tok:   37.8 gen/s,  117.1 tot/s, 3645.9ms TTFT,   65.0ms ITL,   268 Prompt,      128 Gen                                                      │
+│ [16:40:44]   100% concurrent@8  (complete)   Req:    0.3 req/s,   17.76s Lat,     5.8 Conc,      10 Comp,        7 Inc,        0 Err                                                       │
+│                                              Tok:   38.1 gen/s,  117.9 tot/s, 9928.9ms TTFT,   61.7ms ITL,   268 Prompt,      128 Gen                                                      │
+│ [16:41:20]   100% concurrent@16 (complete)   Req:    0.3 req/s,   19.79s Lat,     5.9 Conc,       9 Comp,       15 Inc,        0 Err                                                       │
+│                                              Tok:   41.7 gen/s,  128.9 tot/s, 11723.1ms TTFT,   63.5ms ITL,   268 Prompt,      128 Gen    
+```
+
+Trying with split mode tensor.
+!! does not work with router and preset file
+
+But running server directly does work?
+
+```
+./llama-server --port 8080 --host 0.0.0.0 --model /models/Qwen3.6-27B-Q4_K_M.gguf --alias Qwen/Qwen3.6-27B7 --ctx-size 100000 --parallel 3 --split-mode tensor --fit off 
+```
+
+
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.3     | 82.9         | 39.9          | 122.8        |
+| concurrent | 2.0   | 2.0  | 0.2     | 46.7         | 22.5          | 69.2         |
+| concurrent | 4.0   | 4.0  | 0.5     | 200.4        | 91.6          | 292.0        |
+| concurrent | 8.0   | 8.0  | 0.5     | 237.9        | 90.3          | 328.2        |
+| concurrent | 16.0  | 16.0 | 0.5     | 316.3        | 89.8          | 406.0        |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+Way under half of vLLM, to 1/4. But this is without MTP speculative decoding.
+
+
+Trying with speculative decoting.
+
+```
+./llama-server --port 8080 --host 0.0.0.0 --model /models/Qwen3.6-27B-Q4_K_M.gguf --alias Qwen/Qwen3.6-27B --ctx-size 100000 --parallel 3 --split-mode tensor --fit of
+f --spec-type draft-mtp --spec-draft-n-max 2
+```
+
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.4     | 124.6        | 60.0          | 184.6        |
+| concurrent | 2.0   | 2.0  | 0.2     | 83.6         | 34.7          | 118.2        |
+| concurrent | 4.0   | 4.0  | 0.1     | 126.3        | 46.0          | 172.4        |
+| concurrent | 8.0   | 8.0  | 0.1     | 188.3        | 38.6          | 227.0        |
+| concurrent | 16.0  | 16.0 | 0.1     | 321.0        | 33.5          | 354.5        |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+Better for low concurrency, but even worse for higher in terms of output tokens.
+
+
+## Testing quad 5060 ti on x570
 
 Still waiting for bifurcation PCIE adapters.
 Must use the chipset slot for now (M2_2 or PCIE_16).
