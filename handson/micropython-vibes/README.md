@@ -22,6 +22,42 @@ https://github.com/kyuz0/pi-bench
 based on SWE mini
 Has reference results for Qwen 3.6 27B
 
+https://github.com/gkamradt/needle-in-a-haystack
+Original repo for doing "needle in a haystack" type benchmark. Still maintained.
+
+https://github.com/princeton-nlp/HELMET
+
+evalscope - high level evaluation for LLMs
+https://evalscope.readthedocs.io/en/latest/get_started/basic_usage.html
+Can run directly against an API
+Supports many datasets
+https://evalscope.readthedocs.io/en/latest/get_started/supported_dataset/llm.html
+https://evalscope.readthedocs.io/en/latest/get_started/supported_dataset/agent.html
+
+Including SWE-bench_Verified_Mini_Agentic, Terminal-Bench-2.1, BFCL-v4, longbench_v2, live_code_bench, SWE-bench_Verified_mini, GSM8K, ToolBench-Static
+
+EleutherAI/lm-evaluation-harness
+A framework for few-shot evaluation of language models.
+https://github.com/EleutherAI/lm-evaluation-harness/
+
+Supports many tasks 
+https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/README.md
+
+Supports getting logprobs, can probably compute KL divergence etc?
+
+## Testing Gemma 4
+
+The QAT - Quantization Aware Training are very relevant for constrained VRAM
+https://huggingface.co/collections/google/gemma-4-qat-q4-0
+
+vLLM guide
+https://docs.vllm.ai/projects/recipes/en/latest/Google/Gemma4.html#quantized-models-qat-w4a16
+
+Unsloth has llama.cpp guide.
+NOTE: using Unsloth quants, not official Google ones
+https://unsloth.ai/docs/models/gemma-4/qat#qat-analysis
+
+
 ## Asus PCIE bifurcation support - UNTESTED
 
 Has data for X570 boards, all other chipsets
@@ -81,6 +117,20 @@ https://huggingface.co/unsloth/Qwen3.6-27B-NVFP4/tree/main
 
 Someone running vLLM on dual 5060 ti 16 gb.
 https://huggingface.co/cyankiwi/Qwen3.6-27B-AWQ-BF16-INT4/discussions/5
+
+Updated KLD measurements from cyankiwi
+https://www.reddit.com/r/LocalLLaMA/comments/1twz9ur/cyankiwi_awq_4bit_2605_update_nvfp4_fp8_dynamic/
+Claims to beat AutoRound and NVFP4 on all
+
+https://www.reddit.com/r/LocalLLM/comments/1tka614/qwen3627b_on_rtx_3090_tested_12_gguf_quants/?share_id=nuauQT8GGE5PqfEOjciNQ&utm_content=1&utm_medium=android_app&utm_name=androidcss&utm_source=share&utm_term=1
+Tested HumanEval+, MBPP+, Perplexity (WikiText-2)
+ greedy decoding (T=0), thinking off
+GGUF with llama.cpp
+
+
+https://www.reddit.com/r/LocalLLaMA/comments/1tr9vzn/qwen3627b_quantization_benchmark/
+Seasures Same Top 1, Mean KLD 
+
 
 ## Benchmarking llama-cpp concurrency
 
