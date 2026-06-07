@@ -45,7 +45,69 @@ https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/READ
 
 Supports getting logprobs, can probably compute KL divergence etc?
 
-## Testing Gemma 4
+## Evaluating nvidia/Qwen3.6-35B-A3B-NVFP4
+
+https://huggingface.co/nvidia/Qwen3.6-35B-A3B-NVFP4
+
+NVidia published results for the following datasets.
+Found that NVFP4 matched BF16.
+```
+MMLU Pro
+GPQA Diamond
+τ²-Bench Telecom
+SciCode
+AIME 2025
+AA-LCR
+IFBench
+```
+Most of these are available in Evalscope.
+
+Requires sandboxing: SciCode, τ²-Bench?
+MMMU PRO is a multi-modal / VLM benchmark.
+
+aa_lcr requires a strong LLM as judge
+
+```
+time evalscope eval  --model Qwen/Qwen2.5-0.5B-Instruct  --datasets ifbench aime25 aa_lcr gpqa_diamond  --limit 5
+```
+
+Quick check
+```
+time evalscope eval  --model Qwen/Qwen2.5-0.5B-Instruct  --datasets gpqa_diamond ifbench aime25  --limit 5
+```
+
+```
+time evalscope eval  --model Qwen/Qwen2.5-0.5B-Instruct  --datasets gpqa_diamond ifbench aime25
+```
+
+
+This seems to download the model
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env "HF_HUB_DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model nvidia/Qwen3.6-35B-A3B-NVFP4  --tensor-parallel-size 2   --pipeline-parallel-size 1   --max-model-len 100000   --max-num-batched-tokens 8192   --max-num-seqs 1 --kv-cache-dtype fp8   --gpu-memory-utilization 0.85 --quantization modelopt --reasoning-parser qwen3   --language-model-only --enable-auto-tool-choice   --tool-call-parser qwen3_coder
+```
+
+Download to more than 1 hour - unknown why
+```
+(Worker_TP0 pid=172) INFO 06-07 13:24:33 [weight_utils.py:603] Time spent downloading weights for nvidia/Qwen3.6-35B-A3B-NVFP4: 4577.313032 seconds
+```
+
+Fails with
+```
+(Worker_TP0 pid=172) ERROR 06-07 13:30:31 [multiproc_executor.py:870] ValueError: There is no 
+module or parameter named 'lm_head.input_scale' in Qwen3_5MoeForCausalLM. The available parame
+ters belonging to lm_head (ParallelLMHead) are: {'lm_head.weight'}
+```
+
+Trying nightly image instead
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env "HF_HUB_DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:nightly   --model nvidia/Qwen3.6-35B-A3B-NVFP4  --tensor-parallel-size 2   --pipeline-parallel-size 1   --max-model-len 100000   --max-num-batched-tokens 8192   --max-num-seqs 1 --kv-cache-dtype fp8   --gpu-memory-utilization 0.85 --quantization modelopt --reasoning-parser qwen3   --language-model-only --enable-auto-tool-choice   --tool-call-parser qwen3_coder
+```
+
+Seems to run with OK capacity. GPU KV cache size: 366,666 tokens
+
+
+
+## Testing Gemma 4 - TODO
 
 The QAT - Quantization Aware Training are very relevant for constrained VRAM
 https://huggingface.co/collections/google/gemma-4-qat-q4-0
@@ -58,7 +120,17 @@ NOTE: using Unsloth quants, not official Google ones
 https://unsloth.ai/docs/models/gemma-4/qat#qat-analysis
 
 
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env "HF_HUB_DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:latest   --model google/gemma-4-31B-it-qat-w4a16-ct \
+  --max-model-len 32768 --max-num-seqs 1 --max-num-batched-tokens 8192 --kv-cache-dtype fp8 --language-model-only \
+  --gpu-memory-utilization 0.95 --tensor-parallel 2
+```
+
+Runs, but juts barely. GPU KV cache size: 49,256 tokens
+
 ## Asus PCIE bifurcation support - UNTESTED
+
+Waiting for X16 splitter cards.
 
 Has data for X570 boards, all other chipsets
 https://www.asus.com/support/faq/1037507/
