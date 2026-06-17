@@ -1,26 +1,32 @@
 
 # Running a local LLM for agentic coding
 
-Testing if this can work on a RTX 5060 TI 16GB for MicroPython development.
+Testing dual RTX 5060 TI 16GB can work for MicroPython development.
 
-## Dual RTX 5060 TI 16G
+### Current status
 
-Motivating goal. Get 27B running at 50+ tps and prefill of 500+ tps.
+**NOTE**. Synthetic benchmarks ran. Model quality not yet verified using evaluations or in practical use
 
-NOTE: this might require MTP to get even close.
-Testing MTP will probably be done separately, when getting into llama-cpp mainline.
+Dual RTX 5060 TI 16gb
 
-TODO
+- X570 motherboards make for affordable DDR4/AM4 platform for dual GPU - with 2x PCIE Gen 4 x8
+- TI 16GB able to run Qwen 27B with over 50 tok/s generation single, and 30 tok/s at 8 concurrent
+- vLLM currently considerably faster than llama.cpp
 
-- Test llama.cpp with NVFP4
+Quad RTX 5060 TI 16gb
 
-## Verifying practical performance
+- X870 motherboards candidate for affordable DDR5/AM5 for quad GPU setup, with 4x PCIE Gen 5 x4
+- Hardware not available yet. Only preliminary testing done with PCIE Gen 4 x8x8x4x4
+
+## Verifying practical performance - TODO
 
 Would want to run some evals
 
 https://github.com/kyuz0/pi-bench
 based on SWE mini
-Has reference results for Qwen 3.6 27B
+Has reference results for Qwen 3.6 27B, at 70-72% pass rate
+! but only single run
+https://pi-local-coding-bench.dev/
 
 https://github.com/gkamradt/needle-in-a-haystack
 Original repo for doing "needle in a haystack" type benchmark. Still maintained.
@@ -45,7 +51,20 @@ https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/READ
 
 Supports getting logprobs, can probably compute KL divergence etc?
 
-## Evaluating nvidia/Qwen3.6-35B-A3B-NVFP4
+## Evaluating unsloth/Qwen3.6-27B-NVFP4 - TODO
+
+https://huggingface.co/unsloth/Qwen3.6-27B-NVFP4
+
+Benchmark results published for the following datasets.
+Found that NVFP4 matched BF16.
+```
+GSM8K
+MMLU-Pro
+```
+
+Provides vLLM running commands.
+
+## Evaluating nvidia/Qwen3.6-35B-A3B-NVFP4 - TODO
 
 https://huggingface.co/nvidia/Qwen3.6-35B-A3B-NVFP4
 
@@ -106,7 +125,6 @@ docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/c
 Seems to run with OK capacity. GPU KV cache size: 366,666 tokens
 
 
-
 ## Testing Gemma 4 - TODO
 
 The QAT - Quantization Aware Training are very relevant for constrained VRAM
@@ -145,6 +163,9 @@ HYPER M.2 X16 Card
 Need safetensor format?
 Though supposedly it is possible to load GGUF also??
 vLLM models with integer quantization often have `AWQ` or `GPTQ` in the name.
+
+Unsloth now has 27B, with MTP
+https://huggingface.co/unsloth/Qwen3.6-27B-NVFP4
 
 Qwen3.6-27B KLDs - INTs and NVFPs 
 https://www.reddit.com/r/LocalLLaMA/comments/1ssyukx/qwen3627b_klds_ints_and_nvfps/
