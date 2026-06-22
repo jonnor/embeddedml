@@ -20,7 +20,7 @@ pip install -r requirements-litex.txt
 
 Build, load bitstream and flash firmware
 ```
-python -m soc.targets.muselab_icesugar --cpu-type=vexriscv --cpu-variant=minimal --build --load --flash --flash-program firefox
+python -m soc.targets.muselab_icesugar --cpu-type=vexriscv --cpu-variant=minimal --build --load --flash --flash-program firmware
 ```
 
 ```
@@ -91,11 +91,34 @@ VHD2VConverter is used in the neorv32 litex core
 But BOOT_ADDR_CUSTOM is hardcoded to x"00000000".
 
 
+### MicroPython LiteX on Olimex Gatemate
+
+MicroPython requires a reasonable about of RAM.
+Default target for Olimex GatemateA1 EVB only has 8 kB, not gonna work.
+There are dual QSPI PSRAM on the board. But not wired up in LiteX.
+
+add_spi_ram() was added in 2024
+https://github.com/enjoy-digital/litex/blob/7b13113d17d133bdc4467fe51a91fbfb5c2f5b37/litex/soc/integration/soc.py#L2768
+https://github.com/enjoy-digital/litex/pull/2028
+
+Expects defined something like "spiram" or "spiram4x".
+
+! however, there are no boards showing how to use this in litex-boards
+
+The official Gatemate EVB uses HyperRAM. This seems to be wired up in LiteX.
+But this is incompatible with QSPI.
+
 ### Gatemate
 
-! need to have nextprn with peppercorn toolchain
+! need to have nextprn with peppercorn toolchain for Gatemate
 
-python -m litex_boards.targets.olimex_gatemate_a1_evb --cpu-type=vexriscv --cpu-variant=lite+debug --uart-name crossover+uartbone --uart-baudrate 115200 --build --load --toolchain peppercorn
+Using a custom Arch linux package to build Gatemate: https://aur.archlinux.org/packages/nextpnr-himbaechel-gatemate-git
+
+```
+python -m litex_boards.targets.olimex_gatemate_a1_evb --cpu-type=vexriscv --cpu-variant=lite+debug --uart-baudrate 115200 --build --load --toolchain peppercorn
+```
+With this can get the LiteX console on serial.
+
 
 ### LiteX on Upduino v3.x
 
