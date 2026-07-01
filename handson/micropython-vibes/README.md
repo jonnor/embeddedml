@@ -51,9 +51,119 @@ https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/READ
 
 Supports getting logprobs, can probably compute KL divergence etc?
 
-## Evaluating unsloth/Qwen3.6-27B-NVFP4 - TODO
+## Evaluating
+
+Released 30.06.2026
+https://huggingface.co/nvidia/Qwen3.6-27B-NVFP4
+22 GB weights
+
+Nvidia provides reference evaluation scores for the following benchmarks.
+All very close to FP8, which should be very close to original model at BF16.
+```
+MMLU Pro 	GPQA Diamond 	HLE 	τ²-Bench Telecom 	MMMU Pro 	SciCode 	AIME 2025 	AA-LCR 	IFBench
+```
+
+Able to get 198k total KV size with FP8.
+Workable for single user.
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env "HF_HUB_
+DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:nightly   --model nvidia/Qwen3.6-27B-NVFP4 --quantization modelopt  --tensor-parallel-size 2   --pipeline-parallel-siz
+e 1   --max-model-len 100000   --max-num-batched-tokens 8192   --max-num-seqs 4 --kv-cache-dtype fp8   --gpu-memory-utilization 0.96 --reasoning-parser qwen3   --language-model-only --enable
+-auto-tool-choice   --tool-call-parser qwen3_coder
+```
+
+```
+(Worker_TP0 pid=172) INFO 07-01 08:58:33 [gpu_worker.py:480] Available KV cache memory: 3.2 GiB
+(Worker_TP0 pid=172) INFO 07-01 08:58:33 [gpu_worker.py:495] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.9600 is equivalent to --gp
+u-memory-utilization=0.9281 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.9919. To disable, set VLLM_MEM
+ORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(Worker_TP1 pid=173) INFO 07-01 08:58:33 [gpu_worker.py:495] CUDA graph memory profiling is enabled (default since v0.21.0). The current --gpu-memory-utilization=0.9600 is equivalent to --gp
+u-memory-utilization=0.9283 without CUDA graph memory profiling. To maintain the same effective KV cache size as before, increase --gpu-memory-utilization to 0.9917. To disable, set VLLM_MEM
+ORY_PROFILER_ESTIMATE_CUDAGRAPHS=0.
+(EngineCore pid=133) INFO 07-01 08:58:33 [kv_cache_utils.py:1755] GPU KV cache size: 198,507 tokens
+(EngineCore pid=133) INFO 07-01 08:58:33 [kv_cache_utils.py:1756] Maximum concurrency for 100,000 tokens per request: 1.99x
+```
+
+Benchmarking tokens
+```
+podman run \
+  --rm -it \
+  -v "/home/jon/guidellm/results:/results:rw" \
+  -e GUIDELLM_TARGET=http://host.containers.internal:8000/v1 \
+  -e GUIDELLM_PROFILE=concurrent \
+  -e GUIDELLM_RATE=1,2,4,8,16 \
+  -e GUIDELLM_MAX_SECONDS=30 \
+  -e GUIDELLM_DATA="type=synthetic_text,prompt_tokens=256,output_tokens=128" \
+  ghcr.io/vllm-project/guidellm:v0.6.0
+```
+
+This was without MTP
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.3     | 81.2         | 39.1          | 120.3        |
+| concurrent | 2.0   | 2.0  | 0.5     | 148.7        | 71.5          | 220.2        |
+| concurrent | 4.0   | 4.0  | 0.8     | 274.1        | 131.8         | 405.9        |
+| concurrent | 8.0   | 8.0  | 0.8     | 313.7        | 132.6         | 446.2        |
+| concurrent | 16.0  | 16.0 | 0.8     | 389.4        | 132.5         | 522.0        |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+Trying to use same configuration as previous `sakamakismile` NVFP4 run
+
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env  "HF_HUB_DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:nightly   --model nvidia/Qwen3.6-27B-NVFP4 --quantization modelopt  --tensor-parallel-size 2   --pipeline-parallel-size 1   --max-model-len 104800   --max-num-batched-tokens 8192   --max-num-seqs 4 --kv-cache-dtype fp8   --gpu-memory-utilization 0.96 --reasoning-parser qwen3   --language-model-only --enable-auto-tool-choice   --tool-call-parser qwen3_coder --speculative-config '{"method":"mtp","num_speculative_tokens":3}' --attention-backend TRITON_ATTN
+```
+
+! not actually using NVFP4 kernels. Blackwell GPU does have hardware support for this.
+Might be related to https://github.com/vllm-project/vllm/issues/31085 ?
+
+```
+(Worker_TP0 pid=203) WARNING 07-01 10:28:56 [marlin.py:34] Your GPU does not have native support for FP4 computation but FP4 quantization is being used. Weight-only FP4 compression will be u
+sed leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads.
+(Worker_TP0 pid=203) WARNING 07-01 10:28:57 [kv_cache.py:134] Checkpoint does not provide a q scaling factor. Setting it to k_scale. This only matters for FP8 Attention backends (flash-attn 
+or flashinfer).
+(Worker_TP0 pid=203) WARNING 07-01 10:28:57 [kv_cache.py:148] Using KV cache scaling factor 1.0 for fp8_e4m3. If this is unintended, verify that k/v_scale scaling factors are properly set in
+ the checkpoint.
+(Worker_TP0 pid=203) WARNING 07-01 10:28:57 [kv_cache.py:187] Using uncalibrated q_scale 1.0 and/or prob_scale 1.0 with fp8 attention. This may cause accuracy issues. Please make sure q/prob
+ scaling factors are available in the fp8 checkpoint.
+(Worker_TP0 pid=203) INFO 07-01 10:28:57 [gpu_model_runner.py:5116] Loading drafter model...
+(Worker_TP0 pid=203) INFO 07-01 10:28:57 [vllm.py:999] Asynchronous scheduling is enabled.
+(Worker_TP0 pid=203) INFO 07-01 10:28:57 [kernel.py:270] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'])
+(Worker_TP0 pid=203) INFO 07-01 10:28:57 [cuda.py:378] Using FLASHINFER attention backend out of potential backends: ['FLASHINFER', 'TRITON_ATTN'].
+```
+
+NOTE: running without overclock
+
+```
+ℹ Server Throughput Statistics (All Requests)
+|============|=======|======|=========|==============|===============|==============|
+| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+|            | Mdn   | Mean | Mean                                               ||||
+|------------|-------|------|---------|--------------|---------------|--------------|
+| concurrent | 1.0   | 1.0  | 0.5     | 152.3        | 73.3          | 225.6        |
+| concurrent | 2.0   | 2.0  | 0.8     | 254.4        | 122.0         | 376.4        |
+| concurrent | 4.0   | 4.0  | 1.2     | 447.4        | 208.9         | 656.3        |
+| concurrent | 8.0   | 8.0  | 1.5     | 482.4        | 207.7         | 690.1        |
+| concurrent | 16.0  | 16.0 | 1.4     | 567.1        | 210.1         | 777.2        |
+|============|=======|======|=========|==============|===============|==============|
+```
+
+Acceptable performance, though was able to get 1067.8 output tokens per sec
+with sakamakismile (on other machine).
+
+
+## Evaluating unsloth/Qwen3.6-27B-NVFP4 - too big for 32GB VRAM
 
 https://huggingface.co/unsloth/Qwen3.6-27B-NVFP4
+26.4 GB - very big
 
 Benchmark results published for the following datasets.
 Found that NVFP4 matched BF16.
@@ -63,6 +173,13 @@ MMLU-Pro
 ```
 
 Provides vLLM running commands.
+
+Downloading and starting the model
+```
+docker run --rm --name vllm   --gpus '"device=0,1"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface   --env "HF_TOKEN=$HF_TOKEN" --env "HF_HUB_DISABLE_PROGRESS_BARS=1"   -p 8000:8000   --ipc=host   vllm/vllm-openai:nightly   --model unsloth/Qwen3.6-27B-NVFP4  --tensor-parallel-size 2   --pipeline-parallel-size 1   --max-model-len 70000   --max-num-batched-tokens 8192   --max-num-seqs 1 --kv-cache-dtype fp8   --gpu-memory-utilization 0.96 --reasoning-parser qwen3   --language-model-only --enable-auto-tool-choice   --tool-call-parser qwen3_coder
+```
+! Can only use 70k context. Quite limiting
+
 
 ## Evaluating nvidia/Qwen3.6-35B-A3B-NVFP4 - TODO
 
