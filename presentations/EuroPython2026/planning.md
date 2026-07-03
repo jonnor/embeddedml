@@ -13,8 +13,6 @@ Running locally
 
 Hardware
 
-- Order the RPI Pico W
-- Wait for hardware to arrive...
 - Wire up 1 unit like in Wokwi simulation, all components using same code
 
 Materials
@@ -25,7 +23,36 @@ Maybe
 
 - Try ViperIDE in Firefox - new WebSerial??
 
+
+## Outline
+
+!! using Wokwi it is possible to do the physical/IO bits more step wise
+!! critical, that MicroDot/HTTP works in wokwi
+
+Part I: MicroPython development, 1 hour
+
+- Introduction to MicroPython. 5 minutes
+- Developing with MicroPython on PC using Unix port. 15 min
+- Serving data and handling requests using MicroDot HTTP server. 10 min
+- Storing/loading sensor data using on-board filesystem. 5 min
+- Using frontend/browser for user interfaces. 20 min
+- Sending data to external servers using HTTP. 5 min
+
+Part II: Deploying on device
+
+- Deploying our server on device. WiFi setup etc. 30 min
+- Physical input/output using GPIO. 10 min
+- Reading digital sensors using I2C. 10 min
+- Sending data to shared MQTT broker. 10 min
+
+Part III: Open hacking
+
+- Extend the application skeleton.
+Pick one of 3 provided ideas (TBD).
+
+
 ## Notes
+
 
 In the process we will covered the following:
 

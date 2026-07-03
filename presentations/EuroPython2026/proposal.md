@@ -6,11 +6,13 @@
 
 ## Abstract
 
-In this workshop, you will create practical internet-connected sensors with MicroPython. We will cover the basics of setting up the development environment, both for developing on PC and deploying/developing on a microcontroller device.
+In this workshop, you will create practical internet-connected sensors with MicroPython.
+We will cover the basics of setting up the development environment, both for developing on PC and deploying/developing on a microcontroller device.
 
 Targeted towards those that are already comfortable programming in Python, but that have little exposure to embedded/hardware/electronics.
 
-We will provide some MicroPython-capable hardware to develop against, pre-flashed with MicroPython. You may need to sit together in pairs or small groups for the on-device part.
+We will provide some MicroPython-capable hardware to develop against, pre-flashed with MicroPython.
+You may need to sit together in pairs or small groups for the on-device part.
 
 #### Prerequisites
 Participants must bring:

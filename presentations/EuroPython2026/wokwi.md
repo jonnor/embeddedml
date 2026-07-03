@@ -7,22 +7,74 @@ Here are some notes for that.
 ### Status
 
 Have selected Pico W as the base.
-Developing example at
+Developing examples at
 https://wokwi.com/projects/465018105144566785
 
 ### Open questions
 
 Must-test
 
-- MPU6050
-- Does asyncio work as it should?
-- Can we run MicroDot and access webserver?
+- Sending data to server via HTTP(S)
+- Test examples on device. Use a lib/ folder?
 
 Nice-to-have
 
-- SSD1306 display code
 - Can we get mip installed files/libraries to persist, avoid redownloading?
 - Can we get WiFi setup to be faster. Right now delays startup by 5 seconds
+
+Not working
+
+- Can we run MicroDot and access webserver? No - not without IoT gateway.
+Run locally with micropython-unix instead
+
+### Wokwi MQTT
+
+My example
+https://wokwi.com/projects/468550810100303873
+
+TODO: make it a bit more interesting
+Maybe have all send messages to related topics, subscribe to all
+
+Original example, weather logger
+https://wokwi.com/projects/322577683855704658
+! mqtt.simple is not provided in RP2 port
+
+### Wokwi asyncio
+
+LEDs with different blinking rates, using asyncio
+https://wokwi.com/projects/468550810100303873
+
+### Wokwi SSD1306
+
+My example
+https://wokwi.com/projects/467997034556625921
+
+Existing example - works
+https://wokwi.com/projects/359558101922696193
+
+### Wokwi MPU6050
+
+My example
+https://wokwi.com/projects/467997034556625921
+
+Based on
+https://wokwi.com/projects/337973173314126419
+
+Original had issues
+```
+Traceback (most recent call last):
+  File "main.py", line 15, in <module>
+  File "MPU6050.py", line 8, in __init__
+OSError: I2C operation not supported
+```
+
+
+### Wokwi HTTP server
+
+Requires the private IoT gateway
+Which requires each user to have a paid plan :(
+https://docs.wokwi.com/guides/esp32-wifi#the-private-gateway
+
 
 ### Wokwi MicroPython version
 
