@@ -30,12 +30,15 @@ From source directory, or from git repo URL
 - Automatic build and publish wheels using Github Actions.
 For Linux, MacOS
 
+## Status
+
+Proof of Concept working.
+RFC and MR created in upstream MicroPython: https://github.com/micropython/micropython/issues/19426
+
 ## TODO
 
 - Add basic test to CI
-- Fix the version being outdated?
-- Setup publishing to PyPi
-- Test on Ubuntu, MacOS, WSL
+- Test on MacOS and WSL
 - Test with native modules, at least on Linux
 
 ## Testing
@@ -57,6 +60,14 @@ pip install "git+https://github.com/jonnor/micropython.git@unix-python-package-1
 
 Early work in 2025 in branch `cpython-run-micropython-file,`.
 Was focused on Pyodide.
+
+### Testing on Linux
+
+Ubuntu 22.04 has Python 3.10
+
+Centos 9 has Python 3.9 by default. Not not work, no wheels built for that.
+But 3.12 is installable from offical repos.
+dnf -y install python3.12 python3.12-pip 
 
 ### Building on Mac OS
 
