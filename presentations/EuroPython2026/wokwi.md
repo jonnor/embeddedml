@@ -14,18 +14,28 @@ https://wokwi.com/projects/465018105144566785
 
 Must-test
 
-- Sending data to server via HTTP(S)
 - Test examples on device. Use a lib/ folder?
 
 Nice-to-have
 
 - Can we get mip installed files/libraries to persist, avoid redownloading?
-- Can we get WiFi setup to be faster. Right now delays startup by 5 seconds
+- Can we get WiFi setup to be faster. Right now delays startup by 5 seconds.
+Using the REPL for interactive work is a workaround.
 
 Not working
 
 - Can we run MicroDot and access webserver? No - not without IoT gateway.
 Run locally with micropython-unix instead
+
+### Wokwi HTTP
+
+My example
+https://wokwi.com/projects/468563618722295809
+
+Fun API services, open without signup
+
+- https://jsonblob.com/api - JSON key-value/document store
+- https://ntfy.sh/wokwi-11 - notifications
 
 ### Wokwi MQTT
 
