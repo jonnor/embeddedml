@@ -63,15 +63,19 @@ class _CRG(LiteXModule):
 from litespi.opcodes import SpiNorFlashOpCodes as Codes
 from litespi.modules import SpiNorFlashModule
 
-# FIXME: adapt to what is actually on the board
-class PSRAM(SpiNorFlashModule):
+class LY68S3200(SpiNorFlashModule):
+    """
+    SPI RAM module for LY68S3200
+    """
+
+    # TODO: find the proper manufacturer/device ID
     manufacturer_id = 0x0d
     device_id = 0x5d17
     name = "PSRAM"
 
-    total_size  = 0x800000  # bytes
+    total_size  = 0x400000  # bytes
     page_size   =    0x400  # bytes
-    total_pages =   0x2000
+    total_pages =   0x1000
 
     supported_opcodes = [
         Codes.READ_1_1_1,
@@ -147,9 +151,9 @@ class BaseSoC(SoCCore):
             psram_name = "qpsram"
 
             self.add_spi_ram(name=psram_name,
-                mode='1x',
-                clk_freq=30e6,
-                module=PSRAM(Codes.READ_1_4_4, program_cmd=Codes.PP_1_4_4),
+                mode='4x',
+                clk_freq=1e6,
+                module=LY68S3200(Codes.READ_1_4_4, program_cmd=Codes.PP_1_4_4),
             )
 
             self.bus.add_region("main_ram", SoCRegion(
@@ -184,7 +188,7 @@ def main():
         with_etherbone      = args.with_etherbone,
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
-        with_led_chaser     = True,
+        with_led_chaser     = False,
         with_psram = True,
         **parser.soc_argdict)
 

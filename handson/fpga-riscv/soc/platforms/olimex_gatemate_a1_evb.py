@@ -48,8 +48,25 @@ _io = [
     ("qpsram", 0,
         Subsignal("clk",   Pins("IO_WC_B4")),
         Subsignal("cs_n", Pins("IO_WC_A4")),
-        Subsignal("dq", Pins("IO_WC_A5 IO_WC_B5 IO_WC_A6 IO_WC_B6 IO_WC_A7 IO_WC_B7 IO_WC_A8 IO_WC_B8")),
+        Subsignal("dq", Pins("IO_WC_A5 IO_WC_B5 IO_WC_A6 IO_WC_B6")),
     ),
+
+    ("qpsram4x", 0,
+        Subsignal("clk",   Pins("IO_WC_B4")),
+        Subsignal("cs_n", Pins("IO_WC_A4")),
+        Subsignal("dq", Pins("IO_WC_A5 IO_WC_B5 IO_WC_A6 IO_WC_B6")),
+    ),
+
+
+    # for using QPSRAM in 1x mode
+    ("psram", 0,
+        Subsignal("clk",   Pins("IO_WC_B4")),
+        Subsignal("cs_n", Pins("IO_WC_A4")),
+        Subsignal("mosi", Pins("IO_WC_A5")),
+        Subsignal("miso", Pins("IO_WC_B5")),
+        IOStandard("3.3_V_LVTTL_/_LVCMOS")
+    ),
+
 
     # VGA
     ("vga", 0,
