@@ -108,6 +108,10 @@ Expects defined something like "spiram" or "spiram4x".
 The official Gatemate EVB uses HyperRAM. This seems to be wired up in LiteX.
 But this is incompatible with QSPI.
 
+```
+python -m soc.targets.olimex_gatemate_a1_evb --cpu-type=vexriscv --cpu-variant=lite+debug --uart-baudrate 115200 --build --load --toolchain peppercorn
+```
+
 ### Gatemate
 
 ! need to have nextprn with peppercorn toolchain for Gatemate
