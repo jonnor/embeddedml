@@ -46,9 +46,9 @@ _io = [
 
     # QPSRAM
     ("qpsram", 0,
-        Subsignal("ck",   Pins("IO_WC_B4")),
+        Subsignal("clk",   Pins("IO_WC_B4")),
         Subsignal("cs_n", Pins("IO_WC_A4")),
-        Subsignal("data", Pins("IO_WC_A5 IO_WC_B5 IO_WC_A6 IO_WC_B6 IO_WC_A7 IO_WC_B7 IO_WC_A8 IO_WC_B8")),
+        Subsignal("dq", Pins("IO_WC_A5 IO_WC_B5 IO_WC_A6 IO_WC_B6 IO_WC_A7 IO_WC_B7 IO_WC_A8 IO_WC_B8")),
     ),
 
     # VGA

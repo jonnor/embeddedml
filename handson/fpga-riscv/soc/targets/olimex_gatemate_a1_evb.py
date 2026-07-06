@@ -18,6 +18,7 @@ from litex.build.io import CRG
 from litex.soc.cores.clock.colognechip import GateMatePLL
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
+from litex.soc.integration.soc import SoCRegion
 
 from litex.build.generic_platform import Pins
 
@@ -59,6 +60,28 @@ class _CRG(LiteXModule):
 
 # BaseSoC ------------------------------------------------------------------------------------------
 
+from litespi.opcodes import SpiNorFlashOpCodes as Codes
+from litespi.modules import SpiNorFlashModule
+
+# FIXME: adapt to what is actually on the board
+class PSRAM(SpiNorFlashModule):
+    manufacturer_id = 0x0d
+    device_id = 0x5d17
+    name = "PSRAM"
+
+    total_size  = 0x800000  # bytes
+    page_size   =    0x400  # bytes
+    total_pages =   0x2000
+
+    supported_opcodes = [
+        Codes.READ_1_1_1,
+        Codes.READ_1_1_1_FAST,
+        Codes.READ_1_4_4,
+        Codes.PP_1_1_1,
+        Codes.PP_1_4_4,
+    ]
+    dummy_bits = 6 * 4
+
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=24e6, toolchain="colognechip",
         with_video_terminal = False,
@@ -67,6 +90,7 @@ class BaseSoC(SoCCore):
         eth_ip              = "192.168.1.50",
         remote_ip           = None,
         with_led_chaser     = True,
+        with_psram          = False,
         **kwargs):
         platform = olimex_gatemate_a1_evb.Platform(toolchain)
 
@@ -119,6 +143,21 @@ class BaseSoC(SoCCore):
         if with_etherbone:
             self.add_etherbone(phy=self.ethphy, ip_address=eth_ip)
 
+        if with_psram:
+            psram_name = "qpsram"
+
+            self.add_spi_ram(name=psram_name,
+                mode='1x',
+                clk_freq=30e6,
+                module=PSRAM(Codes.READ_1_4_4, program_cmd=Codes.PP_1_4_4),
+            )
+
+            self.bus.add_region("main_ram", SoCRegion(
+                origin = self.bus.regions[psram_name].origin,
+                size = self.bus.regions[psram_name].size,
+                linker = True
+            ))
+
 # Build --------------------------------------------------------------------------------------------
 
 def main():
@@ -146,6 +185,7 @@ def main():
         eth_ip              = args.eth_ip,
         remote_ip           = args.remote_ip,
         with_led_chaser     = True,
+        with_psram = True,
         **parser.soc_argdict)
 
     soc.platform.add_extension(olimex_gatemate_a1_evb._pmods_io)
