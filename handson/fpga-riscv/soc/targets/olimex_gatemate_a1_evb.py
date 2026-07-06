@@ -84,7 +84,14 @@ class LY68S3200(SpiNorFlashModule):
         Codes.PP_1_1_1,
         Codes.PP_1_4_4,
     ]
-    dummy_bits = 6 * 4
+
+    dummy_cycles = {
+        Codes.READ_1_1_1_FAST: 8,
+        Codes.READ_1_4_4: 6,
+        Codes.READ_4_4_4_LOW: 4,
+        Codes.READ_4_4_4: 6,
+    }
+
 
 class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=24e6, toolchain="colognechip",
