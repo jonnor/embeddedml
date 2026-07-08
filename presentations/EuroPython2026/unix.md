@@ -58,7 +58,7 @@ pip install "git+https://github.com/jonnor/micropython.git@unix-python-package-1
 
 ## Notes
 
-Early work in 2025 in branch `cpython-run-micropython-file,`.
+Early work in 2025 in branch `cpython-run-micropython-file`
 Was focused on Pyodide.
 
 ### Testing on Linux
@@ -74,4 +74,22 @@ dnf -y install python3.12 python3.12-pip
 https://github.com/micropython/micropython/issues/17450
 CC ../shared/runtime/gchelper_generic.c
 error: Interference usage of base pointer/frame pointer.
+
+### Building for Emscripten/Pyodide/WASM
+
+CIBW_PLATFORM=pyodide cibuildwheel --platform pyodide --output-dir wheelhouse .
+
+
+### Publishing packages for Pyodide
+
+https://pyodide-build.readthedocs.io/en/latest/how-to/publishing.html
+
+> WebAssembly wheels built by pyodide-build are standard Python wheels — they follow the same packaging format and can be published to PyPI like any other wheel.
+
+import micropip
+await micropip.install("your-package")
+
+
+
+## Installing in Jupyter 
 

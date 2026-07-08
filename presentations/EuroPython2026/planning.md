@@ -1,27 +1,45 @@
 
 ## TODO
 
-Wokwi simulation
+Materials
 
-- Finish testing Wokwi
-- Create initial lectures
-- Test this at MicroPython Oslo usergroup
-
-Running locally
-
-- Try to create a PyPi package for micropython-unix
+- Create presentation structure
 
 Hardware
 
-- Wire up 1 unit like in Wokwi simulation, all components using same code
+- Wire up 1 unit like in Wokwi simulation.
+Test using same code on device.
+Focus on sensor-related hardware.
+Analog sensor. Digital sensor. Keep LEDs for liveness
+- Test PWM analog for LEDs
 
-Materials
+Wokwi simulation
 
-- Create outline for everything
+- Test PWM analog
+- Test this at MicroPython Oslo usergroup
+
+Deploy on device
+
+- Find out / document how to download from Wokwi to locally
+
+Bitraf / MicroPython Oslo test run 
+
 
 Maybe
 
 - Try ViperIDE in Firefox - new WebSerial??
+
+EuroPython
+
+- Try to find a few testers for day-before
+- Try to find one or two volunteers
+
+## Interaction
+
+Use the conference chat to share resources.
+Back and forth
+
+Example. Send link to Wokwi sketches
 
 
 ## Outline

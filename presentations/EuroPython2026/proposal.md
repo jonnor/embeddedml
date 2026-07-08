@@ -2,7 +2,8 @@
 # Proposal
 
 ## Format
-3 hour tutorial
+1.5 / 3.0 hour tutorial
+Double session at EuroPython. Single session at EuroSciPy.
 
 ## Abstract
 
