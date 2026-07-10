@@ -3,30 +3,35 @@
 
 Materials
 
-- Create presentation structure
+- Add digital and analog IO examples
+- Add filesystem example
+- Add MicroDot example, for running locally
 
 Hardware
 
 - Wire up 1 unit like in Wokwi simulation.
 Test using same code on device.
 Focus on sensor-related hardware.
-Analog sensor. Digital sensor. Keep LEDs for liveness
-- Test PWM analog for LEDs
-
-Wokwi simulation
-
-- Test PWM analog
-- Test this at MicroPython Oslo usergroup
+Analog sensor.
+Digital sensor.
+Keep LEDs for liveness
 
 Deploy on device
 
+- Finish install instructions
 - Find out / document how to download from Wokwi to locally
+- Do a check on device
 
-Bitraf / MicroPython Oslo test run 
+Milestone: Bitraf / MicroPython Oslo test run 
+
+- Test PWM analog with LED on device
+- Test PWM analog with LED in Wokwi
 
 
-Maybe
 
+Later
+
+- Test micropython JIT in Wokwi
 - Try ViperIDE in Firefox - new WebSerial??
 
 EuroPython

@@ -37,8 +37,13 @@ RFC and MR created in upstream MicroPython: https://github.com/micropython/micro
 
 ## TODO
 
+- Get Windows to build also
+- Test on Windows
+- Rename to micropython
 - Add basic test to CI
-- Test on MacOS and WSL
+
+Later
+- Move to ports/python ?
 - Test with native modules, at least on Linux
 
 ## Testing
@@ -89,7 +94,47 @@ https://pyodide-build.readthedocs.io/en/latest/how-to/publishing.html
 import micropip
 await micropip.install("your-package")
 
+## Source distribution (sdist)
 
+Will need to include everything needed to build?
+Entire git repo. Plus submodules?
+
+
+## Testing Windows
+
+Can build micropython Windows port following the instructions in README.
+On Arch Linux. Can also run it successfully with wine:
+
+```
+wine build-standard/micropython.exe
+```
+
+Running CPython on wine
+
+Can use the portable version of CPython in wine
+
+```
+wget https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
+mkdir -p ~/.wine/drive_c/python311
+unzip python-3.11.9-embed-amd64.zip -d ~/.wine/drive_c/python311
+
+wine ~/.wine/drive_c/python311/python.exe
+
+curl -o get-pip.py https://bootstrap.pypa.io/get-pip.py
+wine ~/.wine/drive_c/python311/python.exe get-pip.py
+
+sed -i 's/#import site/import site/' ~/.wine/drive_c/python311/python311._pth
+
+```
+
+To exit: `Ctrl+Z then Enter`
+
+Can run Windows package!
+```
+wine ~/.wine/drive_c/python311/python.exe -m pip install /home/jon/Downloads/jonnor_micropython_unix-1.28.0.2-cp311-cp311-win_amd64.whl
+
+wine ~/.wine/drive_c/python311/python.exe -m micropython_unix
+```
 
 ## Installing in Jupyter 
 
