@@ -12,10 +12,6 @@ https://wokwi.com/projects/465018105144566785
 
 ### Open questions
 
-Must-test
-
-- Test examples on device. Use a lib/ folder?
-
 Nice-to-have
 
 - Can we get mip installed files/libraries to persist, avoid redownloading?
@@ -24,8 +20,15 @@ Using the REPL for interactive work is a workaround.
 
 Not working
 
-- Can we run MicroDot and access webserver? No - not without IoT gateway.
+- Can we run MicroDot and access webserver?
+No - not without IoT gateway.
 Run locally with micropython-unix instead
+
+### WiFi credentials
+
+Android phone does not allow empty password.
+Must have minimum 8 characters.
+But Wokwi seemingly allows any password.
 
 ### Wokwi HTTP
 

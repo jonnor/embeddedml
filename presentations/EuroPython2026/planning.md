@@ -8,11 +8,8 @@ Materials
 
 Deploy on device
 
-- Fixup device example wrt internet communication
-- Test using phone for Wokwi Guest WiFi
 - Test MicroPython package for Windows
 - Test instructions for running on device
-- Find out / document how to download from Wokwi to locally
 
 Maybe
 
