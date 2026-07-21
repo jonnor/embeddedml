@@ -1,6 +1,10 @@
 
 # About
 
+Embed Data Science in your IoT device with MicroPython
+
+> 2026-07-21 16:30–16:50, Room 1.38 (Ground Floor, Turing)
+
 https://pretalx.com/euroscipy-2026/talk/ZT3BMR/
 
 # Format
@@ -15,61 +19,28 @@ https://pretalx.com/euroscipy-2026/talk/ZT3BMR/
 Enabling people to make things that handle custom applications easily.
 Can do a lot just from a web interface
 
-# Overall status
+# TODO
+
+Project/demos
+
+- Fix Jupyter Lite
+- Add PCA and logreg into pipeline
+
+
+# Motion machine status
+
+Done
 
 - All the feasibility checks passed.
 - Got emlearn-micropython working in browser
 - Data pipeline on device has been setup
 
-TODO
+Missing
 
-- Implement the different demos
-- Make sure slides present the project well
+- UI for classifications over time
+- Dataset explorer in lower dimensions/embeddings. PCA etc
+- Multiple features explorer?
 
-# TODO
-
-Project/demos
-
-- Move timeseries database code to dedicated repository. mip installable
-https://github.com/jonnor/micropython-tsdb
-- emlearn-micropython. Add getting started for web/browser.
-Simple example for inference.
-Add to the README.
-- emlearn-micropython. Check that 2025 presentations are linked in docs
-
-Slides
-
-- Redo overall disposition. DEMO led. CUT to fit 15 minutes
-Refer to existing projects and presentations where possible
-
-Maybe slides
-
-- Deployment targets. PC (x86_64), browser (WASM), device (ESP32)
-- More info. Add references to Wireless from Krakow 2025
-
-Optional slides
-
-- Generators for data streaming with MicroDot.
-To support larger-than-RAM. ! no async def in MicroPython
-?? does it actually let our sensor loop run
-?? does it work correctly when sending large files with send_file
-Maybe do some controlled tests/examples?
-
-Future work - for emlearn-micropython / in browser
-
-- Test training of RandomForest using Jupyter Lite.
-- Integrated classifier training with emlearn_extratrees
-https://github.com/emlearn/emlearn-micropython/pull/45/changes
-
-Limitations right now
-
-- Power management. Not using power saving.
-Can refer to Peter Hinch alt asyncio. ! not tested
-- WiFi management. Manual via mpremote. Only joining existing network
-MicroPython also supports device creating network.
-? link to exiting WiFi management libraries
-- Time-series compression. First version got no savings on real data.
-Needs further investigation. Probably quantization of features.
 
 # Planning
 
@@ -79,7 +50,7 @@ Needs further investigation. Probably quantization of features.
 - Applicable to many data-oriented applications. Especially those incorporating sensors
 - MicroPython enables scaling down to hardware that costs 10 USD
 - emlearn-micropython enables running machine learning models. Both inference and learning
-- Can also run in the browser. Interactive, data visualization, etc
+- MicroPython and emlearn-micropython can also run in the browser. Interactive, data visualization, etc
 - MicroPython in browser enables serving from device. Faster loading compared to big Python
 - asyncio enables concurrency
 
@@ -112,15 +83,17 @@ DEMO led.
 
 Project/demos
 
-- On-device time-series database
 - Showing EDA in browser. Interactive analysis
-- On-device inference with Random Forest
-- Export data via API. Analyze data in JupyterLite. Push data back via
+- Export data via API. Analyze data in JupyterLite.
+Push model back via API
+
+
+
 
 Goal
 
-- You as a Python developer will learn
-how to build stand-alone IoT devices for measuring and analyzing physical sensor data
+- You as a scientist or engineer will learn how one can
+build stand-alone IoT devices for measuring and analyzing physical sensor data
 using MicroPython and emlearn
 
 Introduction. 2 min
@@ -137,10 +110,11 @@ Like a scikit-learn for microcontrollers. And then building supporting pieces ne
 Case introduction. 2 min
 
 - What we will build.
-Activity tracker "smartwatch" for Pythonistas that are crazy about data
 Local-first. Data ownership. Full control/access. Easy setup.
+
+Activity tracker "smartwatch" for Pythonistas that are crazy about data
 - The hardware. What is a microcontroller.
-- MAYBE:  IoT architectures alternatives. From physical to device to user in UI.
+- IoT architectures alternatives. From physical phenomena to device to user in UI.
 - The software stack (overview). System block diagram.
 Device - data processing + web server. Frontend (browser).
 
@@ -156,10 +130,14 @@ Browsed based ML with emlearn-micropython. 5 min
 .wasm and .mjs files
 External C modules
 TODO: make examples/demos
-TODO: link documentation
+TODO: link documentation. https://github.com/emlearn/emlearn-micropython/issues/41
 - PCA. Part of motion-machine.
 MAYBE: Move into emlearn-micropython ?
 NOTE: Not accelerated with C at the moment
+
+Activity tracker usecase
+- On-device time-series database
+- On-device inference with Random Forest
 
 On-device inference with emlearn-micropython. 2 min
 
@@ -200,14 +178,6 @@ And several weeks of activity detections.
 Able to store up to 24 hours of raw 3-axis int16 at 25 Hz.
 3*2*3600*24*25/1e6 = 12.96 MB
 
-Implemented time-series compression with Simple9b and delta-encoding. 128bytes
-! did not help. Compression savings around as overhead. No net gain. 
-
-- Provide an interactive web ui for seeing time-series data.
-Yes. With microdot project.
-But will there be enough space?
-Plotly "minimal" only takes around 300 kB. Check
-
 - Load the data fast enough in WebUI.
 Loading time should be a few seconds
 Able to load around 0.1 MB per second. 4kB sizes
@@ -217,20 +187,12 @@ Might be bottlenecked by FLASH hardware, not MicroPython
 - Access the data from other devices?
 Yes. Via HTTP API.
 ! CORS is critical. MicroDot has built-in support for this
-LLM did not know about this. Spent a lot of time re-implementing it in buggy ways
-Sometimes just reading the documentation is the best...
 
 - Can we run ML algorithms in browser using MicroPython?
 Yes. PCA is working.
 ! No dynamic native modules (.mpy) in Webassembly port of MicroPython.
+emlearn-micropython now has browser build.
 https://github.com/emlearn/emlearn-micropython/issues/41
-
-All C modules must be included in the build.
-Slightly different interface. Possible to do both with some ifdefs
-WIP: RandomForest training module for emlearn, to do training in browser. MR
-https://github.com/emlearn/emlearn-micropython/pull/45
-
-
 
 
 # Notes
