@@ -16,7 +16,12 @@ Dual RTX 5060 TI 16gb
 Quad RTX 5060 TI 16gb
 
 - X870 motherboards candidate for affordable DDR5/AM5 for quad GPU setup, with 4x PCIE Gen 5 x4
-- Hardware not available yet. Only preliminary testing done with PCIE Gen 4 x8x8x4x4
+- Hardware not available yet. Only preliminary testing done with PCIE Gen 4 x8x8x4x4 (one x4 on motherboard, not CPU)
+
+## Testing Qwen 3.8 27B - TODO
+
+Looks like a considerable upgrade over 3.6 27B for agentic coding.
+
 
 ## Verifying practical performance - TODO
 
@@ -51,7 +56,79 @@ https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/READ
 
 Supports getting logprobs, can probably compute KL divergence etc?
 
-## Evaluating
+## Quad GPU using CPU PCIE lanes - TODO
+
+On X570-F Gaming.
+Did not boot with a GPU in the secondary M.2 slot (shared with motherboard).
+
+Did a quick check on x4x4x4x4 bifurcation. Two cards plugged in and showed up.
+Four cards not yet tested.
+
+Will also try x8x4x4 bifurcation + x4 via main M.2 slot.
+
+Hoping to get a small speed improvement with all CPU PCIE lanes,
+compared to previous tests with one GPU on x4 shared with motherboard.
+Need to test both TP4 and TP2/PP2.
+
+## Cable management issues with ADT Link F43 + R34A
+
+Trying to integrate a quad GPU into a 4U rack server using  Inter-tech IPC 4W2 MINING-RACK.
+ 
+Had ordered ADT Link F43SP/F43SD PCIE adapter boards.
+These use M.2 based connectors and a 50 cm FFC flat cable.
+The FFC cables are very stiff and make cable management difficult, especially if needing to make turns.
+The ADT-Link R34A PCIe 5.0 x16 to 4-Port M.2 NVMe SSD Splitter Card also has the M.2 slots facing up,
+requring a sharp 90 degree turn.
+
+So the R34A is not really usable with the F43SP variant we have.
+Would have to order a version which is angled exactly right in each end (if it exists).
+The F43SW variant seem to have a FFC cable split in 2. Might not be flexible enough either...
+And the F43SP can only meaningfully be used on M.2 slots
+
+Additionally the GPUs are reverse mounted in the 4W2, making the cable path longer than intended.
+This means that 50 cm might be too short for this configuration, even with correct cable path.
+
+Better options for PCIE Gen 4 might be:
+
+1. PCIE x16 to 4x Oculink connectors, Oculink to Oculink cables, and a Oculink x16 boards.
+2. PCIE x16 to 4x SlimSAS 4i connectors, SlimSAS 4i cables, and SlimSAS 4i boards.
+3. PCIE x16 to 2x SlimSAS 8i connectors, SlimSAS 8i to 2x Oculink cables, and Oculink x16 boards.
+4. PCIE x16 to 2x MICO 8i connectors, MICO 8i to 2x Oculink cables, and Oculink x16 boards. More Gen 5 ready.
+5. PCIE x16 to M.2, M.2 to Oculink with cables and redriver (ADT K49SQ), Oculink x16 boards.
+
+Example PCIE x16 to 2x SlimSAS 8i: ADT-Link 34B. LinkReal LRNV9F24 (retimer).
+
+LRNV95NF-L. PCIex16 to quad-port M.2 - facing backwards! No need for 
+
+Example SlimSAS 8i to 2x Oculink cables: ADT-Link SAS-8654-030-80cm.
+ADT-Link have successfully tested this for 4 times 4x split.
+
+SlimSAS x16 to 4x 4i connectors. ADT-Link "8654 to PCIe 4.0x16".
+SlimSAS 4i to ADT-Link "N-8654E-full".
+SlimSAS 4i possible to get in 50/80/100cm.
+
+Multi-card backplanes for SlimSAS exists.
+But card-to-card distance often low.
+
+In general, lots more SlimSAS and MCIO options for x8 compared to x4.
+
+MCIO 4i GPU dock. "EG01-A1" by ADT Link. Male connector fixed! No easy adapter to MCIO 8i female??
+
+## Getting quad PCIE Gen 5 4x x4 from x16 slot.
+
+On a X870 or similar type motherboard.
+
+PCIe 5.0 x16 to Internal 2*MCIO 8i.
+Linkreal LRSV9560-2I retimer.
+Linkreal LRSV9570-2I retimer.
+
+Gen5 MCIO 8X 8I 74P to Dual Oculink.
+
+? can 50cm cable length be enough between x16 adapters and GPU mount?
+Longest easily available with Oculink. Ex ADT-Link K993G
+
+
+## Evaluating nvidia/Qwen3.6-27B-NVFP4
 
 Released 30.06.2026
 https://huggingface.co/nvidia/Qwen3.6-27B-NVFP4
@@ -158,6 +235,13 @@ NOTE: running without overclock
 
 Acceptable performance, though was able to get 1067.8 output tokens per sec
 with sakamakismile (on other machine).
+
+## Ensuring Qwen 3.6 27B works well in practice
+
+People are reporting issues and different ways to fix
+
+https://www.reddit.com/r/LocalLLaMA/comments/1uplzs7/qwen3627b_nvfp4fp8_agent_loops_vs_flawless_bf16/
+https://www.reddit.com/r/LocalLLaMA/comments/1uphzhj/qwen_36_27b_absolutely_fails_at_agentic_work/
 
 
 ## Evaluating unsloth/Qwen3.6-27B-NVFP4 - too big for 32GB VRAM
@@ -478,15 +562,14 @@ Must use the chipset slot for now (M2_2 or PCIE_16).
 Maybe move NVME into SATA enclosure? Or could even use USB...
 
 First try.
-Using 4th card plugged into M.2 
+Using 4th card plugged into M.2
 Showing in lspci, but not in nvidia-smi.
 
 Was unable to booth with NVME in SATA adapter.
 Disk was not seen in BIOS.
 Using USB-C NVME adapter worked, but only with USB-C to Type A adapter - not with C to C cable.
 
-After forcing the M2 slots to Gen 4 in BIOS,
-can boot.
+After forcing the M2 slots to Gen 4 in BIOS, can boot.
 
 ! was seeing a bit sluggish behavior when connecting over SSH.
 
