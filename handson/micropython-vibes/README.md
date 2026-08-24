@@ -70,6 +70,63 @@ Hoping to get a small speed improvement with all CPU PCIE lanes,
 compared to previous tests with one GPU on x4 shared with motherboard.
 Need to test both TP4 and TP2/PP2.
 
+! had to configure bifurcation on both slots
+
+There are now official vLLM recipies for Qwen3.8-27B in vLLM. Including for Blackwell (1x and 2x 5090).
+https://recipes.vllm.ai/Qwen/Qwen3.8-27B
+
+```
+docker run --rm --name vllm   --gpus '"device=0,1,2,3"'   -v /home/jon/models/vllm/cache/huggingface:/root/.cache/huggingface  --env "HF_TOKEN=$HF_TOKEN" -p 8000:8000 --ipc=host \
+  vllm/vllm-openai:nightly  Qwen/Qwen3.8-27B-FP8 \
+  --tensor-parallel-size 4 \
+  --enable-auto-tool-choice \
+  --max-model-len 128000   --max-num-batched-tokens 8192 --max-num-seqs 4 --gpu-memory-utilization 0.96 \
+  --kv-cache-dtype fp8 \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":3}' \
+  --tool-call-parser qwen3_coder \
+  --reasoning-parser qwen3 \
+  --mm-encoder-tp-mode data
+```
+
+All GPUs are connected at PCIE root. NVME is via the motherboard switch.
+```
+jon@soundsensing-gpu-2:~$ lspci -tv
+-[0000:00]-+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex
+           +-00.2  Advanced Micro Devices, Inc. [AMD] Starship/Matisse IOMMU
+           +-01.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge
+
+           +-01.1-[01]--+-00.0  NVIDIA Corporation Device 2d04
+           |            \-00.1  NVIDIA Corporation Device 22eb
+
+           +-01.2-[02-08]----00.0-[03-08]--+-02.0-[04]----00.0  Kingston Technology Company, Inc. FURY Renegade NVMe SSD + Heatsink [E18]
+           |                               +-05.0-[05]----00.0  Intel Corporation I211 Gigabit Network Connection
+           |                               +-08.0-[06]--+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Reserved SPP
+           |                               |            +-00.1  Advanced Micro Devices, Inc. [AMD] Matisse USB 3.0 Host Controller
+           |                               |            \-00.3  Advanced Micro Devices, Inc. [AMD] Matisse USB 3.0 Host Controller
+           |                               +-09.0-[07]----00.0  Advanced Micro Devices, Inc. [AMD] FCH SATA Controller [AHCI mode]
+           |                               \-0a.0-[08]----00.0  Advanced Micro Devices, Inc. [AMD] FCH SATA Controller [AHCI mode]
+
+           +-03.1-[09]--+-00.0  NVIDIA Corporation Device 2d04
+           |            \-00.1  NVIDIA Corporation Device 22eb
+           +-03.2-[0a]--+-00.0  NVIDIA Corporation Device 2d04
+           |            \-00.1  NVIDIA Corporation Device 22eb
+           +-03.3-[0b]--+-00.0  NVIDIA Corporation Device 2d04
+           |            \-00.1  NVIDIA Corporation Device 22eb
+
+```
+
+Link widths are x8x4x4x4
+```
+jon@soundsensing-gpu-2:~$ nvidia-smi --query-gpu=index,pci.bus_id,name,pcie.link.gen.current,pcie.link.width.current --format=csv
+index, pci.bus_id, name, pcie.link.gen.current, pcie.link.width.current
+0, 00000000:01:00.0, NVIDIA GeForce RTX 5060 Ti, 1, 4
+1, 00000000:09:00.0, NVIDIA GeForce RTX 5060 Ti, 1, 8
+2, 00000000:0A:00.0, NVIDIA GeForce RTX 5060 Ti, 1, 4
+3, 00000000:0B:00.0, NVIDIA GeForce RTX 5060 Ti, 1, 4
+```
+
+The "50 cm" Occulink cables could reach between GPUs at both ends of chassis.
+
 ## Cable management issues with ADT Link F43 + R34A
 
 Trying to integrate a quad GPU into a 4U rack server using  Inter-tech IPC 4W2 MINING-RACK.
@@ -93,7 +150,7 @@ Better options for PCIE Gen 4 might be:
 1. PCIE x16 to 4x Oculink connectors, Oculink to Oculink cables, and a Oculink x16 boards.
 2. PCIE x16 to 4x SlimSAS 4i connectors, SlimSAS 4i cables, and SlimSAS 4i boards.
 3. PCIE x16 to 2x SlimSAS 8i connectors, SlimSAS 8i to 2x Oculink cables, and Oculink x16 boards.
-4. PCIE x16 to 2x MICO 8i connectors, MICO 8i to 2x Oculink cables, and Oculink x16 boards. More Gen 5 ready.
+4. PCIE x16 to 2x MCIO 8i connectors, MCIO 8i to 2x Oculink cables, and Oculink x16 boards. More Gen 5 ready.
 5. PCIE x16 to M.2, M.2 to Oculink with cables and redriver (ADT K49SQ), Oculink x16 boards.
 
 Example PCIE x16 to 2x SlimSAS 8i: ADT-Link 34B. LinkReal LRNV9F24 (retimer).
@@ -121,12 +178,14 @@ On a X870 or similar type motherboard.
 PCIe 5.0 x16 to Internal 2*MCIO 8i.
 Linkreal LRSV9560-2I retimer.
 Linkreal LRSV9570-2I retimer.
+CEACENT CNT52PE16 PCIe 5.0 Retimer (NOK 1385,12) !
 
 Gen5 MCIO 8X 8I 74P to Dual Oculink.
 
 ? can 50cm cable length be enough between x16 adapters and GPU mount?
 Longest easily available with Oculink. Ex ADT-Link K993G
 
+With retimer, 
 
 ## Evaluating nvidia/Qwen3.6-27B-NVFP4
 
