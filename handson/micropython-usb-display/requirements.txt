@@ -1,0 +1,5 @@
+prometheus_client
+mpremote
+pillow
+numpy
+pydantic_settings

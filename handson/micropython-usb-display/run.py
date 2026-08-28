@@ -1,70 +1,84 @@
-#!/usr/bin/env python3
-"""
-Benchmark: send a base64-encoded 128x64 SSD1306 frame via mpremote's raw REPL
-and time round-trip latency for exec() + decode + blit + show.
 
-Usage: python3 bench.py /dev/ttyUSB0
-"""
-import sys
+from display import OledDisplay
+from PIL import Image, ImageDraw
+import numpy as np
 import time
-import base64
-import random
-from mpremote.transport_serial import SerialTransport
 
-PORT = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyUSB0"
-N_FRAMES = 100
-FRAME_SIZE = 1024  # 128*64/8
+from pydantic import Field
+from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
-def random_frame():
-    return bytes(random.getrandbits(8) for _ in range(FRAME_SIZE))
+
+
+#import requests
+#from prometheus_client.parser import text_string_to_metric_families
+
+
+WIDTH, HEIGHT = 128, 64
+
+def render_frame(cpu_pct: float, mem_pct: float, hostname: str) -> np.ndarray:
+    img = Image.new("1", (WIDTH, HEIGHT), 0)
+    draw = ImageDraw.Draw(img)
+
+    draw.text((0, 0), hostname, fill=1)
+    draw.text((0, 12), f"CPU: {cpu_pct:5.1f}%", fill=1)
+    draw.text((0, 22), f"MEM: {mem_pct:5.1f}%", fill=1)
+
+    bar_x, bar_w, bar_h = 70, 50, 8
+    draw.rectangle([bar_x, 12, bar_x + bar_w, 12 + bar_h], outline=1, fill=0)
+    draw.rectangle([bar_x, 12, bar_x + int(bar_w * cpu_pct / 100), 12 + bar_h], fill=1)
+
+    draw.rectangle([bar_x, 22, bar_x + bar_w, 22 + bar_h], outline=1, fill=0)
+    draw.rectangle([bar_x, 22, bar_x + int(bar_w * mem_pct / 100), 22 + bar_h], fill=1)
+
+    draw.line([0, 40, WIDTH - 1, 40], fill=1)
+    draw.text((0, 48), "uptime: 3d 4h", fill=1)
+
+    return np.array(img, dtype=np.uint8)
+
+class Config(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="OLED_",
+        cli_parse_args=True,
+    )
+
+    metrics_url: str = Field(
+        default="http://localhost:9090/metrics",
+        description="Prometheus metrics endpoint to scrape",
+    )
+    serial_port: str = Field(
+        default="/dev/ttyACM0",
+        description="Serial device path for the OLED display",
+    )
+    scl_pin: int = Field(default=17, description="I2C SCL pin")
+    sda_pin: int = Field(default=18, description="I2C SDA pin")
 
 def main():
-    print(f"Connecting to {PORT}...")
-    t = SerialTransport(PORT)
-    t.enter_raw_repl()
+    config = CliApp.run(Config)
 
-    setup_code = """
-import ssd1306, ubinascii
-from machine import Pin, I2C
-if 'oled' not in globals():
-    i2c = I2C(0, scl=Pin(17), sda=Pin(18), freq=400000)
-    oled = ssd1306.SSD1306_I2C(128, 64, i2c)
-"""
-    t.exec(setup_code)
-    print("Remote setup done. Starting benchmark...")
 
-    latencies = []
-    for i in range(N_FRAMES):
-        frame = random_frame()
-        b64 = base64.b64encode(frame).decode()
+    #resp = requests.get(config.metrics_url)
+    #for family in text_string_to_metric_families(resp.text):
+    #    for sample in family.samples:
+    #        print(sample.name, sample.labels, sample.value)
 
-        cmd = f"oled.buffer[:] = ubinascii.a2b_base64({b64!r}); oled.show()"
 
-        t0 = time.perf_counter()
-        t.exec(cmd)
-        t1 = time.perf_counter()
+    with OledDisplay(config.serial_port,
+        scl_pin=config.scl_pin,
+        sda_pin=config.sda_pin) as link:
 
-        latencies.append(t1 - t0)
-        print(f"frame {i:3d}: {(t1 - t0) * 1000:.1f} ms")
+        for i in range(50):
+            frame = render_frame(
+                cpu_pct=40 + 20 * (i % 10) / 10,
+                mem_pct=60,
+                hostname="myserver",
+            )
+            t0 = time.perf_counter()
+            link.send_frame(frame)
+            elapsed = time.perf_counter() - t0
+            print(f"frame {i}: {elapsed*1000:.1f} ms")
+            time.sleep(0.1)
 
-    t.exit_raw_repl()
-    t.close()
-
-    latencies.sort()
-    n = len(latencies)
-    avg = sum(latencies) / n
-    p50 = latencies[n // 2]
-    p95 = latencies[int(n * 0.95)]
-    worst = latencies[-1]
-    best = latencies[0]
-
-    print("\n--- Results ---")
-    print(f"frames:      {n}")
-    print(f"best:        {best*1000:.1f} ms")
-    print(f"avg:         {avg*1000:.1f} ms  ({1/avg:.1f} Hz)")
-    print(f"median:      {p50*1000:.1f} ms  ({1/p50:.1f} Hz)")
-    print(f"p95:         {p95*1000:.1f} ms  ({1/p95:.1f} Hz)")
-    print(f"worst:       {worst*1000:.1f} ms")
 
 if __name__ == "__main__":
     main()
+
