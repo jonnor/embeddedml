@@ -75,26 +75,59 @@ class RateMeter:
 
 from PIL import Image, ImageDraw, ImageFont
 
-def render_frame(cpu_pct: float, mem_pct: float, hostname: str, width=128, height=64) -> np.ndarray:
+class FrameRenderer():
 
-    font_tiny = ImageFont.truetype("DejaVuSansMono.ttf", 10)
-    font_small = ImageFont.truetype("DejaVuSansMono.ttf", 12)
+    def __init__(self, token_generation_max=1000, token_read_rate_max=3000):
+        # avoid font loading on every frame
+        self.font_tiny = ImageFont.truetype("DejaVuSansMono.ttf", 10)
+        self.font_small = ImageFont.truetype("DejaVuSansMono.ttf", 12)
+        self.width = 128
+        self.height = 64
+        self.token_generation_max = token_generation_max
+        self.token_read_rate_max = token_read_rate_max
+
+    def render_bar(self, draw, value : float, x=0, y=0, width=None, height=10):
+        if width is None:
+            width = self.width
+
+        # outline
+        draw.rectangle([x, y, x + width, y + height], outline=1, fill=0)
+
+        # bar
+        draw.rectangle([x, y, x + int(width * value), y + height], fill=1)
 
 
-    img = Image.new("1", (width, height), 0)
-    draw = ImageDraw.Draw(img)
+    def render_frame(self, token_generation_rate: float,
+            token_read_rate : float,    
+            model: str,
+            concurrent_requests: int) -> np.ndarray:
 
-    draw.text((0, 0), hostname, fill=1, font=font_tiny)
-    draw.line([0, 12, width - 1, 10], fill=1)
+        tps = token_generation_rate
+        width, height = self.width, self.height
 
-    draw.text((0, 14), f"CPU: {cpu_pct:5.1f}%", fill=1, font=font_small)
+        img = Image.new("1", (width, height), 0)
+        draw = ImageDraw.Draw(img)
 
-    bar_x, bar_w, bar_h = 0, 100, 20
-    bar_y = 28
-    draw.rectangle([bar_x, bar_y, bar_x + bar_w, bar_y + bar_h], outline=1, fill=0)
-    draw.rectangle([bar_x, bar_y, bar_x + int(bar_w * cpu_pct / 100), bar_y + bar_h], fill=1)
+        # Show model name
+        draw.text((0, 0), model, fill=1, font=self.font_tiny)
+        line_y = 12
+        draw.line([0, line_y, width - 1, line_y], fill=1)
 
-    return np.array(img, dtype=np.uint8)
+        # Show tokens generated
+        draw.text((0, 14), f"Gen: {token_generation_rate:6.0f} tok/s", fill=1, font=self.font_small)
+        gen_scaled = (token_generation_rate / self.token_generation_max)
+        self.render_bar(draw, value=gen_scaled, y=28, height=8)
+
+        # read
+        draw.text((0, 40), f"Read: {token_read_rate:5.0f} tok/s", fill=1, font=self.font_small)
+        read_scaled = (token_read_rate / self.token_read_rate_max)
+        self.render_bar(draw, value=read_scaled, y=52, height=8)
+
+        # concurrency
+        #y = 40
+        #draw.text((0, y), f"Streams: {concurrent_requests:6.0f}", fill=1, font=self.font_small)
+
+        return np.array(img, dtype=np.uint8)
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
@@ -113,49 +146,87 @@ class Config(BaseSettings):
     scl_pin: int = Field(default=17, description="I2C SCL pin")
     sda_pin: int = Field(default=18, description="I2C SDA pin")
 
-def main():
-    config = CliApp.run(Config)
+    meter_time_constant: float = 1.0
+
+    log_interval_frame: int = 5
 
 
-    metrics_url = config.metrics_url
+def fetch_metrics(metrics_url):
+
     if metrics_url.startswith('http'):
         data = requests.get(metrics_url).text
 
     else:
+        # Supports loading from a local file. For test/development
         with open(metrics_url) as f:
             data = f.read()
 
-    value = None
+    tokens_generated = None
+    num_requests_running = None
+
+    # Parse Prometheus
+    metrics = {}
     for family in text_string_to_metric_families(data):
         for sample in family.samples:
-            if sample.name == 'vllm:generation_tokens_total':
-                #print(sample.name, sample.labels, sample.value)
-                value = sample.value
+            # NOTE: ignores sample.labels
+            metrics[sample.name] = sample.value
 
-    meter = RateMeter(time_constant=1.0)
+    concurrent_requests = int(metrics['vllm:num_requests_running']) + \
+        int(metrics['vllm:num_requests_waiting'])
 
-    print('value', value/10)
-    meter.update(0) # start at 0
-    time.sleep(0.1)
+    prompt_tokens_total = int(metrics['vllm:prompt_tokens_total'])
 
+    tokens_generated = int(metrics['vllm:generation_tokens_total'])
+
+    return tokens_generated, prompt_tokens_total, concurrent_requests
+
+    
+def main():
+    config = CliApp.run(Config)
+
+    gen_meter = RateMeter(time_constant=config.meter_time_constant)
+    read_meter = RateMeter(time_constant=config.meter_time_constant)
+    renderer = FrameRenderer(token_generation_max=500)
+    frame_log_interval = config.log_interval_frame
 
     with OledDisplay(config.serial_port,
         scl_pin=config.scl_pin,
         sda_pin=config.sda_pin) as link:
 
-        for i in range(50):
-            tps = meter.update(value/10)
-
-            frame = render_frame(
-                cpu_pct=tps,
-                mem_pct=60,
-                hostname="Qwen-3.8-27B (vLLM)",
-            )
+        frame_no = 0
+        while True:
             t0 = time.perf_counter()
-            link.send_frame(frame)
+
+            total_tokens_generated, prompt_tokens_total, concurrent_requests = \
+                fetch_metrics(config.metrics_url)
+
+            token_generation_rate = gen_meter.update(total_tokens_generated)
+            token_read_rate = read_meter.update(prompt_tokens_total)
+
+            if token_generation_rate is not None:
+                frame = renderer.render_frame(
+                    model="Qwen-3.8-27B (vLLM)",
+                    token_generation_rate=token_generation_rate,
+                    token_read_rate=token_read_rate,
+                    concurrent_requests=concurrent_requests,
+                )
+                link.send_frame(frame)
+
             elapsed = time.perf_counter() - t0
-            print(f"frame {i}: {elapsed*1000:.1f} ms")
-            time.sleep(0.1)
+
+            if (frame_no % frame_log_interval) == 0:
+
+                logger.info('frame',
+                    i=frame_no,
+                    token_generation_rate=None if token_generation_rate is None else round(token_generation_rate, 1),
+                    token_read_rate=None if token_read_rate is None else round(token_read_rate, 1),
+                    total_tokens_generated=total_tokens_generated,
+                    prompt_tokens_total=prompt_tokens_total,
+                    duration=round(elapsed, 3),
+                )
+
+            time.sleep(0.250)
+            frame_no += 1
 
 
 if __name__ == "__main__":
