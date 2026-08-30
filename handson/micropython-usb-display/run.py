@@ -7,31 +7,92 @@ import time
 from pydantic import Field
 from pydantic_settings import BaseSettings, CliApp, SettingsConfigDict
 
+import requests
+from prometheus_client.parser import text_string_to_metric_families
 
 
-#import requests
-#from prometheus_client.parser import text_string_to_metric_families
+import math
+import time
+from typing import Optional
+
+import structlog
+
+logger = structlog.get_logger()
 
 
-WIDTH, HEIGHT = 128, 64
+class RateMeter:
+    """
+    Tracks the rate of change of a monotonically increasing total,
+    smoothed with first-order exponential smoothing (EMA), robust to
+    irregular call intervals.
+    """
 
-def render_frame(cpu_pct: float, mem_pct: float, hostname: str) -> np.ndarray:
-    img = Image.new("1", (WIDTH, HEIGHT), 0)
+    def __init__(self, time_constant: float = 5.0):
+        self.time_constant = time_constant
+        self._prev_total: Optional[float] = None
+        self._prev_time: Optional[float] = None
+        self._smoothed_rate: Optional[float] = None
+
+    def update(self, total: float, now: Optional[float] = None) -> Optional[float]:
+        if now is None:
+            now = time.time()
+
+        if self._prev_total is None:
+            self._prev_total = total
+            self._prev_time = now
+            return None
+
+        dt = now - self._prev_time
+        if dt <= 0:
+            logger.warning(
+                "ratemeter_non_positive_dt",
+                dt=dt,
+                now=now,
+                prev_time=self._prev_time,
+            )
+            return self._smoothed_rate
+
+        instant_rate = (total - self._prev_total) / dt
+
+        if self._smoothed_rate is None:
+            self._smoothed_rate = instant_rate
+        else:
+            alpha = 1 - math.exp(-dt / self.time_constant)
+            self._smoothed_rate += alpha * (instant_rate - self._smoothed_rate)
+
+        self._prev_total = total
+        self._prev_time = now
+        return self._smoothed_rate
+
+    @property
+    def rate(self) -> Optional[float]:
+        return self._smoothed_rate
+
+    def reset(self):
+        self._prev_total = None
+        self._prev_time = None
+        self._smoothed_rate = None
+
+from PIL import Image, ImageDraw, ImageFont
+
+def render_frame(cpu_pct: float, mem_pct: float, hostname: str, width=128, height=64) -> np.ndarray:
+
+    font_tiny = ImageFont.truetype("DejaVuSansMono.ttf", 10)
+    font_small = ImageFont.truetype("DejaVuSansMono.ttf", 12)
+
+
+    img = Image.new("1", (width, height), 0)
     draw = ImageDraw.Draw(img)
 
-    draw.text((0, 0), hostname, fill=1)
-    draw.text((0, 12), f"CPU: {cpu_pct:5.1f}%", fill=1)
-    draw.text((0, 22), f"MEM: {mem_pct:5.1f}%", fill=1)
+    draw.text((0, 0), hostname, fill=1, font=font_tiny)
+    draw.line([0, 12, width - 1, 10], fill=1)
 
-    bar_x, bar_w, bar_h = 70, 50, 8
-    draw.rectangle([bar_x, 12, bar_x + bar_w, 12 + bar_h], outline=1, fill=0)
-    draw.rectangle([bar_x, 12, bar_x + int(bar_w * cpu_pct / 100), 12 + bar_h], fill=1)
+    draw.text((0, 14), f"CPU: {cpu_pct:5.1f}%", fill=1, font=font_small)
 
-    draw.rectangle([bar_x, 22, bar_x + bar_w, 22 + bar_h], outline=1, fill=0)
-    draw.rectangle([bar_x, 22, bar_x + int(bar_w * mem_pct / 100), 22 + bar_h], fill=1)
-
-    draw.line([0, 40, WIDTH - 1, 40], fill=1)
-    draw.text((0, 48), "uptime: 3d 4h", fill=1)
+    bar_x, bar_w, bar_h = 0, 100, 20
+    bar_y = 28
+    draw.rectangle([bar_x, bar_y, bar_x + bar_w, bar_y + bar_h], outline=1, fill=0)
+    draw.rectangle([bar_x, bar_y, bar_x + int(bar_w * cpu_pct / 100), bar_y + bar_h], fill=1)
 
     return np.array(img, dtype=np.uint8)
 
@@ -56,10 +117,26 @@ def main():
     config = CliApp.run(Config)
 
 
-    #resp = requests.get(config.metrics_url)
-    #for family in text_string_to_metric_families(resp.text):
-    #    for sample in family.samples:
-    #        print(sample.name, sample.labels, sample.value)
+    metrics_url = config.metrics_url
+    if metrics_url.startswith('http'):
+        data = requests.get(metrics_url).text
+
+    else:
+        with open(metrics_url) as f:
+            data = f.read()
+
+    value = None
+    for family in text_string_to_metric_families(data):
+        for sample in family.samples:
+            if sample.name == 'vllm:generation_tokens_total':
+                #print(sample.name, sample.labels, sample.value)
+                value = sample.value
+
+    meter = RateMeter(time_constant=1.0)
+
+    print('value', value/10)
+    meter.update(0) # start at 0
+    time.sleep(0.1)
 
 
     with OledDisplay(config.serial_port,
@@ -67,10 +144,12 @@ def main():
         sda_pin=config.sda_pin) as link:
 
         for i in range(50):
+            tps = meter.update(value/10)
+
             frame = render_frame(
-                cpu_pct=40 + 20 * (i % 10) / 10,
+                cpu_pct=tps,
                 mem_pct=60,
-                hostname="myserver",
+                hostname="Qwen-3.8-27B (vLLM)",
             )
             t0 = time.perf_counter()
             link.send_frame(frame)

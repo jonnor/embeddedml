@@ -3,3 +3,5 @@ mpremote
 pillow
 numpy
 pydantic_settings
+requests
+structlog
