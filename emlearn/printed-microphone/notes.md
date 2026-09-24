@@ -66,8 +66,24 @@ And there should be a way to lock the rotation of the plate.
 Especially since the angle influences the function of the carbon rods.
 Thumb screws on the outside?
 
-TODO: test sound with the printed carbon rods
+Sept 25, 2026.
+Tested sound with the printed carbon rods.
+Used an opamp breakout board and a USB sound card.
+Lots of noise with this USB sound card. Seems somewhat independent of the opamp and microphone.
 
+It is not really possible to make out any words at all.
+Signal is very weak wrt the noise.
+
+Resistance of each printed rod is around 1kohm, when using crocodile clamps (best case wrt surface resistance).
+Getting appropriate amount of tension on the rods to get down to 20 kohm total resistance difficult.
+Too high to give good signal. And too high impedance to be able to connect directly to 3.5 mm.
+Tensioning mechanism not working well.
+
+It might be better to go back to pencil grafite rods or similar.
+The 2x2 rod setup can probably be kept, to reduce risk of crackling.
+But perhaps the hanging arrangement is also easier to adjust/tune.
+
+https://www.ark.no/produkt/kullstift-art-creation-14cm-10stk-8712079344252
 
 ### First test
 Jan 01, 2024.
